@@ -119,10 +119,13 @@ var ui = {
     nick_exists = user.nick != '';
     show_jid = user.user + (!user.local ? '@'+user.domain : '');
 
-    return nick_exists ?
-           ('<span class="user-jid user-alt-jid">' + show_jid + '</span>' +
-           '<span class="user-nick user-alt-nick">' + user.nick + '</span>') :
-           '<span class="user-jid">' + show_jid + '</span>';
+    return '<span class="user-role-' + user.role +
+           ' user-affiliation-' + user.affiliation + '">' +
+           (nick_exists ?
+             ('<span class="user-jid user-alt-jid">' + show_jid + '</span>' +
+             '<span class="user-nick user-alt-nick">' + user.nick + '</span>') :
+             '<span class="user-jid">' + show_jid + '</span>'
+           ) + '</span>'
   },
 
   setSetting: function(setting, value) {

@@ -89,17 +89,28 @@ var xmpp = {
     return addr;
   },
 
-  registerFullJid: function (jidMuc, jidFull) {
+  registerParticipant: function (jidMuc, jidFull) {
     var addrMuc = this.parseJid(jidMuc);
-    var addrFull = this.parseJid(jidFull);
-    var user = {
-      inroom: true,
-      nick: addrMuc.resource,
-      user: addrFull.node,
-      domain: addrFull.domain,
-      client: addrFull.resource,
-      local: addrFull.domain == config.xmpp.domain
-    };
+    var user;
+    if (jidFull) {
+      var addrFull = this.parseJid(jidFull);
+      user = {
+        inroom: true,
+        nick: addrMuc.resource,
+        user: addrFull.node,
+        domain: addrFull.domain,
+        client: addrFull.resource,
+        local: addrFull.domain == config.xmpp.domain
+      };
+    }
+    else {
+      user = {
+        inroom: true,
+        nick: addrMuc.resource,
+        user: '[' + addrMuc.resource + ']',
+        local: true,
+      };
+    }
     this.roster[user.nick] = user;
     this.nickByJid[jidFull] = this.nickByJid[jidMuc] = user;
     return user;
@@ -165,22 +176,27 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        stanza = $(stanza);
-        var from = stanza.attr('from');
-        var fullJid = $('item', stanza).attr('jid');
-        var user;
-        var isMe = $('status', stanza).attr('code') == 110;
-        if (isMe) {
-          self.rosterReceived = true;
-          user = self.registerFullJid(from, self.jid);
-        }
-        else if (fullJid) {
-          user = self.registerFullJid(from, fullJid);
+        var from = $(stanza).attr('from');
+        var user, fullJid;
+        var item = $(stanza).find('item');
+        if (item.attr('role')) {
+          extra = {
+            jid: item.attr('jid'),
+            role: item.attr('role'),
+            affiliation: item.attr('affiliation'),
+          };
+          if ($('status', stanza).attr('code') == 110) {
+            self.rosterReceived = true;
+            extra.jid = self.jid;
+          }
+          user = self.registerParticipant(from, extra.jid);
+          user.role = extra.role;
+          user.affiliation = extra.affiliation;
         }
         else {
           user = self.identifyJid(from);
         }
-        var exit = stanza.attr('type') == 'unavailable';
+        var exit = $(stanza).attr('type') == 'unavailable';
         var available = ['away', 'dnd', 'xa'].indexOf($('show', stanza).text()) < 0;
         var status = exit ? 'offline' : (available ? 'online' : 'away');
         if (user.inroom) {
