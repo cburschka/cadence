@@ -14,6 +14,12 @@ var chat = {
         pass = pass.substring(1, pass.length-1);
       }
       xmpp.newConnection(user, pass);
+    },
+    quit: function(arg) {
+      if (xmpp.status != 'online') {
+        return ui.messageAddError('/quit: You are not connected.');
+      }
+      xmpp.disconnect();
     }
   },
 
