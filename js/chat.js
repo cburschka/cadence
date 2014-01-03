@@ -91,7 +91,6 @@ var ajaxChat = {
   DOMbufferRowClass: 'rowOdd',
   dronesRioting: null,
   userLinks: [],
-  chatListHeight: null,
 
   init: function(config, lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
     console.log('Initializing ajaxChat');
@@ -271,7 +270,6 @@ var ajaxChat = {
       this.initializeFunction();
     }
     this.loadSounds();
-    this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     ui.initialize();
     xmpp.initialize();
   },

@@ -12,34 +12,44 @@ var xmpp = {
   nickByJid: {},
 
   initialize: function() {
-    this.discoverRooms = this.eventDiscoverRooms();
-    this.initializeConnection();
-  },
-
-  initializeConnection: function() {
-    /* TODO: strophe can attach to an existing BOSH session.
-      can we use this to somehow unify forum/chat sessions? */
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
-
     // DEBUG: print connection stream to console:
     //this.connection.rawInput = function(data) { console.log("RECV " + data) }
     //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
-    this.resource = this.createResourceName();
-    this.jid = config.xmpp.user + '@' + config.xmpp.domain + '/' + this.resource;
-    this.currentNick = config.xmpp.user;
-    this.connection.addHandler(this.eventPresenceCallback(), null, 'presence');
-    this.connection.addHandler(this.eventMessageCallback(), null, 'message');
+    this.eventDiscoverRooms = this.eventDiscoverRooms();
+    this.eventConnectCallback = this.eventConnectCallback();
+    this.eventPresenceCallback = this.eventPresenceCallback();
+    this.eventMessageCallback = this.eventMessageCallback();
+    this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
+    this.connection.addHandler(this.eventMessageCallback, null, 'message');
     this.connection.addTimedHandler(30000, this.discoverRooms);
-    this.connection.connect(this.jid, config.xmpp.pass, this.eventConnectCallback());
+
+    // Try to attach to an old session. If it fails, initiate login.
+    this.resumeConnection();
+  },
+
+  resumeConnection: function() {
+    var session = localStorage.getItem('session');
+    if (session) {
+      this.session = JSON.parse(session);
+      this.connection.attach(this.session.jid, this.session.sid, this.session.rid, this.eventConnectCallback);
+      localStorage.removeItem('session');
+    }
+  },
+
+  newConnection: function(user, pass) {
+    this.session = {};
+    var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    this.connection.connect(jid, pass, this.eventConnectCallback());
   },
 
   pres: function() {
-    return $pres({from:this.jid});
+    return $pres({from:this.connection.jid});
   },
 
   msg : function() {
     return $msg({
-      from: this.jid,
+      from: this.connection.jid,
       to:   this.currentRoomJid,
       type: 'groupchat'
     });
@@ -47,36 +57,6 @@ var xmpp = {
 
   announce: function() {
     this.connection.send(this.pres());
-  },
-
-  eventDiscoverRooms: function() {
-    var self = this;
-    return function() {
-      self.connection.sendIQ(
-        $iq({
-          to:config.xmpp.muc_service,
-          type:'get'
-        })
-        .c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
-        function(stanza) {
-          var rooms = {};
-          $('item', stanza).each(function(s,t) {
-            t = $(t);
-            rooms[t.attr('jid').match(/^[^@]+/)[0]] = t.attr('name');
-          });
-          if (self.rooms != rooms) {
-            self.rooms = rooms;
-            ui.refreshRooms(self.rooms);
-            if (!self.currentRoom || !rooms[currentRoom])
-            room = config.xmpp.default_room;
-            $('#channelSelection').val(room);
-            self.changeRoom(room);
-          }
-        },
-        function() {}
-      );
-      return true;
-    }
   },
 
   createResourceName: function() {
@@ -172,6 +152,36 @@ var xmpp = {
     );
   },
 
+  eventDiscoverRooms: function() {
+    var self = this;
+    return function() {
+      self.connection.sendIQ(
+        $iq({
+          to:config.xmpp.muc_service,
+          type:'get'
+        })
+        .c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+        function(stanza) {
+          var rooms = {};
+          $('item', stanza).each(function(s,t) {
+            t = $(t);
+            rooms[t.attr('jid').match(/^[^@]+/)[0]] = t.attr('name');
+          });
+          if (self.rooms != rooms) {
+            self.rooms = rooms;
+            ui.refreshRooms(self.rooms);
+            if (!self.currentRoom || !rooms[currentRoom])
+            room = config.xmpp.default_room;
+            $('#channelSelection').val(room);
+            self.changeRoom(room);
+          }
+        },
+        function() {}
+      );
+      return true;
+    }
+  },
+
   eventPresenceCallback: function() {
     var self = this;
     return function(stanza) {
@@ -240,6 +250,9 @@ var xmpp = {
       if (self.status == 'online') {
         self.announce();
         self.discoverRooms();
+      }
+      else {
+        ui.addMessageInfo('Type /connect <user> <pass> to connect.');
       }
       return true;
     }
