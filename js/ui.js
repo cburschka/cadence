@@ -2,6 +2,7 @@ var ui = {
   userLinks: {},
   dom: null,
   roster: {},
+  chatListHeight: null,
 
   initialize: function() {
     this.dom = {
@@ -14,6 +15,8 @@ var ui = {
         return $(this).attr('rel').indexOf('style') >= 0;
       })
     };
+
+    this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
   },
 
@@ -57,10 +60,10 @@ var ui = {
 
   chatListAppend: function(text) {
     // Only autoscroll if we are at the bottom.
-    var scrolledDown = this.dom.chatList.scrollTop + this.chatListHeight == this.dom.chatList.scrollHeight;
+    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     this.dom.chatList.append(text);
     if(config.settings.autoScroll && scrolledDown) {
-      this.dom.chatList.scrollTop = this.dom.chatList.scrollHeight;
+      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
     }
   },
 
