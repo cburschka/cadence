@@ -1,11 +1,11 @@
 var chat = {
   commands: {
-    connect : function(arg) {
+    connect: function(arg) {
       if (xmpp.status != 'offline') {
         console.log(xmpp.status);
         return ui.messageAddError('/connect: You must disconnect first.');
       }
-      args = /^([^\s"&'\/:<>@]+)(.*)$/.exec(arg.trim());
+      args = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
       user = args[1];
       pass = args[2].trim();
       if (!user || !pass)
