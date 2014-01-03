@@ -61,11 +61,11 @@ var ui = {
   },
 
   messageAddSuccess: function(text) {
-    this.messageAddInfo('<span class="chatBotSuccessMessage">' + text + '</span>');
+    this.messageAddInfo('<span class="success">' + text + '</span>');
   },
 
   messageAddError: function(text) {
-    this.messageAddInfo('<span class="chatBotErrorMessage">' + text + '</span>');
+    this.messageAddInfo('<span class="error">' + text + '</span>');
   },
 
   messageAdd: function(text, time) {

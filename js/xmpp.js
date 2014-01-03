@@ -6,28 +6,31 @@ var xmpp = {
   jid: null,
   currentRoomJid: null,
   resource: null,
-  status: null,
+  status: 'offline',
   rosterReceived: false,
   roster: {},
   nickByJid: {},
 
   initialize: function() {
-    this.connection = new Strophe.Connection(config.xmpp.boshURL);
-    // DEBUG: print connection stream to console:
-    //this.connection.rawInput = function(data) { console.log("RECV " + data) }
-    //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
-    this.eventDiscoverRooms = this.eventDiscoverRooms();
+    this.discoverRooms = this.discoverRooms();
     this.eventConnectCallback = this.eventConnectCallback();
     this.eventPresenceCallback = this.eventPresenceCallback();
     this.eventMessageCallback = this.eventMessageCallback();
-    this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
-    this.connection.addHandler(this.eventMessageCallback, null, 'message');
-    this.connection.addTimedHandler(30000, this.discoverRooms);
-
+    this.initializeConnection();
     // Try to attach to an old session. If it fails, initiate login.
     if (!this.resumeConnection()) {
       ui.connectionFailureAlert();
     }
+  },
+
+  initializeConnection: function() {
+    this.connection = new Strophe.Connection(config.xmpp.boshURL);
+    this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
+    this.connection.addHandler(this.eventMessageCallback, null, 'message');
+    this.connection.addTimedHandler(30000, this.discoverRooms);
+    // DEBUG: print connection stream to console:
+    //this.connection.rawInput = function(data) { console.log("RECV " + data) }
+    //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
   },
 
   resumeConnection: function() {
@@ -43,6 +46,7 @@ var xmpp = {
 
   newConnection: function(user, pass) {
     this.session = {};
+    this.currentNick = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
     console.log("Connecting as", jid, pass);
     this.connection.connect(jid, pass, this.eventConnectCallback);
@@ -65,7 +69,7 @@ var xmpp = {
   },
 
   createResourceName: function() {
-    return 'strophe/' + hex_sha1(""+Math.random()).substr(0,4);
+    return 'strophe/' + hex_sha1(""+Math.random()).substr(0,6);
   },
 
   parseJid: function(jid) {
@@ -157,7 +161,7 @@ var xmpp = {
     );
   },
 
-  eventDiscoverRooms: function() {
+  discoverRooms: function() {
     var self = this;
     return function() {
       self.connection.sendIQ(
@@ -260,6 +264,8 @@ var xmpp = {
       else if (self.status == 'offline') {
         ui.messageAddError('XMPP: ' + msg);
         ui.connectionFailureAlert();
+        // The connection is closed and cannot be reused.
+        self.initializeConnection();
       }
       else ui.messageAddInfo('XMPP: ' + msg);
       return true;
@@ -304,6 +310,7 @@ var xmpp = {
 
   disconnect: function() {
     this.connection.send(this.pres().attrs({type: 'unavailable'}));
-    this.setStatus('offline')
+    this.connection.disconnect();
+    this.setStatus('offline');
   }
 }

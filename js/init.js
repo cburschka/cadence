@@ -1,6 +1,7 @@
 $(document).ready(function() {
   ui.initialize();
   xmpp.initialize();
+  $(window).unload(xmpp.disconnect);
 });
 
 
