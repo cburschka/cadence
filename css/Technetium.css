@@ -1,0 +1,133 @@
+@import url('global.css');
+@import url('fonts.css');
+@import url('print.css');
+
+@media screen,projection,handheld {
+
+  /* Buttons */
+  #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginForm #loginButton {
+    background-color:#0066B9;
+    color: #fff;
+    border: 1px solid #0066B9;
+  }
+  #content select, #loginForm select, #loginForm input, #content textarea {
+    color:#333333;
+    border: 1px solid #0066B9;
+  }
+
+
+  /* Other Theme Elements */
+  #loginContent {
+    background-color:#F1F1F1;
+    color:#E7E7E7;
+  }
+  #loginContent h1 {
+    color:#E7E7E7;
+  }
+  #loginContent a {
+    color:#822100;
+  }
+  #loginContent input, #loginContent select {
+    background-color:#FFF;
+    color:#E7E7E7;
+  }
+  #loginContent #errorContainer {
+    color:red;
+  }
+  #content {
+    background: url("../img/theme/Technetium/bg.png") repeat scroll 0 0 #161616;
+    color: #E7E7E7;
+  }
+  #content h1 {
+    color:#E7E7E7;
+  }
+  #content a {
+  color: #00ADEE;
+  text-decoration: none;
+  }
+  #content #chatlist a {
+  color: #00adee !important;
+  }
+  #content a:hover {
+  transition: all 0.1s ease-in 0s;
+  color: #00ADEE !important;
+  text-decoration: underline;
+  text-shadow: 0 0 3px #00ADEE;
+  }
+  #content input, #content select, #content textarea {
+    background: none repeat scroll 0 0 #161616;
+    border-color: #272727;
+    border-radius: 10px 10px 10px 10px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
+    color: #E7E7E7;
+  }
+  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
+    background: url("../img/theme/Technetium/stripe.png");
+    border-color: #272727;
+    border-radius: 10px 10px 10px 10px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
+    color: #E7E7E7;
+  }
+  #statusIconContainer {
+    box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
+  }
+  #content #bbCodeContainer input, #content #submitButton {
+    background: none repeat scroll 0 0 #161616;
+    border-color: #272727;
+    border-radius: 10px 10px 10px 10px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
+    color: #E7E7E7;
+  }
+  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #colorCodesContainer, #content textarea {
+    border-color:#0066B9;
+    background-color:#FFF;
+  }
+  #content #colorCodesContainer a {
+    border-color: #E7E7E7;
+  }
+  #content #optionsContainer input {
+      background-color:transparent;
+  }
+  #content .rowEven {
+    background-color:#F1F1F1;
+  }
+  #content .rowOdd:hover {
+  box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
+  transition-duration: 0.1s;
+  transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
+  }
+  #content .guest {
+    color:#E7E7E7;
+  }
+  #content .user {
+    color:#E7E7E7;
+  }
+  #content .moderator {
+    color:#00AA00;
+  }
+  #content .admin {
+    color:red;
+  }
+  #content .chatBot {
+    color:#32cd32;
+  }
+  #content #chatList .chatBotErrorMessage {
+    color:red;
+  }
+  #content #chatList .delete {
+    background:url('../img/delete.png') no-repeat right;
+  }
+  #content #chatList .deleteSelected {
+    border-color:red;
+  }
+  #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+  color: #00ADEE !important;
+  text-shadow: 0 0 3px #00ADEE;
+  }
+}

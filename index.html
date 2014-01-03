@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+  <title>Strophe XMPP Client</title>
+  <style type="text/css">
+    body {
+      padding:0;
+      margin:0;
+    }
+  </style>
+  <link rel="alternate stylesheet" type="text/css" href="css/omg.css" title="omg"/><link rel="alternate stylesheet" type="text/css" href="css/dash.css" title="dash"/><link rel="alternate stylesheet" type="text/css" href="css/Sulfur.css" title="Sulfur"/><link rel="alternate stylesheet" type="text/css" href="css/Mercury.css" title="Mercury"/><link rel="stylesheet" type="text/css" href="css/Carbon.css" title="Carbon"/><link rel="alternate stylesheet" type="text/css" href="css/Technetium.css" title="Technetium"/>
+  <script src='js/jquery.js'></script>
+  <script src="js/strophe.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/chat.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/xmpp.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/ui.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/custom.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/lang/en.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/config.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/buzz.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/moment.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/konami.js" type="text/javascript" charset="UTF-8"></script>
+  <script type="text/javascript">
+    // <![CDATA[
+      function toggleContainer(containerID, hideContainerIDs) {
+        if(hideContainerIDs) {
+          for(var i=0; i<hideContainerIDs.length; i++) {
+            ajaxChat.showHide(hideContainerIDs[i], 'none');
+          }
+        }
+        ajaxChat.showHide(containerID);
+        if(typeof arguments.callee.styleProperty == 'undefined') {
+          if(typeof isIElt7 != 'undefined') {
+            arguments.callee.styleProperty = 'marginRight';
+          } else {
+            arguments.callee.styleProperty = 'right';
+          }
+        }
+        var containerWidth = document.getElementById(containerID).offsetWidth;
+        if(containerWidth) {
+          document.getElementById('chatList').style[arguments.callee.styleProperty] = (containerWidth+28)+'px';
+        } else {
+          document.getElementById('chatList').style[arguments.callee.styleProperty] = '20px';
+        }
+      }
+
+      function initialize() {
+        ajaxChat.updateButton('audio', 'audioButton');
+        ajaxChat.updateButton('autoScroll', 'autoScrollButton');
+        document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
+        document.getElementById('bbCodeImagesSetting').checked = ajaxChat.getSetting('bbCodeImages');
+        document.getElementById('bbCodeColorsSetting').checked = ajaxChat.getSetting('bbCodeColors');
+        document.getElementById('hyperLinksSetting').checked = ajaxChat.getSetting('hyperLinks');
+        document.getElementById('lineBreaksSetting').checked = ajaxChat.getSetting('lineBreaks');
+        document.getElementById('emoticonsSetting').checked = ajaxChat.getSetting('emoticons');
+        document.getElementById('autoFocusSetting').checked = ajaxChat.getSetting('autoFocus');
+        document.getElementById('maxMessagesSetting').value = ajaxChat.getSetting('maxMessages');
+        document.getElementById('wordWrapSetting').checked = ajaxChat.getSetting('wordWrap');
+        document.getElementById('maxWordLengthSetting').value = ajaxChat.getSetting('maxWordLength');
+        document.getElementById('dateFormatSetting').value = ajaxChat.getSetting('dateFormat');
+        document.getElementById('persistFontColorSetting').checked = ajaxChat.getSetting('persistFontColor');
+        for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++) {
+          if(document.getElementById('audioVolumeSetting').options[i].value == ajaxChat.getSetting('audioVolume')) {
+            document.getElementById('audioVolumeSetting').options[i].selected = true;
+            break;
+          }
+        }
+        ajaxChat.fillSoundSelection('soundReceiveSetting', ajaxChat.getSetting('soundReceive'));
+        ajaxChat.fillSoundSelection('soundSendSetting', ajaxChat.getSetting('soundSend'));
+        ajaxChat.fillSoundSelection('soundEnterSetting', ajaxChat.getSetting('soundEnter'));
+        ajaxChat.fillSoundSelection('soundLeaveSetting', ajaxChat.getSetting('soundLeave'));
+        ajaxChat.fillSoundSelection('soundChatBotSetting', ajaxChat.getSetting('soundChatBot'));
+        ajaxChat.fillSoundSelection('soundErrorSetting', ajaxChat.getSetting('soundError'));
+        document.getElementById('blinkSetting').checked = ajaxChat.getSetting('blink');
+        document.getElementById('blinkIntervalSetting').value = ajaxChat.getSetting('blinkInterval');
+        document.getElementById('blinkIntervalNumberSetting').value = ajaxChat.getSetting('blinkIntervalNumber');
+      }
+
+      config.loginChannelID = parseInt('8');
+      config.sessionName = 'ajax_chat';
+      config.cookieExpiration = parseInt('365');
+      config.cookiePath = '/';
+      config.cookieDomain = '';
+      config.cookieSecure = '';
+      config.chatBotName = 'INFO';
+      config.chatBotID = '2147483647';
+      config.allowUserMessageDelete = parseInt('1');
+      config.inactiveTimeout = parseInt('2');
+      config.privateChannelDiff = parseInt('500000000');
+      config.privateMessageDiff = parseInt('1000000000');
+      config.showChannelMessages = parseInt('1');
+      config.messageTextMaxLength = parseInt('1040');
+
+      ajaxChat.init(config, ajaxChatLang, true, true, true, initialize);
+      var easter_egg = new Konami(function() { ajaxChat.konami(); });
+    // ]]>
+  </script>
+</head>
+
+<body>
+  <div id="content">
+    <div id="headlineContainer">
+      <label for="channelSelection">Channel:</label>
+      <select id="channelSelection" onchange="xmpp.changeRoom(this.options[this.selectedIndex].value);"></select>
+      <label for="styleSelection">Style:</label>
+      <select id="styleSelection" onchange="ui.setStyle(this.options[this.selectedIndex].value);"><option value="omg">omg</option><option value="dash">dash</option><option value="Sulfur">Sulfur</option><option value="Mercury">Mercury</option><option value="Carbon" selected="selected">Carbon</option><option value="Technetium">Technetium</option></select>
+      </div>
+    <div id="statusIconContainer" class="statusContainerOn"></div>
+    <!--[if lt IE 7]>
+      <div></div>
+    <![endif]-->
+    <div id="chatList"></div>
+    <div id="inputFieldContainer">
+      <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break" onkeypress="ajaxChat.handleInputFieldKeyPress(event);" onkeyup="ajaxChat.handleInputFieldKeyUp(event);"></textarea>
+    </div>
+    <div id="submitButtonContainer">
+      <span id="messageLengthCounter">0</span>
+      </div>
+    <div id="bbCodeContainer">
+      <input type="button" value="b" title="Bold text: [b]text[/b]" onclick="ajaxChat.insertBBCode('b');" style="font-weight:bold;"/>
+      <input type="button" value="i" title="Italic text: [i]text[/i]" onclick="ajaxChat.insertBBCode('i');" style="font-style:italic;"/>
+      <input type="button" value="u" title="Underline text: [u]text[/u]" onclick="ajaxChat.insertBBCode('u');" style="text-decoration:underline;"/>
+      <input type="button" value="Quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]" onclick="ajaxChat.insertBBCode('quote');"/>
+      <input type="button" value="Code" title="Code display: [code]code[/code]" onclick="ajaxChat.insertBBCode('code');"/>
+      <input type="button" value="URL" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]" onclick="ajaxChat.insertBBCode('url');"/>
+      <input type="button" value="Image" title="Insert image: [img]http://example.org/image.jpg[/img]" onclick="ajaxChat.insertBBCode('img');"/>
+      <input type="button" value="Font Color" title="Font Color: [color=red]text[/color]" onclick="ajaxChat.showHide('colorCodesContainer', null);"/>
+      <span id="emoticonsContainer" dir="ltr"></span>
+    </div>
+    <div id="colorCodesContainer" style="display:none;" dir="ltr"></div>
+    <div id="optionsContainer">
+      <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" onclick="ajaxChat.logout();"/>
+      <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="Show/hide help" title="Show/hide help" onclick="toggleContainer('helpContainer', new Array('poniconContainer', 'onlineListContainer','settingsContainer'));"/>
+      <input type="image" src="img/pixel.gif" class="button" id="poniconButton" alt="Ponicons" title="Ponicons" onclick="toggleContainer('poniconContainer', new Array('onlineListContainer','settingsContainer','helpContainer'));"/>
+      <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" onclick="toggleContainer('settingsContainer', new Array('poniconContainer', 'onlineListContainer','helpContainer'));"/>
+      <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" onclick="toggleContainer('onlineListContainer', new Array('poniconContainer', 'settingsContainer','helpContainer'));"/>
+      <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" onclick="ajaxChat.toggleSetting('audio', 'audioButton');"/>
+      <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" onclick="ajaxChat.toggleSetting('autoScroll', 'autoScrollButton');"/>
+      </div>
+    <div id="onlineListContainer">
+      <h3>Online users</h3>
+        <div id="onlineList"></div>
+      </div>
+      <div id="helpContainer" style="display:none;">
+       <h3>Help</h3>
+       <div id="helpList">
+        <table>
+          <tr class="rowOdd">
+            <td class="desc">Join a channel:</td>
+            <td class="code">/join Channelname</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Create a private room (Registered users only):</td>
+            <td class="code">/join</td>
+
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Invite someone (e.g. to a private room):</td>
+            <td class="code">/invite Username</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Revoke invitation:</td>
+            <td class="code">/uninvite Username</td>
+          </tr>
+
+          <tr class="rowOdd">
+            <td class="desc">Logout from Chat:</td>
+            <td class="code">/quit</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Private message:</td>
+            <td class="code">/msg Username Text</td>
+          </tr>
+          <tr class="rowOdd">
+
+            <td class="desc">Open a private channel:</td>
+            <td class="code">/query Username</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Close a private channel:</td>
+            <td class="code">/query</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Describe action:</td>
+            <td class="code">/action Text</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Describe action in private message:</td>
+            <td class="code">/describe Username Text</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Ignore/accept messages from user:</td>
+            <td class="code">/ignore Username</td>
+
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">List ignored users:</td>
+            <td class="code">/ignore</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Display user channel:</td>
+            <td class="code">/whereis Username</td>
+          </tr>
+
+          <tr class="rowEven">
+            <td class="desc">Kick a user (Moderators only):</td>
+            <td class="code">/kick Username [Minutes banned]</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Unban a user (Moderators only):</td>
+            <td class="code">/unban Username</td>
+          </tr>
+          <tr class="rowEven">
+
+            <td class="desc">List banned users (Moderators only):</td>
+            <td class="code">/bans</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Display user IP (Moderators only):</td>
+            <td class="code">/whois Username</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">List online users:</td>
+
+            <td class="code">/who [Channelname]</td>
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">List available channels:</td>
+            <td class="code">/list</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="desc">Roll dice:</td>
+            <td class="code">/roll [number]d[sides]</td>
+
+          </tr>
+          <tr class="rowOdd">
+            <td class="desc">Change username:</td>
+            <td class="code">/nick Username</td>
+          </tr>
+          <tr class="rowEven">
+            <td class="code" colspan="2">$Id: loggedIn.html 7 2011-10-28 03:09:29Z sylae $</td>
+          </tr>
+        </table>
+      </div>
+      </div>
+      <div id="poniconContainer" style="display:none;">
+         <h3>Ponicons</h3>
+         <span id="poniconList" dir="ltr"></span>
+      </div>
+      <div id="settingsContainer" style="display:none;">
+       <h3>Settings</h3>
+       <div id="settingsList">
+        <table>
+          <tr class="rowOdd">
+            <td><label for="bbCodeSetting">Enable BBCode:</label></td>
+            <td class="setting"><input type="checkbox" id="bbCodeSetting" onclick="ajaxChat.setSetting('bbCode', this.checked);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="bbCodeImagesSetting">Enable image BBCode:</label></td>
+            <td class="setting"><input type="checkbox" id="bbCodeImagesSetting" onclick="ajaxChat.setSetting('bbCodeImages', this.checked);"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="bbCodeColorsSetting">Enable font color BBCode:</label></td>
+            <td class="setting"><input type="checkbox" id="bbCodeColorsSetting" onclick="ajaxChat.setSetting('bbCodeColors', this.checked);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="hyperLinksSetting">Enable hyperlinks:</label></td>
+            <td class="setting"><input type="checkbox" id="hyperLinksSetting" onclick="ajaxChat.setSetting('hyperLinks', this.checked);"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="lineBreaksSetting">Enable line breaks:</label></td>
+            <td class="setting"><input type="checkbox" id="lineBreaksSetting" onclick="ajaxChat.setSetting('lineBreaks', this.checked);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="emoticonsSetting">Enable emoticons:</label></td>
+            <td class="setting"><input type="checkbox" id="emoticonsSetting" onclick="ajaxChat.setSetting('emoticons', this.checked);"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="autoFocusSetting">Automatically set the focus on the input field:</label></td>
+            <td class="setting"><input type="checkbox" id="autoFocusSetting" onclick="ajaxChat.setSetting('autoFocus', this.checked);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="maxMessagesSetting">Maximum number of messages in the chatlist:</label></td>
+            <td class="setting"><input type="text" class="text" id="maxMessagesSetting" onchange="ajaxChat.setSetting('maxMessages', parseInt(this.value));"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="wordWrapSetting">Enable wrapping of long words:</label></td>
+            <td class="setting"><input type="checkbox" id="wordWrapSetting" onclick="ajaxChat.setSetting('wordWrap', this.checked);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="maxWordLengthSetting">Maximum length of a word before it gets wrapped:</label></td>
+            <td class="setting"><input type="text" class="text" id="maxWordLengthSetting" onchange="ajaxChat.setSetting('maxWordLength', parseInt(this.value));"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="dateFormatSetting">Format of date and time display:</label></td>
+            <td class="setting"><input type="text" class="text" id="dateFormatSetting" onchange="ajaxChat.setSetting('dateFormat', this.value);"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="persistFontColorSetting">Persist font color:</label></td>
+            <td class="setting"><input type="checkbox" id="persistFontColorSetting" onclick="ajaxChat.setPersistFontColor(this.checked);"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="audioVolumeSetting">Sound Volume:</label></td>
+            <td class="setting">
+              <select class="left" id="audioVolumeSetting" onchange="ajaxChat.setAudioVolume(this.options[this.selectedIndex].value);">
+                <option value="1.0">100 %</option>
+                <option value="0.9">90 %</option>
+                <option value="0.8">80 %</option>
+                <option value="0.7">70 %</option>
+                <option value="0.6">60 %</option>
+                <option value="0.5">50 %</option>
+                <option value="0.4">40 %</option>
+                <option value="0.3">30 %</option>
+                <option value="0.2">20 %</option>
+                <option value="0.1">10 %</option>
+              </select>
+            </td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="soundReceiveSetting">Sound for incoming messages:</label></td>
+            <td class="setting">
+              <select id="soundReceiveSetting" onchange="ajaxChat.setSetting('soundReceive', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="soundSendSetting">Sound for outgoing messages:</label></td>
+            <td class="setting">
+              <select id="soundSendSetting" onchange="ajaxChat.setSetting('soundSend', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="soundEnterSetting">Sound for login and channel enter messages:</label></td>
+            <td class="setting">
+              <select id="soundEnterSetting" onchange="ajaxChat.setSetting('soundEnter', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="soundLeaveSetting">Sound for logout and channel leave messages:</label></td>
+            <td class="setting">
+              <select id="soundLeaveSetting" onchange="ajaxChat.setSetting('soundLeave', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="soundChatBotSetting">Sound for chatbot messages:</label></td>
+            <td class="setting">
+              <select id="soundChatBotSetting" onchange="ajaxChat.setSetting('soundChatBot', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="soundErrorSetting">Sound for error messages:</label></td>
+            <td class="setting">
+              <select id="soundErrorSetting" onchange="ajaxChat.setSetting('soundError', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="Play selected sound" title="Play selected sound" onclick="ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value);"/>
+            </td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="blinkSetting">Blink window title on new messages:</label></td>
+            <td class="setting"><input type="checkbox" id="blinkSetting" onclick="ajaxChat.setSetting('blink', this.checked);"/></td>
+          </tr>
+          <tr class="rowOdd">
+            <td><label for="blinkIntervalSetting">Blink interval in milliseconds:</label></td>
+            <td class="setting"><input type="text" class="text" id="blinkIntervalSetting" onchange="ajaxChat.setSetting('blinkInterval', parseInt(this.value));"/></td>
+          </tr>
+          <tr class="rowEven">
+            <td><label for="blinkIntervalNumberSetting">Number of blink intervals:</label></td>
+            <td class="setting"><input type="text" class="text" id="blinkIntervalNumberSetting" onchange="ajaxChat.setSetting('blinkIntervalNumber', parseInt(this.value));"/></td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    <!--
+      Please retain the full copyright notice below including the link to blueimp.net.
+      This not only gives respect to the amount of time given freely by the developer
+      but also helps build interest, traffic and use of AJAX Chat.
+
+      Thanks,
+      Sebastian Tschan
+    //-->
+    <div id="copyright"><a href="https://blueimp.net/ajax/">AJAX Chat</a> &copy; <a href="https://blueimp.net">blueimp.net</a></div>
+  </div>
+</body>
+
+</html>
