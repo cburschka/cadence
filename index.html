@@ -10,6 +10,9 @@
     }
   </style>
   <link rel="alternate stylesheet" type="text/css" href="css/omg.css" title="omg"/><link rel="alternate stylesheet" type="text/css" href="css/dash.css" title="dash"/><link rel="alternate stylesheet" type="text/css" href="css/Sulfur.css" title="Sulfur"/><link rel="alternate stylesheet" type="text/css" href="css/Mercury.css" title="Mercury"/><link rel="stylesheet" type="text/css" href="css/Carbon.css" title="Carbon"/><link rel="alternate stylesheet" type="text/css" href="css/Technetium.css" title="Technetium"/>
+  <style type="text/css">
+    @import url('css/util.css');
+  </style>
   <script src='js/jquery.js'></script>
   <script src="js/strophe.js" type="text/javascript" charset="UTF-8"></script>
   <script src="js/chat.js" type="text/javascript" charset="UTF-8"></script>
@@ -48,6 +51,7 @@
       function initialize() {
         ajaxChat.updateButton('audio', 'audioButton');
         ajaxChat.updateButton('autoScroll', 'autoScrollButton');
+        document.getElementById('displayJid').checked = ajaxChat.getSetting('displayJid');
         document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
         document.getElementById('bbCodeImagesSetting').checked = ajaxChat.getSetting('bbCodeImages');
         document.getElementById('bbCodeColorsSetting').checked = ajaxChat.getSetting('bbCodeColors');
@@ -105,7 +109,7 @@
       <select id="channelSelection" onchange="xmpp.changeRoom(this.options[this.selectedIndex].value);"></select>
       <label for="styleSelection">Style:</label>
       <select id="styleSelection" onchange="ui.setStyle(this.options[this.selectedIndex].value);"><option value="omg">omg</option><option value="dash">dash</option><option value="Sulfur">Sulfur</option><option value="Mercury">Mercury</option><option value="Carbon" selected="selected">Carbon</option><option value="Technetium">Technetium</option></select>
-      </div>
+    </div>
     <div id="statusIconContainer" class="statusContainerOn"></div>
     <!--[if lt IE 7]>
       <div></div>
@@ -252,6 +256,10 @@
        <h3>Settings</h3>
        <div id="settingsList">
         <table>
+          <tr class="rowEven">
+            <td><label for="bbCodeSetting">Show real user ID:</label></td>
+            <td class="setting"><input type="checkbox" id="displayJid" onclick="ui.setSetting('displayJid', this.checked);"/></td>
+          </tr>
           <tr class="rowOdd">
             <td><label for="bbCodeSetting">Enable BBCode:</label></td>
             <td class="setting"><input type="checkbox" id="bbCodeSetting" onclick="ajaxChat.setSetting('bbCode', this.checked);"/></td>

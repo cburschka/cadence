@@ -1,9 +1,11 @@
 var ui = {
-  userLinks: [],
+  userLinks: {},
   dom: null,
+  roster: {},
 
   initialize: function() {
     this.dom = {
+      content: $('#content'),
       chatList: $('#chatList'),
       onlineList: $('#onlineList'),
       channelSelection: $('#channelSelection'),
@@ -12,7 +14,6 @@ var ui = {
         return $(this).attr('rel').indexOf('style') >= 0;
       })
     };
-    //preload the Alert icon (it can't display if there's no connection unless it's cached!)
     this.setStatus('offline');
   },
 
@@ -36,17 +37,17 @@ var ui = {
 
   messageAdd: function(user, time, text) {
     this.chatListAppend(
-      '<div class="row"><span class="dateTime">' + this.formatTime(time) + '</span> ' + 
-      '<span class="user">' + user + ':</span> ' + 
+      '<div class="row"><span class="dateTime">' + this.formatTime(time) + '</span> ' +
+      '<span class="user">' + this.formatUser(user) + ':</span> ' +
       text + '</div>'
     );
   },
 
   messageAddInfo: function(text) {
     this.chatListAppend(
-      '<div class="row"><span class="dateTime">' + this.formatTime() + '</span> ' + 
-      '<span class="chatBot user">INFO:</span> ' + 
-      text + '</div>'
+      '<div class="row"><span class="dateTime">' + this.formatTime() + '</span> ' +
+      '<span class="chatBot user">' + config.ui.chatBotName + ':</span> ' +
+      '<span style="font-style:italic">' + text + '</span></div>'
     );
   },
 
@@ -59,7 +60,7 @@ var ui = {
     var scrolledDown = this.dom.chatList.scrollTop + this.chatListHeight == this.dom.chatList.scrollHeight;
     this.dom.chatList.append(text);
     if(config.settings.autoScroll && scrolledDown) {
-      this.dom.chatList.scrollTop = this.dom.chatList.scrollHeight;    
+      this.dom.chatList.scrollTop = this.dom.chatList.scrollHeight;
     }
   },
 
@@ -70,21 +71,37 @@ var ui = {
     }
   },
 
-  userStatusChange: function(user, status) {
-    this.messageAddInfo(config.ui.userStatus[status].replace('%s', user));
-  }
+  userStatus: function(user, status, notify) {
+    if (status == 'offline' && this.userLinks[user.nick]) {
+      this.userRemove(user);
+    }
+    else if (!this.userLinks[user.nick]) {
+      this.userAdd(user);
+    }
+    if (this.roster[user.nick] != status) {
+      if (this.userLinks[user.nick])
+        this.userLinks[user.nick].attr('class', 'user-' + status);
+      if (notify) {
+        if (this.roster[user.nick] == 'away' && status == 'online') msg = 'available';
+        else msg = status;
+        this.messageAddInfo(config.ui.userStatus[msg].replace(
+          '%s', this.formatUser(user)));
+      }
+      this.roster[user.nick] = status;
+    }
+  },
 
   userAdd: function(user) {
-    if (!this.userLinks[user]) {
-      this.userLinks[user] = $(config.ui.userLink.replace('%s', user));
-      this.dom.onlineList.append(this.userLinks[user]);
+    if (!this.userLinks[user.nick]) {
+      this.userLinks[user.nick] = $('<div class="row">' + this.formatUser(user) + '</div>'),
+      this.dom.onlineList.append(this.userLinks[user.nick]);
     }
   },
 
   userRemove: function(user) {
-    if (this.userLinks[user]) {
-      this.userLinks[user].remove();
-      this.userLinks[user] = null;
+    if (this.userLinks[user.nick]) {
+      this.userLinks[user.nick].remove();
+      this.userLinks[user.nick] = null;
     }
   },
 
@@ -92,6 +109,23 @@ var ui = {
     for (x in this.userLinks) {
       this.userLinks[x].remove();
     }
-    this.userLinks = [];
+    this.userLinks = {};
   },
+
+  formatUser: function(user) {
+    nick_exists = user.nick != '';
+    show_jid = user.user + (!user.local ? '@'+user.domain : '');
+
+    return nick_exists ?
+           ('<span class="user-jid user-alt-jid">' + show_jid + '</span>' +
+           '<span class="user-nick user-alt-nick">' + user.nick + '</span>') :
+           '<span class="user-jid">' + show_jid + '</span>';
+  },
+
+  setSetting: function(setting, value) {
+    config.settings[setting] = value;
+    if (setting == 'displayJid') {
+      this.dom.content.toggleClass('display-jid', value)
+    }
+  }
 }

@@ -626,11 +626,11 @@ var config = {
     strings: {
       status: {
         'ERROR' : 'An error has occurred',
-        'CONNECTING' : 'The connection is currently being made',
+        'CONNECTING' : 'Connecting to the server...',
         'CONNFAIL' : 'The connection attempt failed',
         'AUTHENTICATING' : 'The connection is authenticating',
         'AUTHFAIL' : 'The authentication attempt failed',
-        'CONNECTED' : 'The connection has succeeded',
+        'CONNECTED' : 'You are now connected.',
         'DISCONNECTED' : 'The connection has been terminated',
         'DISCONNECTING' : 'The connection is currently being terminated',
         'ATTACHED' : 'The connection has been attached',
@@ -638,5 +638,16 @@ var config = {
     }
   },
 
-  css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium']
+  ui: {
+    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium'],
+    userStatus: {
+      'out': '%s leaves the channel.',
+      'in': '%s enters the channel.',
+      'online': '%s logs into the chat.',
+      'offline': '%s logs out of the chat.',
+      'away': '%s is away.',
+      'available': '%s has returned.',
+    },
+    chatBotName: 'Ligrev',
+  }
 }

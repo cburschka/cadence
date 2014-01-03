@@ -8,6 +8,8 @@ var xmpp = {
   resource: null,
   status: null,
   rosterReceived: false,
+  roster: {},
+  nickByJid: {},
 
   initialize: function() {
     this.discoverRooms = this.eventDiscoverRooms();
@@ -20,8 +22,8 @@ var xmpp = {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
 
     // DEBUG: print connection stream to console:
-    this.connection.rawInput = function(data) { console.log("RECV " + data) }
-    this.connection.rawOutput = function(data) { console.log("SEND " + data) }
+    //this.connection.rawInput = function(data) { console.log("RECV " + data) }
+    //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
     this.resource = this.createResourceName();
     this.jid = config.xmpp.user + '@' + config.xmpp.domain + '/' + this.resource;
     this.currentNick = config.xmpp.user;
@@ -50,7 +52,6 @@ var xmpp = {
   eventDiscoverRooms: function() {
     var self = this;
     return function() {
-      console.log("Sending query for rooms.");
       self.connection.sendIQ(
         $iq({
           to:config.xmpp.muc_service,
@@ -63,7 +64,6 @@ var xmpp = {
             t = $(t);
             rooms[t.attr('jid').match(/^[^@]+/)[0]] = t.attr('name');
           });
-          console.log(rooms);
           if (self.rooms != rooms) {
             self.rooms = rooms;
             ui.refreshRooms(self.rooms);
@@ -80,13 +80,50 @@ var xmpp = {
   },
 
   createResourceName: function() {
-    // TODO: Do this properly.
     return 'strophe/' + hex_sha1(""+Math.random()).substr(0,4);
   },
 
-  getUserName: function(muc_jid) {
-    if (this.currentRoomJid && muc_jid.substr(0,this.currentRoomJid.length+1) == this.currentRoomJid + '/') {
-      return muc_jid.substr(this.currentRoomJid.length + 1);
+  parseJid: function(jid) {
+    var r = /^(([^@]+)@)?([^\/]+)(\/(.+))?/.exec(jid);
+    addr = {node: r[2], domain: r[3], resource: r[5]};
+    return addr;
+  },
+
+  registerFullJid: function (jidMuc, jidFull) {
+    var addrMuc = this.parseJid(jidMuc);
+    var addrFull = this.parseJid(jidFull);
+    var user = {
+      inroom: true,
+      nick: addrMuc.resource,
+      user: addrFull.node,
+      domain: addrFull.domain,
+      client: addrFull.resource,
+      local: addrFull.domain == config.xmpp.domain
+    };
+    this.roster[user.nick] = user;
+    this.nickByJid[jidFull] = this.nickByJid[jidMuc] = user;
+    return user;
+  },
+
+  identifyJid: function (jid) {
+    addr = this.parseJid(jid);
+    if (addr.domain == config.xmpp.muc_service && addr.node == this.currentRoom) {
+      if (this.roster[addr.resource]) {
+        return this.roster[addr.resource];
+      }
+    }
+    else {
+      var user = {
+        // Messages may arrive from users who are not in the room.
+        // These have no nick.
+        inroom: false,
+        user: addr.node,
+        domain: addr.domain,
+        client: addr.resource,
+        nick: this.nickByJid[jid] || '',
+        local: addr.domain == config.xmpp.domain
+      };
+      return user;
     }
   },
 
@@ -94,15 +131,16 @@ var xmpp = {
     if (this.currentRoom) {
       this.leaveRoom(this.currentRoomJid);
     }
-    ui.messageClear();
-    ui.userClear();
-    this.rosterReceived = false;
     this.currentRoom = room;
     this.currentRoomJid = room + '@' + config.xmpp.muc_service;
     this.joinRoom(this.currentRoomJid);
   },
 
   leaveRoom: function(roomJid) {
+    ui.messageClear();
+    ui.userClear();
+    this.roster = {};
+    this.rosterReceived = false;
     this.connection.send(this.pres()
       .attrs({to:roomJid + '/' + this.currentNick, type:'unavailable'})
     );
@@ -127,15 +165,26 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        var user = self.getUserName($(stanza).attr('from'));
-        if (user) {
-          console.log('Handling presence from nick ' + user);
-          if ($(stanza).attr('type') == 'unavailable') {
-            ui.userRemove(user);
-          }
-          else {
-            ui.userAdd(user);
-          }
+        stanza = $(stanza);
+        var from = stanza.attr('from');
+        var fullJid = $('item', stanza).attr('jid');
+        var user;
+        var isMe = $('status', stanza).attr('code') == 110;
+        if (isMe) {
+          self.rosterReceived = true;
+          user = self.registerFullJid(from, self.jid);
+        }
+        else if (fullJid) {
+          user = self.registerFullJid(from, fullJid);
+        }
+        else {
+          user = self.identifyJid(from);
+        }
+        var exit = stanza.attr('type') == 'unavailable';
+        var available = ['away', 'dnd', 'xa'].indexOf($('show', stanza).text()) < 0;
+        var status = exit ? 'offline' : (available ? 'online' : 'away');
+        if (user.inroom) {
+          ui.userStatus(user, status, self.rosterReceived);
         }
       }
       return true;
@@ -146,7 +195,7 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        var user = self.getUserName($(stanza).attr('from'));
+        var user = self.identifyJid($(stanza).attr('from'));
         if (user) {
           var body = null;
           var html = $('html body p', stanza).html();
@@ -154,9 +203,7 @@ var xmpp = {
             body = html;
           } else {
             body = $($('body', stanza)[0]).text();
-            console.log(body);
             body = ajaxChat.render(body);
-            console.log(body);
           }
           var time = $('delay', stanza).attr('stamp');
           time = time ? new Date(time) : new Date();

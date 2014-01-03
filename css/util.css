@@ -1,0 +1,9 @@
+div#content span.user-alt-jid,
+div#content.display-jid span.user-alt-nick {
+  display:none;
+}
+
+div#content span.user-alt-nick,
+div#content.display-jid span.user-alt-jid {
+  display:inline;
+} 
