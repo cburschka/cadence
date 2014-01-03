@@ -14,3 +14,17 @@ div#content.display-jid span.user-alt-jid {
 .user-affiliation-admin {
   color:green;
 }
+
+/* Status Icon */
+#statusIconContainer {
+  background-image: url('../img/loading-sprite.png');
+}
+#statusIconContainer.online {
+  background-position: 0px 0px;
+}
+#statusIconContainer.waiting {
+  background-position: 0px -22px;
+}
+#statusIconContainer.offline {
+  background-position: 0px -44px;
+}
