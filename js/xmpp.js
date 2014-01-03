@@ -25,7 +25,9 @@ var xmpp = {
     this.connection.addTimedHandler(30000, this.discoverRooms);
 
     // Try to attach to an old session. If it fails, initiate login.
-    this.resumeConnection();
+    if (!this.resumeConnection()) {
+      ui.connectionFailureAlert();
+    }
   },
 
   resumeConnection: function() {
@@ -34,13 +36,16 @@ var xmpp = {
       this.session = JSON.parse(session);
       this.connection.attach(this.session.jid, this.session.sid, this.session.rid, this.eventConnectCallback);
       localStorage.removeItem('session');
+      return true;
     }
+    else return false;
   },
 
   newConnection: function(user, pass) {
     this.session = {};
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
-    this.connection.connect(jid, pass, this.eventConnectCallback());
+    console.log("Connecting as", jid, pass);
+    this.connection.connect(jid, pass, this.eventConnectCallback);
   },
 
   pres: function() {
@@ -246,13 +251,14 @@ var xmpp = {
       self.setStatus(self.readConnectionStatus(status))
       var msg = self.readStatusMessage(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
-      ui.messageAddInfo(msg);
+      console.log("Received connection event", status, errorCondition, msg);
+      ui.messageAddInfo('XMPP: ' + msg);
       if (self.status == 'online') {
         self.announce();
         self.discoverRooms();
       }
-      else {
-        ui.addMessageInfo('Type /connect <user> <pass> to connect.');
+      else if (self.status == 'offline') {
+        ui.connectionFailureAlert();
       }
       return true;
     }

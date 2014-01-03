@@ -1,105 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+  <meta charset="utf8" />
   <title>Strophe XMPP Client</title>
+  <link rel="alternate stylesheet" type="text/css" href="css/omg.css" title="omg"/>
+  <link rel="alternate stylesheet" type="text/css" href="css/dash.css" title="dash"/>
+  <link rel="alternate stylesheet" type="text/css" href="css/Sulfur.css" title="Sulfur"/>
+  <link rel="alternate stylesheet" type="text/css" href="css/Mercury.css" title="Mercury"/>
+  <link rel="stylesheet" type="text/css" href="css/Carbon.css" title="Carbon"/>
+  <link rel="alternate stylesheet" type="text/css" href="css/Technetium.css" title="Technetium"/>
   <style type="text/css">
+    @import url('css/util.css');
     body {
       padding:0;
       margin:0;
     }
   </style>
-  <link rel="alternate stylesheet" type="text/css" href="css/omg.css" title="omg"/><link rel="alternate stylesheet" type="text/css" href="css/dash.css" title="dash"/><link rel="alternate stylesheet" type="text/css" href="css/Sulfur.css" title="Sulfur"/><link rel="alternate stylesheet" type="text/css" href="css/Mercury.css" title="Mercury"/><link rel="stylesheet" type="text/css" href="css/Carbon.css" title="Carbon"/><link rel="alternate stylesheet" type="text/css" href="css/Technetium.css" title="Technetium"/>
-  <style type="text/css">
-    @import url('css/util.css');
-  </style>
-  <script src='js/jquery.js'></script>
+
+  <script src='js/jquery.js' type="text/javascript" charset="UTF-8"></script>
   <script src="js/strophe.js" type="text/javascript" charset="UTF-8"></script>
+  <!--<script src="js/buzz.js" type="text/javascript" charset="UTF-8"></script>-->
+  <script src="js/moment.js" type="text/javascript" charset="UTF-8"></script>
+  <!--<script src="js/konami.js" type="text/javascript" charset="UTF-8"></script>-->
+
   <script src="js/chat.js" type="text/javascript" charset="UTF-8"></script>
   <script src="js/xmpp.js" type="text/javascript" charset="UTF-8"></script>
   <script src="js/ui.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/custom.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lang/en.js" type="text/javascript" charset="UTF-8"></script>
+  <!--<script src="js/bbcode.js" type="text/javascript" charset="UTF-8"></script>-->
   <script src="js/config.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/buzz.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/moment.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/konami.js" type="text/javascript" charset="UTF-8"></script>
-  <script type="text/javascript">
-    // <![CDATA[
-      function toggleContainer(containerID, hideContainerIDs) {
-        if(hideContainerIDs) {
-          for(var i=0; i<hideContainerIDs.length; i++) {
-            ajaxChat.showHide(hideContainerIDs[i], 'none');
-          }
-        }
-        ajaxChat.showHide(containerID);
-        if(typeof arguments.callee.styleProperty == 'undefined') {
-          if(typeof isIElt7 != 'undefined') {
-            arguments.callee.styleProperty = 'marginRight';
-          } else {
-            arguments.callee.styleProperty = 'right';
-          }
-        }
-        var containerWidth = document.getElementById(containerID).offsetWidth;
-        if(containerWidth) {
-          document.getElementById('chatList').style[arguments.callee.styleProperty] = (containerWidth+28)+'px';
-        } else {
-          document.getElementById('chatList').style[arguments.callee.styleProperty] = '20px';
-        }
-      }
-
-      function initialize() {
-        ajaxChat.updateButton('audio', 'audioButton');
-        ajaxChat.updateButton('autoScroll', 'autoScrollButton');
-        document.getElementById('displayJid').checked = ajaxChat.getSetting('displayJid');
-        document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
-        document.getElementById('bbCodeImagesSetting').checked = ajaxChat.getSetting('bbCodeImages');
-        document.getElementById('bbCodeColorsSetting').checked = ajaxChat.getSetting('bbCodeColors');
-        document.getElementById('hyperLinksSetting').checked = ajaxChat.getSetting('hyperLinks');
-        document.getElementById('lineBreaksSetting').checked = ajaxChat.getSetting('lineBreaks');
-        document.getElementById('emoticonsSetting').checked = ajaxChat.getSetting('emoticons');
-        document.getElementById('autoFocusSetting').checked = ajaxChat.getSetting('autoFocus');
-        document.getElementById('maxMessagesSetting').value = ajaxChat.getSetting('maxMessages');
-        document.getElementById('wordWrapSetting').checked = ajaxChat.getSetting('wordWrap');
-        document.getElementById('maxWordLengthSetting').value = ajaxChat.getSetting('maxWordLength');
-        document.getElementById('dateFormatSetting').value = ajaxChat.getSetting('dateFormat');
-        document.getElementById('persistFontColorSetting').checked = ajaxChat.getSetting('persistFontColor');
-        for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++) {
-          if(document.getElementById('audioVolumeSetting').options[i].value == ajaxChat.getSetting('audioVolume')) {
-            document.getElementById('audioVolumeSetting').options[i].selected = true;
-            break;
-          }
-        }
-        ajaxChat.fillSoundSelection('soundReceiveSetting', ajaxChat.getSetting('soundReceive'));
-        ajaxChat.fillSoundSelection('soundSendSetting', ajaxChat.getSetting('soundSend'));
-        ajaxChat.fillSoundSelection('soundEnterSetting', ajaxChat.getSetting('soundEnter'));
-        ajaxChat.fillSoundSelection('soundLeaveSetting', ajaxChat.getSetting('soundLeave'));
-        ajaxChat.fillSoundSelection('soundChatBotSetting', ajaxChat.getSetting('soundChatBot'));
-        ajaxChat.fillSoundSelection('soundErrorSetting', ajaxChat.getSetting('soundError'));
-        document.getElementById('blinkSetting').checked = ajaxChat.getSetting('blink');
-        document.getElementById('blinkIntervalSetting').value = ajaxChat.getSetting('blinkInterval');
-        document.getElementById('blinkIntervalNumberSetting').value = ajaxChat.getSetting('blinkIntervalNumber');
-      }
-
-      config.loginChannelID = parseInt('8');
-      config.sessionName = 'ajax_chat';
-      config.cookieExpiration = parseInt('365');
-      config.cookiePath = '/';
-      config.cookieDomain = '';
-      config.cookieSecure = '';
-      config.chatBotName = 'INFO';
-      config.chatBotID = '2147483647';
-      config.allowUserMessageDelete = parseInt('1');
-      config.inactiveTimeout = parseInt('2');
-      config.privateChannelDiff = parseInt('500000000');
-      config.privateMessageDiff = parseInt('1000000000');
-      config.showChannelMessages = parseInt('1');
-      config.messageTextMaxLength = parseInt('1040');
-
-      ajaxChat.init(config, ajaxChatLang, true, true, true, initialize);
-      var easter_egg = new Konami(function() { ajaxChat.konami(); });
-    // ]]>
-  </script>
+  <script src="js/init.js" type="text/javascript" charset="UTF-8"></script>
 </head>
 
 <body>
@@ -111,12 +40,9 @@
       <select id="styleSelection" onchange="ui.setStyle(this.options[this.selectedIndex].value);"><option value="omg">omg</option><option value="dash">dash</option><option value="Sulfur">Sulfur</option><option value="Mercury">Mercury</option><option value="Carbon" selected="selected">Carbon</option><option value="Technetium">Technetium</option></select>
     </div>
     <div id="statusIconContainer" class="statusContainerOn"></div>
-    <!--[if lt IE 7]>
-      <div></div>
-    <![endif]-->
     <div id="chatList"></div>
     <div id="inputFieldContainer">
-      <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break" onkeypress="ajaxChat.handleInputFieldKeyPress(event);" onkeyup="ajaxChat.handleInputFieldKeyUp(event);"></textarea>
+      <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
     </div>
     <div id="submitButtonContainer">
       <span id="messageLengthCounter">0</span>

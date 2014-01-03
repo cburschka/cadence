@@ -6,4 +6,11 @@ div#content.display-jid span.user-alt-nick {
 div#content span.user-alt-nick,
 div#content.display-jid span.user-alt-jid {
   display:inline;
-} 
+}
+
+.user-affiliation-owner {
+  color:red;
+}
+.user-affiliation-admin {
+  color:green;
+}

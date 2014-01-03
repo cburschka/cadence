@@ -6,18 +6,29 @@ var ui = {
 
   initialize: function() {
     this.dom = {
+      inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
       onlineList: $('#onlineList'),
       channelSelection: $('#channelSelection'),
       statusIconContainer: $('#statusIconContainer'),
+      messageLengthCounter: $('#messageLengthCounter'),
       styleSheets: $('link').filter(function() {
         return $(this).attr('rel').indexOf('style') >= 0;
       })
     };
 
+    this.dom.inputField.on({
+      keypress: this.eventInputKeyPress(),
+      keyup: this.eventInputKeyUp()
+    });
+
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
+  },
+
+  connectionFailureAlert: function() {
+    this.messageAddInfo('Type /connect &lt;user&gt; &lt;pass&gt; to connect.');
   },
 
   setStatus: function(status) {
@@ -50,8 +61,12 @@ var ui = {
     this.chatListAppend(
       '<div class="row"><span class="dateTime">' + this.formatTime() + '</span> ' +
       '<span class="chatBot user">' + config.ui.chatBotName + ':</span> ' +
-      '<span style="font-style:italic">' + text + '</span></div>'
+      text + '</div>'
     );
+  },
+
+  error: function(text) {
+    this.messageAddInfo('<span class="chatBotErrorMessage">' + text + '</span>');
   },
 
   messageClear: function() {
@@ -133,5 +148,34 @@ var ui = {
     if (setting == 'displayJid') {
       this.dom.content.toggleClass('display-jid', value)
     }
-  }
+  },
+
+  eventInputKeyPress: function() {
+    var self = this;
+    return function(event) {
+      // <enter> without shift.
+      if(event.keyCode === 13 && !event.shiftKey) {
+        chat.executeInput(self.dom.inputField.val());
+        self.dom.inputField.val('');
+        try {
+          event.preventDefault();
+        } catch(e) {
+          event.returnValue = false; // IE
+        }
+        return false;
+      }
+      return true;
+    };
+  },
+
+  eventInputKeyUp: function() {
+    var self = this;
+    return function(event) {
+      self.updateMessageLengthCounter();
+    };
+  },
+
+  updateMessageLengthCounter: function() {
+    this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
+  },
 }
