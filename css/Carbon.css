@@ -66,10 +66,10 @@
   #content #optionsContainer input {
       background-color:transparent;
   }
-  #content .rowEven {
+  .row:nth-child(even) {
     background-color:#212121;
   }
-  #content .rowOdd {
+  .row:nth-child(odd) {
     background-color:#000;
   }
   #content .guest {

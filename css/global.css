@@ -14,20 +14,6 @@
   height:100%;
 }
 
-  /* Status Icon */
-  #content #statusIconContainer {
-    background-image: url('../img/loading-sprite.png');
-  }
-  #content .statusContainerOff {
-    background-position: 0px 0px;
-  }
-  #content .statusContainerOn {
-    background-position: 0px -22px;
-  }
-  #content .statusContainerAlert {
-    background-position: 0px -44px;
-  }
-
 
 #loginContent #loginHeadlineContainer {
   margin: 100px 100px 0 100px;
@@ -152,7 +138,8 @@
   padding-right:0px;
 }
 #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginContent #loginButton {
-  padding: 4px 10px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 #content #colorCodesContainer a {
   display:block;
@@ -261,7 +248,7 @@
 }
 #content #optionsContainer #logoutButton {
   background:url('../img/logout.png') no-repeat;
-
+}
 /* Buttons */
 #content #optionsContainer #helpButton {
   background:url('../img/help.png') no-repeat;
@@ -313,7 +300,7 @@
   cursor:pointer;
 }
 
-  #content, #content h1, #content a, #content input, #content select, #content textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, .statusContainerOn, .statusContainerOff, .statusContainerAlert, #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #content #colorCodesContainer a, #content #optionsContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #content #chatList .chatBotErrorMessage, #content #chatList a, #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+  #content, #content h1, #content a, #content input, #content select, #content textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, .waiting, .online, .offline, #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #content #colorCodesContainer a, #content #optionsContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #content #chatList .chatBotErrorMessage, #content #chatList a, #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
   -moz-transition-duration: 0.5s;
   -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   -webkit-transition-duration: 0.5s;

@@ -252,14 +252,16 @@ var xmpp = {
       var msg = self.readStatusMessage(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
       console.log("Received connection event", status, errorCondition, msg);
-      ui.messageAddInfo('XMPP: ' + msg);
       if (self.status == 'online') {
+        ui.messageAddSuccess('XMPP: ' + msg);
         self.announce();
         self.discoverRooms();
       }
       else if (self.status == 'offline') {
+        ui.messageAddError('XMPP: ' + msg);
         ui.connectionFailureAlert();
       }
+      else ui.messageAddInfo('XMPP: ' + msg);
       return true;
     }
   },

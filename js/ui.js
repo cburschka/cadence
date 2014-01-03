@@ -49,37 +49,40 @@ var ui = {
     return moment(time).format(config.settings.dateFormat);
   },
 
-  messageAdd: function(user, time, text) {
-    this.chatListAppend(
-      '<div class="row"><span class="dateTime">' + this.formatTime(time) + '</span> ' +
-      '<span class="user">' + this.formatUser(user) + ':</span> ' +
-      text + '</div>'
-    );
+  messageAddUser: function(user, time, text) {
+    this.messageAdd('<span class="user">' + this.formatUser(user) + ':</span> ' + text, time);
   },
 
   messageAddInfo: function(text) {
-    this.chatListAppend(
-      '<div class="row"><span class="dateTime">' + this.formatTime() + '</span> ' +
-      '<span class="chatBot user">' + config.ui.chatBotName + ':</span> ' +
-      text + '</div>'
+    this.messageAdd(
+      '<span class="user user-bot">' + config.ui.chatBotName + ':</span> ' +
+      '<span class="message-bot">' + text + '</span>'
     );
   },
 
-  error: function(text) {
+  messageAddSuccess: function(text) {
+    this.messageAddInfo('<span class="chatBotSuccessMessage">' + text + '</span>');
+  },
+
+  messageAddError: function(text) {
     this.messageAddInfo('<span class="chatBotErrorMessage">' + text + '</span>');
+  },
+
+  messageAdd: function(text, time) {
+    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
+    this.dom.chatList.append(
+      '<div class="row"><span class="dateTime">' +
+      this.formatTime(time) + '</span> ' +
+      text + '</div>'
+    );
+    // Only autoscroll if we are at the bottom.
+    if(config.settings.autoScroll && scrolledDown) {
+      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
+    }
   },
 
   messageClear: function() {
     this.dom.chatList.html('');
-  },
-
-  chatListAppend: function(text) {
-    // Only autoscroll if we are at the bottom.
-    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
-    this.dom.chatList.append(text);
-    if(config.settings.autoScroll && scrolledDown) {
-      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
-    }
   },
 
   refreshRooms: function(rooms) {

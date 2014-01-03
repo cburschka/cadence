@@ -1,18 +1,35 @@
-div#content span.user-alt-jid,
-div#content.display-jid span.user-alt-nick {
+#content span.user-alt-jid,
+#content.display-jid span.user-alt-nick {
   display:none;
 }
 
-div#content span.user-alt-nick,
-div#content.display-jid span.user-alt-jid {
+#content span.user-alt-nick,
+#content.display-jid span.user-alt-jid {
   display:inline;
 }
 
-.user-affiliation-owner {
+#content .user {
+  font-weight: bold;
+}
+#content .user.user-affiliation-owner {
   color:red;
 }
-.user-affiliation-admin {
+#content .user.user-affiliation-admin {
   color:green;
+}
+#content .user.user-bot {
+  color:#CC9900;
+  font-style:italic;
+}
+
+#chatList span.success {
+  color:green;
+}
+#chatList span.error {
+  color:red;
+}
+#chatList .message-bot {
+  font-style:italic;
 }
 
 /* Status Icon */
