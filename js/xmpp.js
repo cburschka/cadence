@@ -3,8 +3,6 @@ var xmpp = {
   rooms: null,
   currentRoom: null,
   currentNick: null,
-  jid: null,
-  currentRoomJid: null,
   resource: null,
   status: 'offline',
   rosterReceived: false,
@@ -56,10 +54,10 @@ var xmpp = {
     return $pres({from:this.connection.jid});
   },
 
-  msg : function() {
+  msg: function() {
     return $msg({
       from: this.connection.jid,
-      to:   this.currentRoomJid,
+      to:   this.currentRoom + '@' + config.xmpp.muc_service,
       type: 'groupchat'
     });
   },
@@ -135,26 +133,49 @@ var xmpp = {
 
   changeRoom: function(room) {
     if (this.currentRoom && this.currentRoom != room) {
-      this.leaveRoom(this.currentRoomJid);
+      this.leaveRoom(this.currentRoom);
     }
     this.currentRoom = room;
-    this.currentRoomJid = room + '@' + config.xmpp.muc_service;
-    this.joinRoom(this.currentRoomJid);
+    this.joinRoom(this.currentRoom);
   },
 
-  leaveRoom: function(roomJid) {
+  leaveRoom: function(room) {
     ui.messageClear();
     this.clearRoom();
     this.connection.send(this.pres()
-      .attrs({to:roomJid + '/' + this.currentNick, type:'unavailable'})
+      .attrs({to:room + '@' + config.xmpp.muc_service + '/' + this.currentNick, type:'unavailable'})
     );
   },
 
-  joinRoom: function(roomJid) {
-    this.connection.send(this.pres()
-      .attrs({to:roomJid + '/' + this.currentNick})
-      .c('x', {xmlns:Strophe.NS.MUC})
+  getReservedNick: function(room, callback) {
+    var self = this;
+    this.connection.sendIQ(
+      $iq({
+        from: this.connection.jid,
+        to:room + '@' + config.xmpp.muc_service,
+        type:'get',
+      }).c('query', {
+        xmlns:Strophe.NS.DISCO_INFO,
+        node:'x-roomuser-item',
+      }),
+      function(stanza) {
+        var nick = (
+          ($('query').attr('node') == 'x-roomuser-item') &&
+          $('identity', stanza).attr('name') || null);
+        callback(self, nick);
+      },
+      function() {}
     );
+  },
+
+  joinRoom: function(room) {
+    this.getReservedNick(room, function(self,nick) {
+      if (nick) self.currentNick = nick;
+      self.connection.send(self.pres()
+        .attrs({to:room + '@' + config.xmpp.muc_service + '/' + self.currentNick})
+        .c('x', {xmlns:Strophe.NS.MUC})
+      );
+    });
   },
 
   sendMessage: function(html, text) {
@@ -170,10 +191,10 @@ var xmpp = {
     return function() {
       self.connection.sendIQ(
         $iq({
+          from: this.connection.jid,
           to:config.xmpp.muc_service,
           type:'get'
-        })
-        .c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+        }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
         function(stanza) {
           var rooms = {};
           $('item', stanza).each(function(s,t) {
