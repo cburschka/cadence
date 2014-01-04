@@ -148,17 +148,9 @@ var ui = {
 
   formatUser: function(user) {
     return '<span class="user-role-' + user.role +
-           ' user-affiliation-' + user.affiliation + '">' +
-             '<span class="user-jid user-alt-jid">' + (user.jid || user.nick) + '</span>' +
-             '<span class="user-nick user-alt-nick">' + user.nick + '</span>' +
-           '</span>';
-  },
-
-  setSetting: function(setting, value) {
-    config.settings[setting] = value;
-    if (setting == 'displayJid') {
-      this.dom.content.toggleClass('display-jid', value)
-    }
+           ' user-affiliation-' + user.affiliation + '" ' +
+             (user.jid ? ('title="' + user.jid + '" ') : '') +
+              user.nick + '</span>';
   },
 
   eventInputKeyPress: function() {
