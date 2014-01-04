@@ -5,7 +5,7 @@ var xmpp = {
   currentNick: null,
   resource: null,
   status: 'offline',
-  rosterReceived: false,
+  inRoom: false,
   roster: {},
   nickByJid: {},
 
@@ -44,7 +44,7 @@ var xmpp = {
 
   newConnection: function(user, pass) {
     this.session = {};
-    this.currentNick = user;
+    this.preferredNick = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
     console.log("Connecting as", jid, pass);
     this.connection.connect(jid, pass, this.eventConnectCallback);
@@ -70,10 +70,24 @@ var xmpp = {
     return 'strophe/' + hex_sha1(""+Math.random()).substr(0,6);
   },
 
+  nickConflictResolve: function() {
+    var m = /^(.*?)([\d]*)$/.exec(this.preferredNick);
+    var i = 1;
+    if (m[2]) {
+      i = parseInt(m[2]) + 1;
+    }
+    this.preferredNick = m[1] + i;
+  },
+
   parseJid: function(jid) {
     var r = /^(([^@]+)@)?([^\/]+)(\/(.+))?/.exec(jid);
     addr = {node: r[2], domain: r[3], resource: r[5]};
     return addr;
+  },
+
+  changeNick: function(nick) {
+    this.preferredNick = nick;
+    this.presenceRoomNick(this.currentRoom, nick);
   },
 
   registerParticipant: function (jidMuc, jidFull) {
@@ -128,7 +142,7 @@ var xmpp = {
   clearRoom: function() {
     ui.userClear();
     this.roster = {};
-    this.rosterReceived = false;
+    this.inRoom = false;
   },
 
   changeRoom: function(room) {
@@ -170,12 +184,17 @@ var xmpp = {
 
   joinRoom: function(room) {
     this.getReservedNick(room, function(self,nick) {
-      if (nick) self.currentNick = nick;
-      self.connection.send(self.pres()
-        .attrs({to:room + '@' + config.xmpp.muc_service + '/' + self.currentNick})
-        .c('x', {xmlns:Strophe.NS.MUC})
-      );
+      nick = nick || self.preferredNick;
+      ui.messageAddInfo('Joining room ' + room + ' as ' + nick + ' ...');
+      self.presenceRoomNick(room, nick);
     });
+  },
+
+  presenceRoomNick: function(room, nick) {
+    this.connection.send(this.pres()
+      .attrs({to:room + '@' + config.xmpp.muc_service + '/' + nick})
+      .c('x', {xmlns:Strophe.NS.MUC})
+    );
   },
 
   sendMessage: function(text) {
@@ -221,31 +240,77 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        var from = $(stanza).attr('from');
-        var user, fullJid;
-        var item = $(stanza).find('item');
-        if (item.attr('role')) {
-          extra = {
-            jid: item.attr('jid'),
-            role: item.attr('role'),
-            affiliation: item.attr('affiliation'),
-          };
-          if ($('status', stanza).attr('code') == 110) {
-            self.rosterReceived = true;
-            extra.jid = self.jid;
+        var from = self.parseJid($(stanza).attr('from'));
+        if (from.node != self.currentRoom || from.domain != config.xmpp.muc_service) {
+          // We are only interested in communicating with the room.
+          return true;
+        }
+
+        var type = $(stanza).attr('type');
+        if (type == 'error') {
+          if ($('conflict', stanza).length) {
+            if (self.inRoom) {
+              ui.messageAddError('Error: Username already in use.');
+            }
+            else {
+              ui.messageAddError('Error: Unable to join; username already in use.');
+              self.nickConflictResolve();
+              ui.messageAddInfo('Rejoining as ' + self.preferredNick + ' ...');
+              self.presenceRoomNick(self.currentRoom, self.preferredNick);
+            }
           }
-          user = self.registerParticipant(from, extra.jid);
-          user.role = extra.role;
-          user.affiliation = extra.affiliation;
         }
         else {
-          user = self.identifyJid(from);
-        }
-        var exit = $(stanza).attr('type') == 'unavailable';
-        var available = ['away', 'dnd', 'xa'].indexOf($('show', stanza).text()) < 0;
-        var status = exit ? 'offline' : (available ? 'online' : 'away');
-        if (user.inroom) {
-          ui.userStatus(user, status, self.rosterReceived);
+          var item = $(stanza).find('item');
+          var codes = $.makeArray($('status', stanza).map(function() {
+              return parseInt($(this).attr('code'));
+          }));
+
+          if (type == 'unavailable') {
+            if (codes.indexOf(303) >= 0) {
+              var nick = item.attr('nick');
+              ui.messageAddInfo(from.resource + ' is now known as ' + nick + '.');
+              // Pre-fill the roster to avoid signalling a room rejoin.
+              self.roster[nick] = self.roster[from.resource];
+            }
+            else {
+              ui.messageAddInfo(from.resource + ' has logged out of the Chat.');
+            }
+            ui.userRemove(self.roster[from.resource]);
+            self.roster[from.resource] = null;
+          }
+          else {
+            // away, dnd, xa, chat, [default].
+            var show = $('show', stanza).text() || 'default';
+            if (codes.indexOf(110) >= 0) {
+              self.inRoom = true;
+              self.currentNick = from.resource;
+            }
+            // Roster is complete; we want to log presence changes.
+            if (self.inRoom) {
+              if (!self.roster[from.resource]) {
+                ui.messageAddInfo(from.resource + ' logs into the Chat.');
+              }
+              if (show == 'away' || show == 'xa') {
+                ui.messageAddInfo(from.resource + ' is away.');
+              }
+              else if (show == 'dnd') {
+                ui.messageAddInfo(from.resource + ' is busy.');
+              }
+              else if (self.roster[from.resource] && self.roster[from.resource].show != show) {
+                ui.messageAddInfo(from.resource + ' has returned.');
+              }
+            }
+
+            self.roster[from.resource] = {
+              nick: from.resource,
+              jid: self.parseJid(item.attr('jid')) || null, // if not anonymous.
+              role: item.attr('role'),
+              affiliation: item.attr('affiliation'),
+              show: show,
+            };
+            ui.userAdd(self.roster[from.resource]);
+          }
         }
       }
       return true;

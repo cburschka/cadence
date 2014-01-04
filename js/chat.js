@@ -3,13 +3,13 @@ var chat = {
     connect: function(arg) {
       if (xmpp.status != 'offline') {
         console.log(xmpp.status);
-        return ui.messageAddError('/connect: You must disconnect first.');
+        return ui.messageAddError('Error: You must disconnect first.');
       }
-      args = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
-      user = args[1];
-      pass = args[2].trim();
+      var args = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
+      var user = args[1];
+      var pass = args[2].trim();
       if (!user || !pass)
-        return ui.messageAddError('/connect: user and password are required.');
+        return ui.messageAddError('Error: User and password are required.');
       if (pass[0] == '"' && pass[pass.length-1] == '"') {
         pass = pass.substring(1, pass.length-1);
       }
@@ -17,9 +17,19 @@ var chat = {
     },
     quit: function(arg) {
       if (xmpp.status != 'online') {
-        return ui.messageAddError('/quit: You are not connected.');
+        return ui.messageAddError('Error: You are not connected.');
       }
       xmpp.disconnect();
+    },
+    nick: function(arg) {
+      if (xmpp.status != 'online') {
+        return ui.messageAddError('Error: You are not connected.');
+      }
+      var nick = arg.trim();
+      if (! /^[^\s]+$/.exec(nick)) {
+        return ui.messageAddError('Error: Nicknames cannot contain spaces.');
+      }
+      xmpp.changeNick(nick);
     }
   },
 
