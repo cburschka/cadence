@@ -14,14 +14,14 @@ var xmpp = {
     this.eventConnectCallback = this.eventConnectCallback();
     this.eventPresenceCallback = this.eventPresenceCallback();
     this.eventMessageCallback = this.eventMessageCallback();
-    this.initializeConnection();
+    this.buildConnection();
     // Try to attach to an old session. If it fails, initiate login.
     if (!this.resumeConnection()) {
       ui.connectionFailureAlert();
     }
   },
 
-  initializeConnection: function() {
+  buildConnection: function() {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
@@ -291,7 +291,7 @@ var xmpp = {
         ui.messageAddError('XMPP: ' + msg);
         ui.connectionFailureAlert();
         // The connection is closed and cannot be reused.
-        self.initializeConnection();
+        self.buildConnection();
         self.clearRoom();
       }
       else ui.messageAddInfo('XMPP: ' + msg);
