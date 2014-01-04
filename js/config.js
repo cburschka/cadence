@@ -647,5 +647,18 @@ var config = {
       'available': '%s has returned.',
     },
     chatBotName: 'Ligrev',
-  }
+  },
+
+  bbcode: {
+    b: '<span style="font-weight:bold">{content}</span>',
+    i: '<span style="font-style:italic">{content}</span>',
+    u: '<span style="text-decoration:underline">{content}</span>',
+    s: '<span style="text-decoration:line-through">{content}</span>',
+    // blink: '<span style="text-decoration:blink">{content}</span>', // blink and you're dead.
+    quote: '<blockquote>{content}</blockquote>',
+    code: '<code>{content}</code>',
+    url: '<a href="{option}">{content}</a>',
+    img: '<img src="{content}" alt="Image({content}" />',
+    color: '<span style="color:{option}">{content}</span>'
+  },
 }

@@ -197,11 +197,12 @@ var xmpp = {
     );
   },
 
-  sendMessage: function(text) {
+  sendMessage: function(html) {
+    html = $('<p>' + html + '</p>');
     this.connection.send(this.msg()
-      .c('body', text).up()
-      //.c('html', {xmlns:Strophe.NS.XHTML_IM})
-      //.c('body', {xmlns:Strophe.NS.XHTML}).cnode($('<p>'+html+'</p>')[0])
+      .c('body', html.text()).up()
+      .c('html', {xmlns:Strophe.NS.XHTML_IM})
+      .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
     );
   },
 
@@ -329,11 +330,10 @@ var xmpp = {
             body = html;
           } else {
             body = $($('body', stanza)[0]).text();
-            //body = bbcode.render(body);
           }
           var time = $('delay', stanza).attr('stamp');
           if (time) time = new Date(time);
-          ui.messageAddUser(user, time, body);
+          ui.messageAddUser(user, body, time);
         }
       }
       return true;

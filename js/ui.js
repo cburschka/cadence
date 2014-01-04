@@ -49,8 +49,9 @@ var ui = {
     return moment(time).format(config.settings.dateFormat);
   },
 
-  messageAddUser: function(user, time, text) {
-    this.messageAdd('<span class="user">' + this.formatUser(user) + ':</span> ' + text, time);
+  messageAddUser: function(user, body, time) {
+    body = visual.renderText(body);
+    this.messageAdd('<span class="user">' + this.formatUser(user) + ':</span> ' + body, time);
   },
 
   messageAddInfo: function(text) {
@@ -181,5 +182,5 @@ var ui = {
 
   updateMessageLengthCounter: function() {
     this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
-  },
-}
+  }
+};
