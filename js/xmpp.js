@@ -127,8 +127,14 @@ var xmpp = {
     }
   },
 
+  clearRoom: function() {
+    ui.userClear();
+    this.roster = {};
+    this.rosterReceived = false;
+  },
+
   changeRoom: function(room) {
-    if (this.currentRoom) {
+    if (this.currentRoom && this.currentRoom != room) {
       this.leaveRoom(this.currentRoomJid);
     }
     this.currentRoom = room;
@@ -138,9 +144,7 @@ var xmpp = {
 
   leaveRoom: function(roomJid) {
     ui.messageClear();
-    ui.userClear();
-    this.roster = {};
-    this.rosterReceived = false;
+    this.clearRoom();
     this.connection.send(this.pres()
       .attrs({to:roomJid + '/' + this.currentNick, type:'unavailable'})
     );
@@ -179,8 +183,9 @@ var xmpp = {
           if (self.rooms != rooms) {
             self.rooms = rooms;
             ui.refreshRooms(self.rooms);
-            if (!self.currentRoom || !rooms[currentRoom])
-            room = config.xmpp.default_room;
+            room = self.currentRoom;
+            if (!self.currentRoom || !rooms[self.currentRoom])
+              room = config.xmpp.default_room;
             $('#channelSelection').val(room);
             self.changeRoom(room);
           }
@@ -266,6 +271,7 @@ var xmpp = {
         ui.connectionFailureAlert();
         // The connection is closed and cannot be reused.
         self.initializeConnection();
+        self.clearRoom();
       }
       else ui.messageAddInfo('XMPP: ' + msg);
       return true;

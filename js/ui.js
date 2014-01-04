@@ -131,6 +131,7 @@ var ui = {
       this.userLinks[x].remove();
     }
     this.userLinks = {};
+    this.roster = {};
   },
 
   formatUser: function(user) {

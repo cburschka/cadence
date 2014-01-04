@@ -48,7 +48,7 @@ var chat = {
       this.commands[cmd](arg);
     }
     else {
-      ui.error("Unknown command: /" + cmd);
+      ui.messageAddError("Unknown command: /" + cmd);
     }
   },
 
