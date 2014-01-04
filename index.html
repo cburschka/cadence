@@ -35,8 +35,10 @@
 <body>
   <div id="content">
     <div id="headlineContainer">
-      <label for="channelSelection">Channel:</label>
-      <select id="channelSelection" onchange="xmpp.changeRoom(this.options[this.selectedIndex].value);"></select>
+      <span id="channelContainer">
+        <label for="channelSelection">Channel:</label>
+        <select id="channelSelection"></select>
+      </span>
       <label for="styleSelection">Style:</label>
       <select id="styleSelection" onchange="ui.setStyle(this.options[this.selectedIndex].value);"><option value="omg">omg</option><option value="dash">dash</option><option value="Sulfur">Sulfur</option><option value="Mercury">Mercury</option><option value="Carbon" selected="selected">Carbon</option><option value="Technetium">Technetium</option></select>
     </div>

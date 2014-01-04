@@ -23,6 +23,12 @@ var ui = {
       keyup: this.eventInputKeyUp()
     });
 
+    this.dom.channelSelection.change(function(e) {
+      xmpp.changeRoom($(e.target).val());
+    });
+
+    $('#channelContainer').hide();
+
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
   },
@@ -91,6 +97,7 @@ var ui = {
     for (id in rooms) {
       options[options.length] = new Option(rooms[id], id);
     }
+    $('#channelContainer')[rooms ? 'show' : 'hide'](500);
   },
 
   userStatus: function(user, status, notify) {
