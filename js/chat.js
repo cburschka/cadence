@@ -53,6 +53,8 @@ var chat = {
   },
 
   sendMessage: function(text) {
-    console.log("Send: " + text);
+    // text = bbcode.render(text);
+    xmpp.sendMessage(text);
+    //ui.messageAddUser(xmpp.roster[xmpp.currentNick]);
   },
 }

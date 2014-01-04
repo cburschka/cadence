@@ -243,11 +243,11 @@ var xmpp = {
             body = html;
           } else {
             body = $($('body', stanza)[0]).text();
-            body = ajaxChat.render(body);
+            //body = bbcode.render(body);
           }
           var time = $('delay', stanza).attr('stamp');
-          time = time ? new Date(time) : new Date();
-          ui.messageAdd(user, time, body);
+          if (time) time = new Date(time);
+          ui.messageAddUser(user, time, body);
         }
       }
       return true;
