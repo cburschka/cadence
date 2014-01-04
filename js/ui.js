@@ -93,11 +93,13 @@ var ui = {
   },
 
   refreshRooms: function(rooms) {
-    options = this.dom.channelSelection.html('').prop('options');
+    var options = this.dom.channelSelection.html('').prop('options');
+    var anyRooms = false;
     for (id in rooms) {
       options[options.length] = new Option(rooms[id], id);
+      anyRooms = true;
     }
-    $('#channelContainer')[rooms ? 'show' : 'hide'](500);
+    $('#channelContainer')[anyRooms ? 'show' : 'hide'](500);
   },
 
   userStatus: function(user, status, notify) {
