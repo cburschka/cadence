@@ -14,6 +14,7 @@ var xmpp = {
     this.eventConnectCallback = this.eventConnectCallback();
     this.eventPresenceCallback = this.eventPresenceCallback();
     this.eventMessageCallback = this.eventMessageCallback();
+    this.disconnect = this.disconnect();
     this.buildConnection();
     // Try to attach to an old session. If it fails, initiate login.
     if (!this.resumeConnection()) {
@@ -358,6 +359,7 @@ var xmpp = {
         // The connection is closed and cannot be reused.
         self.buildConnection();
         self.clearRoom();
+        ui.refreshRooms({});
       }
       else ui.messageAddInfo('XMPP: ' + msg);
       return true;
@@ -401,8 +403,11 @@ var xmpp = {
   },
 
   disconnect: function() {
-    this.connection.send(this.pres().attrs({type: 'unavailable'}));
-    this.connection.disconnect();
-    this.setStatus('offline');
+    var self = this;
+    return function() {
+      self.connection.send(self.pres().attrs({type: 'unavailable'}));
+      self.connection.disconnect();
+      self.setStatus('offline');
+    };
   }
 }
