@@ -178,11 +178,11 @@ var xmpp = {
     });
   },
 
-  sendMessage: function(html, text) {
+  sendMessage: function(text) {
     this.connection.send(this.msg()
       .c('body', text).up()
-      .c('html', {xmlns:Strophe.NS.XHTML_IM})
-      .c('body', {xmlns:Strophe.NS.XHTML}).cnode($('<p>'+html+'</p>')[0])
+      //.c('html', {xmlns:Strophe.NS.XHTML_IM})
+      //.c('body', {xmlns:Strophe.NS.XHTML}).cnode($('<p>'+html+'</p>')[0])
     );
   },
 
