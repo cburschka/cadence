@@ -7,7 +7,6 @@ var xmpp = {
   status: 'offline',
   inRoom: false,
   roster: {},
-  nickByJid: {},
 
   initialize: function() {
     this.discoverRooms = this.discoverRooms();
@@ -80,64 +79,9 @@ var xmpp = {
     this.preferredNick = m[1] + i;
   },
 
-  parseJid: function(jid) {
-    var r = /^(([^@]+)@)?([^\/]+)(\/(.+))?/.exec(jid);
-    addr = {node: r[2], domain: r[3], resource: r[5]};
-    return addr;
-  },
-
   changeNick: function(nick) {
     this.preferredNick = nick;
     this.presenceRoomNick(this.currentRoom, nick);
-  },
-
-  registerParticipant: function (jidMuc, jidFull) {
-    var addrMuc = this.parseJid(jidMuc);
-    var user;
-    if (jidFull) {
-      var addrFull = this.parseJid(jidFull);
-      user = {
-        inroom: true,
-        nick: addrMuc.resource,
-        user: addrFull.node,
-        domain: addrFull.domain,
-        client: addrFull.resource,
-        local: addrFull.domain == config.xmpp.domain
-      };
-    }
-    else {
-      user = {
-        inroom: true,
-        nick: addrMuc.resource,
-        user: '[' + addrMuc.resource + ']',
-        local: true,
-      };
-    }
-    this.roster[user.nick] = user;
-    this.nickByJid[jidFull] = this.nickByJid[jidMuc] = user;
-    return user;
-  },
-
-  identifyJid: function (jid) {
-    addr = this.parseJid(jid);
-    if (addr.domain == config.xmpp.muc_service && addr.node == this.currentRoom) {
-      if (this.roster[addr.resource]) {
-        return this.roster[addr.resource];
-      }
-    }
-    else {
-      var user = {
-        // Messages may arrive from users who are not in the room.
-        // These have no nick.
-        inroom: false,
-        user: addr.node,
-        domain: addr.domain,
-        client: addr.resource,
-        nick: this.nickByJid[jid] || '',
-        local: addr.domain == config.xmpp.domain
-      };
-      return user;
-    }
   },
 
   clearRoom: function() {
@@ -242,11 +186,13 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        var from = self.parseJid($(stanza).attr('from'));
-        if (from.node != self.currentRoom || from.domain != config.xmpp.muc_service) {
-          // We are only interested in communicating with the room.
-          return true;
-        }
+        var from = $(stanza).attr('from');
+        // We are only interested in communicating with the room.
+        if (
+          Strophe.getNodeFromJid(from) != self.currentRoom ||
+          Strophe.getDomainFromJid(from) != config.xmpp.muc_service
+        ) return true;
+        var nick = Strophe.getResourceFromJid(from);
 
         var type = $(stanza).attr('type');
         if (type == 'error') {
@@ -270,48 +216,53 @@ var xmpp = {
 
           if (type == 'unavailable') {
             if (codes.indexOf(303) >= 0) {
-              var nick = item.attr('nick');
-              ui.messageAddInfo(from.resource + ' is now known as ' + nick + '.');
-              // Pre-fill the roster to avoid signalling a room rejoin.
-              self.roster[nick] = self.roster[from.resource];
+              var newNick = item.attr('nick');
+              ui.messageAddInfo(nick + ' is now known as ' + newNick + '.');
+              // Move the roster entry to the new nick, so the new presence
+              // won't trigger a notification.
+              self.roster[newNick] = self.roster[nick];
             }
             else {
-              ui.messageAddInfo(from.resource + ' has logged out of the Chat.');
+              ui.messageAddInfo(nick + ' has logged out of the Chat.');
             }
-            ui.userRemove(self.roster[from.resource]);
-            self.roster[from.resource] = null;
+            ui.userRemove(self.roster[nick]);
+            delete self.roster[nick];
           }
           else {
             // away, dnd, xa, chat, [default].
             var show = $('show', stanza).text() || 'default';
+            // Self-presence.
             if (codes.indexOf(110) >= 0) {
               self.inRoom = true;
-              self.currentNick = from.resource;
+              self.currentNick = nick;
+              if (codes.indexOf(210) >= 0) {
+                ui.messageAddInfo('Your nick has been modified by the server.')
+              }
             }
             // Roster is complete; we want to log presence changes.
             if (self.inRoom) {
-              if (!self.roster[from.resource]) {
-                ui.messageAddInfo(from.resource + ' logs into the Chat.');
+              if (!self.roster[nick]) {
+                ui.messageAddInfo(nick + ' logs into the Chat.');
               }
               if (show == 'away' || show == 'xa') {
-                ui.messageAddInfo(from.resource + ' is away.');
+                ui.messageAddInfo(nick + ' is away.');
               }
               else if (show == 'dnd') {
-                ui.messageAddInfo(from.resource + ' is busy.');
+                ui.messageAddInfo(nick + ' is busy.');
               }
-              else if (self.roster[from.resource] && self.roster[from.resource].show != show) {
-                ui.messageAddInfo(from.resource + ' has returned.');
+              else if (self.roster[nick] && self.roster[nick].show != show) {
+                ui.messageAddInfo(nick + ' has returned.');
               }
             }
 
-            self.roster[from.resource] = {
-              nick: from.resource,
-              jid: self.parseJid(item.attr('jid')) || null, // if not anonymous.
+            self.roster[nick] = {
+              nick: nick,
+              jid: item.attr('jid') || null, // if not anonymous.
               role: item.attr('role'),
               affiliation: item.attr('affiliation'),
               show: show,
             };
-            ui.userAdd(self.roster[from.resource]);
+            ui.userAdd(self.roster[nick]);
           }
         }
       }
@@ -323,7 +274,7 @@ var xmpp = {
     var self = this;
     return function(stanza) {
       if (stanza) {
-        var user = self.identifyJid($(stanza).attr('from'));
+        var user = self.roster[Strophe.getResourceFromJid($(stanza).attr('from'))];
         if (user) {
           var body = null;
           var html = $('html body p', stanza).html();
