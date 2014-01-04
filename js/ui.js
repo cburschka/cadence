@@ -137,24 +137,21 @@ var ui = {
   },
 
   userClear: function() {
+    this.dom.onlineList.hide(500);
     for (x in this.userLinks) {
       this.userLinks[x].remove();
     }
     this.userLinks = {};
     this.roster = {};
+    this.dom.onlineList.show(500);
   },
 
   formatUser: function(user) {
-    nick_exists = user.nick != '';
-    show_jid = user.user + (!user.local ? '@'+user.domain : '');
-
     return '<span class="user-role-' + user.role +
            ' user-affiliation-' + user.affiliation + '">' +
-           (nick_exists ?
-             ('<span class="user-jid user-alt-jid">' + show_jid + '</span>' +
-             '<span class="user-nick user-alt-nick">' + user.nick + '</span>') :
-             '<span class="user-jid">' + show_jid + '</span>'
-           ) + '</span>'
+             '<span class="user-jid user-alt-jid">' + (user.jid || user.nick) + '</span>' +
+             '<span class="user-nick user-alt-nick">' + user.nick + '</span>' +
+           '</span>';
   },
 
   setSetting: function(setting, value) {
