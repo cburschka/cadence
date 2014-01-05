@@ -105,6 +105,7 @@ var xmpp = {
       var nick = (
         ($('query').attr('node') == 'x-roomuser-item') &&
         $('identity', stanza).attr('name') || null);
+      callback(nick);
     }
     this.connection.sendIQ(
       $iq({
@@ -136,7 +137,9 @@ var xmpp = {
 
   presenceRoomNick: function(room, nick) {
     this.connection.send(this.pres()
-      .attrs({to:room + '@' + config.xmpp.muc_service + '/' + nick})
+      .attrs({
+        to:Strophe.escapeNode(room) + '@' + config.xmpp.muc_service + '/' + nick
+      })
       .c('x', {xmlns:Strophe.NS.MUC})
     );
   },
@@ -180,7 +183,7 @@ var xmpp = {
         var from = $(stanza).attr('from');
         // We are only interested in communicating with the room.
         if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service) return true;
-        var room = Strophe.getNodeFromJid(from);
+        var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
         var nick = Strophe.getResourceFromJid(from);
 
         if (!self.roster[room]) self.roster[room] = {};
@@ -276,7 +279,7 @@ var xmpp = {
       if (stanza) {
         var from = $(stanza).attr('from');
         var nick = Strophe.getResourceFromJid(from);
-        var room = Strophe.getNodeFromJid(from);
+        var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
         if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.currentRoom)
           return true;
         var user = self.roster[room][nick];
