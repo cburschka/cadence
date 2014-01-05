@@ -209,18 +209,20 @@ var xmpp = {
           }));
 
           if (type == 'unavailable') {
-            if (codes.indexOf(303) >= 0) {
-              var newNick = item.attr('nick');
-              ui.messageAddInfo(nick + ' is now known as ' + newNick + '.');
-              // Move the roster entry to the new nick, so the new presence
-              // won't trigger a notification.
-              self.roster[room][newNick] = self.roster[room][nick];
+            if (room == this.currentRoom) {
+              if (codes.indexOf(303) >= 0) {
+                var newNick = item.attr('nick');
+                ui.messageAddInfo(nick + ' is now known as ' + newNick + '.');
+                // Move the roster entry to the new nick, so the new presence
+                // won't trigger a notification.
+                self.roster[room][newNick] = self.roster[room][nick];
+              }
+              else {
+                ui.messageAddInfo(nick + ' has logged out of the Chat.');
+              }
+              ui.userRemove(self.roster[room][nick]);
+              delete self.roster[room][nick];
             }
-            else {
-              ui.messageAddInfo(nick + ' has logged out of the Chat.');
-            }
-            ui.userRemove(self.roster[room][nick]);
-            delete self.roster[room][nick];
           }
           else {
             // away, dnd, xa, chat, [default].
