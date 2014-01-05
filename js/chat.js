@@ -20,6 +20,13 @@ var chat = {
         return ui.messageAddError('Error: Nicknames cannot contain spaces.');
       }
       xmpp.changeNick(nick);
+    },
+    join: function(arg) {
+      var room = arg.trim();
+      if (xmpp.currentRoom == room) {
+        return ui.messageAddError('You are already in ' + room + '.');
+      }
+      xmpp.changeRoom(room);
     }
   },
 
