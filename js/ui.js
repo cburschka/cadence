@@ -150,7 +150,7 @@ var ui = {
   },
 
   messageInsert: function(message) {
-    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
+    this.scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     var c = this.messages.length;
     if (message.timestamp < this.messages[0].timestamp) {
       this.messages[0].html.before(message.html);
@@ -165,24 +165,18 @@ var ui = {
     }
 
     $(message.html).css({display:'block'});
-
-    // Only autoscroll if we are at the bottom.
-    if(config.settings.autoScroll && scrolledDown) {
-      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
-    }
+    this.scrollDown();
   },
 
   messageAppend: function(message) {
     this.messageHash[message.hash] = true;
-    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
+    this.scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     this.messages[this.messages.length] = message;
     this.dom.chatList.append(message.html);
-    $(message.html).slideDown();
-
-    // Only autoscroll if we are at the bottom.
-    if(config.settings.autoScroll && scrolledDown) {
-      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
-    }
+    $(message.html).fadeIn(function() {
+      ui.scrollDown();
+    });
+    this.scrollDown();
   },
 
   refreshRooms: function(rooms) {
@@ -268,5 +262,12 @@ var ui = {
 
   updateMessageLengthCounter: function() {
     this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
+  },
+
+  scrollDown: function() {
+    // Only autoscroll if we are at the bottom.
+    if(config.settings.autoScroll && this.scrolledDown) {
+      $('#chatList').scrollTop($('#chatList').prop('scrollHeight'));
+    }
   }
 };
