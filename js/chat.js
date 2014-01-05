@@ -3,7 +3,7 @@ var chat = {
     connect: function(arg) {
       if (typeof arg == 'string') {
         var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
-        arg = {user: args[1], pass: args[2].trim()};
+        arg = {user: m[1], pass: m[2].trim()};
       }
       if (!arg.user || !arg.pass)
         return ui.messageAddInfo('User and password are required.', 'error');
