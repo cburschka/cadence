@@ -42,6 +42,12 @@ visual = {
              '[image:' + $(this).attr('src') + ']';
     });
     return text.html();
+  },
+
+  formatUser: function(user) {
+    return '<span class="user-role-' + user.role +
+           ' user-affiliation-' + user.affiliation + '" ' +
+             (user.jid ? ('title="' + user.jid + '">') : '>') +
+              user.nick + '</span>';
   }
 };
-// [img]http://stuff.ermarian.net/arancaytar/xmpp-chat.png[/img]

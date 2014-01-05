@@ -127,15 +127,25 @@ var ui = {
   messageCreate: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
     var id = this.messageId++;
+    var userPrefix = '<span class="user">';
+    var userbody = '</span> <span class="body">';
+    var bodySuffix = '</span>';
+
+    if (message.body.substring(0,4) == '/me ') {
+      userPrefix = '<span class="user-action">* ' + userPrefix;
+      bodySuffix += '</span>';
+      message.body = message.body.substring(4);
+    }
+    else userbody = ':' + userbody;
+
     return {
       timestamp: message.time.getTime(),
-      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message),
+      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
       id: id,
       html: $('<div class="row" id="message-' + id + '">' +
-            '<span class="dateTime">' +
-            this.formatTime(message.time) + '</span> ' +
-            '<span class="user">' + this.formatUser(message.user) + ':</span> ' +
-            '<span class="body">' + visual.renderText(message.body) + '</span></div>')
+              '<span class="dateTime">' + this.formatTime(message.time) + '</span> ' +
+              userPrefix + visual.formatUser(message.user) + userbody +
+              visual.renderText(message.body) + bodySuffix + '</div>')
     };
   },
 
@@ -198,7 +208,7 @@ var ui = {
         if (this.userStatus[user.nick] == 'away' && status == 'online') msg = 'available';
         else msg = status;
         this.messageAddInfo(config.ui.userStatus[msg].replace(
-          '%s', this.formatUser(user)));
+          '%s', visual.formatUser(user)));
       }
       this.userStatus[user.nick] = status;
     }
@@ -206,7 +216,7 @@ var ui = {
 
   userAdd: function(user) {
     if (!this.userLinks[user.nick]) {
-      this.userLinks[user.nick] = $('<div class="row">' + this.formatUser(user) + '</div>'),
+      this.userLinks[user.nick] = $('<div class="row">' + visual.formatUser(user) + '</div>'),
       this.dom.onlineList.append(this.userLinks[user.nick]);
       $('.row', this.dom.onlineList).slideDown(1000);
     }
@@ -230,13 +240,6 @@ var ui = {
       }
       $(this).slideDown();
     });
-  },
-
-  formatUser: function(user) {
-    return '<span class="user-role-' + user.role +
-           ' user-affiliation-' + user.affiliation + '" ' +
-             (user.jid ? ('title="' + user.jid + '">') : '>') +
-              user.nick + '</span>';
   },
 
   enter: function(callback) {

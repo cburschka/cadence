@@ -28,11 +28,14 @@ var chat = {
         return ui.messageAddInfo('You are already in ' + room + '.', 'error');
       }
       xmpp.changeRoom(room);
+    },
+    me: function(arg) {
+      chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
     }
   },
 
   cmdAvailableStatus: {
-    online: ['join', 'quit', 'nick'],
+    online: ['join', 'quit', 'nick', 'me'],
     offline: ['connect'],
     waiting: [],
   },
