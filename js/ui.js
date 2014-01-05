@@ -132,7 +132,7 @@ var ui = {
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
       this.userLinks[user.nick].remove();
-      this.userLinks[user.nick] = null;
+      delete this.userLinks[user.nick];
     }
   },
 
@@ -149,7 +149,7 @@ var ui = {
   formatUser: function(user) {
     return '<span class="user-role-' + user.role +
            ' user-affiliation-' + user.affiliation + '" ' +
-             (user.jid ? ('title="' + user.jid + '" ') : '') +
+             (user.jid ? ('title="' + user.jid + '">') : '>') +
               user.nick + '</span>';
   },
 
