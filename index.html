@@ -193,6 +193,10 @@
       <h3>Settings</h3>
       <div id="settingsList">
         <table>
+          <tr class="rowEven">
+            <td><label for="bbCodeSetting">Verbose messages:</label></td>
+            <td class="setting"><input type="checkbox" id="verboseSetting" class="setting" /></td>
+          </tr>
           <tr class="rowOdd">
             <td><label for="bbCodeSetting">Enable BBCode:</label></td>
             <td class="setting"><input type="checkbox" id="bbCodeSetting" onclick="ajaxChat.setSetting('bbCode', this.checked);"/></td>

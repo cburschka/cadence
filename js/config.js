@@ -55,6 +55,8 @@ var config = {
 
   // Defines the settings which can be modified by users:
   settings: {
+    // Whether to display verbose log messages.
+    verbose: true,
     // Defines if BBCode tags are replaced with the associated HTML code tags:
     bbCode: true,
     // Defines if image BBCode is replaced with the associated image HTML code:

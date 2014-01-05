@@ -52,6 +52,12 @@ var ui = {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
+    $('input.setting').change(function() {
+      config.settings[this.id.substring(0, this.id.length - 'Setting'.length)] = this.checked;
+    }).prop('checked', function() {
+      return config.settings[this.id.substring(0, this.id.length - 'Setting'.length)];
+    });
+
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
   },
@@ -95,6 +101,9 @@ var ui = {
   },
 
   messageAddInfo: function(text, classes) {
+    if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
+      if (!config.settings.verbose) return;
+    }
     var message = this.messageCreate({
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
