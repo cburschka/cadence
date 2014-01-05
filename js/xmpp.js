@@ -296,7 +296,7 @@ var xmpp = {
           }
           var time = $('delay', stanza).attr('stamp');
           if (time) message = ui.messageDelayed(
-            {user: user, body: body, time: time}
+            {user: user, body: body, time: time, room: room}
           );
           else ui.messageAppend(ui.messageCreate({user: user, body: body}));
         }

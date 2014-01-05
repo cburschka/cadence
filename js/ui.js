@@ -115,11 +115,11 @@ var ui = {
   },
 
   messageDelayed: function(message) {
-    var hash = hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message);
-    if (!this.messageHash[hash]) {
-      this.messageHash[hash] = true;
-      var entry = this.messageCreate(message);
+    var entry = this.messageCreate(message);
+    if (!this.messageHash[entry.hash]) {
+      this.messageHash[entry.hash] = true;
       entry.html.addClass('delayed');
+      entry.html.prepend('<span class="log-room-' + message.room + '">[' + message.room + ']</span> ');
       this.messageInsert(entry);
     }
   },
@@ -129,6 +129,7 @@ var ui = {
     var id = this.messageId++;
     return {
       timestamp: message.time.getTime(),
+      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message),
       id: id,
       html: $('<div class="row" id="message-' + id + '">' +
             '<span class="dateTime">' +
@@ -160,6 +161,7 @@ var ui = {
   },
 
   messageAppend: function(message) {
+    this.messageHash[message.hash] = true;
     var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     this.messages[this.messages.length] = message;
     this.dom.chatList.append(message.html);
