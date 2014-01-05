@@ -48,7 +48,6 @@ var xmpp = {
     this.session = {};
     this.preferredNick = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
-    console.log("Connecting as", jid, pass);
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
 
@@ -308,7 +307,6 @@ var xmpp = {
       self.setStatus(self.readConnectionStatus(status))
       var msg = self.readStatusMessage(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
-      console.log("Received connection event", status, errorCondition, msg);
       if (self.status == 'online') {
         ui.messageAddInfo('XMPP: ' + msg, 'success');
         self.announce();
