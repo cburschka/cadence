@@ -153,6 +153,7 @@ var ui = {
         return;
       }
     }
+    $(message.html).css({display:'block'});
 
     // Only autoscroll if we are at the bottom.
     if(config.settings.autoScroll && scrolledDown) {
@@ -165,6 +166,7 @@ var ui = {
     var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     this.messages[this.messages.length] = message;
     this.dom.chatList.append(message.html);
+    $(message.html).slideDown();
 
     // Only autoscroll if we are at the bottom.
     if(config.settings.autoScroll && scrolledDown) {
@@ -206,6 +208,7 @@ var ui = {
     if (!this.userLinks[user.nick]) {
       this.userLinks[user.nick] = $('<div class="row">' + this.formatUser(user) + '</div>'),
       this.dom.onlineList.append(this.userLinks[user.nick]);
+      $('.row', this.dom.onlineList).slideDown(1000);
     }
   },
 
@@ -217,13 +220,16 @@ var ui = {
   },
 
   userRefresh: function(roster) {
-    this.dom.onlineList.hide(500).html('');
-    this.userLinks = {};
-    this.userStatus = {};
-    for (nick in roster) {
-      this.userAdd(roster[nick]);
-    }
-    this.dom.onlineList.show(500);
+    var self = this;
+    this.dom.onlineList.slideUp(function() {
+      $(this).html('');
+      self.userLinks = {};
+      self.userStatus = {};
+      for (nick in roster) {
+        self.userAdd(roster[nick]);
+      }
+      $(this).slideDown();
+    });
   },
 
   formatUser: function(user) {

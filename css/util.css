@@ -35,6 +35,11 @@
   color:#aaa;
 }
 
+#chatList .row,
+#onlineList .row {
+  display:none;
+}
+
 /* Status Icon */
 #statusIconContainer {
   background-image: url('../img/loading-sprite.png');
