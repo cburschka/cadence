@@ -50,6 +50,7 @@
       </span>
     </div>
     <div id="statusIconContainer" class="statusContainerOn"></div>
+    <div id="chatContainer">
     <div id="chatList"></div>
     <div id="inputFieldContainer">
       <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
@@ -70,21 +71,21 @@
     </div>
     <div id="colorCodesContainer" style="display:none;" dir="ltr"></div>
     <div id="optionsContainer">
-      <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" onclick="ajaxChat.logout();"/>
-      <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="Show/hide help" title="Show/hide help" onclick="toggleContainer('helpContainer', new Array('poniconContainer', 'onlineListContainer','settingsContainer'));"/>
-      <input type="image" src="img/pixel.gif" class="button" id="poniconButton" alt="Ponicons" title="Ponicons" onclick="toggleContainer('poniconContainer', new Array('onlineListContainer','settingsContainer','helpContainer'));"/>
-      <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" onclick="toggleContainer('settingsContainer', new Array('poniconContainer', 'onlineListContainer','helpContainer'));"/>
-      <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" onclick="toggleContainer('onlineListContainer', new Array('poniconContainer', 'settingsContainer','helpContainer'));"/>
-      <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" onclick="ajaxChat.toggleSetting('audio', 'audioButton');"/>
-      <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" onclick="ajaxChat.toggleSetting('autoScroll', 'autoScrollButton');"/>
-      </div>
+      <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
+      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="helpButton" alt="Show/hide help" title="Show/hide help" />
+      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="poniconButton" alt="Ponicons" title="Ponicons" />
+      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" />
+      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" />
+      <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
+      <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
+    </div>
     <div id="onlineListContainer">
       <h3>Online users</h3>
-        <div id="onlineList"></div>
-      </div>
-      <div id="helpContainer" style="display:none;">
-       <h3>Help</h3>
-       <div id="helpList">
+      <div id="onlineList"></div>
+    </div>
+    <div id="helpContainer" style="display:none;">
+      <h3>Help</h3>
+      <div id="helpList">
         <table>
           <tr class="rowOdd">
             <td class="desc">Join a channel:</td>
@@ -183,14 +184,14 @@
           </tr>
         </table>
       </div>
-      </div>
-      <div id="poniconContainer" style="display:none;">
-         <h3>Ponicons</h3>
-         <span id="poniconList" dir="ltr"></span>
-      </div>
-      <div id="settingsContainer" style="display:none;">
-       <h3>Settings</h3>
-       <div id="settingsList">
+    </div>
+    <div id="poniconContainer" style="display:none;">
+       <h3>Ponicons</h3>
+       <span id="poniconList" dir="ltr"></span>
+    </div>
+    <div id="settingsContainer" style="display:none;">
+      <h3>Settings</h3>
+      <div id="settingsList">
         <table>
           <tr class="rowOdd">
             <td><label for="bbCodeSetting">Enable BBCode:</label></td>
@@ -307,7 +308,7 @@
           </tr>
         </table>
       </div>
-      </div>
+    </div>
     <!--
       Please retain the full copyright notice below including the link to blueimp.net.
       This not only gives respect to the amount of time given freely by the developer
@@ -319,5 +320,4 @@
     <div id="copyright"><a href="https://blueimp.net/ajax/">AJAX Chat</a> &copy; <a href="https://blueimp.net">blueimp.net</a></div>
   </div>
 </body>
-
 </html>

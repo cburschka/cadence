@@ -300,13 +300,13 @@
   cursor:pointer;
 }
 
-  #content, #content h1, #content a, #content input, #content select, #content textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, .waiting, .online, .offline, #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #content #colorCodesContainer a, #content #optionsContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #content #chatList .chatBotErrorMessage, #content #chatList a, #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+/*  #content, #content h1, #content a, #content input, #content select, #content textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, .waiting, .online, .offline, #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #content #colorCodesContainer a, #content #optionsContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #content #chatList .chatBotErrorMessage, #content #chatList a, #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
   -moz-transition-duration: 0.5s;
   -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   -webkit-transition-duration: 0.5s;
   -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   }
-}
+}*/
 
 /* User Colors */
 

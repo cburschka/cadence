@@ -6,6 +6,7 @@ var ui = {
   messages: [],
   messageId: 0,
   messageHash: {},
+  activeMenu: 'onlineList',
 
   initialize: function() {
     this.dom = {
@@ -18,7 +19,13 @@ var ui = {
       messageLengthCounter: $('#messageLengthCounter'),
       styleSheets: $('link').filter(function() {
         return $(this).attr('rel').indexOf('style') >= 0;
-      })
+      }),
+      menu: {
+        help: $('#helpContainer'),
+        onlineList: $('#onlineListContainer'),
+        ponicon: $('#poniconContainer'),
+        settings: $('#settingsContainer'),
+      }
     };
 
     this.dom.inputField.on({
@@ -34,6 +41,10 @@ var ui = {
 
     $('#loginButton').click(function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
+    });
+
+    $('#optionsContainer .button.toggleMenu').click(function() {
+      ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
@@ -52,6 +63,25 @@ var ui = {
         this.disabled = $(this).attr('title') != style;
       });
     };
+  },
+
+  toggleMenu: function(active) {
+    if (this.activeMenu) {
+      this.dom.menu[this.activeMenu].animate({width: 'hide'}, 'slow');
+    }
+    var width = 20;
+    if (this.activeMenu != active) {
+      var px = this.dom.menu[active].css('width');
+      width += parseInt(px.substring(0,px.length-2)) + 8;
+      this.activeMenu = active;
+    }
+    else {
+      this.activeMenu = null;
+    }
+    $('#chatList').animate({right : width + 'px'}, 'slow');
+    if (this.activeMenu) {
+      this.dom.menu[active].animate({width: 'show'}, 'slow');
+    }
   },
 
   formatTime: function(time) {
