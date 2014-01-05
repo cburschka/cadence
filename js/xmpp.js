@@ -14,10 +14,8 @@ var xmpp = {
     this.eventMessageCallback = this.eventMessageCallback();
     this.disconnect = this.disconnect();
     this.buildConnection();
-    // Try to attach to an old session. If it fails, initiate login.
-    if (!this.resumeConnection()) {
-      ui.connectionFailureAlert();
-    }
+    // Try to attach to an old session. If it fails, wait for user to log in.
+    this.resumeConnection();
   },
 
   buildConnection: function() {
@@ -325,7 +323,6 @@ var xmpp = {
       }
       else if (self.status == 'offline') {
         ui.messageAddInfo('XMPP: ' + msg, 'error');
-        ui.connectionFailureAlert();
         // The connection is closed and cannot be reused.
         self.buildConnection();
         self.roster = {};

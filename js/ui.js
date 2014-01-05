@@ -40,10 +40,6 @@ var ui = {
     this.setStatus('offline');
   },
 
-  connectionFailureAlert: function() {
-    this.messageAddInfo('Type /connect &lt;user&gt; &lt;pass&gt; to connect.');
-  },
-
   setStatus: function(status) {
     // status options are: online, waiting, offline.
     this.dom.statusIconContainer.attr('class', status);
