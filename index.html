@@ -41,6 +41,13 @@
       </span>
       <label for="styleSelection">Style:</label>
       <select id="styleSelection" onchange="ui.setStyle(this.options[this.selectedIndex].value);"><option value="omg">omg</option><option value="dash">dash</option><option value="Sulfur">Sulfur</option><option value="Mercury">Mercury</option><option value="Carbon" selected="selected">Carbon</option><option value="Technetium">Technetium</option></select>
+      <span id="loginContainer">
+        <label for="loginUser">User:</label>
+        <input type="text" id="loginUser" />
+        <label for="loginPass">Password:</label>
+        <input type="password" id="loginPass" />
+        <button type="button" id="loginButton">Log in</button>
+      </span>
     </div>
     <div id="statusIconContainer" class="statusContainerOn"></div>
     <div id="chatList"></div>

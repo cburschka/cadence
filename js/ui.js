@@ -32,6 +32,10 @@ var ui = {
 
     $('#channelContainer').hide();
 
+    $('#loginButton').click(function() {
+      chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
+    });
+
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
   },
@@ -43,6 +47,7 @@ var ui = {
   setStatus: function(status) {
     // status options are: online, waiting, offline.
     this.dom.statusIconContainer.attr('class', status);
+    $('#loginContainer')[status == 'online' ? 'hide' : 'show'](500);
   },
 
   setStyle: function(style) {

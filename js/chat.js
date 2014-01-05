@@ -1,15 +1,16 @@
 var chat = {
   commands: {
     connect: function(arg) {
-      var args = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
-      var user = args[1];
-      var pass = args[2].trim();
-      if (!user || !pass)
-        return ui.messageAddInfo('User and password are required.', 'error');
-      if (pass[0] == '"' && pass[pass.length-1] == '"') {
-        pass = pass.substring(1, pass.length-1);
+      if (typeof arg == 'string') {
+        var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
+        arg = {user: args[1], pass: args[2].trim()};
       }
-      xmpp.newConnection(user, pass);
+      if (!arg.user || !arg.pass)
+        return ui.messageAddInfo('User and password are required.', 'error');
+      if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
+        arg.pass = arg.pass.substring(1, arg.pass.length-1);
+      }
+      xmpp.newConnection(arg.user, arg.pass);
     },
     quit: function(arg) {
       xmpp.disconnect();
