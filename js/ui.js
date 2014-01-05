@@ -1,7 +1,7 @@
 var ui = {
   userLinks: {},
   dom: null,
-  roster: {},
+  userStatus: {},
   chatListHeight: null,
 
   initialize: function() {
@@ -88,10 +88,6 @@ var ui = {
     }
   },
 
-  messageClear: function() {
-    this.dom.chatList.html('');
-  },
-
   refreshRooms: function(rooms) {
     var options = this.dom.channelSelection.html('').prop('options');
     var anyRooms = false;
@@ -102,23 +98,23 @@ var ui = {
     $('#channelContainer')[anyRooms ? 'show' : 'hide'](500);
   },
 
-  userStatus: function(user, status, notify) {
+  userStatusChange: function(user, status, notify) {
     if (status == 'offline' && this.userLinks[user.nick]) {
       this.userRemove(user);
     }
     else if (!this.userLinks[user.nick]) {
       this.userAdd(user);
     }
-    if (this.roster[user.nick] != status) {
+    if (this.userStatus[user.nick] != status) {
       if (this.userLinks[user.nick])
         this.userLinks[user.nick].attr('class', 'user-' + status);
       if (notify) {
-        if (this.roster[user.nick] == 'away' && status == 'online') msg = 'available';
+        if (this.userStatus[user.nick] == 'away' && status == 'online') msg = 'available';
         else msg = status;
         this.messageAddInfo(config.ui.userStatus[msg].replace(
           '%s', this.formatUser(user)));
       }
-      this.roster[user.nick] = status;
+      this.userStatus[user.nick] = status;
     }
   },
 
@@ -136,13 +132,13 @@ var ui = {
     }
   },
 
-  userClear: function() {
-    this.dom.onlineList.hide(500);
-    for (x in this.userLinks) {
-      this.userLinks[x].remove();
-    }
+  userRefresh: function(roster) {
+    this.dom.onlineList.hide(500).html('');
     this.userLinks = {};
-    this.roster = {};
+    this.userStatus = {};
+    for (nick in roster) {
+      this.userAdd(roster[nick]);
+    }
     this.dom.onlineList.show(500);
   },
 
