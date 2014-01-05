@@ -226,6 +226,13 @@ var xmpp = {
             var show = $('show', stanza).text() || 'default';
             // Self-presence.
             if (codes.indexOf(110) >= 0) {
+              if (codes.indexOf(210) >= 0) {
+                ui.messageAddInfo('Your nick has been modified by the server.', 'verbose')
+              }
+              if (codes.indexOf(201) >= 0) {
+                ui.messageAddInfo('The room ' + room + ' has been newly created.', 'verbose');
+              }
+
               // Only be in one room at a time:
               if (room != self.currentRoom) {
                 if (self.currentRoom) {
@@ -238,12 +245,6 @@ var xmpp = {
                 self.currentRoom = room;
               }
               self.currentNick = nick;
-              if (codes.indexOf(210) >= 0) {
-                ui.messageAddInfo('Your nick has been modified by the server.', 'verbose')
-              }
-              if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo('The room ' + room + ' has been newly created.', 'verbose');
-              }
             }
             // We have fully joined this room - track the presence changes.
             if (self.currentRoom == room) {
