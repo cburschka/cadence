@@ -131,7 +131,7 @@ var xmpp = {
       self.presenceRoomNick(room, nick);
     }, function(stanza) {
       var msg = $('text', stanza).html() || 'Server error.';
-      ui.messageAddError('Could not join room ' + room + ': ' + msg);
+      ui.messageAddInfo('Could not join room ' + room + ': ' + msg, 'error');
     });
   },
 
@@ -192,10 +192,10 @@ var xmpp = {
         if (type == 'error') {
           if ($('conflict', stanza).length) {
             if (room == self.currentRoom) {
-              ui.messageAddError('Error: Username already in use.');
+              ui.messageAddInfo('Error: Username already in use.', 'error');
             }
             else {
-              ui.messageAddError('Error: Unable to join; username already in use.');
+              ui.messageAddInfo('Error: Unable to join; username already in use.', 'error');
               self.nickConflictResolve();
               ui.messageAddInfo('Rejoining as ' + self.preferredNick + ' ...');
               self.presenceRoomNick(self.currentRoom, self.preferredNick);
@@ -292,8 +292,10 @@ var xmpp = {
             body = $($('body', stanza)[0]).text();
           }
           var time = $('delay', stanza).attr('stamp');
-          if (time) time = new Date(time);
-          ui.messageAddUser(user, body, time);
+          if (time) message = ui.messageDelayed(
+            {user: user, body: body, time: time}
+          );
+          else ui.messageAppend(ui.messageCreate({user: user, body: body}));
         }
       }
       return true;
@@ -308,7 +310,7 @@ var xmpp = {
       if (errorCondition) msg += ' (' + errorCondition + ')';
       console.log("Received connection event", status, errorCondition, msg);
       if (self.status == 'online') {
-        ui.messageAddSuccess('XMPP: ' + msg);
+        ui.messageAddInfo('XMPP: ' + msg, 'success');
         self.announce();
         self.discoverRooms(function(rooms) {
           self.rooms = rooms;
@@ -320,7 +322,7 @@ var xmpp = {
         });
       }
       else if (self.status == 'offline') {
-        ui.messageAddError('XMPP: ' + msg);
+        ui.messageAddInfo('XMPP: ' + msg, 'error');
         ui.connectionFailureAlert();
         // The connection is closed and cannot be reused.
         self.buildConnection();

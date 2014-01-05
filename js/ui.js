@@ -3,6 +3,9 @@ var ui = {
   dom: null,
   userStatus: {},
   chatListHeight: null,
+  messages: [],
+  messageId: 0,
+  messageHash: {},
 
   initialize: function() {
     this.dom = {
@@ -55,33 +58,67 @@ var ui = {
     return moment(time).format(config.settings.dateFormat);
   },
 
-  messageAddUser: function(user, body, time) {
-    body = visual.renderText(body);
-    this.messageAdd('<span class="user">' + this.formatUser(user) + ':</span> ' + body, time);
+  messageAddInfo: function(text, classes) {
+    var message = this.messageCreate({
+      body: text,
+      user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
+    });
+    message.html.find('.user').addClass('user-bot');
+    message.html.find('.body').addClass(classes);
+    this.messageAppend(message);
+    return message;
   },
 
-  messageAddInfo: function(text) {
-    this.messageAdd(
-      '<span class="user user-bot">' + config.ui.chatBotName + ':</span> ' +
-      '<span class="message-bot">' + text + '</span>'
-    );
+  messageDelayed: function(message) {
+    var hash = hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message);
+    if (!this.messageHash[hash]) {
+      this.messageHash[hash] = true;
+      var entry = this.messageCreate(message);
+      entry.html.addClass('delayed');
+      this.messageInsert(entry);
+    }
   },
 
-  messageAddSuccess: function(text) {
-    this.messageAddInfo('<span class="success">' + text + '</span>');
+  messageCreate: function(message) {
+    message.time = message.time ? new Date(message.time) : new Date();
+    var id = this.messageId++;
+    return {
+      timestamp: message.time.getTime(),
+      id: id,
+      html: $('<div class="row" id="message-' + id + '">' +
+            '<span class="dateTime">' +
+            this.formatTime(message.time) + '</span> ' +
+            '<span class="user">' + this.formatUser(message.user) + ':</span> ' +
+            '<span class="body">' + visual.renderText(message.body) + '</span></div>')
+    };
   },
 
-  messageAddError: function(text) {
-    this.messageAddInfo('<span class="error">' + text + '</span>');
-  },
-
-  messageAdd: function(text, time) {
+  messageInsert: function(message) {
     var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
-    this.dom.chatList.append(
-      '<div class="row"><span class="dateTime">' +
-      this.formatTime(time) + '</span> ' +
-      text + '</div>'
-    );
+    var c = this.messages.length;
+    if (message.timestamp < this.messages[0].timestamp) {
+      this.messages[0].html.before(message.html);
+      this.messages = [message].concat(this.messages);
+    }
+    else for (var i = 1; i <= c; i++) {
+      if (i == this.messages.length || message.timestamp < this.messages[i].timestamp) {
+        this.messages[i-1].html.after(message.html);
+        this.messages.splice(i, 0, message);
+        return;
+      }
+    }
+
+    // Only autoscroll if we are at the bottom.
+    if(config.settings.autoScroll && scrolledDown) {
+      this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));
+    }
+  },
+
+  messageAppend: function(message) {
+    var scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
+    this.messages[this.messages.length] = message;
+    this.dom.chatList.append(message.html);
+
     // Only autoscroll if we are at the bottom.
     if(config.settings.autoScroll && scrolledDown) {
       this.dom.chatList.scrollTop(this.dom.chatList.prop('scrollHeight'));

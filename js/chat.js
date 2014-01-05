@@ -5,7 +5,7 @@ var chat = {
       var user = args[1];
       var pass = args[2].trim();
       if (!user || !pass)
-        return ui.messageAddError('Error: User and password are required.');
+        return ui.messageAddInfo('User and password are required.', 'error');
       if (pass[0] == '"' && pass[pass.length-1] == '"') {
         pass = pass.substring(1, pass.length-1);
       }
@@ -17,14 +17,14 @@ var chat = {
     nick: function(arg) {
       var nick = arg.trim();
       if (! /^[^\s]+$/.exec(nick)) {
-        return ui.messageAddError('Error: Nicknames cannot contain spaces.');
+        return ui.messageAddInfo('Nicknames cannot contain spaces.', 'error');
       }
       xmpp.changeNick(nick);
     },
     join: function(arg) {
       var room = arg.trim();
       if (xmpp.currentRoom == room) {
-        return ui.messageAddError('You are already in ' + room + '.');
+        return ui.messageAddInfo('You are already in ' + room + '.', 'error');
       }
       xmpp.changeRoom(room);
     }
@@ -59,12 +59,12 @@ var chat = {
   executeCommand: function(cmd, arg) {
     if (this.commands[cmd]) {
       if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
-        return ui.messageAddError('/' + cmd + ' command not available while ' + xmpp.status);
+        return ui.messageAddInfo('/' + cmd + ' command not available while ' + xmpp.status, 'error');
       }
       this.commands[cmd](arg);
     }
     else {
-      ui.messageAddError("Unknown command: /" + cmd);
+      ui.messageAddInfo('Unknown command: /' + cmd, 'error');
     }
   },
 
