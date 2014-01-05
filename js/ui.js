@@ -29,7 +29,10 @@ var ui = {
     };
 
     this.dom.inputField.on({
-      keypress: this.eventInputKeyPress(),
+      keypress: this.enter(function(x) {
+        chat.executeInput($(x).val());
+        $(x).val('');
+      }),
       keyup: this.eventInputKeyUp()
     });
 
@@ -39,9 +42,11 @@ var ui = {
 
     $('#channelContainer').hide();
 
-    $('#loginButton').click(function() {
+    var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
-    });
+    };
+    $('#loginButton').click(loginCallback);
+    $('#loginPass, #loginUser').keypress(this.enter(loginCallback));
 
     $('#optionsContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
@@ -58,7 +63,7 @@ var ui = {
   },
 
   setStyle: function(style) {
-    if (config.css.indexOf(style) != -1) {
+    if (config.ui.css.indexOf(style) != -1) {
       this.dom.styleSheets.each(function() {
         this.disabled = $(this).attr('title') != style;
       });
@@ -217,13 +222,11 @@ var ui = {
               user.nick + '</span>';
   },
 
-  eventInputKeyPress: function() {
-    var self = this;
+  enter: function(callback) {
     return function(event) {
       // <enter> without shift.
       if(event.keyCode === 13 && !event.shiftKey) {
-        chat.executeInput(self.dom.inputField.val());
-        self.dom.inputField.val('');
+        callback(this);
         try {
           event.preventDefault();
         } catch(e) {
@@ -232,7 +235,7 @@ var ui = {
         return false;
       }
       return true;
-    };
+    }
   },
 
   eventInputKeyUp: function() {
