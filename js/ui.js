@@ -178,7 +178,7 @@ var ui = {
     var options = this.dom.channelSelection.html('').prop('options');
     var anyRooms = false;
     for (id in rooms) {
-      options[options.length] = new Option(rooms[id], id);
+      options[options.length] = new Option(rooms[id].title, id);
       anyRooms = true;
     }
     $('#channelContainer')[anyRooms ? 'show' : 'hide'](500);

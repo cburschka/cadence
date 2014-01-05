@@ -163,7 +163,13 @@ var xmpp = {
           var rooms = {};
           $('item', stanza).each(function(s,t) {
             var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
-            rooms[room] = $(t).attr('name');
+            var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
+            if (m) {
+              rooms[room] = {title: Strophe.unescapeNode(m[1]), members: m[2] || null};
+            }
+            else {
+              rooms[room] = {title: room, members: null};
+            }
           });
           callback(rooms);
         },
