@@ -160,9 +160,10 @@ var ui = {
       if (i == this.messages.length || message.timestamp < this.messages[i].timestamp) {
         this.messages[i-1].html.after(message.html);
         this.messages.splice(i, 0, message);
-        return;
+        break;
       }
     }
+
     $(message.html).css({display:'block'});
 
     // Only autoscroll if we are at the bottom.
