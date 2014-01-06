@@ -437,7 +437,7 @@ var config = {
   },
 
   ui: {
-    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium'],
+    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium', 'Plum'],
     userStatus: {
       'out': '%s leaves the channel.',
       'in': '%s enters the channel.',
