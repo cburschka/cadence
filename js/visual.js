@@ -21,7 +21,7 @@ visual = {
     var bodySuffix = '';
 
     if (message.body.substring(0,4) == '/me ') {
-      userPrefix = '<span class="user-action">* ' + userPrefix;
+      userPrefix = '<span class="action">* ' + userPrefix;
       bodySuffix += '</span>';
       message.body = message.body.substring(4);
     }

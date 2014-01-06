@@ -46,55 +46,36 @@
 #content a:hover {
   text-decoration:underline;
 }
-#content #copyright {
+#copyright {
   font-size:0.8em;
 }
-#content #chatList span.dateTime {
+#chatList .dateTime {
   font-size:0.7em;
 }
-#content #chatList span.guest {
+#chatList .user {
   font-weight:bold;
 }
-#content #chatList span.user {
-  font-weight:bold;
-}
-#content #chatList span.moderator {
-  font-weight:bold;
-}
-#content #chatList span.admin {
-  font-weight:bold;
-}
-#content #chatList span.chatBot {
-  font-weight:bold;
+#chatList .user-role-bot {
   font-style:italic;
 }
-#content #chatList .chatBotMessage {
+#chatList .action {
   font-style:italic;
 }
-#content #chatList .chatBotErrorMessage {
-  font-style:italic;
-}
-#content #chatList .privmsg {
-  font-style:italic;
-}
-#content #chatList .action {
-  font-style:italic;
-}
-#content #chatList q {
+#chatList q {
   font-variant:small-caps;
 }
-#content #chatList code {
+#chatList code {
     font-size:1.2em;
 }
-#content #onlineListContainer #onlineList div {
+#onlineList div {
   font-size:0.9em;
 }
-#content #helpContainer #helpList td {
+#helpList td {
   font-size:0.9em;
 }
-#content #helpContainer #helpList td.code {
+#helpList td.code {
   font-style:italic;
 }
-#content #settingsContainer #settingsList td {
+#settingsList td {
   font-size:0.9em;
 }

@@ -1,0 +1,22 @@
+/*
+ * This file describes the default colors for messages.
+ */
+
+#content .user .user-affiliation-owner {
+  color:red;
+}
+#content .user .user-affiliation-admin {
+  color:green;
+}
+#content .user .user-role-bot {
+  color:#c90;
+}
+
+#chatList .body.error {
+  color:red;
+}
+
+#chatList .row.delayed .dateTime,
+#chatList .row.delayed .log-room {
+  color:#aaa;
+}

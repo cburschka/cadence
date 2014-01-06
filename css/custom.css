@@ -1,0 +1,17 @@
+/* User Colors */
+
+/* anna */
+.user121_crf {
+  color: #9400d3 !important
+}
+
+/* sylae */
+.user16_crf  {
+  text-shadow: 0 0 3px #00ADEE !important
+}
+
+/* tyra */
+.user25_crf  {
+  background: url("../img/flair/flair25.png") no-repeat scroll left center transparent;
+  padding-left: 19px;
+}

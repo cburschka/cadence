@@ -19,9 +19,7 @@ var ui = {
       channelSelection: $('#channelSelection'),
       statusIconContainer: $('#statusIconContainer'),
       messageLengthCounter: $('#messageLengthCounter'),
-      styleSheets: $('link').filter(function() {
-        return $(this).attr('rel').indexOf('style') >= 0;
-      }),
+      styleSheets: $('link.alternate-style'),
       menu: {
         help: $('#helpContainer'),
         onlineList: $('#onlineListContainer'),
@@ -137,7 +135,6 @@ var ui = {
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     });
-    message.html.find('.user').addClass('user-bot');
     message.html.find('.body').addClass(classes);
     this.messageAppend(message);
     return message;
