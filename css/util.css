@@ -44,6 +44,14 @@
   font-style:italic;
 }
 
+#emoticonsList-pony {
+  display:block;
+  height:90%;
+  margin-top:10%;
+  margin-left:10%;
+  overflow:auto;
+}
+
 /* Status Icon */
 #statusIconContainer {
   background-image: url('../img/loading-sprite.png');

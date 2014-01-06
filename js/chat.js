@@ -74,4 +74,21 @@ var chat = {
     html = bbcode.render(text);
     xmpp.sendMessage(html);
   },
+
+  insertText: function(text, text2) {
+    ui.dom.inputField.focus();
+    var inputFieldJQ = ui.dom.inputField;
+    var inputField = inputFieldJQ[0]
+    var start = inputField.selectionStart;
+    var end = inputField.selectionEnd;
+    var old = inputFieldJQ.val();
+    if (text2) {
+      text += old.substring(start, end) + text2;
+    }
+    inputFieldJQ.val(old.substring(0, start) + text + old.substring(start, end));
+    start += text.length;
+    end = start;
+    inputField.selectionStart = start;
+    inputField.selectionEnd = end;
+  }
 }

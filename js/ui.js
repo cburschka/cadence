@@ -62,6 +62,18 @@ var ui = {
 
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
     this.setStatus('offline');
+
+    for (var set in config.emoticons) {
+      var html = '';
+      for (var code in config.emoticons[set].codes) {
+        html += '<a href="javascript:void" class="text-insert" title="'
+             + code + '">' + '<img src="' + config.emoticons[set].baseURL
+             + config.emoticons[set].codes[code] + '" alt="'
+             + code + '" /></a>';
+      }
+      $('#emoticonsList-' + set).html(html);
+    }
+    $('.text-insert').click(function() { chat.insertText(this.title); });
   },
 
   setStatus: function(status) {
