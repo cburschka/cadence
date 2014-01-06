@@ -84,7 +84,7 @@ var chat = {
     var old = inputFieldJQ.val();
     rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
     inputFieldJQ.val(old.substring(0, start) + rep + old.substring(end));
-    start += (start < end) ? rep.length : text[0].length;
+    start += (start < end && rep != text) ? rep.length : text[0].length;
     end = start;
     inputField.selectionStart = start;
     inputField.selectionEnd = end;
