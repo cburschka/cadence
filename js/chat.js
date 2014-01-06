@@ -52,11 +52,9 @@ var chat = {
   },
 
   executeCommandString: function(text) {
-    console.log("Execute: " + text);
     parts = /^\/([^\s]*)((\s.*)?)$/.exec(text);
     cmd = parts[1];
     arg = parts[2];
-    console.log(cmd, arg);
     this.executeCommand(cmd, arg);
   },
 
@@ -75,6 +73,5 @@ var chat = {
   sendMessage: function(text) {
     html = bbcode.render(text);
     xmpp.sendMessage(html);
-    //ui.messageAddUser(xmpp.roster[xmpp.currentNick]);
   },
 }
