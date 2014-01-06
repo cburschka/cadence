@@ -57,10 +57,10 @@ var config = {
   settings: {
     // Whether to display verbose log messages.
     verbose: true,
-    // Defines if BBCode tags are replaced with the associated HTML code tags:
-    bbCode: true,
-    // Defines if image BBCode is replaced with the associated image HTML code:
-    bbCodeImages: true,
+    // Render incoming HTML Markup.
+    html: true,
+    // Whether images are loaded.
+    images: true,
     // Defines if color BBCode is replaced with the associated color HTML code:
     bbCodeColors: true,
     // Defines if hyperlinks are made clickable:

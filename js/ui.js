@@ -89,7 +89,12 @@ var ui = {
     else {
       this.activeMenu = null;
     }
-    $('#chatList').animate({right : width + 'px'}, 'slow');
+    $('#chatList').animate({right : width + 'px'}, 'slow', function() {
+      var maxWidth = ui.dom.chatList.width() - 30;
+      var maxHeight = ui.dom.chatList.height() - 20;
+      $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
+    });
+
     if (this.activeMenu) {
       this.dom.menu[active].animate({width: 'show'}, 'slow');
     }
@@ -128,24 +133,30 @@ var ui = {
     message.time = message.time ? new Date(message.time) : new Date();
     var id = this.messageId++;
     var userPrefix = '<span class="user">';
-    var userbody = '</span> <span class="body">';
-    var bodySuffix = '</span>';
+    var userSuffix = '</span> ';
+    var bodySuffix = '';
 
     if (message.body.substring(0,4) == '/me ') {
       userPrefix = '<span class="user-action">* ' + userPrefix;
       bodySuffix += '</span>';
       message.body = message.body.substring(4);
     }
-    else userbody = ':' + userbody;
-
+    else userSuffix = ':' + userSuffix;
+    // First, generate the DIV element from the above markup pieces.
+    var node = $('<div class="row" id="message-' + id + '">' +
+              '<span class="dateTime">' + this.formatTime(message.time) +
+              '</span> ' + userPrefix + visual.formatUser(message.user) +
+              userSuffix + '<div id="message-body-' + id + '">[...]</div>' +
+              bodySuffix + '</div>');
+    // Then, fill in the rendered message (which is rendered in DOM form).
+    node.find('#message-body-' + id).replaceWith(
+      visual.renderText($('<span class="body">' + message.body + '</span>'))
+    );
     return {
       timestamp: message.time.getTime(),
       hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
       id: id,
-      html: $('<div class="row" id="message-' + id + '">' +
-              '<span class="dateTime">' + this.formatTime(message.time) + '</span> ' +
-              userPrefix + visual.formatUser(message.user) + userbody +
-              visual.renderText(message.body) + bodySuffix + '</div>')
+      html: node
     };
   },
 
