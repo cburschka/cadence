@@ -3,9 +3,9 @@ visual = {
     var i = 1;
     this.emoticonSets = [];
     var emoticonRegs = []
-    for (var set in config.emoticons) {
+    for (var set in config.markup.emoticons) {
       var keys = []
-      for (var code in config.emoticons[set].codes) {
+      for (var code in config.markup.emoticons[set].codes) {
         keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
       }
       emoticonRegs.push('(' + keys.join('|') + ')'),
@@ -55,12 +55,12 @@ visual = {
   },
 
   formatBody: function(jq) {
-    if (!config.settings.html)
+    if (!config.settings.markup.html)
       return $('<span>' + jq.text() + '</span>');
-    if (config.settings.hyperlinks)
+    if (config.settings.markup.links)
       this.addLinks(jq);
     this.processImages(jq);
-    if (config.settings.emoticons)
+    if (config.settings.markup.emoticons)
       this.addEmoticons(jq);
     return jq;
   },
@@ -68,8 +68,8 @@ visual = {
   addEmoticons: function(jq) {
     var emoticonSets = this.emoticonSets;
     var emoticonImg = function(set, code) {
-      return '<img class="emoticon" src="' + config.emoticons[set].baseURL +
-             config.emoticons[set].codes[code] + '" />';
+      return '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL +
+             config.markup.emoticons[set].codes[code] + '" />';
     }
     jq.replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
@@ -101,7 +101,7 @@ visual = {
              '" onclick="window.open(this.href); return false;"></a>';
     });
 
-    if (config.settings.images)
+    if (config.settings.markup.images)
       jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
         visual.rescale($(this), maxWidth, maxHeight);
         $(this).css({display:'block'});

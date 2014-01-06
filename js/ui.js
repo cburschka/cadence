@@ -6,9 +6,8 @@ var ui = {
   messages: [],
   messageId: 0,
   messageHash: {},
-  activeMenu: 'onlineList',
 
-  initialize: function() {
+  init: function() {
     this.dom = {
       loginContainer: $('#loginContainer'),
       channelContainer: $('#channelContainer'),
@@ -27,50 +26,58 @@ var ui = {
         settings: $('#settingsContainer'),
       }
     };
+    this.initializePage();
+    this.initializeEvents();
+  },
 
+  initializePage: function() {
+    //$('input.setting').prop('checked', function() {
+    //  return config.settings[this.id.substring(0, this.id.length - 'Setting'.length)];
+    //});
+    this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
+
+    for (var set in config.markup.emoticons) {
+      var html = '';
+      for (var code in config.markup.emoticons[set].codes) {
+        html += '<a class="insert-text" title="'
+             + code + '">' + '<img src="' + config.markup.emoticons[set].baseURL
+             + config.markup.emoticons[set].codes[code] + '" alt="'
+             + code + '" /></a>';
+      }
+      $('#emoticonsList-' + set).html(html);
+    }
+
+    var style = '';
+    for (var i in config.ui.css) {
+      style += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
+    }    
+    $('#styleSelection').html(style)
+  },
+
+  initializeEvents: function() {
     this.dom.inputField.on({
-      keypress: this.enter(function(x) {
+      keypress: this.onEnterKey(function(x) {
         chat.executeInput($(x).val());
         $(x).val('');
       }),
       keyup: this.eventInputKeyUp()
     });
-
     this.dom.channelSelection.change(function(e) {
       xmpp.changeRoom($(e.target).val());
     });
-
-    this.dom.channelContainer.hide();
 
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
     };
     $('#loginButton').click(loginCallback);
-    $('#loginPass, #loginUser').keypress(this.enter(loginCallback));
-
+    $('#loginPass, #loginUser').keypress(this.onEnterKey(loginCallback));
     $('#optionsContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
+    //$('input.setting').change(function() {
+    //  config.settings[this.id.substring(0, this.id.length - 'Setting'.length)] = this.checked;
+    //})
 
-    $('input.setting').change(function() {
-      config.settings[this.id.substring(0, this.id.length - 'Setting'.length)] = this.checked;
-    }).prop('checked', function() {
-      return config.settings[this.id.substring(0, this.id.length - 'Setting'.length)];
-    });
-
-    this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
-    this.setStatus('offline');
-
-    for (var set in config.emoticons) {
-      var html = '';
-      for (var code in config.emoticons[set].codes) {
-        html += '<a href="javascript:void" class="insert-text" title="'
-             + code + '">' + '<img src="' + config.emoticons[set].baseURL
-             + config.emoticons[set].codes[code] + '" alt="'
-             + code + '" /></a>';
-      }
-      $('#emoticonsList-' + set).html(html);
-    }
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg'))
@@ -80,6 +87,9 @@ var ui = {
       v = ['[' + v + arg + ']', '[/' + v + ']'];
       chat.insertText(v);
     });
+    $('#styleSelection').change(
+      function() { ui.setStyle($(this).val()); }
+    );
   },
 
   setStatus: function(status) {
@@ -89,35 +99,33 @@ var ui = {
   },
 
   setStyle: function(style) {
-    if (config.ui.css.indexOf(style) != -1) {
-      this.dom.styleSheets.each(function() {
-        this.disabled = $(this).attr('title') != style;
-      });
-    };
+    config.settings.activeStyle = style;
+    this.dom.styleSheets.each(function() {
+      this.disabled = this.title != style;
+    });
   },
 
-  toggleMenu: function(active) {
-    if (this.activeMenu) {
-      this.dom.menu[this.activeMenu].animate({width: 'hide'}, 'slow');
-    }
+  toggleMenu: function(newMenu) {
+    var oldMenu = config.settings.activeMenu;
+    if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
+
     var width = 20;
-    if (this.activeMenu != active) {
-      var px = this.dom.menu[active].css('width');
+    if (oldMenu != newMenu) {
+      var px = this.dom.menu[newMenu].css('width');
       width += parseInt(px.substring(0,px.length-2)) + 8;
-      this.activeMenu = active;
     }
-    else {
-      this.activeMenu = null;
-    }
+
     this.dom.chatList.animate({right : width + 'px'}, 'slow', function() {
       var maxWidth = ui.dom.chatList.width() - 30;
       var maxHeight = ui.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
-    if (this.activeMenu) {
-      this.dom.menu[active].animate({width: 'show'}, 'slow');
+    if (oldMenu != newMenu) {
+      this.dom.menu[newMenu].animate({width: 'show'}, 'slow');
+      config.settings.activeMenu = newMenu;
     }
+    else config.settings.activeMenu = null;
   },
 
   messageAddInfo: function(text, variables, classes) {
@@ -190,17 +198,18 @@ var ui = {
     this.dom.channelContainer[anyRooms ? 'show' : 'hide'](500);
   },
 
-  userAdd: function(user) {
+  userAdd: function(user, animate) {
     if (!this.userLinks[user.nick]) {
       this.userLinks[user.nick] = $('<div class="row">' + visual.formatUser(user) + '</div>'),
       this.dom.onlineList.append(this.userLinks[user.nick]);
-      $('.row', this.dom.onlineList).slideDown(1000);
+      if (animate) this.userLinks[user.nick].slideDown(1000);
+      else this.userLinks[user.nick].css('display', 'block');
     }
   },
 
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
-      this.userLinks[user.nick].remove();
+      this.userLinks[user.nick].slideUp(1000),remove();
       delete this.userLinks[user.nick];
     }
   },
@@ -212,13 +221,13 @@ var ui = {
       self.userLinks = {};
       self.userStatus = {};
       for (nick in roster) {
-        self.userAdd(roster[nick]);
+        self.userAdd(roster[nick], false);
       }
       $(this).slideDown();
     });
   },
 
-  enter: function(callback) {
+  onEnterKey: function(callback) {
     return function(event) {
       // <enter> without shift.
       if(event.keyCode === 13 && !event.shiftKey) {
@@ -247,7 +256,7 @@ var ui = {
 
   scrollDown: function() {
     // Only autoscroll if we are at the bottom.
-    if(config.settings.autoScroll && this.scrolledDown) {
+    if(this.scrolledDown) {
       this.dom.chatList.scrollTop($('#chatList').prop('scrollHeight'));
     }
   }

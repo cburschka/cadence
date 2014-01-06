@@ -3,6 +3,8 @@ body {
   margin:0;
 }
 
+/* Elements that are initially hidden. */
+#channelSelection,
 #chatList .row,
 #onlineList .row {
   display:none;

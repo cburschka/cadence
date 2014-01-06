@@ -38,13 +38,11 @@
 /* Status Icon */
 #statusIconContainer {
   background-image: url('../img/loading-sprite.png');
+  background-position: 0px -44px;
 }
 #statusIconContainer.online {
   background-position: 0px 0px;
 }
 #statusIconContainer.waiting {
   background-position: 0px -22px;
-}
-#statusIconContainer.offline {
-  background-position: 0px -44px;
 }

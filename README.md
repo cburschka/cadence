@@ -45,3 +45,5 @@ The following libraries are used without modifications in this project:
    * jquery-replacetext (Ben Alman): https://github.com/cowboy/jquery-replacetext
      (GPL / MIT)
   
+   * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
+     (MIT)
