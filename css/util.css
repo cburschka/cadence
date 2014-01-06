@@ -1,13 +1,3 @@
-#content span.user-alt-jid,
-#content.display-jid span.user-alt-nick {
-  display:none;
-}
-
-#content span.user-alt-nick,
-#content.display-jid span.user-alt-jid {
-  display:inline;
-}
-
 #content .user {
   font-weight: bold;
 }
