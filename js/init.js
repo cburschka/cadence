@@ -4,7 +4,7 @@ $(document).ready(function() {
   ui.init();
   visual.init();
   xmpp.initialize();
-  bbcode = xbbcode.init(config.bbcode);
+  bbcode = xbbcode.init(config.markup.bbcode);
   $(window).unload(function() { init.shutDown(); });
 });
 
