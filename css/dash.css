@@ -1,8 +1,7 @@
-@import "positions.css";
-@import "borders.css";
-@import "fonts.css";
-@import "misc.css";
-@import "print.css";
+@import url('global.css');
+@import url('fonts.css');
+@import url('print.css');
+
 #loginContent {
     color: #ffffff;
     background: url("../img/theme/dash/dash-stripe.png") repeat scroll 0 0 #700070;
