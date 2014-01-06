@@ -40,6 +40,10 @@
   display:none;
 }
 
+.user-action {
+  font-style:italic;
+}
+
 /* Status Icon */
 #statusIconContainer {
   background-image: url('../img/loading-sprite.png');
