@@ -31,7 +31,8 @@
 #chatList .message-bot {
   font-style:italic;
 }
-#chatList .row.delayed {
+#chatList .row.delayed .dateTime,
+#chatList .row.delayed .log-room {
   color:#aaa;
 }
 
