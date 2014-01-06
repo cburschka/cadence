@@ -3,6 +3,20 @@
 <head>
   <meta charset="utf8" />
   <title>Strophe XMPP Client</title>
+  <style type="text/css">
+    html, body { height:100%; }
+    #content { display: none; }
+    #nocontent {
+      background:black;
+      color:white;
+      height:100%;
+    }
+    #loading {
+      padding-top:25%;
+      margin:auto;
+      display:block;
+    }
+  </style>
   <link id="global-style" rel="stylesheet" type="text/css" href="css/global.css" />
 
   <!-- libraries -->
@@ -39,8 +53,8 @@
         <button type="button" id="loginButton">Log in</button>
       </span>
     </div>
+    <!-- / headlineContainer -->
     <div id="statusIconContainer" class="statusContainerOn"></div>
-    <div id="chatContainer">
     <div id="chatList"></div>
     <div id="inputFieldContainer">
       <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
@@ -60,6 +74,7 @@
       <input type="button" value="Font Color" title="Font Color: [color=red]text[/color]" onclick="ajaxChat.showHide('colorCodesContainer', null);"/>
       <span id="emoticonsList-general" dir="ltr"></span>
     </div>
+    <!-- / bbCodeContainer -->
     <div id="colorCodesContainer" style="display:none;" dir="ltr"></div>
     <div id="optionsContainer">
       <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
@@ -70,6 +85,7 @@
       <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
       <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
     </div>
+    <!-- / optionsContainer -->
     <div id="onlineListContainer" style="display:none;">
       <h3>Online users</h3>
       <div id="onlineList"></div>
@@ -141,7 +157,9 @@
           </tr>
         </table>
       </div>
+      <!-- helpList -->
     </div>
+    <!-- helpContainer -->
     <div id="poniconContainer" style="display:none;">
        <h3>Ponicons</h3>
        <span id="emoticonsList-pony" dir="ltr"></span>
@@ -188,7 +206,12 @@
           </tr>
         </table>
       </div>
+      <!-- settingsList -->
     </div>
+    <!-- settingsContainer-->
+  </div>
+  <div id="nocontent">
+    <img id="loading" src="img/loading.gif" />
   </div>
 </body>
 </html>
