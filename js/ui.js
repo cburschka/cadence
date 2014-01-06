@@ -10,6 +10,8 @@ var ui = {
 
   initialize: function() {
     this.dom = {
+      loginContainer: $('#loginContainer'),
+      channelContainer: $('#channelContainer'),
       inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
@@ -40,7 +42,7 @@ var ui = {
       xmpp.changeRoom($(e.target).val());
     });
 
-    $('#channelContainer').hide();
+    this.dom.channelContainer.hide();
 
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
@@ -65,7 +67,7 @@ var ui = {
   setStatus: function(status) {
     // status options are: online, waiting, offline.
     this.dom.statusIconContainer.attr('class', status);
-    $('#loginContainer')[status == 'online' ? 'hide' : 'show'](500);
+    this.dom.loginContainer[status == 'online' ? 'hide' : 'show'](500);
   },
 
   setStyle: function(style) {
@@ -89,7 +91,7 @@ var ui = {
     else {
       this.activeMenu = null;
     }
-    $('#chatList').animate({right : width + 'px'}, 'slow', function() {
+    this.dom.chatList.animate({right : width + 'px'}, 'slow', function() {
       var maxWidth = ui.dom.chatList.width() - 30;
       var maxHeight = ui.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
@@ -197,7 +199,7 @@ var ui = {
       options[options.length] = new Option(rooms[id].title, id);
       anyRooms = true;
     }
-    $('#channelContainer')[anyRooms ? 'show' : 'hide'](500);
+    this.dom.channelContainer[anyRooms ? 'show' : 'hide'](500);
   },
 
   userStatusChange: function(user, status, notify) {
@@ -278,7 +280,7 @@ var ui = {
   scrollDown: function() {
     // Only autoscroll if we are at the bottom.
     if(config.settings.autoScroll && this.scrolledDown) {
-      $('#chatList').scrollTop($('#chatList').prop('scrollHeight'));
+      this.dom.chatList.scrollTop($('#chatList').prop('scrollHeight'));
     }
   }
 };
