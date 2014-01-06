@@ -305,7 +305,7 @@ var xmpp = {
           if (time) message = ui.messageDelayed(
             {user: user, body: body, time: time, room: room}
           );
-          else ui.messageAppend(ui.messageCreate({user: user, body: body}));
+          else ui.messageAppend(visual.formatMessage({user: user, body: body}));
         }
       }
       return true;

@@ -122,11 +122,6 @@ var ui = {
     }
   },
 
-  formatTime: function(time) {
-    time = time || (new Date());
-    return moment(time).format(config.settings.dateFormat);
-  },
-
   messageAddInfo: function(text, variables, classes) {
     if (!classes && typeof variables == 'string') {
       classes = variables;
@@ -138,7 +133,7 @@ var ui = {
     text = text.replace(/\{([a-z]+)\}/g, function(rep, key) {
       return variables[key] ? visual.textPlain(variables[key]) : rep;
     });
-    var message = this.messageCreate({
+    var message = visual.formatMessage({
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     });
@@ -149,44 +144,13 @@ var ui = {
   },
 
   messageDelayed: function(message) {
-    var entry = this.messageCreate(message);
+    var entry = visual.formatMessage(message);
     if (!this.messageHash[entry.hash]) {
       this.messageHash[entry.hash] = true;
       entry.html.addClass('delayed');
       entry.html.find('.dateTime').after(' <span class="log-room-' + message.room + '">[' + message.room + ']</span> ');
       this.messageInsert(entry);
     }
-  },
-
-  messageCreate: function(message) {
-    message.time = message.time ? new Date(message.time) : new Date();
-    var id = this.messageId++;
-    var userPrefix = '<span class="user">';
-    var userSuffix = '</span> ';
-    var bodySuffix = '';
-
-    if (message.body.substring(0,4) == '/me ') {
-      userPrefix = '<span class="user-action">* ' + userPrefix;
-      bodySuffix += '</span>';
-      message.body = message.body.substring(4);
-    }
-    else userSuffix = ':' + userSuffix;
-    // First, generate the DIV element from the above markup pieces.
-    var node = $('<div class="row" id="message-' + id + '">' +
-              '<span class="dateTime">' + this.formatTime(message.time) +
-              '</span> ' + userPrefix + visual.formatUser(message.user) +
-              userSuffix + '<div id="message-body-' + id + '">[...]</div>' +
-              bodySuffix + '</div>');
-    // Then, fill in the rendered message (which is rendered in DOM form).
-    node.find('#message-body-' + id).replaceWith(
-      visual.renderText($('<span class="body">' + message.body + '</span>'))
-    );
-    return {
-      timestamp: message.time.getTime(),
-      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
-      id: id,
-      html: node
-    };
   },
 
   messageInsert: function(message) {

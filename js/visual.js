@@ -14,7 +14,47 @@ visual = {
     this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
   },
 
-  renderText: function(jq) {
+  formatMessage: function(message) {
+    message.time = message.time ? new Date(message.time) : new Date();
+    var userPrefix = '<span class="user">';
+    var userSuffix = '</span> ';
+    var bodySuffix = '';
+
+    if (message.body.substring(0,4) == '/me ') {
+      userPrefix = '<span class="user-action">* ' + userPrefix;
+      bodySuffix += '</span>';
+      message.body = message.body.substring(4);
+    }
+    else userSuffix = ':' + userSuffix;
+    // First, generate the DIV element from the above markup pieces.
+    var node = $('<div class="row">'
+               + '<span class="dateTime">' + this.formatTime(message.time) + '</span> '
+               + userPrefix + this.formatUser(message.user) + userSuffix
+               + '<div id="message-body"></div>' + bodySuffix + '</div>');
+    // Then, fill in the rendered message (which is rendered in DOM form).
+    node.find('#message-body').replaceWith(
+      this.formatBody($('<span class="body">' + message.body + '</span>'))
+    );
+    return {
+      timestamp: message.time.getTime(),
+      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
+      html: node
+    };
+  },
+
+  formatTime: function(time) {
+    time = time || (new Date());
+    return moment(time).format(config.settings.dateFormat);
+  },
+
+  formatUser: function(user) {
+    return '<span class="user-role-' + user.role +
+           ' user-affiliation-' + user.affiliation + '" ' +
+             (user.jid ? ('title="' + user.jid + '">') : '>') +
+              this.textPlain(user.nick) + '</span>';
+  },
+
+  formatBody: function(jq) {
     if (!config.settings.html)
       return $('<span>' + jq.text() + '</span>');
     if (config.settings.hyperlinks)
@@ -70,13 +110,6 @@ visual = {
       jq.find('img').replaceWith(function() {
         return '[image:' + $(this).attr('src') + ']'
       });
-  },
-
-  formatUser: function(user) {
-    return '<span class="user-role-' + user.role +
-           ' user-affiliation-' + user.affiliation + '" ' +
-             (user.jid ? ('title="' + user.jid + '">') : '>') +
-              this.textPlain(user.nick) + '</span>';
   },
 
   textPlain: function(text) {
