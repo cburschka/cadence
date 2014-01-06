@@ -13,7 +13,7 @@ init = {
     var cookie = $.cookie(config.sessionName + '_settings');
     config.settings = config.defaultSettings;
     // Disable this for now.
-    if (false && cookie) {
+    if (cookie) {
       config.settings = objMerge(config.settings, cookie);
     }
   },
@@ -28,7 +28,7 @@ function objMerge(a, b) {
   if (b === undefined) return a;
   if (typeof a != 'object' || typeof b != 'object') return b;
   if (a.constructor != Object || b.constructor != Object) return b;
-  c = {}
+  var c = {}
   for (var key in a) {
     c[key] = (b[key] != undefined) ? objMerge(a[key], b[key]) : a[key];
   }
