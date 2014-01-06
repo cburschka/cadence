@@ -18,7 +18,6 @@ var ui = {
       channelSelection: $('#channelSelection'),
       statusIconContainer: $('#statusIconContainer'),
       messageLengthCounter: $('#messageLengthCounter'),
-      styleSheets: $('link.alternate-style'),
       menu: {
         help: $('#helpContainer'),
         onlineList: $('#onlineListContainer'),
@@ -47,11 +46,25 @@ var ui = {
       $('#emoticonsList-' + set).html(html);
     }
 
-    var style = '';
+    var options = '', links = '';
     for (var i in config.ui.css) {
-      style += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
-    }    
-    $('#styleSelection').html(style)
+      options += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
+      links += '<link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/'
+            + config.ui.css[i] + '.css" title="' + config.ui.css[i] + '" />';
+    }
+    $('#styleSelection').html(options).val(config.settings.activeStyle);
+    this.dom.styleSheets = $(links).appendTo('head');
+    this.dom.styleSheets.last().load(function() {
+      ui.setStyle(config.settings.activeStyle);
+    });
+    $('#settingsContainer input.settings').val(function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    console.log(config.settings.activeMenu);
+    this.toggleMenu(config.settings.activeMenu, true);
   },
 
   initializeEvents: function() {
@@ -90,6 +103,9 @@ var ui = {
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }
     );
+    $('#settingsContainer input.settings').change(function() {
+      chat.setSetting(this.id.substring('settings-'.length), this.value);
+    });
   },
 
   setStatus: function(status) {
@@ -99,14 +115,16 @@ var ui = {
   },
 
   setStyle: function(style) {
+    console.log(style);
     config.settings.activeStyle = style;
     this.dom.styleSheets.each(function() {
       this.disabled = this.title != style;
     });
+    chat.saveSettings();
   },
 
-  toggleMenu: function(newMenu) {
-    var oldMenu = config.settings.activeMenu;
+  toggleMenu: function(newMenu, init) {
+    var oldMenu = init ? null : config.settings.activeMenu;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
 
     var width = 20;
@@ -126,6 +144,7 @@ var ui = {
       config.settings.activeMenu = newMenu;
     }
     else config.settings.activeMenu = null;
+    chat.saveSettings();
   },
 
   messageAddInfo: function(text, variables, classes) {

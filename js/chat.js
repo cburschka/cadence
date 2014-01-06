@@ -88,5 +88,28 @@ var chat = {
     end = start;
     inputField.selectionStart = start;
     inputField.selectionEnd = end;
+  },
+
+  getSetting: function(key) {
+    var path = key.split('.');
+    var ref = config.settings;
+    for (var i = 0; i < path.length; i++) {
+      ref = ref[path[i]];
+    }
+    return ref;
+  },
+
+  setSetting: function(key, val) {
+    var path = key.split('.');
+    var ref = config.settings;
+    for (var i = 0; i < path.length - 1; i++) {
+      ref = ref[path[i]];
+    }
+    ref[path[path.length-1]] = val;
+    this.saveSettings();
+  },
+
+  saveSettings: function() {
+    $.cookie(config.sessionName + '_settings', config.settings);
   }
 }

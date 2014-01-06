@@ -4,13 +4,6 @@
   <meta charset="utf8" />
   <title>Strophe XMPP Client</title>
   <link id="global-style" rel="stylesheet" type="text/css" href="css/global.css" />
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/omg.css" title="omg"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/dash.css" title="dash"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/Sulfur.css" title="Sulfur"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/Mercury.css" title="Mercury"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/Carbon.css" title="Carbon"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/Technetium.css" title="Technetium"/>
-  <link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/Plum.css" title="Plum"/>
 
   <!-- libraries -->
   <script src='js/jquery.js' type="text/javascript" charset="UTF-8"></script>
@@ -77,7 +70,7 @@
       <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
       <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
     </div>
-    <div id="onlineListContainer">
+    <div id="onlineListContainer" style="display:none;">
       <h3>Online users</h3>
       <div id="onlineList"></div>
     </div>
@@ -187,11 +180,11 @@
           </tr>
           <tr>
             <td><label for="settings-notifications.blinkInterval">Blink interval (ms):</label></td>
-            <td><input type="checkbox" class="settings" id="settings-notifications.blinkInterval" /></td>
+            <td><input type="text" class="settings" id="settings-notifications.blinkInterval" /></td>
           </tr>
           <tr>
             <td><label for="settings-notifications.blinkIntervalNumber">Number of blink intervals:</label></td>
-            <td><input type="checkbox" class="settings" id="settings-notifications.blinkIntervalNumber" /></td>
+            <td><input type="text" class="settings" id="settings-notifications.blinkIntervalNumber" /></td>
           </tr>
         </table>
       </div>

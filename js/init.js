@@ -20,7 +20,6 @@ init = {
 
   shutDown: function() {
     xmpp.disconnect();
-    $.cookie(config.sessionName + '_settings', config.settings);
   }
 }
 
