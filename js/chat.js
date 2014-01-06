@@ -25,7 +25,7 @@ var chat = {
     join: function(arg) {
       var room = arg.trim();
       if (xmpp.currentRoom == room) {
-        return ui.messageAddInfo('You are already in ' + room + '.', 'error');
+        return ui.messageAddInfo('You are already in room {room}.', {room:room}, 'error');
       }
       xmpp.changeRoom(room);
     },
@@ -61,12 +61,12 @@ var chat = {
   executeCommand: function(cmd, arg) {
     if (this.commands[cmd]) {
       if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
-        return ui.messageAddInfo('/' + cmd + ' command not available while ' + xmpp.status, 'error');
+        return ui.messageAddInfo('/{cmd} command not available while {status}', {cmd:cmd,status:xmpp.status}, 'error');
       }
       this.commands[cmd](arg);
     }
     else {
-      ui.messageAddInfo('Unknown command: /' + cmd, 'error');
+      ui.messageAddInfo('Unknown command: /{cmd}', {cmd:cmd}, 'error');
     }
   },
 

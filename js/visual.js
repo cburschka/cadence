@@ -76,7 +76,12 @@ visual = {
     return '<span class="user-role-' + user.role +
            ' user-affiliation-' + user.affiliation + '" ' +
              (user.jid ? ('title="' + user.jid + '">') : '>') +
-              user.nick + '</span>';
+              this.textPlain(user.nick) + '</span>';
+  },
+
+  textPlain: function(text) {
+    var replacers = {'<': '&lt;', '>': '&gt;', '&':'&amp;'};
+    return text.replace(/[<>&]/g, function(x) { return replacers[x]; });
   },
 
   rescale: function(img, maxWidth, maxHeight) {

@@ -122,13 +122,13 @@ var xmpp = {
 
     this.getReservedNick(room, function(nick) {
       if (nick && nick != self.preferredNick)
-        ui.messageAddInfo('Switching to registered nick ' + nick + '.', 'verbose');
+        ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
       else nick = self.preferredNick;
-      ui.messageAddInfo('Joining room ' + room + ' as ' + nick + ' ...', 'verbose');
+      ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:nick}, 'verbose');
       self.presenceRoomNick(room, nick);
     }, function(stanza) {
       var msg = $('text', stanza).html() || 'Server error.';
-      ui.messageAddInfo('Could not join room ' + room + ': ' + msg, 'error');
+      ui.messageAddInfo('Could not join room {room}: {msg}', {room:room, msg:msg}, 'error');
     });
   },
 
@@ -200,7 +200,7 @@ var xmpp = {
             else {
               ui.messageAddInfo('Error: Unable to join; username already in use.', 'error');
               self.nickConflictResolve();
-              ui.messageAddInfo('Rejoining as ' + self.preferredNick + ' ...');
+              ui.messageAddInfo('Rejoining as {nick} ...', {nick:self.preferredNick});
               self.presenceRoomNick(self.currentRoom, self.preferredNick);
             }
           }
@@ -215,13 +215,13 @@ var xmpp = {
             if (room == this.currentRoom) {
               if (codes.indexOf(303) >= 0) {
                 var newNick = item.attr('nick');
-                ui.messageAddInfo(nick + ' is now known as ' + newNick + '.');
+                ui.messageAddInfo('{from} is now known as {to}.', {from:nick, to:newNick});
                 // Move the roster entry to the new nick, so the new presence
                 // won't trigger a notification.
                 self.roster[room][newNick] = self.roster[room][nick];
               }
               else {
-                ui.messageAddInfo(nick + ' has logged out of the Chat.');
+                ui.messageAddInfo('{nick} has logged out of the Chat.', {nick:nick});
               }
               ui.userRemove(self.roster[room][nick]);
               delete self.roster[room][nick];
@@ -236,16 +236,16 @@ var xmpp = {
                 ui.messageAddInfo('Your nick has been modified by the server.', 'verbose')
               }
               if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo('The room ' + room + ' has been newly created.', 'verbose');
+                ui.messageAddInfo('The room {room} has been newly created.', {room:room}, 'verbose');
               }
 
               // Only be in one room at a time:
               if (room != self.currentRoom) {
                 if (self.currentRoom) {
-                  ui.messageAddInfo('Leaving room ' + self.currentRoom + '...', 'verbose');
+                  ui.messageAddInfo('Leaving room {room} ...', {room:self.currentRoom}, 'verbose');
                   self.leaveRoom(self.currentRoom);
                 }
-                ui.messageAddInfo('Now talking in room ' + room + '.');
+                ui.messageAddInfo('Now talking in room {room}.', {room:room});
                 ui.userRefresh(self.roster[room]);
                 delete self.roster[self.currentRoom];
                 self.currentRoom = room;
@@ -255,16 +255,16 @@ var xmpp = {
             // We have fully joined this room - track the presence changes.
             if (self.currentRoom == room) {
               if (!self.roster[room][nick]) {
-                ui.messageAddInfo(nick + ' logs into the Chat.');
+                ui.messageAddInfo('{nick} logs into the Chat.', {nick:nick});
               }
               if (show == 'away' || show == 'xa') {
-                ui.messageAddInfo(nick + ' is away.');
+                ui.messageAddInfo('{nick} is away.', {nick:nick});
               }
               else if (show == 'dnd') {
-                ui.messageAddInfo(nick + ' is busy.');
+                ui.messageAddInfo('{nick} is busy.', {nick:nick});
               }
               else if (self.roster[room][nick] && self.roster[room][nick].show != show) {
-                ui.messageAddInfo(nick + ' has returned.');
+                ui.messageAddInfo('{nick} has returned.', {nick:nick});
               }
             }
 
@@ -319,7 +319,7 @@ var xmpp = {
       var msg = self.readStatusMessage(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
       if (self.status == 'online') {
-        ui.messageAddInfo('XMPP: ' + msg, 'verbose');
+        ui.messageAddInfo(msg, 'verbose');
         self.announce();
         self.discoverRooms(function(rooms) {
           self.rooms = rooms;
@@ -329,14 +329,14 @@ var xmpp = {
         });
       }
       else if (self.status == 'offline') {
-        ui.messageAddInfo('XMPP: ' + msg, 'error');
+        ui.messageAddInfo(msg, 'error');
         // The connection is closed and cannot be reused.
         self.buildConnection();
         self.roster = {};
         ui.userRefresh({});
         ui.refreshRooms({});
       }
-      else ui.messageAddInfo('XMPP: ' + msg, 'verbose');
+      else ui.messageAddInfo(msg, 'verbose');
       return true;
     }
   },

@@ -127,10 +127,17 @@ var ui = {
     return moment(time).format(config.settings.dateFormat);
   },
 
-  messageAddInfo: function(text, classes) {
+  messageAddInfo: function(text, variables, classes) {
+    if (!classes && typeof variables == 'string') {
+      classes = variables;
+      variables = false;
+    }
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
       if (!config.settings.verbose) return;
     }
+    text = text.replace(/\{([a-z]+)\}/g, function(rep, key) {
+      return variables[key] ? visual.textPlain(variables[key]) : rep;
+    });
     var message = this.messageCreate({
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
