@@ -1,7 +1,8 @@
-strophe-client
-==============
+cadence
+=======
 
-A visual clone of AJAX-Chat with a strophe.js backend
+cadence is a strophe.js-powered XMPP multi-user chat client that 
+runs entirely in the browser without a server backend.
 
 LICENSE
 =======
