@@ -1,4 +1,19 @@
 visual = {
+  init: function() {
+    var i = 1;
+    this.emoticonSets = [];
+    var emoticonRegs = []
+    for (var set in config.emoticons) {
+      var keys = []
+      for (var code in config.emoticons[set].codes) {
+        keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
+      }
+      emoticonRegs.push('(' + keys.join('|') + ')'),
+      this.emoticonSets.push(set);
+    }
+    this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
+  },
+
   renderText: function(jq) {
     if (!config.settings.html)
       return $('<span>' + jq.text() + '</span>');
@@ -11,6 +26,18 @@ visual = {
   },
 
   addEmoticons: function(jq) {
+    var emoticonSets = this.emoticonSets;
+    var emoticonImg = function(set, code) {
+      return '<img class="emoticon" src="' + config.emoticons[set].baseURL +
+             config.emoticons[set].codes[code] + '" />';
+    }
+    jq.replaceText(this.emoticonRegex, function() {
+      for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
+        if (arguments[i]) {
+          return emoticonImg(emoticonSets[i-1], arguments[i]);
+        }
+      }
+    });
     return jq;
   },
 

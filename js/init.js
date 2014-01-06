@@ -3,6 +3,7 @@ $(document).ready(function() {
   xmpp.initialize();
   $(window).unload(xmpp.disconnect);
   bbcode = xbbcode.init(config.bbcode);
+  visual.init();
 });
 
 
