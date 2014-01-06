@@ -222,26 +222,6 @@ var ui = {
     this.dom.channelContainer[anyRooms ? 'show' : 'hide'](500);
   },
 
-  userStatusChange: function(user, status, notify) {
-    if (status == 'offline' && this.userLinks[user.nick]) {
-      this.userRemove(user);
-    }
-    else if (!this.userLinks[user.nick]) {
-      this.userAdd(user);
-    }
-    if (this.userStatus[user.nick] != status) {
-      if (this.userLinks[user.nick])
-        this.userLinks[user.nick].attr('class', 'user-' + status);
-      if (notify) {
-        if (this.userStatus[user.nick] == 'away' && status == 'online') msg = 'available';
-        else msg = status;
-        this.messageAddInfo(config.ui.userStatus[msg].replace(
-          '%s', visual.formatUser(user)));
-      }
-      this.userStatus[user.nick] = status;
-    }
-  },
-
   userAdd: function(user) {
     if (!this.userLinks[user.nick]) {
       this.userLinks[user.nick] = $('<div class="row">' + visual.formatUser(user) + '</div>'),
