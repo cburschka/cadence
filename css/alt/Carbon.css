@@ -10,10 +10,6 @@
  * http://www.phpbb.com/
  */
 
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 @media screen,projection,handheld {
 
   #loginContent {

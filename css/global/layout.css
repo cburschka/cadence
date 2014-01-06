@@ -163,7 +163,7 @@ body {
   height:10px;
   margin-top:2px;
   padding-left:5px;
-  background:url('../img/delete.png') no-repeat right;
+  background:url('../../img/delete.png') no-repeat right;
 }
 #inputField {
   resize: none;

@@ -10,10 +10,6 @@
  * http://punbb.org/
  */
 
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 @media screen,projection,handheld {
 
   /* Buttons */
@@ -27,40 +23,8 @@
     border: 1px solid #6C8A3F;
   }
 
-  /* Status Icon */
-  #content #statusIconContainer {
-    background-image: url('../img/loading-sprite.png');
-  }
-  #content .statusContainerOff {
-    background-position: 0px 0px;
-  }
-  #content .statusContainerOn {
-    background-position: 0px -22px;
-  }
-  #content .statusContainerAlert {
-    background-position: 0px -44px;
-  }
-
-  /* Other Theme Elements */
-  #loginContent {
-    background-color:#800080;
-    color:#32cd32;
-  }
-  #loginContent h1 {
-    color:#32cd32;
-  }
-  #loginContent a {
-    color:#52ed52;
-  }
-  #loginContent input, #loginContent select {
-    background-color:#800080;
-    color:#32cd32;
-  }
-  #loginContent #errorContainer {
-    color:#FFFFFF;
-  }
   #content {
-  background: url('../img/theme/omg/heartscape-diamond.png') #700070;
+  background: url('omg/heartscape-diamond.png') #700070;
   color:#32cd32;
   }
   #content h1 {
@@ -70,20 +34,16 @@
     color:#52ed52;
   }
   #content input, #content select, #content textarea {
-    background: url('../img/theme/omg/darker.png') transparent;
+    background: url('omg/darker.png') transparent;
     color:#32cd32;
   }
   #content #chatList, #content #onlineListContainer, #content #poniconContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
     border-color:#32cd32;
-    background: url('../img/theme/omg/darker.png') transparent;
+    background: url('omg/darker.png') transparent;
   }
   #content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
-    background: url('../img/theme/omg/darker.png') transparent;
+    background: url('omg/darker.png') transparent;
     color:#32cd32;
-  }
-  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #colorCodesContainer, #content textarea {
-    border-color:#6C8A3F;
-    background-color:#FFF;
   }
   #content #colorCodesContainer a {
     border-color:#32cd32;
@@ -92,11 +52,11 @@
       background-color:transparent;
   }
   #content .rowEven {
-    background: url('../img/theme/omg/darker.png') transparent;
+    background: url('omg/darker.png') transparent;
     color:#32cd32;
   }
   #content .rowOdd {
-    background: url('../img/theme/omg/lighter.png') transparent;
+    background: url('omg/lighter.png') transparent;
     color:#32cd32;
   }
   #content .guest {
@@ -124,10 +84,7 @@
     border-color:red;
   }
   #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
-    background: url('../img/theme/omg/darker.png') transparent;
+    background: url('omg/darker.png') transparent;
     color:#32cd32;
-  }
-  #content #settingsContainer #settingsList input.playback {
-      background:url('../img/playback.png') no-repeat;
   }
 }

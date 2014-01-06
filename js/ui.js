@@ -49,8 +49,8 @@ var ui = {
     var options = '', links = '';
     for (var i in config.ui.css) {
       options += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
-      links += '<link class="alternate-style" rel="alternate stylesheet" type="text/css" href="css/'
-            + config.ui.css[i] + '.css" title="' + config.ui.css[i] + '" />';
+      links += '<link class="alternate-style" rel="alternate stylesheet" type="text/css" href="'
+            + config.ui.cssURL + config.ui.css[i] + '.css" title="' + config.ui.css[i] + '" />';
     }
     $('#styleSelection').html(options).val(config.settings.activeStyle);
     this.dom.styleSheets = $(links).appendTo('head');

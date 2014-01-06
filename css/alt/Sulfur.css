@@ -10,10 +10,6 @@
  * http://punbb.org/
  */
 
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 @media screen,projection,handheld {
 
   /* Buttons */

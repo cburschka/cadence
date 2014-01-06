@@ -7,10 +7,6 @@
  *
  */
 
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 @media screen,projection,handheld {
 
   input, select, textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content .rowEven,
@@ -82,16 +78,6 @@
   #content #helplist table, #content  #settingsList table{border-spacing:0;}
   #content #emoticonsContainer { border-radius: 3px; }
   #content #bbCodeContainer { border: 0; padding-left: 0; }
-  #content #statusIconContainer { background-image: url('../img/loading-sprite.png'); }
-  #content .statusContainerOff {
-    background-position: 0px 0px;
-  }
-  #content .statusContainerOn {
-    background-position: 0px -22px;
-  }
-  #content .statusContainerAlert {
-    background-position: 0px -44px;
-  }
   #content #bbCodeContainer input {
     background-color: #d8ffd6;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#d8ffd6), to(#467a44));

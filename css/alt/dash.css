@@ -1,10 +1,6 @@
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 #loginContent {
     color: #ffffff;
-    background: url("../img/theme/dash/dash-stripe.png") repeat scroll 0 0 #700070;
+    background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
 }
 #loginContent h1 {
     color: #ffffff;
@@ -24,7 +20,7 @@
     color: #FFFFFF;
 }
 #content {
-    background: url("../img/theme/dash/dash-stripe.png") repeat scroll 0 0 #700070;
+    background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
     color: #FFFFFF;
 }
 #content h1 {
@@ -77,9 +73,6 @@
 #content #chatList a {
     color: #CCCCCC;
 }
-#content #chatList .delete {
-    background: url("../img/delete.png") no-repeat scroll right center transparent;
-}
 #content #chatList .deleteSelected {
     border-color: red;
 }
@@ -87,9 +80,6 @@
     background: rgba(0,0,0,0.1);
     color: #32CD32;
 }
-#content #settingsContainer #settingsList input.playback {
-    background: url("../img/playback.png") no-repeat scroll 0 0 transparent;
-}
 #content #onlineListContainer #onlineList, #content #helpContainer #helpList, #content #settingsContainer #settingsList, #content #settingsContainer #poniconList {
-    background: url("../img/theme/dash/cutie-dash.png") no-repeat bottom;
+    background: url("dash/cutie-dash.png") no-repeat bottom;
 }

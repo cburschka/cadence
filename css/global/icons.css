@@ -3,41 +3,41 @@
   background-repeat:no-repeat;
 }
 #logoutButton {
-  background-image:url('../img/logout.png');
+  background-image:url('../../img/logout.png');
 }
 #helpButton {
-  background-image:url('../img/help.png');
+  background-image:url('../../img/help.png');
 }
 #poniconButton {
-  background-image: url("../img/ponicons.png");
+  background-image: url("../../img/ponicons.png");
 }
 #settingsButton {
-  background-image:url('../img/settings.png');
+  background-image:url('../../img/settings.png');
 }
 #onlineListButton {
-  background-image:url('../img/users.png');
+  background-image:url('../../img/users.png');
 }
 #audioButton {
-  background-image:url('../img/audio.png');
+  background-image:url('../../img/audio.png');
   background-position: 0px 0px;
 }
 #audioButton.off {
   background-position: 0px 100%;
 }
 #autoScrollButton {
-  background-image:url('../img/autoscroll.png');
+  background-image:url('../../img/autoscroll.png');
   background-position: 0px 0px
 }
 #autoScrollButton.off {
   background-position: 0px 100%;
 }
 #settingsList input.playback {
-  background-image:url('../img/playback.png');
+  background-image:url('../../img/playback.png');
 }
 
 /* Status Icon */
 #statusIconContainer {
-  background-image: url('../img/loading-sprite.png');
+  background-image: url('../../img/loading-sprite.png');
   background-position: 0px -44px;
 }
 #statusIconContainer.online {

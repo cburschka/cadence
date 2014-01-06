@@ -6,10 +6,6 @@
  * @link https://blueimp.net/ajax/
  */
 
-@import url('global.css');
-@import url('fonts.css');
-@import url('print.css');
-
 @media screen,projection,handheld {
 
   #content input, select, #content textarea, #loginButton {
@@ -41,7 +37,7 @@
     color:#9765A0;
   }
   #content #chatList{
-    background: url('plum_images/plum.png') no-repeat bottom right rgba(0,0,0,0.3);
+    background: url('Plum/plum.png') no-repeat bottom right rgba(0,0,0,0.3);
   }
   #content #colorCodesContainer {
     padding: 5px;
@@ -50,23 +46,14 @@
     background:rgba(225,225,225,0.2)
   }
   #content #onlineListContainer, #content #helpContainer, #content #settingsContainer {
-    background: url('plum_images/plum2.png') no-repeat bottom left rgba(0,0,0,0.3);
+    background: url('Plum/plum2.png') no-repeat bottom left rgba(0,0,0,0.3);
   }
   #content #onlineListContainer #onlineList ul {
     list-style: none;
   }
   #content #emoticonsContainer { border-radius: 3px; }
   #content #bbCodeContainer { border: 0; padding-left: 0; }
-  #content #statusIconContainer { background-image: url('../img/loading-sprite.png'); }
-  #content .statusContainerOff {
-    background-position: 0px 0px;
-  }
-  #content .statusContainerOn {
-    background-position: 0px -22px;
-  }
-  #content .statusContainerAlert {
-    background-position: 0px -44px;
-  }
+
   #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginButton {
     background-color:#461124;
     color:#DAABBC;
