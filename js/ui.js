@@ -66,14 +66,22 @@ var ui = {
     for (var set in config.emoticons) {
       var html = '';
       for (var code in config.emoticons[set].codes) {
-        html += '<a href="javascript:void" class="text-insert" title="'
+        html += '<a href="javascript:void" class="insert-text" title="'
              + code + '">' + '<img src="' + config.emoticons[set].baseURL
              + config.emoticons[set].codes[code] + '" alt="'
              + code + '" /></a>';
       }
       $('#emoticonsList-' + set).html(html);
     }
-    $('.text-insert').click(function() { chat.insertText(this.title); });
+    $('.insert-text').click(function() { chat.insertText(this.title); });
+    $('.insert-bbcode').click(function() {
+      if ($(this).hasClass('insert-bbcode-arg'))
+        var arg = '=' + prompt('This BBCode tag requires an argument:', '');
+      else arg = '';
+      var v = this.value.toLowerCase();
+      v = ['[' + v + arg + ']', '[/' + v + ']'];
+      chat.insertText(v);
+    });
   },
 
   setStatus: function(status) {

@@ -60,13 +60,14 @@
       <span id="messageLengthCounter">0</span>
       </div>
     <div id="bbCodeContainer">
-      <input type="button" value="b" title="Bold text: [b]text[/b]" onclick="ajaxChat.insertBBCode('b');" style="font-weight:bold;"/>
-      <input type="button" value="i" title="Italic text: [i]text[/i]" onclick="ajaxChat.insertBBCode('i');" style="font-style:italic;"/>
-      <input type="button" value="u" title="Underline text: [u]text[/u]" onclick="ajaxChat.insertBBCode('u');" style="text-decoration:underline;"/>
-      <input type="button" value="Quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]" onclick="ajaxChat.insertBBCode('quote');"/>
-      <input type="button" value="Code" title="Code display: [code]code[/code]" onclick="ajaxChat.insertBBCode('code');"/>
-      <input type="button" value="URL" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]" onclick="ajaxChat.insertBBCode('url');"/>
-      <input type="button" value="Image" title="Insert image: [img]http://example.org/image.jpg[/img]" onclick="ajaxChat.insertBBCode('img');"/>
+      <input type="button" class="insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;"/>
+      <input type="button" class="insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;"/>
+      <input type="button" class="insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;"/>
+      <input type="button" class="insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;"/>
+      <input type="button" class="insert-bbcode" value="Quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]" />
+      <input type="button" class="insert-bbcode" value="Code" title="Code display: [code]code[/code]" />
+      <input type="button" class="insert-bbcode insert-bbcode-arg" value="URL" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]" />
+      <input type="button" class="insert-bbcode" value="IMG" title="Insert image: [img]http://example.org/image.jpg[/img]" />
       <input type="button" value="Font Color" title="Font Color: [color=red]text[/color]" onclick="ajaxChat.showHide('colorCodesContainer', null);"/>
       <span id="emoticonsList-general" dir="ltr"></span>
     </div>
