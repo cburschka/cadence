@@ -30,9 +30,6 @@ var ui = {
   },
 
   initializePage: function() {
-    //$('input.setting').prop('checked', function() {
-    //  return config.settings[this.id.substring(0, this.id.length - 'Setting'.length)];
-    //});
     this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
 
     for (var set in config.markup.emoticons) {
@@ -88,9 +85,6 @@ var ui = {
     $('#optionsContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
-    //$('input.setting').change(function() {
-    //  config.settings[this.id.substring(0, this.id.length - 'Setting'.length)] = this.checked;
-    //})
 
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
@@ -105,7 +99,8 @@ var ui = {
       function() { ui.setStyle($(this).val()); }
     );
     $('#settingsContainer input.settings').change(function() {
-      chat.setSetting(this.id.substring('settings-'.length), this.value);
+      var value = this.type == 'checkbox' ? this.checked : this.value;
+      chat.setSetting(this.id.substring('settings-'.length), value);
     });
   },
 
