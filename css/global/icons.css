@@ -46,3 +46,12 @@
 #statusIconContainer.waiting {
   background-position: 0px -22px;
 }
+
+#statusIconContainer,
+#audioButton,
+#autoScrollButton {
+  -moz-transition-duration: 0.5s;
+  -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
+  -webkit-transition-duration: 0.5s;
+  -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
+}
