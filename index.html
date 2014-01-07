@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf8" />
-  <title>Strophe XMPP Client</title>
+  <title>cadence XMPP Client</title>
   <style type="text/css">
     html, body { height:100%; }
     #content { display: none; }
@@ -11,10 +11,11 @@
       color:white;
       height:100%;
     }
-    #loading {
-      padding-top:25%;
-      margin:auto;
+    #splash {
+      position:relative;
+      top:40%;
       display:block;
+      text-align:center;
     }
   </style>
   <link id="global-style" rel="stylesheet" type="text/css" href="css/global/global.css" />
@@ -211,7 +212,12 @@
     <!-- settingsContainer-->
   </div>
   <div id="nocontent">
-    <img id="loading" src="img/loading.gif" />
+    <div id="splash"><img src="img/loading.gif" /><h1>cadence XMPP chat</h1>
+    <p id="javascriptWarning">This is a client-side web application. Please open this page with a browser that runs JavaScript.</p>
+    <script type="text/javascript">
+    document.getElementById('javascriptWarning').style.display='none';
+    </script>
+    </div>
   </div>
 </body>
 </html>

@@ -56,6 +56,8 @@ var ui = {
     this.dom.styleSheets = $(links).appendTo('head');
     this.dom.styleSheets.last().load(function() {
       ui.setStyle(config.settings.activeStyle);
+      $('#nocontent').fadeOut('slow');
+      $('#content').fadeIn('slow');
     });
     $('#settingsContainer input.settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
@@ -63,7 +65,6 @@ var ui = {
     $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
-    console.log(config.settings.activeMenu);
     this.toggleMenu(config.settings.activeMenu, true);
   },
 
