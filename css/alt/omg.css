@@ -34,30 +34,22 @@
     color:#52ed52;
   }
   #content input, #content select, #content textarea {
-    background: url('omg/darker.png') transparent;
+    background-color: rgba(0,0,0,0.3);
     color:#32cd32;
   }
   #content #chatList, #content #onlineListContainer, #content #poniconContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
     border-color:#32cd32;
-    background: url('omg/darker.png') transparent;
+    background-color: rgba(0,0,0,0.3);
   }
   #content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
-    background: url('omg/darker.png') transparent;
+    background-color: rgba(0,0,0,0.3);
     color:#32cd32;
   }
   #content #colorCodesContainer a {
     border-color:#32cd32;
   }
-  #content #optionsContainer input {
+  #trayContainer input {
       background-color:transparent;
-  }
-  #content .rowEven {
-    background: url('omg/darker.png') transparent;
-    color:#32cd32;
-  }
-  #content .rowOdd {
-    background: url('omg/lighter.png') transparent;
-    color:#32cd32;
   }
   #content .guest {
     color:gray;

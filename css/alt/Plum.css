@@ -13,7 +13,7 @@
   }
   #content textarea { border-color: #383838; }
   #content input, #loginButton { border-radius: 8px; }
-  #loginContent, #content {
+  #content {
     background-color:#2A112F;
     color:#9765A0;
   }
@@ -65,12 +65,6 @@
   #content #optionsContainer input {
       background-color:transparent;
   }
-  #content .rowEven {
-    background:rgba(0,0,0,0.2);
-  }
-  #content .rowOdd {
-    background:rgba(0,0,0,0.3);
-  }
   #content .guest {
     color:gray;
   }
@@ -86,14 +80,11 @@
   #content .chatBot {
     color:#CDA6D2;
   }
-  #content #chatList .chatBotErrorMessage {
-    color:red;
-  }
-  #content #chatList .deleteSelected {
-    border-color:red;
-  }
   #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
     color:#CDA6D2;
     height: 15px;
+  }
+  .row.delayed .log-room, .row.delayed .dateTime {
+    color:#673570;
   }
 }

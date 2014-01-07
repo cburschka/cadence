@@ -82,7 +82,7 @@ var ui = {
     };
     $('#loginButton').click(loginCallback);
     $('#loginPass, #loginUser').keypress(this.onEnterKey(loginCallback));
-    $('#optionsContainer .button.toggleMenu').click(function() {
+    $('#trayContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 

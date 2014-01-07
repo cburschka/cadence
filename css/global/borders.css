@@ -16,11 +16,11 @@
 }
 
 /* Misc */
-#bbCodeContainer input, #optionsContainer input.button, #settingsList input.button, #logoutButton, #submitButton, #loginButton {
+#bbCodeContainer input, #trayContainer input.button, #settingsList input.button, #logoutButton, #submitButton, #loginButton {
   cursor:pointer;
 }
 
-/*  #content, #content h1, #content a, #content input, #content select, #content textarea, #chatList, #onlineListContainer, #helpContainer, #settingsContainer, #bbCodeContainer, #colorCodesContainer, #emoticonsContainer, .waiting, .online, .offline, #bbCodeContainer input, #logoutButton, #submitButton, #colorCodesContainer a, #optionsContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #chatList .chatBotErrorMessage, #chatList a, #onlineListContainer h3, #helpContainer h3, #settingsContainer h3 {
+/*  #content, #content h1, #content a, #content input, #content select, #content textarea, #chatList, #onlineListContainer, #helpContainer, #settingsContainer, #bbCodeContainer, #colorCodesContainer, #emoticonsContainer, .waiting, .online, .offline, #bbCodeContainer input, #logoutButton, #submitButton, #colorCodesContainer a, #trayContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #chatList .chatBotErrorMessage, #chatList a, #onlineListContainer h3, #helpContainer h3, #settingsContainer h3 {
   -moz-transition-duration: 0.5s;
   -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   -webkit-transition-duration: 0.5s;

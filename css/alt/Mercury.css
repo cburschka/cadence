@@ -94,17 +94,11 @@
   #content #bbCodeContainer input:hover, #content #logoutButton:hover, #content #submitButton:hover {
     background-color:#565656;
   }
-  #content #optionsContainer input.button {
+  #trayContainer input.button {
     border: 0;
   }
-  #content #optionsContainer input {
+  #trayContainer input {
       background-color:transparent;
-  }
-  #content .rowEven {
-    background-color:#505050;
-  }
-  #content .rowOdd {
-    background-color:#484848;
   }
   #content .guest {
     color:gray;

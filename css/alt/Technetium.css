@@ -83,13 +83,10 @@
   #content #colorCodesContainer a {
     border-color: #E7E7E7;
   }
-  #content #optionsContainer input {
+  #trayContainer input {
       background-color:transparent;
   }
-  #content .rowEven {
-    background-color:#F1F1F1;
-  }
-  #content .rowOdd:hover {
+  .row:nth-child(odd):hover {
   box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
   transition-duration: 0.1s;
   transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);

@@ -58,14 +58,15 @@
   #content #colorCodesContainer a {
     border-color:black;
   }
-  #content #optionsContainer input {
+  #trayContainer input {
       background-color:transparent;
   }
-  #content .rowEven {
-    background-color:#F1F1F1;
+  .row:nth-child(odd) {
+    background:rgba(0,0,0,0.2);
   }
-  #content .rowOdd {
-    background-color:#DEDFDF;
+  .row.delayed .dateTime,
+  .row.delayed .log-room {
+    color:#666;
   }
   #content .guest {
     color:gray;

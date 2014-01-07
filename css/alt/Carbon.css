@@ -59,7 +59,7 @@
   #content #colorCodesContainer a {
     border-color:black;
   }
-  #content #optionsContainer input {
+  #trayContainer input {
       background-color:transparent;
   }
   .row:nth-child(even) {

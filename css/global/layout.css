@@ -4,10 +4,16 @@ body {
 }
 
 /* Elements that are initially hidden. */
-#channelSelection,
+#channelContainer,
+#colorCodesContainer,
+.menuContainer,
 #chatList .row,
 #onlineList .row {
   display:none;
+}
+
+.menuContainer {
+  overflow-x:hidden;
 }
 
 /* Layout */
@@ -28,9 +34,7 @@ body {
   top:15px;
 }
 #statusIconContainer {
-  position:absolute;
-  right:20px;
-  bottom:20px;
+  float:right;
   width: 22px;
   height: 22px;
 }
@@ -104,9 +108,9 @@ body {
 #emoticonsContainer {
   padding: 3px;
 }
-#optionsContainer {
+#trayContainer {
   position:absolute;
-  right:45px;
+  right:20px;
   bottom:20px;
   padding:3px;
   padding-right:0px;
@@ -121,10 +125,10 @@ body {
   width:20px;
   height:20px;
 }
-#optionsContainer input {
+#trayContainer input {
     vertical-align:middle;
 }
-#optionsContainer input.button {
+#trayContainer input.button {
     width:22px;
   height:22px;
 }
@@ -182,7 +186,6 @@ body {
   right:0px;
   top:25px;
   bottom:0px;
-  overflow:auto;
 }
 #onlineList div, #poniconList span {
   padding-left:10px;

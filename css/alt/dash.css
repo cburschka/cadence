@@ -29,15 +29,15 @@
 #content a {
     color: #DDDDDD;
 }
-#content input, #content select, #content textarea {
+input[type=text], input[type=password], #content select, #content textarea {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
     color: #FFFFFF;
 }
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
-    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
-    border-color: #1B1B1F;
+#chatList, .menuContainer, #trayContainer, #bbCodeContainer, #colorCodesContainer, textarea {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #1B1B1F;
 }
-#content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
+#content #bbCodeContainer input, #content button {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
     color: #FFFFFF;
 }

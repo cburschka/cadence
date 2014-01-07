@@ -55,7 +55,6 @@
       </span>
     </div>
     <!-- / headlineContainer -->
-    <div id="statusIconContainer" class="statusContainerOn"></div>
     <div id="chatList"></div>
     <div id="inputFieldContainer">
       <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
@@ -76,8 +75,8 @@
       <span id="emoticonsList-general" dir="ltr"></span>
     </div>
     <!-- / bbCodeContainer -->
-    <div id="colorCodesContainer" style="display:none;" dir="ltr"></div>
-    <div id="optionsContainer">
+    <div id="colorCodesContainer" dir="ltr"></div>
+    <div id="trayContainer">
       <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
       <input type="image" src="img/pixel.gif" class="button toggleMenu" id="helpButton" alt="Show/hide help" title="Show/hide help" />
       <input type="image" src="img/pixel.gif" class="button toggleMenu" id="poniconButton" alt="Ponicons" title="Ponicons" />
@@ -85,13 +84,14 @@
       <input type="image" src="img/pixel.gif" class="button toggleMenu" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" />
       <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
       <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
+      <div id="statusIconContainer" class="statusContainerOn"></div>
     </div>
     <!-- / optionsContainer -->
-    <div id="onlineListContainer" style="display:none;">
+    <div id="onlineListContainer" class="menuContainer">
       <h3>Online users</h3>
       <div id="onlineList"></div>
     </div>
-    <div id="helpContainer" style="display:none;">
+    <div id="helpContainer" class="menuContainer">
       <h3>Help</h3>
       <div id="helpList">
         <table>
@@ -161,14 +161,14 @@
           </tr>
         </table>
       </div>
-      <!-- helpList -->
+      <!-- / helpList -->
     </div>
-    <!-- helpContainer -->
-    <div id="poniconContainer" style="display:none;">
+    <!-- / helpContainer -->
+    <div id="poniconContainer" class="menuContainer">
        <h3>Ponicons</h3>
        <span id="emoticonsList-pony" dir="ltr"></span>
     </div>
-    <div id="settingsContainer" style="display:none;">
+    <div id="settingsContainer" class="menuContainer">
       <h3>Settings</h3>
       <div id="settingsList">
         <table>
@@ -210,9 +210,9 @@
           </tr>
         </table>
       </div>
-      <!-- settingsList -->
+      <!-- / settingsList -->
     </div>
-    <!-- settingsContainer-->
+    <!-- / settingsContainer-->
   </div>
   <div id="nocontent">
     <div id="splash"><img src="img/loading.gif" /><h1>cadence XMPP chat</h1>
