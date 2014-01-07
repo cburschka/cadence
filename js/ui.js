@@ -102,6 +102,9 @@ var ui = {
       var value = this.type == 'checkbox' ? this.checked : this.value;
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
+    $('#logoutButton').click(function() {
+      chat.commands.quit();
+    });
   },
 
   setStatus: function(status) {
@@ -111,7 +114,6 @@ var ui = {
   },
 
   setStyle: function(style) {
-    console.log(style);
     config.settings.activeStyle = style;
     this.dom.styleSheets.each(function() {
       this.disabled = this.title != style;
