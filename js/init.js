@@ -12,7 +12,6 @@ init = {
   loadSettings: function() {
     var cookie = $.cookie(config.sessionName + '_settings');
     config.settings = config.defaultSettings;
-    // Disable this for now.
     if (cookie) {
       config.settings = objMerge(config.settings, cookie);
     }
