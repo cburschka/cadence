@@ -6,8 +6,6 @@ $(document).ready(function() {
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
   $(window).unload(function() { init.shutDown(); });
-  $('#nocontent').fadeOut('slow');
-  $('#content').fadeIn('slow');
 });
 
 init = {
