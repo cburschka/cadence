@@ -304,7 +304,7 @@ var config = {
   },
 
   ui: {
-    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium', 'Plum'],
+    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium', 'Plum', 'Uranium'],
     cssURL: 'css/alt/',
     chatBotName: 'Ligrev',
   },
