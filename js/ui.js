@@ -2,7 +2,6 @@ var ui = {
   userLinks: {},
   dom: null,
   userStatus: {},
-  chatListHeight: null,
   messages: [],
   messageId: 0,
   messageHash: {},
@@ -16,7 +15,8 @@ var ui = {
       chatList: $('#chatList'),
       onlineList: $('#onlineList'),
       channelSelection: $('#channelSelection'),
-      statusIconContainer: $('#statusIconContainer'),
+      statusIcon: $('#statusIcon'),
+      autoScrollIcon: $('#autoScrollIcon'),
       messageLengthCounter: $('#messageLengthCounter'),
       menu: {
         help: $('#helpContainer'),
@@ -30,8 +30,6 @@ var ui = {
   },
 
   initializePage: function() {
-    this.chatListHeight = parseInt($(this.dom.chatList).css('height'));
-
     for (var set in config.markup.emoticons) {
       var html = '';
       for (var code in config.markup.emoticons[set].codes) {
@@ -105,11 +103,15 @@ var ui = {
     $('#logoutButton').click(function() {
       chat.commands.quit();
     });
+
+    this.dom.chatList.scroll(function() {
+      ui.checkAutoScroll();
+    });
   },
 
   setStatus: function(status) {
     // status options are: online, waiting, offline.
-    this.dom.statusIconContainer.attr('class', status);
+    this.dom.statusIcon.attr('class', status).attr('title');
     this.dom.loginContainer[status == 'online' ? 'hide' : 'show'](500);
   },
 
@@ -176,8 +178,7 @@ var ui = {
   },
 
   messageInsert: function(message) {
-    this.scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
-    var c = this.messages.length;
+        var c = this.messages.length;
     if (message.timestamp < this.messages[0].timestamp) {
       this.messages[0].html.before(message.html);
       this.messages = [message].concat(this.messages);
@@ -196,7 +197,6 @@ var ui = {
 
   messageAppend: function(message) {
     this.messageHash[message.hash] = true;
-    this.scrolledDown = this.dom.chatList.scrollTop() + this.chatListHeight == this.dom.chatList.prop('scrollHeight');
     this.messages[this.messages.length] = message;
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(function() {
@@ -273,8 +273,17 @@ var ui = {
 
   scrollDown: function() {
     // Only autoscroll if we are at the bottom.
-    if(this.scrolledDown) {
-      this.dom.chatList.scrollTop($('#chatList').prop('scrollHeight'));
+    if(this.autoScroll) {
+      this.dom.chatList.animate({scrollTop: $('#chatList').prop('scrollHeight')}, 500);
+    }
+  },
+
+  checkAutoScroll: function() {
+    var chatListHeight = parseInt($(this.dom.chatList).css('height'));
+    var autoScroll = this.dom.chatList.scrollTop() + chatListHeight == this.dom.chatList.prop('scrollHeight');
+    if (this.autoScroll != autoScroll) {
+      this.autoScroll = autoScroll;
+      this.dom.autoScrollIcon.attr('class', autoScroll ? 'on' : 'off');
     }
   }
 };

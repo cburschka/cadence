@@ -24,32 +24,34 @@
 #audioButton.off {
   background-position: 0px 100%;
 }
-#autoScrollButton {
-  background-image:url('../../img/autoscroll.png');
-  background-position: 0px 0px
-}
-#autoScrollButton.off {
-  background-position: 0px 100%;
-}
 #settingsList input.playback {
   background-image:url('../../img/playback.png');
 }
 
 /* Status Icon */
-#statusIconContainer {
+#statusIcon {
   background-image: url('../../img/loading-sprite.png');
   background-position: 0px -44px;
 }
-#statusIconContainer.online {
+#statusIcon.online {
   background-position: 0px 0px;
 }
-#statusIconContainer.waiting {
+#statusIcon.waiting {
   background-position: 0px -22px;
 }
 
-#statusIconContainer,
+/* Scroll Icon */
+#autoScrollIcon {
+  background-image:url('../../img/autoscroll.png');
+  background-position: 0px 0px
+}
+#autoScrollIcon.off {
+  background-position: 0px 100%;
+}
+
+#statusIcon,
 #audioButton,
-#autoScrollButton {
+#autoScrollIcon {
   -moz-transition-duration: 0.5s;
   -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   -webkit-transition-duration: 0.5s;

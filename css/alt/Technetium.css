@@ -49,7 +49,7 @@
     box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
     color: #E7E7E7;
   }
-  #statusIconContainer {
+  #statusIcon {
     box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   }
   #content #bbCodeContainer input, #content #submitButton {

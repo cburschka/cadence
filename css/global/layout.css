@@ -32,8 +32,15 @@ body {
   left:20px;
   top:15px;
 }
-#statusIconContainer {
-  float:right;
+
+#trayContainer * {
+  display:inline;
+  margin:0 2px;
+  vertical-align:middle;
+}
+
+#statusIcon,
+#autoScrollIcon {
   width: 22px;
   height: 22px;
 }
