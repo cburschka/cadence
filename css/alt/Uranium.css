@@ -9,8 +9,9 @@
 
 @media screen,projection,handheld {
 
-  input, select, textarea, #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content .rowEven,
-  #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3, #content #inputFieldContainer, #loginContent input
+  input, select, textarea, #chatList, .menuContainer,
+  .row:nth-child(even),
+  .menuContainer h3, #inputFieldContainer
   { border-radius: 5px; -webkit-border-radius:5px;border:0;}
   #loginContent a {
     color:#4c9546;
@@ -18,16 +19,13 @@
   #content #inputFieldContainer{height:46px; background:#0E0E0E;padding:0;}
   #content #inputFieldContainer #inputField{box-shadow: inset 1px 1px 5px 1px #000; border:0;height: 40px;padding: 3px 0.5%;width: 99%;}
   #content #inputFieldContainer #inputField:focus{outline:none;box-shadow:0px 0px 8px 1px #376e34;}
-  #loginContent #loginFormContainer #loginButton {
+  #loginButton {
     background-color:#424242;
     color:#b0b8a8;
     border-radius: 3px;
+    border-color:black;
   }
-  #loginContent #errorContainer {
-    color:red;
-  }
-
-  #content, #loginContent {
+  #content {
   background-color: #464646;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#464646), to(#181818));
   background-image: -webkit-linear-gradient(top, #464646, #181818);
@@ -43,17 +41,17 @@
   #content a {
     color:#4c9546;
   }
-  #loginContent input, #loginContent select{background:#171717; color:#b0b8a8;}
+  select{background:#171717; color:#b0b8a8;}
   input, select{padding: 3px;}
   #content input,#content select,#content textarea {
     background-color:#0e0e0e;
     color:#b0b8a8;
   }
   #content #colorCodesContainer,#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #inputFieldContainer,
-  #loginContent input[type=text], #loginContent input[type=password]{
+  input[type=text], input[type=password]{
   box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49;
   }
-  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer {
+  .menuContainer {
     background-color:#171717;
     border:0;
   }
@@ -96,7 +94,7 @@
     background-image:         linear-gradient(to bottom, #ffffff, #08ff35);
   }
   #content #bbCodeContainer input:active, #content #logoutButton:active, #content #submitButton:active, #loginContent #loginButton:active{box-shadow:0px 0px 8px 1px #38ff56;}
-  #content #logoutButton, #content #submitButton,#loginContent #loginButton{
+  #loginButton{
     background-color: #4fff58;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#4fff58), to(#194221));
     background-image: -webkit-linear-gradient(top, #4fff58, #194221);
@@ -106,7 +104,7 @@
     font-weight:bold; color:#fff;
     text-shadow:0px 0px 5px #000;
   }
-  #content #logoutButton:hover, #content #submitButton:hover, #loginContent #loginButton:hover{
+  #loginButton:hover{
     background-color: #99ffa8;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#99ffa8), to(#002405));
     background-image: -webkit-linear-gradient(top, #99ffa8, #002405);
@@ -152,7 +150,7 @@
   #content #chatList .deleteSelected {
     border-color:red;
   }
-  #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+  .menuContainer h3 {
   background-color: #171717;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#3b6c37), to(#171717));
   background-image: -webkit-linear-gradient(top, #3b6c37, #223220, #171717);

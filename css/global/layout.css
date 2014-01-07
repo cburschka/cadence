@@ -5,7 +5,6 @@ body {
 
 /* Elements that are initially hidden. */
 #channelContainer,
-#colorCodesContainer,
 .menuContainer,
 #chatList .row,
 #onlineList .row {
@@ -63,40 +62,30 @@ body {
   right: 26px;
   z-index: 0;
 }
-#onlineListContainer {
+.menuContainer {
   bottom: 115px;
-  position: absolute;
   right: 20px;
   top: 50px;
-  width: 200px;
-  hyphens: auto;
+  position: absolute;
 }
+#onlineListContainer,
 #poniconContainer {
-  bottom: 115px;
-  position: absolute;
-  right: 20px;
-  top: 50px;
   width: 200px;
 }
-#helpContainer {
-  position:absolute;
-  right:20px;
-  top:50px;
-  width:360px;
-  bottom:115px;
-}
+#helpContainer,
 #settingsContainer {
-  position:absolute;
-  right:20px;
-  top:50px;
   width:360px;
-  bottom:115px;
 }
-#bbCodeContainer {
+
+#footerContainer {
   bottom: 19px;
   left: 20px;
   padding: 3px;
   position: absolute;
+  right:20px;
+}
+#footerContainer div {
+  display: inline-block;
 }
 #colorCodesContainer {
   bottom: 48px;
@@ -104,21 +93,18 @@ body {
   padding: 3px;
   position: absolute;
   z-index: 1;
+  display: none!important;
 }
 #emoticonsContainer {
   padding: 3px;
 }
 #trayContainer {
   position:absolute;
-  right:20px;
-  bottom:20px;
+  right:0;
   padding:3px;
   padding-right:0px;
 }
-#bbCodeContainer input, #logoutButton, #submitButton, #loginButton {
-  padding-left: 4px;
-  padding-right: 4px;
-}
+
 #colorCodesContainer a {
   display:block;
   float:left;
@@ -136,6 +122,7 @@ body {
   margin-left:1px;
   margin-right:1px;
 }
+#emoticonsContainer,
 #emoticonsContainer img {
   vertical-align:middle;
   margin-bottom:2px;
@@ -174,24 +161,23 @@ body {
   width:100%;
   height:48px;
 }
-#onlineListContainer h3, #helpContainer h3, #settingsContainer h3, #poniconContainer h3 {
+.menuContainer h3 {
   height:30px;
   padding: 4px 10px;
   margin:0px;
   text-align:center;
 }
-#onlineList, #helpList, #settingsList, #poniconList {
-  position:absolute;
-  left:0px;
-  right:0px;
-  top:25px;
-  bottom:0px;
+#onlineList, #helpList, #settingsList, #emoticonsList-pony {
+  margin:auto;
+  bottom:0;
 }
-#onlineList div, #poniconList span {
+#onlineList div, #emoticonList-pony {
   padding-left:10px;
-  padding-top:2px;
   padding-right:10px;
   padding-bottom:2px;
+}
+#emoticonsList-pony {
+  width:140px;
 }
 
 #onlineList a {
@@ -222,12 +208,4 @@ body {
   height:22px;
   vertical-align:middle;
   margin-bottom:2px;
-}
-
-#emoticonsList-pony {
-  display:block;
-  height:90%;
-  margin-top:10%;
-  margin-left:10%;
-  overflow:auto;
 }

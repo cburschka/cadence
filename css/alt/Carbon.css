@@ -12,26 +12,9 @@
 
 @media screen,projection,handheld {
 
-  #loginContent {
-    background-color:#000;
-    color:#FFFFCC;
-  }
-  #loginContent h1 {
-    color:#FFFFCC;
-  }
-  #loginContent a {
-    color:#FFFFCC;
-  }
-  #loginContent input, #loginContent select {
+  #loginButton {
     background-color:#212121;
     color:#FFFFCC;
-  }
-  #loginContent #loginFormContainer #loginButton {
-    background-color:#212121;
-    color:#FFFFCC;
-  }
-  #loginContent #errorContainer {
-    color:red;
   }
 
   #content {
@@ -52,7 +35,7 @@
     border-color:gray;
     background-color:#212121;
   }
-  #content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
+  #content #bbCodeContainer input {
     background-color:#212121;
     color:#FFFFCC;
   }

@@ -1,45 +1,32 @@
-#loginContent {
-    color: #ffffff;
-    background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
-}
-#loginContent h1 {
-    color: #ffffff;
-}
-#loginContent a {
-    color: #cccccc;
-}
-#loginContent input, #loginContent select {
-    background-color: #800080;
-    color: #ffffff;
-}
-#loginContent #loginFormContainer #loginButton {
-    background-color: #F7F5F1;
-    color: #ffffff;
-}
-#loginContent #errorContainer {
-    color: #FFFFFF;
-}
 #content {
     background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
-    color: #FFFFFF;
+    color: white;
 }
 #content h1 {
-    color: #ffffff;
+    color: white;
 }
 #content a {
     color: #DDDDDD;
 }
 input[type=text], input[type=password], #content select, #content textarea {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
-    color: #FFFFFF;
+    color: white;
 }
-#chatList, .menuContainer, #trayContainer, #bbCodeContainer, #colorCodesContainer, textarea {
-    background-color: rgba(0, 0, 0, 0.5);
+.menuContainer {
+    background: url("dash/cutie-dash.png") no-repeat bottom;
+}
+#chatList, .menuContainer, #footerContainer div, textarea {
+    background-color: rgba(0, 0, 0, 0.7);
     border: 1px solid #1B1B1F;
+}
+#headlineContainer label {
+    font-weight:bold;
+    color:white;
+    text-shadow:0px 0px 5px black;
 }
 #content #bbCodeContainer input, #content button {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
-    color: #FFFFFF;
+    color: white;
 }
 #content #colorCodesContainer a {
     border-color: #1d1d1d;
@@ -67,19 +54,10 @@ input[type=text], input[type=password], #content select, #content textarea {
 #content .chatBot {
     color: #F4F4AE;
 }
-#content #chatList .chatBotErrorMessage {
-    color: red;
-}
 #content #chatList a {
     color: #CCCCCC;
 }
-#content #chatList .deleteSelected {
-    border-color: red;
-}
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+.menuContainer h3 {
     background: rgba(0,0,0,0.1);
     color: #32CD32;
-}
-#content #onlineListContainer #onlineList, #content #helpContainer #helpList, #content #settingsContainer #settingsList, #content #settingsContainer #poniconList {
-    background: url("dash/cutie-dash.png") no-repeat bottom;
 }

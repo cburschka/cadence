@@ -1,7 +1,7 @@
 @media screen,projection,handheld {
 
   /* Buttons */
-  #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginForm #loginButton {
+  #content #bbCodeContainer input, #loginButton {
     background-color:#0066B9;
     color: #fff;
     border: 1px solid #0066B9;
@@ -11,25 +11,6 @@
     border: 1px solid #0066B9;
   }
 
-
-  /* Other Theme Elements */
-  #loginContent {
-    background-color:#F1F1F1;
-    color:#E7E7E7;
-  }
-  #loginContent h1 {
-    color:#E7E7E7;
-  }
-  #loginContent a {
-    color:#822100;
-  }
-  #loginContent input, #loginContent select {
-    background-color:#FFF;
-    color:#E7E7E7;
-  }
-  #loginContent #errorContainer {
-    color:red;
-  }
   #content {
     background: url("Technetium/bg.png") repeat scroll 0 0 #161616;
     color: #E7E7E7;
@@ -50,7 +31,7 @@
   text-decoration: underline;
   text-shadow: 0 0 3px #00ADEE;
   }
-  #content input, #content select, #content textarea {
+  input[type=text], input[type=password], #content select, #content textarea {
     background: none repeat scroll 0 0 #161616;
     border-color: #272727;
     border-radius: 10px 10px 10px 10px;

@@ -61,32 +61,37 @@
     </div>
     <div id="submitButtonContainer">
       <span id="messageLengthCounter">0</span>
+    </div>
+    <div id="footerContainer">
+      <div id="bbCodeContainer">
+        <input type="button" class="insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;"/>
+        <input type="button" class="insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;"/>
+        <input type="button" class="insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;"/>
+        <input type="button" class="insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;"/>
+        <input type="button" class="insert-bbcode" value="Quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]" />
+        <input type="button" class="insert-bbcode" value="Code" title="Code display: [code]code[/code]" />
+        <input type="button" class="insert-bbcode insert-bbcode-arg" value="URL" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]" />
+        <input type="button" class="insert-bbcode" value="IMG" title="Insert image: [img]http://example.org/image.jpg[/img]" />
+        <input type="button" value="Font Color" title="Font Color: [color=red]text[/color]" onclick="ajaxChat.showHide('colorCodesContainer', null);"/>
       </div>
-    <div id="bbCodeContainer">
-      <input type="button" class="insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;"/>
-      <input type="button" class="insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;"/>
-      <input type="button" class="insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;"/>
-      <input type="button" class="insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;"/>
-      <input type="button" class="insert-bbcode" value="Quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]" />
-      <input type="button" class="insert-bbcode" value="Code" title="Code display: [code]code[/code]" />
-      <input type="button" class="insert-bbcode insert-bbcode-arg" value="URL" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]" />
-      <input type="button" class="insert-bbcode" value="IMG" title="Insert image: [img]http://example.org/image.jpg[/img]" />
-      <input type="button" value="Font Color" title="Font Color: [color=red]text[/color]" onclick="ajaxChat.showHide('colorCodesContainer', null);"/>
-      <span id="emoticonsList-general" dir="ltr"></span>
+      <!-- / bbCodeContainer -->
+      <div id="emoticonsContainer">
+        <span id="emoticonsList-general" dir="ltr"></span>
+      </div>
+      <div id="colorCodesContainer" dir="ltr"></div>
+      <div id="trayContainer">
+        <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
+        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="helpButton" alt="Show/hide help" title="Show/hide help" />
+        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="poniconButton" alt="Ponicons" title="Ponicons" />
+        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" />
+        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" />
+        <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
+        <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
+        <div id="statusIconContainer" class="statusContainerOn"></div>
+      </div>
+      <!-- / trayContainer -->
     </div>
-    <!-- / bbCodeContainer -->
-    <div id="colorCodesContainer" dir="ltr"></div>
-    <div id="trayContainer">
-      <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
-      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="helpButton" alt="Show/hide help" title="Show/hide help" />
-      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="poniconButton" alt="Ponicons" title="Ponicons" />
-      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" />
-      <input type="image" src="img/pixel.gif" class="button toggleMenu" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" />
-      <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
-      <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="Autoscroll on/off" title="Autoscroll on/off" />
-      <div id="statusIconContainer" class="statusContainerOn"></div>
-    </div>
-    <!-- / optionsContainer -->
+    <!-- / footerContainer -->
     <div id="onlineListContainer" class="menuContainer">
       <h3>Online users</h3>
       <div id="onlineList"></div>
@@ -166,7 +171,7 @@
     <!-- / helpContainer -->
     <div id="poniconContainer" class="menuContainer">
        <h3>Ponicons</h3>
-       <span id="emoticonsList-pony" dir="ltr"></span>
+       <div id="emoticonsList-pony" dir="ltr"></div>
     </div>
     <div id="settingsContainer" class="menuContainer">
       <h3>Settings</h3>
