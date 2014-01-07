@@ -290,14 +290,14 @@ var config = {
     default_room: 'lounge',
     strings: {
       status: {
-        'ERROR' : 'An error has occurred',
-        'CONNECTING' : 'Connecting to the server...',
-        'CONNFAIL' : 'The connection attempt failed',
+        'ERROR' : 'An error has occurred.',
+        'CONNECTING' : 'Connecting ...',
+        'CONNFAIL' : 'Connection failed.',
         'AUTHENTICATING' : 'Authenticating...',
         'AUTHFAIL' : 'Authentication failed.',
         'CONNECTED' : 'You are now connected.',
         'DISCONNECTED' : 'You are now disconnected.',
-        'DISCONNECTING' : 'Disconnecting from the server...',
+        'DISCONNECTING' : 'Disconnecting ...',
         'ATTACHED' : 'Session resumed.',
       }
     }
