@@ -71,9 +71,7 @@ var ui = {
       }),
       keyup: this.eventInputKeyUp()
     });
-    this.dom.channelSelection.change(function(e) {
-      xmpp.changeRoom($(e.target).val());
-    });
+    this.dom.channelSelection.change(function() { chat.commands.join(this.value); });
 
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});

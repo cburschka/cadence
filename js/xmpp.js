@@ -1,8 +1,14 @@
 var xmpp = {
   connection: null,
-  rooms: null,
-  currentRoom: null,
-  currentNick: null,
+  room: {
+    available: {},
+    target: null,
+    current: null,
+  },
+  nick: {
+    target: null,
+    current: null,
+  },
   resource: null,
   status: 'offline',
   roster: {},
@@ -24,8 +30,8 @@ var xmpp = {
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
     this.connection.addTimedHandler(30, function() {
       xmpp.discoverRooms(function(rooms) {
-        self.rooms = rooms;
-        ui.refreshRooms(self.rooms);
+        self.room.available = rooms;
+        ui.refreshRooms(self.room.available);
       });
     });
     // DEBUG: print connection stream to console:
@@ -46,7 +52,7 @@ var xmpp = {
 
   newConnection: function(user, pass) {
     this.session = {};
-    this.preferredNick = user;
+    this.nick.target = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
@@ -58,7 +64,7 @@ var xmpp = {
   msg: function() {
     return $msg({
       from: this.connection.jid,
-      to:   this.currentRoom + '@' + config.xmpp.muc_service,
+      to:   this.room.current + '@' + config.xmpp.muc_service,
       type: 'groupchat'
     });
   },
@@ -72,23 +78,17 @@ var xmpp = {
   },
 
   nickConflictResolve: function() {
-    var m = /^(.*?)([\d]*)$/.exec(this.preferredNick);
+    var m = /^(.*?)([\d]*)$/.exec(this.nick.target);
     var i = 1;
     if (m[2]) {
       i = parseInt(m[2]) + 1;
     }
-    this.preferredNick = m[1] + i;
+    this.nick.target = m[1] + i;
   },
 
   changeNick: function(nick) {
-    this.preferredNick = nick;
-    this.presenceRoomNick(this.currentRoom, nick);
-  },
-
-  changeRoom: function(room) {
-    var self = this;
-    $('#channelSelection').val(room);
-    this.joinRoom(room);
+    this.nick.target = nick;
+    this.presenceRoomNick(this.room.current, nick);
   },
 
   leaveRoom: function(room) {
@@ -118,12 +118,13 @@ var xmpp = {
   },
 
   joinRoom: function(room) {
+    this.room.target = room;
     var self = this;
 
     this.getReservedNick(room, function(nick) {
-      if (nick && nick != self.preferredNick)
+      if (nick && nick != self.nick.target)
         ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
-      else nick = self.preferredNick;
+      else nick = self.nick.target
       ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:nick}, 'verbose');
       self.presenceRoomNick(room, nick);
     });
@@ -191,14 +192,14 @@ var xmpp = {
         var type = $(stanza).attr('type');
         if (type == 'error') {
           if ($('conflict', stanza).length) {
-            if (room == self.currentRoom) {
+            if (room == self.room.current) {
               ui.messageAddInfo('Error: Username already in use.', 'error');
             }
             else {
               ui.messageAddInfo('Error: Unable to join; username already in use.', 'error');
               self.nickConflictResolve();
-              ui.messageAddInfo('Rejoining as {nick} ...', {nick:self.preferredNick});
-              self.presenceRoomNick(self.currentRoom, self.preferredNick);
+              ui.messageAddInfo('Rejoining as {nick} ...', {nick:self.nick.target});
+              self.joinRoom(self.room.target, self.nick.target);
             }
           }
         }
@@ -209,7 +210,7 @@ var xmpp = {
           }));
 
           if (type == 'unavailable') {
-            if (room == this.currentRoom) {
+            if (room == self.room.current) {
               if (codes.indexOf(303) >= 0) {
                 var newNick = item.attr('nick');
                 ui.messageAddInfo('{from} is now known as {to}.', {from:nick, to:newNick});
@@ -237,20 +238,20 @@ var xmpp = {
               }
 
               // Only be in one room at a time:
-              if (room != self.currentRoom) {
-                if (self.currentRoom) {
-                  ui.messageAddInfo('Leaving room {room} ...', {room:self.currentRoom}, 'verbose');
-                  self.leaveRoom(self.currentRoom);
+              if (room != self.room.current) {
+                if (self.room.current) {
+                  ui.messageAddInfo('Leaving room {room} ...', {room:self.room.current}, 'verbose');
+                  self.leaveRoom(self.room.current);
                 }
                 ui.messageAddInfo('Now talking in room {room}.', {room:room});
                 ui.userRefresh(self.roster[room]);
-                delete self.roster[self.currentRoom];
-                self.currentRoom = room;
+                delete self.roster[self.room.current];
+                self.room.current = room;
               }
-              self.currentNick = nick;
+              self.nick.current = nick;
             }
             // We have fully joined this room - track the presence changes.
-            if (self.currentRoom == room) {
+            if (self.room.current == room) {
               if (!self.roster[room][nick]) {
                 ui.messageAddInfo('{nick} logs into the Chat.', {nick:nick});
               }
@@ -287,7 +288,7 @@ var xmpp = {
         var from = $(stanza).attr('from');
         var nick = Strophe.getResourceFromJid(from);
         var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
-        if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.currentRoom)
+        if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.room.current)
           return true;
         var user = self.roster[room][nick];
         if (user) {
@@ -319,10 +320,10 @@ var xmpp = {
         ui.messageAddInfo(msg, 'verbose');
         self.announce();
         self.discoverRooms(function(rooms) {
-          self.rooms = rooms;
-          ui.refreshRooms(self.rooms);
-          var room = self.currentRoom || config.xmpp.default_room;
-          self.changeRoom(room);
+          self.room.available = rooms;
+          ui.refreshRooms(self.room.available);
+          var room = self.room.current || config.settings.xmpp.room;
+          self.joinRoom(room);
         });
       }
       else if (self.status == 'offline') {

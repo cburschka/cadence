@@ -29,6 +29,10 @@ var config = {
       blinkInterval: 500,
       // Defines the number of blink intervals:
       blinkIntervalNumber: 10
+    },
+
+    xmpp: {
+      room: 'lounge',
     }
   },
 
@@ -287,7 +291,6 @@ var config = {
     domain: 'eris.ermarian.net',
     boshURL: 'http://eris.ermarian.net:5280/http-bind/',
     muc_service: 'conference.ermarian.net',
-    default_room: 'lounge',
     strings: {
       status: {
         'ERROR' : 'An error has occurred.',

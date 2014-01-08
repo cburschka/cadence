@@ -24,10 +24,11 @@ var chat = {
     },
     join: function(arg) {
       var room = arg.trim();
-      if (xmpp.currentRoom == room) {
+      if (xmpp.room.current == room) {
         return ui.messageAddInfo('You are already in room {room}.', {room:room}, 'error');
       }
-      xmpp.changeRoom(room);
+      xmpp.joinRoom(room);
+      chat.setSetting('xmpp.room', room);
     },
     me: function(arg) {
       chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
