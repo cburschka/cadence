@@ -13,11 +13,12 @@
 @media screen,projection,handheld {
 
   /* Buttons */
-  #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginForm #loginButton {
+  #content #bbCodeContainer input, #content button {
     background-color:#6C8A3F;
     color: #fff;
     border: 1px solid #6C8A3F;
   }
+
   #content select, #loginForm select, #loginForm input, #content textarea {
     color:#333333;
     border: 1px solid #6C8A3F;

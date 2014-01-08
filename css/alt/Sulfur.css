@@ -13,7 +13,7 @@
 @media screen,projection,handheld {
 
   /* Buttons */
-  #content #bbCodeContainer input, #loginButton {
+  #content #bbCodeContainer input, button {
     background-color:#B84623;
     color: #fff;
     border: 1px solid #B84623;

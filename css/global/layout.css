@@ -154,15 +154,6 @@ body {
   overflow:auto;
   margin:5px;
 }
-#chatList .delete {
-  display:block;
-  float:right;
-  width:10px;
-  height:10px;
-  margin-top:2px;
-  padding-left:5px;
-  background:url('../../img/delete.png') no-repeat right;
-}
 #inputField {
   resize: none;
   width:100%;

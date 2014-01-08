@@ -19,7 +19,7 @@
   #content textarea {
     border-color: #383838;
   }
-  #content input {
+  #content input, button {
     border-radius: 3px;
   }
   #loginContent {
@@ -87,14 +87,14 @@
   #content #bbCodeContainer {
     border: 0; padding-left: 0;
   }
-  #content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
+  #content #bbCodeContainer input, button {
     background-color:#383838;
     color:#D4D4D4;
   }
   #content #bbCodeContainer input:hover, #content #logoutButton:hover, #content #submitButton:hover {
     background-color:#565656;
   }
-  #trayContainer input.button {
+  #trayContainer input.button, button {
     border: 0;
   }
   #trayContainer input {
