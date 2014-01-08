@@ -229,8 +229,9 @@ var ui = {
     }
   },
 
-  userRefresh: function(roster) {
+  updateRoom: function(room, roster) {
     var self = this;
+    this.dom.channelSelection.val(room);
     this.dom.onlineList.slideUp(function() {
       $(this).html('');
       self.userLinks = {};

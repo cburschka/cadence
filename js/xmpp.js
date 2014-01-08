@@ -243,8 +243,12 @@ var xmpp = {
                   ui.messageAddInfo('Leaving room {room} ...', {room:self.room.current}, 'verbose');
                   self.leaveRoom(self.room.current);
                 }
-                ui.messageAddInfo('Now talking in room {room}.', {room:room});
-                ui.userRefresh(self.roster[room]);
+                ui.messageAddInfo('Now talking in room {room}.', {room:room}, 'verbose');
+                if (!self.room.available[room]) {
+                  self.room.available[room] = {title: room, members: 1};
+                  ui.refreshRooms(self.room.available);
+                }
+                ui.updateRoom(room, self.roster[room]);
                 delete self.roster[self.room.current];
                 self.room.current = room;
               }
