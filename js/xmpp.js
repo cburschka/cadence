@@ -119,13 +119,21 @@ var xmpp = {
     this.room.target = room;
     var self = this;
 
-    this.getReservedNick(room, function(nick) {
-      if (nick && nick != self.nick.target)
-        ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
-      else nick = self.nick.target
-      ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:nick}, 'verbose');
-      self.connection.send(self.presence(room, nick));
-    });
+    var joinRoom = function() {
+      ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:self.nick.target}, 'verbose');
+      self.connection.send(self.presence(room, self.nick.target));
+    }
+
+    if (config.settings.xmpp.registerNick) {
+      this.getReservedNick(room, function(nick) {
+        if (nick && nick != self.nick.target) {
+          self.nick.target = nick;
+          ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
+        }
+        joinRoom();
+      });
+    }
+    else joinRoom();
   },
 
   presence: function(room, nick, attrs) {
