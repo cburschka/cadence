@@ -67,6 +67,14 @@ var ui = {
     $('#settingsContainer input.settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
+    if (config.settings.textColor) {
+      $('#settings-textColor')
+        .css('color', config.settings.textColor)
+        .text(config.settings.textColor)
+        .css('background-color', visual.hex2rgba(config.settings.textColor, 0.3));
+      this.dom.inputField.css('color', config.settings.textColor);
+      $('#settings-textColorClear').css('display', 'inline-block');
+    }
     $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
@@ -109,11 +117,32 @@ var ui = {
       ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
       ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
+    $('#settings-textColor').click(function() {
+      ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
+      ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+    });
     $('.colorCode').click(function() {
       if (ui.colorPicker == 'bbcode') {
         insertBBCode('color', this.title);
+        $('#colorBBCode').click();
       }
-      $('#colorBBCode').click();
+      else if (ui.colorPicker == 'setting') {
+        if (!config.settings.textColor) $('#settings-textColorClear').fadeIn();
+        $('#settings-textColor').click()
+        .css('color', this.title).text(this.title)
+        .css('background-color', visual.hex2rgba(this.title, 0.3));
+        ui.dom.inputField.css('color', this.title);
+        chat.setSetting('textColor', this.title);
+      }
+    });
+    $('#settings-textColorClear').click(function() {
+      chat.setSetting('textColor', null);
+      $('#settings-textColor')
+        .text('None')
+        .css('color', '').text('None')
+        .css('background-color', '');
+      ui.dom.inputField.css('color', '');
+      $(this).fadeOut();
     });
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }

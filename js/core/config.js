@@ -20,6 +20,8 @@ var config = {
       links: true,
       // Show emoticons as images.
       emoticons: true,
+      // Show persistent colors.
+      colors: true,
     },
 
     notifications: {
@@ -30,6 +32,9 @@ var config = {
       // Defines the number of blink intervals:
       blinkIntervalNumber: 10
     },
+
+    // Persistent font color that is displayed to other cadence users.
+    textColor: null,
 
     xmpp: {
       room: 'lounge',

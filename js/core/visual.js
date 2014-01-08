@@ -57,6 +57,8 @@ visual = {
   formatBody: function(jq) {
     if (!config.settings.markup.html)
       return $('<span>' + jq.text() + '</span>');
+    if (config.settings.markup.colors)
+      this.addColor(jq);
     if (config.settings.markup.links)
       this.addLinks(jq);
     this.processImages(jq);
@@ -65,13 +67,21 @@ visual = {
     return jq;
   },
 
+  addColor: function(jq) {
+    jq.find('span.color').css('color', function() {
+      for (var i in this.classList)
+        if (this.classList[i].substring(0,6) == 'color-')
+          return '#' + this.classList[i].substring(6);
+    });
+  },
+
   addEmoticons: function(jq) {
     var emoticonSets = this.emoticonSets;
     var emoticonImg = function(set, code) {
       return '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL +
              config.markup.emoticons[set].codes[code] + '" />';
     }
-    jq.replaceText(this.emoticonRegex, function() {
+    jq.add(jq.find('*')).replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
         if (arguments[i]) {
           return emoticonImg(emoticonSets[i-1], arguments[i]);
@@ -129,5 +139,13 @@ visual = {
       img.width(width*scale);
       img.height(height*scale);
     }
+  },
+
+  hex2rgba: function(hex, alpha) {
+    hex = hex.substring(1);
+    if (hex.length == 3) hex = [hex[0], hex[1], hex[2]];
+    else hex = [hex.substring(0,2), hex.substring(2,4), hex.substring(4,6)];
+    dec = [parseInt(hex[0], 16), parseInt(hex[1], 16), parseInt(hex[1], 16)];
+    return 'rgba(' + dec.join(',') + ',' + alpha + ')';
   }
 };

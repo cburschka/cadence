@@ -73,6 +73,9 @@ var chat = {
 
   sendMessage: function(text) {
     html = bbcode.render(text);
+    if (config.settings.textColor) {
+      html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
+    }
     xmpp.sendMessage(html);
   },
 
