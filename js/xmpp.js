@@ -97,7 +97,7 @@ var xmpp = {
     );
   },
 
-  getReservedNick: function(room, callback, callbackError) {
+  getReservedNick: function(room, callback) {
     var iqCallback = function(stanza) {
       var nick = (
         ($('query').attr('node') == 'x-roomuser-item') &&
@@ -126,9 +126,6 @@ var xmpp = {
       else nick = self.preferredNick;
       ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:nick}, 'verbose');
       self.presenceRoomNick(room, nick);
-    }, function(stanza) {
-      var msg = $('text', stanza).html() || 'Server error.';
-      ui.messageAddInfo('Could not join room {room}: {msg}', {room:room, msg:msg}, 'error');
     });
   },
 
