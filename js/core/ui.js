@@ -67,14 +67,7 @@ var ui = {
     $('#settingsContainer input.settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
-    if (config.settings.textColor) {
-      $('#settings-textColor')
-        .css('color', config.settings.textColor)
-        .text(config.settings.textColor)
-        .css('background-color', visual.hex2rgba(config.settings.textColor, 0.3));
-      this.dom.inputField.css('color', config.settings.textColor);
-      $('#settings-textColorClear').css('display', 'inline-block');
-    }
+    this.setTextColorPicker(config.settings.textColor);
     $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
@@ -127,22 +120,14 @@ var ui = {
         $('#colorBBCode').click();
       }
       else if (ui.colorPicker == 'setting') {
-        if (!config.settings.textColor) $('#settings-textColorClear').fadeIn();
-        $('#settings-textColor').click()
-        .css('color', this.title).text(this.title)
-        .css('background-color', visual.hex2rgba(this.title, 0.3));
-        ui.dom.inputField.css('color', this.title);
+        $('#settings-textColor').click();
+        ui.setTextColorPicker(this.title);
         chat.setSetting('textColor', this.title);
       }
     });
     $('#settings-textColorClear').click(function() {
       chat.setSetting('textColor', null);
-      $('#settings-textColor')
-        .text('None')
-        .css('color', '').text('None')
-        .css('background-color', '');
-      ui.dom.inputField.css('color', '');
-      $(this).fadeOut();
+      ui.setTextColorPicker(null);
     });
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }
@@ -172,6 +157,15 @@ var ui = {
       this.disabled = this.title != style;
     });
     chat.saveSettings();
+  },
+
+  setTextColorPicker: function(color) {
+    $('#settings-textColor')
+      .css('color', color || '#FFFFFF')
+      .text(color || 'None')
+      .css('background-color', visual.hex2rgba(color || '#FFFFFF', 0.3));
+    this.dom.inputField.css('color', color || '');
+    $('#settings-textColorClear').css('display', color ? 'inline-block' : 'none');
   },
 
   toggleMenu: function(newMenu, init) {
