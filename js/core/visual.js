@@ -81,7 +81,7 @@ visual = {
       return '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL +
              config.markup.emoticons[set].codes[code] + '" />';
     }
-    jq.add(jq.find('*')).replaceText(this.emoticonRegex, function() {
+    jq.add('*', jq).replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
         if (arguments[i]) {
           return emoticonImg(emoticonSets[i-1], arguments[i]);
@@ -92,8 +92,8 @@ visual = {
   },
 
   addLinks: function(jq) {
-    jq.replaceText(
-      /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd]/,
+    jq.add('*', jq).not('a').replaceText(
+      /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
       function(url) {
         return  '<a href="' + url +
                 '" onclick="window.open(this.href); return false;">' // I'm sorry. I'm so, so sorry.
