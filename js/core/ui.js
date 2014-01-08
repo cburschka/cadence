@@ -101,9 +101,9 @@ var ui = {
 
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
-      if (!arg && ($(this).hasClass('insert-bbcode-arg')))
-        arg = prompt('This BBCode tag requires an argument:', '');
-      insertBBCode(this.value, arg);
+      if ($(this).hasClass('insert-bbcode-arg'))
+        var arg = prompt('This BBCode tag requires an argument:', '');
+      insertBBCode(this.value.toLowerCase(), arg || '');
     });
 
     $('#colorBBCode').click(function() {
