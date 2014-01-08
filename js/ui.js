@@ -33,7 +33,8 @@ var ui = {
     for (var set in config.markup.emoticons) {
       var html = '';
       for (var code in config.markup.emoticons[set].codes) {
-        html += '<a href="javascript:void();" class="insert-text" title="'
+        html += '<a href="javascript:void(\'' + code.replace('\'', '\\\'', 'g')
+             +  '\');" class="insert-text" title="'
              + code + '">' + '<img src="' + config.markup.emoticons[set].baseURL
              + config.markup.emoticons[set].codes[code] + '" alt="'
              + code + '" /></a>';
