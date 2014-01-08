@@ -12,8 +12,8 @@ var chat = {
       }
       xmpp.newConnection(arg.user, arg.pass);
     },
-    quit: function(arg) {
-      xmpp.disconnect();
+    me: function(arg) {
+      chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
     },
     nick: function(arg) {
       var nick = arg.trim();
@@ -30,11 +30,11 @@ var chat = {
       xmpp.joinRoom(room);
       chat.setSetting('xmpp.room', room);
     },
-    me: function(arg) {
-      chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
-    },
     say: function(arg) {
       chat.sendMessage(arg);
+    },
+    quit: function(arg) {
+      xmpp.disconnect();
     }
   },
 
