@@ -5,11 +5,13 @@ var ui = {
   messages: [],
   messageId: 0,
   messageHash: {},
+  colorPicker: null,
 
   init: function() {
     this.dom = {
       loginContainer: $('#loginContainer'),
       channelContainer: $('#channelContainer'),
+      colorCodesContainer: $('#colorCodesContainer'),
       inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
@@ -41,6 +43,13 @@ var ui = {
       }
       $('#emoticonsList-' + set).html(html);
     }
+    var html = '';
+    for (var color in config.markup.colorCodes) {
+      var code = config.markup.colorCodes[color]
+      html += '<a href="javascript:void(\'' + code + '\');" title="' + code
+           +  '" class="colorCode" style="background-color:' + code + '"></a>';
+    }
+    $('#colorCodesContainer').html(html);
 
     var options = '', links = '';
     for (var i in config.ui.css) {
@@ -83,14 +92,28 @@ var ui = {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
+    var insertBBCode = function(tag, arg) {
+      arg = arg ? '=' + arg : '';
+      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
+      chat.insertText(v);
+    };
+
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
-      if ($(this).hasClass('insert-bbcode-arg'))
-        var arg = '=' + prompt('This BBCode tag requires an argument:', '');
-      else arg = '';
-      var v = this.value.toLowerCase();
-      v = ['[' + v + arg + ']', '[/' + v + ']'];
-      chat.insertText(v);
+      if (!arg && ($(this).hasClass('insert-bbcode-arg')))
+        arg = prompt('This BBCode tag requires an argument:', '');
+      insertBBCode(this.value, arg);
+    });
+
+    $('#colorBBCode').click(function() {
+      ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
+      ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
+    });
+    $('.colorCode').click(function() {
+      if (ui.colorPicker == 'bbcode') {
+        insertBBCode('color', this.title);
+      }
+      $('#colorBBCode').click();
     });
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }

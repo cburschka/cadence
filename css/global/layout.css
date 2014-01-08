@@ -94,13 +94,13 @@ body {
 #footerContainer div {
   display: inline-block;
 }
-#colorCodesContainer {
+#footerContainer #colorCodesContainer {
   bottom: 48px;
   left: 20px;
   padding: 3px;
   position: absolute;
   z-index: 1;
-  display: none!important;
+  display: none;
 }
 #emoticonsContainer {
   padding: 3px;
