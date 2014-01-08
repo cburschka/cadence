@@ -32,11 +32,14 @@ var chat = {
     },
     me: function(arg) {
       chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
+    },
+    say: function(arg) {
+      chat.sendMessage(arg);
     }
   },
 
   cmdAvailableStatus: {
-    online: ['join', 'quit', 'nick', 'me'],
+    online: ['join', 'quit', 'nick', 'me', 'say'],
     offline: ['connect'],
     waiting: [],
   },
@@ -44,30 +47,27 @@ var chat = {
   executeInput: function(text) {
     text = text.trim();
     if (!text) return;
+
+    var cmd = 'say';
+
     if (text[0] == '/') {
-      chat.executeCommandString(text);
+      if (text[1] != '/') {
+        var i = text.indexOf(' ');
+        if (i < 0) i = text.length;
+        cmd = text.substring(1, i);
+        text = text.substring(i);
+      }
+      else text = text.substring(1);
     }
-    else {
-      chat.sendMessage(text);
-    }
-  },
 
-  executeCommandString: function(text) {
-    parts = /^\/([^\s]*)((\s.*)?)$/.exec(text);
-    cmd = parts[1];
-    arg = parts[2];
-    this.executeCommand(cmd, arg);
-  },
-
-  executeCommand: function(cmd, arg) {
     if (this.commands[cmd]) {
       if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
         return ui.messageAddInfo('/{cmd} command not available while {status}', {cmd:cmd,status:xmpp.status}, 'error');
       }
-      this.commands[cmd](arg);
+      this.commands[cmd](text);
     }
     else {
-      ui.messageAddInfo('Unknown command: /{cmd}', {cmd:cmd}, 'error');
+      ui.messageAddInfo('Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.', {cmd:cmd}, 'error');
     }
   },
 
