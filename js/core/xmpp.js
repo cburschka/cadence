@@ -35,8 +35,8 @@ var xmpp = {
       });
     });
     // DEBUG: print connection stream to console:
-    this.connection.rawInput = function(data) { console.log("RECV " + data) }
-    this.connection.rawOutput = function(data) { console.log("SEND " + data) }
+    //this.connection.rawInput = function(data) { console.log("RECV " + data) }
+    //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
   },
 
   resumeConnection: function() {
