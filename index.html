@@ -16,7 +16,9 @@
       top:40%;
       display:block;
       text-align:center;
+      font-family:sans;
     }
+   #throbber { visibility:hidden; }
   </style>
   <link id="global-style" rel="stylesheet" type="text/css" href="css/global/global.css" />
 
@@ -220,10 +222,11 @@
     <!-- / settingsContainer-->
   </div>
   <div id="nocontent">
-    <div id="splash"><img src="img/loading.gif" /><h1>cadence XMPP chat</h1>
+    <div id="splash"><img id="throbber" src="img/loading.gif" /><h1>cadence XMPP chat</h1>
     <p id="javascriptWarning">This is a client-side web application. Please open this page with a browser that runs JavaScript.</p>
     <script type="text/javascript">
     document.getElementById('javascriptWarning').style.display='none';
+    document.getElementById('throbber').style.visibility='visible';
     </script>
     </div>
   </div>
