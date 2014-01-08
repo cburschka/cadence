@@ -37,7 +37,7 @@ visual = {
     );
     return {
       timestamp: message.time.getTime(),
-      hash: hex_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
+      hash: str_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
       html: node
     };
   },

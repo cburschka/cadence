@@ -1,0 +1,15 @@
+[submodule "js/lib/xbbcode"]
+	path = js/lib/xbbcode
+	url = git://github.com/cburschka/xbbcode.js/
+[submodule "js/lib/jquery-cookie"]
+	path = js/lib/jquery-cookie
+	url = git://github.com/carhartl/jquery-cookie.git
+[submodule "js/lib/moment"]
+	path = js/lib/moment
+	url = git://github.com/moment/moment.git
+[submodule "js/lib/strophejs"]
+	path = js/lib/strophe
+	url = git://github.com/strophe/strophejs.git
+[submodule "js/lib/jquery-replacetext"]
+	path = js/lib/jquery-replacetext
+	url = git://github.com/cowboy/jquery-replacetext.git

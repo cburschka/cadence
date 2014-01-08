@@ -4,6 +4,22 @@ cadence
 cadence is a strophe.js-powered XMPP multi-user chat client that 
 runs entirely in the browser without a server backend.
 
+BUILDING
+========
+
+This development version references multiple JavaScript libraries as
+submodules. Most of these can be used as checked out, but strophejs needs
+to be built before use.
+
+Install the YUI Compressor using your distribution's package manager or download
+it here: https://github.com/yui/yuicompressor/downloads
+
+    $ cd js/lib/strophe/
+    $ env YUI_COMPRESSOR=/path/to/yui-compressor.jar make
+
+Optionally, you can skip the compression and change the `index.html` file
+to load `strophe.js` instead of `strophe.min.js`.
+
 LICENSE
 =======
 
