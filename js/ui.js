@@ -224,7 +224,7 @@ var ui = {
 
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
-      this.userLinks[user.nick].slideUp(1000),remove();
+      this.userLinks[user.nick].slideUp(1000).remove();
       delete this.userLinks[user.nick];
     }
   },
