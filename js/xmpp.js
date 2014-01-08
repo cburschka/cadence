@@ -88,13 +88,11 @@ var xmpp = {
 
   changeNick: function(nick) {
     this.nick.target = nick;
-    this.presenceRoomNick(this.room.current, nick);
+    this.connection.send(this.presence(this.room.current, nick));
   },
 
   leaveRoom: function(room) {
-    this.connection.send(this.pres()
-      .attrs({to:room + '@' + config.xmpp.muc_service + '/' + this.currentNick, type:'unavailable'})
-    );
+    this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
   },
 
   getReservedNick: function(room, callback) {
@@ -126,17 +124,17 @@ var xmpp = {
         ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
       else nick = self.nick.target
       ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:nick}, 'verbose');
-      self.presenceRoomNick(room, nick);
+      self.connection.send(self.presence(room, nick));
     });
   },
 
-  presenceRoomNick: function(room, nick) {
-    this.connection.send(this.pres()
+  presence: function(room, nick, attrs) {
+    return this.pres()
       .attrs({
         to:Strophe.escapeNode(room) + '@' + config.xmpp.muc_service + '/' + nick
       })
-      .c('x', {xmlns:Strophe.NS.MUC})
-    );
+      .attrs(attrs)
+      .c('x', {xmlns:Strophe.NS.MUC});
   },
 
   sendMessage: function(html) {
