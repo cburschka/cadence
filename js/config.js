@@ -43,7 +43,7 @@ var config = {
       u: '<span style="text-decoration:underline">{content}</span>',
       s: '<span style="text-decoration:line-through">{content}</span>',
       // blink: '<span style="text-decoration:blink">{content}</span>', // blink and you're dead.
-      quote: '<span class="blockquote">{content}</span>',
+      quote: '<q>{content}</q>',
       code: '<code>{content}</code>',
       url: '<a href="{option}">{content}</a>',
       img: '<img src="{content}" alt="Image({content}" />',
