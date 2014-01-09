@@ -32,7 +32,8 @@ visual = {
                + userPrefix + this.formatUser(message.user) + userSuffix
                + '<div id="message-body"></div>' + bodySuffix + '</div>');
     // Then, fill in the rendered message (which is rendered in DOM form).
-    var body = $('<span class="body">' + message.body + '</span>');
+    var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
+    body = $('<span class="body">' + body + '</span>');
     node.find('#message-body').replaceWith(
       message.user.role == 'bot' ? body : this.formatBody(body)
     );
@@ -50,6 +51,8 @@ visual = {
 
   formatUser: function(user) {
     var nick = this.textPlain(user.nick);
+    var jid = this.textPlain(user.jid || '');
+    nick = this.lengthLimit(nick, config.ui.maxNickLength);
     // Show guest users as guests regardless of channel status.
     if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
       user.role = 'visitor';
@@ -62,7 +65,7 @@ visual = {
     return  '<span class="user-role-' + user.role
           + ' user-affiliation-' + user.affiliation
           + ' user-show-' + (user.show || 'default')
-          + '" ' + (user.jid ? ('title="' + user.jid + '"') : '')
+          + '" ' + (jid ? ('title="' + jid + '"') : '')
           + '>' + nick + '</span>';
   },
 
@@ -75,8 +78,12 @@ visual = {
   },
 
   formatBody: function(jq) {
+    // Security: Replace all but the following whitelisted tags with their content.
+    $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
+      function() { return $('<span></span>').text(this.outerHTML) }
+    );
     if (!config.settings.markup.html)
-      return $('<span>' + jq.text() + '</span>');
+      jq.text(jq.text());
     if (config.settings.markup.colors)
       this.addColor(jq);
     if (config.settings.markup.links)
@@ -167,5 +174,9 @@ visual = {
     else hex = [hex.substring(0,2), hex.substring(2,4), hex.substring(4,6)];
     dec = [parseInt(hex[0], 16), parseInt(hex[1], 16), parseInt(hex[1], 16)];
     return 'rgba(' + dec.join(',') + ',' + alpha + ')';
+  }
+
+  lengthLimit: function(str, len) {
+    return str.length > len ? str.substring(0, len-3) + '...' : str;
   }
 };

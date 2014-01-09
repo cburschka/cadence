@@ -23,10 +23,7 @@ var chat = {
       chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
     },
     nick: function(arg) {
-      var nick = arg.trim();
-      if (! /^[^\s]+$/.exec(nick)) {
-        return ui.messageAddInfo('Nicknames cannot contain spaces.', 'error');
-      }
+      var nick = visual.lengthLimit(visual.textPlain(arg.trim().replace(/ /g, '_')), config.ui.maxNickLength);
       xmpp.changeNick(nick);
     },
     join: function(arg) {
@@ -38,6 +35,7 @@ var chat = {
       chat.setSetting('xmpp.room', room);
     },
     say: function(arg) {
+      arg = visual.lengthLimit(visual.textPlain(arg), config.ui.maxMessageLength);
       chat.sendMessage(arg);
     },
     quit: function(arg) {

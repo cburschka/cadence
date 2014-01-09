@@ -310,13 +310,15 @@ var config = {
         'DISCONNECTING' : 'Disconnecting ...',
         'ATTACHED' : 'Session resumed.',
       }
-    }
+    },
   },
 
   ui: {
     css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium', 'Plum', 'Uranium'],
     cssURL: 'css/alt/',
     chatBotName: 'Ligrev',
+    maxNickLength: 24,
+    maxMessageLength: 1024,
   },
 
   poniconVersion: "v1.13",
