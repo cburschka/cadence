@@ -208,7 +208,7 @@ var ui = {
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     });
-    message.html.find('.body').addClass(classes);
+    message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
     return message;
   },
