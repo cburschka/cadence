@@ -19,11 +19,13 @@ visual = {
     var userPrefix = '<span class="author">';
     var userSuffix = '</span> ';
     var bodySuffix = '';
-
-    if (message.body.substring(0,4) == '/me ') {
+    var body = message.body;
+    body = this.lengthLimit(body, config.ui.maxMessageLength);
+    body = $('<span class="body">' + body + '</span>');
+    if (body.text().substring(0,4) == '/me ') {
       userPrefix = '<span class="action">* ' + userPrefix;
       bodySuffix += '</span>';
-      message.body = message.body.substring(4);
+      body.add('span.color', body).replaceText('/me ', '');
     }
     else userSuffix = ':' + userSuffix;
     // First, generate the DIV element from the above markup pieces.
@@ -32,8 +34,6 @@ visual = {
                + userPrefix + this.formatUser(message.user) + userSuffix
                + '<div id="message-body"></div>' + bodySuffix + '</div>');
     // Then, fill in the rendered message (which is rendered in DOM form).
-    var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
-    body = $('<span class="body">' + body + '</span>');
     node.find('#message-body').replaceWith(
       message.user.role == 'bot' ? body : this.formatBody(body)
     );
