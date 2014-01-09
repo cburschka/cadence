@@ -120,7 +120,13 @@ var xmpp = {
     var self = this;
 
     var joinRoom = function() {
-      ui.messageAddInfo('Joining room {room} as {nick} ...', {room:room, nick:self.nick.target}, 'verbose');
+      ui.messageAddInfo('Joining room {room} as [user] ...', {
+        room: room,
+        user: visual.formatUser({
+          nick: self.nick.target,
+          jid: self.connection.jid
+        })
+      }, 'verbose');
       self.connection.send(self.presence(room, self.nick.target));
     }
 
@@ -219,21 +225,40 @@ var xmpp = {
             if (room == self.room.current) {
               if (codes.indexOf(303) >= 0) {
                 var newNick = item.attr('nick');
-                ui.messageAddInfo('{from} is now known as {to}.', {from:nick, to:newNick});
+                ui.messageAddInfo('[from] is now known as [to].', {
+                  from:visual.formatUser(self.roster[room][nick]),
+                  to:visual.formatUser({
+                    nick:newNick,
+                    jid:self.roster[room][nick].jid,
+                    role:self.roster[room][nick].role,
+                    affiliation:self.roster[room][nick].affiliation
+                  })
+                });
                 // Move the roster entry to the new nick, so the new presence
                 // won't trigger a notification.
                 self.roster[room][newNick] = self.roster[room][nick];
               }
               else {
-                ui.messageAddInfo('{nick} has logged out of the Chat.', {nick:nick});
+                ui.messageAddInfo('[user] has logged out of the Chat.', {
+                  user:visual.formatUser(self.roster[room][nick])
+                });
               }
               ui.userRemove(self.roster[room][nick]);
               delete self.roster[room][nick];
             }
           }
           else {
+
             // away, dnd, xa, chat, [default].
             var show = $('show', stanza).text() || 'default';
+            // create user object:
+            var user = {
+              nick: nick,
+              jid: item.attr('jid') || null, // if not anonymous.
+              role: item.attr('role'),
+              affiliation: item.attr('affiliation'),
+              show: show,
+            };
             // Self-presence.
             if (codes.indexOf(110) >= 0) {
               if (codes.indexOf(210) >= 0) {
@@ -262,27 +287,22 @@ var xmpp = {
             }
             // We have fully joined this room - track the presence changes.
             if (self.room.current == room) {
+              var userText = visual.formatUser(user)
               if (!self.roster[room][nick]) {
-                ui.messageAddInfo('{nick} logs into the Chat.', {nick:nick});
+                ui.messageAddInfo('[user] logs into the Chat.', {user: userText});
               }
               if (show == 'away' || show == 'xa') {
-                ui.messageAddInfo('{nick} is away.', {nick:nick});
+                ui.messageAddInfo('[user] is away.', {user: userText});
               }
               else if (show == 'dnd') {
-                ui.messageAddInfo('{nick} is busy.', {nick:nick});
+                ui.messageAddInfo('[user] is busy.', {user: userText});
               }
               else if (self.roster[room][nick] && self.roster[room][nick].show != show) {
-                ui.messageAddInfo('{nick} has returned.', {nick:nick});
+                ui.messageAddInfo('[user] has returned.', {user: userText});
               }
             }
 
-            self.roster[room][nick] = {
-              nick: nick,
-              jid: item.attr('jid') || null, // if not anonymous.
-              role: item.attr('role'),
-              affiliation: item.attr('affiliation'),
-              show: show,
-            };
+            self.roster[room][nick] = user;
             ui.userAdd(self.roster[room][nick]);
           }
         }

@@ -2,13 +2,15 @@
  * This file describes the default colors for messages.
  */
 
-.user .user-affiliation-owner {
+.author .user-affiliation-owner,
+#onlineList .user-affiliation-owner {
   color:red;
 }
-.user .user-affiliation-admin {
+.author .user-affiliation-admin,
+#onlineList .user-affiliation-admin {
   color:green;
 }
-.user .user-role-bot {
+.user-role-bot {
   color:#c90;
 }
 

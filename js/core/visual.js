@@ -16,7 +16,7 @@ visual = {
 
   formatMessage: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
-    var userPrefix = '<span class="user">';
+    var userPrefix = '<span class="author">';
     var userSuffix = '</span> ';
     var bodySuffix = '';
 
@@ -48,10 +48,21 @@ visual = {
   },
 
   formatUser: function(user) {
+    var nick = this.textPlain(user.nick);
+    if (user.role != 'bot' && (!user.jid || user.nick != Strophe.getNodeFromJid(user.jid)))
+      nick = '(' + nick + ')';
     return '<span class="user-role-' + user.role +
            ' user-affiliation-' + user.affiliation + '" ' +
              (user.jid ? ('title="' + user.jid + '">') : '>') +
-              this.textPlain(user.nick) + '</span>';
+              nick + '</span>';
+  },
+
+  formatText: function(text, variables) {
+    text = text.replace(/\{([a-z]+)\}|\[([a-z]+)\]/g, function(rep, plain, raw) {
+      var key = plain || raw;
+      return variables[key] ? (plain ? visual.textPlain(variables[key]) : variables[key]) : rep;
+    });
+    return text;
   },
 
   formatBody: function(jq) {

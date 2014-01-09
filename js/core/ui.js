@@ -203,9 +203,7 @@ var ui = {
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
       if (!config.settings.verbose) return;
     }
-    text = text.replace(/\{([a-z]+)\}/g, function(rep, key) {
-      return variables[key] ? visual.textPlain(variables[key]) : rep;
-    });
+    text = visual.formatText(text, variables);
     var message = visual.formatMessage({
       body: text,
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}

@@ -52,7 +52,7 @@
 #chatList .dateTime {
   font-size:0.7em;
 }
-#chatList .user {
+#chatList .author {
   font-weight:bold;
 }
 #chatList .user-role-bot {

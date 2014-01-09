@@ -42,7 +42,7 @@ input[type=text], input[type=password], #content select, #content textarea {
 #content .guest {
     color: gray;
 }
-#content .user {
+#content .author {
     color: #FFFFCC;
 }
 #content .moderator {
