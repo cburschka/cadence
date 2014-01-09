@@ -49,7 +49,14 @@ visual = {
 
   formatUser: function(user) {
     var nick = this.textPlain(user.nick);
-    if (user.role != 'bot' && (!user.jid || user.nick != Strophe.getNodeFromJid(user.jid)))
+    // Show guest users as guests regardless of channel status.
+    if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
+      user.role = 'visitor';
+      user.affiliation = 'none';
+    }
+    if (user.role == 'visitor' ||
+      (user.role != 'bot' &&
+      (!user.jid || user.nick != Strophe.getNodeFromJid(user.jid))))
       nick = '(' + nick + ')';
     return  '<span class="user-role-' + user.role
           + ' user-affiliation-' + user.affiliation
