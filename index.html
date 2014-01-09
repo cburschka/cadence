@@ -59,9 +59,9 @@
       </span>
     </div>
     <!-- / headlineContainer -->
-    <div id="chatList"></div>
+    <div id="chatList" class="box"></div>
     <div id="inputFieldContainer">
-      <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
+      <textarea id="inputField" class="box" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
     </div>
     <div id="submitButtonContainer">
       <span id="messageLengthCounter">0</span>
@@ -96,11 +96,11 @@
       <!-- / trayContainer -->
     </div>
     <!-- / footerContainer -->
-    <div id="onlineListContainer" class="menuContainer">
+    <div id="onlineListContainer" class="menuContainer box">
       <h3>Online users</h3>
       <div id="onlineList"></div>
     </div>
-    <div id="helpContainer" class="menuContainer">
+    <div id="helpContainer" class="menuContainer box">
       <h3>Help</h3>
       <div id="helpList">
         <table>
@@ -173,42 +173,42 @@
       <!-- / helpList -->
     </div>
     <!-- / helpContainer -->
-    <div id="poniconContainer" class="menuContainer">
+    <div id="poniconContainer" class="menuContainer box">
        <h3>Ponicons</h3>
        <div id="emoticonsList-pony" dir="ltr"></div>
     </div>
-    <div id="settingsContainer" class="menuContainer">
+    <div id="settingsContainer" class="menuContainer box">
       <h3>Settings</h3>
       <div id="settingsList">
         <table>
-          <tr>
+          <tr class="row">
             <td><label for="settings-verbose">Display verbose messages:</label></td>
             <td><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
             <td><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-textColor">Text color:</label></td>
             <td>
               <button class="settings" id="settings-textColor">None</button>
               <button class="settings" id="settings-textColorClear">Clear</button>
             </td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-markup.html">Show HTML markup:</label></td>
             <td><input type="checkbox" class="settings" id="settings-markup.html" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-markup.images">Show images in-line:</label></td>
             <td><input type="checkbox" class="settings" id="settings-markup.images" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-markup.links">Make URLs clickable:</label></td>
             <td><input type="checkbox" class="settings" id="settings-markup.links" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-markup.colors">Show persistent colors <a title="To turn off inline colors, disable HTML.">[note]</a>:</label></td>
             <td><input type="checkbox" class="settings" id="settings-markup.colors" /></td>
           </tr>
@@ -216,15 +216,15 @@
             <td><label for="settings-markup.emoticons">Show emoticons as images:</label></td>
             <td><input type="checkbox" class="settings" id="settings-markup.emoticons" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-notifications.blink">Blink window title on new messages:</label></td>
             <td><input type="checkbox" class="settings" id="settings-notifications.blink" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-notifications.blinkInterval">Blink interval (ms):</label></td>
             <td><input type="text" class="settings" id="settings-notifications.blinkInterval" /></td>
           </tr>
-          <tr>
+          <tr class="row">
             <td><label for="settings-notifications.blinkIntervalNumber">Number of blink intervals:</label></td>
             <td><input type="text" class="settings" id="settings-notifications.blinkIntervalNumber" /></td>
           </tr>

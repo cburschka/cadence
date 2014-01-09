@@ -1,58 +1,13 @@
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @author Philip Nicolcev
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- *
- * Color palette inspired by phpBB style "subblack2":
- * http://www.phpbb.com/
- */
+#content { background-color: black }
+#content, button, input, select, textarea { color: #ffc }
+h3, a { color: #fc0 }
 
-button {
-  background-color:#212121;
-  color:#FFFFCC;
+.box, button, input, select, textarea {
+  background-color: #212121;
+  border-color: gray;
 }
-#content {
-  background-color:#000;
-  color:#FFFFCC;
-}
-#content a {
-  color:#FFFFCC;
-}
-input, select, textarea {
-  background-color:#212121;
-  color:#FFFFCC;
-}
-#content #chatList, .menuContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
-  border-color:gray;
-  background-color:#212121;
-}
-#content #bbCodeContainer input {
-  background-color:#212121;
-  color:#FFFFCC;
-}
-#content #colorCodesContainer a {
-  border-color:black;
-}
-.row:nth-child(even) {
-  background-color:#212121;
-}
-.row:nth-child(odd) {
-  background-color:#000;
-}
-#content .author {
-  color:#FFFFCC;
-}
-.author. .user-affiliation-admin,
-#onlineList .user-affiliation-admin {
-  color:#00AA00;
-}
-#chatList a {
-  color:#FFCC00;
-}
-.menuContainer h3 {
-  background-color:#212121;
-  color:#FFCC00;
-}
+
+.row:nth-child(even) { background-color: #212121 }
+.row:nth-child(odd) { background-color: black }
+
+#content #colorCodesContainer a { border-color: black }
