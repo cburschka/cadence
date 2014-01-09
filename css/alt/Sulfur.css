@@ -10,90 +10,87 @@
  * http://punbb.org/
  */
 
-@media screen,projection,handheld {
-
-  /* Buttons */
-  #content #bbCodeContainer input, button {
-    background-color:#B84623;
-    color: #fff;
-    border: 1px solid #B84623;
-  }
-  #content select, #loginForm select, #loginForm input, #content textarea {
-    color:#333333;
-    border: 1px solid #B84623;
-  }
+/* Buttons */
+#content #bbCodeContainer input, button {
+  background-color:#B84623;
+  color: #fff;
+  border: 1px solid #B84623;
+}
+#content select, #loginForm select, #loginForm input, #content textarea {
+  color:#333333;
+  border: 1px solid #B84623;
+}
 
 
-  #loginContent {
-    background-color:#F1F1F1;
-    color:#333333;
-  }
-  #loginContent h1 {
-    color:#333333;
-  }
-  #loginContent a {
-    color:#B84623;
-  }
-  #loginContent input, #loginContent select {
-    background-color:#FFF;
-    color:#333333;
-  }
-  #loginContent #errorContainer {
-    color:red;
-  }
-  #content {
-    background-color:#F1F1F1;
-    color:#333333;
-  }
-  #content h1 {
-    color:#333333;
-  }
-  #content a {
-    color:#B84623;
-  }
-  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #colorCodesContainer, #content textarea {
-    border-color:#B84623;
-    background-color:#FFF;
-  }
-  #content #colorCodesContainer a {
-    border-color:black;
-  }
-  #trayContainer input {
-      background-color:transparent;
-  }
-  .row:nth-child(odd) {
-    background:rgba(0,0,0,0.2);
-  }
-  .row.delayed .dateTime,
-  .row.delayed .log-room {
-    color:#666;
-  }
-  #content .guest {
-    color:gray;
-  }
-  #content .author {
-    color:#000;
-  }
-  #content .moderator {
-    color:#00AA00;
-  }
-  #content .admin {
-    color:red;
-  }
-  #content .chatBot {
-    color:#B84623;
-  }
-  #content #chatList .chatBotErrorMessage {
-    color:red;
-  }
-  #content #chatList a {
-    color:#B84623;
-  }
-  #content #chatList .deleteSelected {
-    border-color:red;
-  }
-  .menuContainer h3 {
-    background-color:#B84623;
-    color:#FFF;
-  }
+#loginContent {
+  background-color:#F1F1F1;
+  color:#333333;
+}
+#loginContent h1 {
+  color:#333333;
+}
+#loginContent a {
+  color:#B84623;
+}
+#loginContent input, #loginContent select {
+  background-color:#FFF;
+  color:#333333;
+}
+#loginContent #errorContainer {
+  color:red;
+}
+#content {
+  background-color:#F1F1F1;
+  color:#333333;
+}
+#content h1 {
+  color:#333333;
+}
+#content a {
+  color:#B84623;
+}
+#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #colorCodesContainer, #content textarea {
+  border-color:#B84623;
+  background-color:#FFF;
+}
+#content #colorCodesContainer a {
+  border-color:black;
+}
+#trayContainer input {
+    background-color:transparent;
+}
+.row:nth-child(odd) {
+  background:rgba(0,0,0,0.2);
+}
+.row.delayed .dateTime,
+.row.delayed .log-room {
+  color:#666;
+}
+#content .guest {
+  color:gray;
+}
+#content .author {
+  color:#000;
+}
+#content .moderator {
+  color:#00AA00;
+}
+#content .admin {
+  color:red;
+}
+#content .chatBot {
+  color:#B84623;
+}
+#content #chatList .chatBotErrorMessage {
+  color:red;
+}
+#content #chatList a {
+  color:#B84623;
+}
+#content #chatList .deleteSelected {
+  border-color:red;
+}
+.menuContainer h3 {
+  background-color:#B84623;
+  color:#FFF;
 }

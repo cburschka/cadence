@@ -49,9 +49,6 @@
 #copyright {
   font-size:0.8em;
 }
-#chatList .dateTime {
-  font-size:0.7em;
-}
 #chatList .author {
   font-weight:bold;
 }
@@ -67,9 +64,6 @@
 #chatList code {
     font-size:1.2em;
     white-space:pre;
-}
-#onlineList div {
-  font-size:0.9em;
 }
 #helpList td {
   font-size:0.9em;

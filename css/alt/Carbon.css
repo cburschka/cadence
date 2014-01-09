@@ -10,73 +10,70 @@
  * http://www.phpbb.com/
  */
 
-@media screen,projection,handheld {
+#loginButton {
+  background-color:#212121;
+  color:#FFFFCC;
+}
 
-  #loginButton {
-    background-color:#212121;
-    color:#FFFFCC;
-  }
-
-  #content {
-    background-color:#000;
-    color:#FFFFCC;
-  }
-  #content h1 {
-    color:#CC9900;
-  }
-  #content a {
-    color:#FFFFCC;
-  }
-  #content input, #content select, #content textarea {
-    background-color:#212121;
-    color:#FFFFCC;
-  }
-  #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
-    border-color:gray;
-    background-color:#212121;
-  }
-  #content #bbCodeContainer input {
-    background-color:#212121;
-    color:#FFFFCC;
-  }
-  #content #colorCodesContainer a {
-    border-color:black;
-  }
-  #trayContainer input {
-      background-color:transparent;
-  }
-  .row:nth-child(even) {
-    background-color:#212121;
-  }
-  .row:nth-child(odd) {
-    background-color:#000;
-  }
-  #content .guest {
-    color:gray;
-  }
-  #content .author {
-    color:#FFFFCC;
-  }
-  #content .moderator {
-    color:#00AA00;
-  }
-  #content .admin {
-    color:red;
-  }
-  #content .chatBot {
-    color:#CC9900;
-  }
-  #content #chatList .chatBotErrorMessage {
-    color:red;
-  }
-  #content #chatList a {
-    color:#FFCC00;
-  }
-  #content #chatList .deleteSelected {
-    border-color:red;
-  }
-  #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
-    background-color:#212121;
-    color:#FFCC00;
-  }
+#content {
+  background-color:#000;
+  color:#FFFFCC;
+}
+#content h1 {
+  color:#CC9900;
+}
+#content a {
+  color:#FFFFCC;
+}
+#content input, #content select, #content textarea {
+  background-color:#212121;
+  color:#FFFFCC;
+}
+#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
+  border-color:gray;
+  background-color:#212121;
+}
+#content #bbCodeContainer input {
+  background-color:#212121;
+  color:#FFFFCC;
+}
+#content #colorCodesContainer a {
+  border-color:black;
+}
+#trayContainer input {
+    background-color:transparent;
+}
+.row:nth-child(even) {
+  background-color:#212121;
+}
+.row:nth-child(odd) {
+  background-color:#000;
+}
+#content .guest {
+  color:gray;
+}
+#content .author {
+  color:#FFFFCC;
+}
+#content .moderator {
+  color:#00AA00;
+}
+#content .admin {
+  color:red;
+}
+#content .chatBot {
+  color:#CC9900;
+}
+#content #chatList .chatBotErrorMessage {
+  color:red;
+}
+#content #chatList a {
+  color:#FFCC00;
+}
+#content #chatList .deleteSelected {
+  border-color:red;
+}
+#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+  background-color:#212121;
+  color:#FFCC00;
 }
