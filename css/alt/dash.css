@@ -12,7 +12,7 @@ input[type=text], input[type=password], #content select, #content textarea {
 .menuContainer {
     background: url("dash/cutie-dash.png") no-repeat bottom;
 }
-#chatList, .menuContainer, #footerContainer div, textarea {
+#chatList, .menuContainer, #footerContainer .container, textarea {
     background-color: rgba(0, 0, 0, 0.7);
     border: 1px solid #1B1B1F;
 }

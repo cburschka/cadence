@@ -33,10 +33,16 @@ body {
   top:15px;
 }
 
-#trayContainer * {
+#trayContainer input,
+#trayContainer div {
   display:inline;
   margin:0 2px;
   vertical-align:middle;
+  background-color: transparent;
+}
+#trayContainer input.button {
+  width:22px;
+  height:22px;
 }
 
 #statusIcon,
@@ -118,13 +124,6 @@ body {
   width:20px;
   height:20px;
 }
-#trayContainer input {
-    vertical-align:middle;
-}
-#trayContainer input.button {
-    width:22px;
-  height:22px;
-}
 #emoticonsContainer a {
   margin-left:1px;
   margin-right:1px;
@@ -202,7 +201,7 @@ body {
   text-align:right;
 }
 #settingsList input.button {
-    width:22px;
+  width:22px;
   height:22px;
   vertical-align:middle;
   margin-bottom:2px;
@@ -216,4 +215,8 @@ body {
 }
 #fakeLoginForm {
   display:inline;
+}
+#trayContainer div,
+#trayContainer input {
+  background-color:transparent;
 }

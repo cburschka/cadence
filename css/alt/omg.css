@@ -17,7 +17,7 @@
   border: 1px solid #6C8A3F;
 }
 
-#content select, #loginForm select, #loginForm input, #content textarea {
+#content textarea {
   color:#333333;
   border: 1px solid #6C8A3F;
 }
@@ -29,7 +29,7 @@ color:#32cd32;
 #content a {
   color:#52ed52;
 }
-#content input, #content select, #content textarea {
+input, select, textarea {
   background-color: rgba(0,0,0,0.3);
   color:#32cd32;
 }
@@ -37,15 +37,12 @@ color:#32cd32;
   border-color:#32cd32;
   background-color: rgba(0,0,0,0.3);
 }
-#content #bbCodeContainer input, #content #logoutButton, #content #submitButton {
+#content #bbCodeContainer input {
   background-color: rgba(0,0,0,0.3);
   color:#32cd32;
 }
 #content #colorCodesContainer a {
   border-color:#32cd32;
-}
-#trayContainer input {
-  background-color:transparent;
 }
 #content .author {
   color:#FFFFCC;

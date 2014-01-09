@@ -10,7 +10,7 @@
  * http://www.phpbb.com/
  */
 
-#loginButton {
+button {
   background-color:#212121;
   color:#FFFFCC;
 }
@@ -21,7 +21,7 @@
 #content a {
   color:#FFFFCC;
 }
-#content input, #content select, #content textarea {
+input, select, textarea {
   background-color:#212121;
   color:#FFFFCC;
 }
@@ -35,9 +35,6 @@
 }
 #content #colorCodesContainer a {
   border-color:black;
-}
-#trayContainer input {
-    background-color:transparent;
 }
 .row:nth-child(even) {
   background-color:#212121;

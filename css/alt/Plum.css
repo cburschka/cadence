@@ -6,11 +6,11 @@
  * @link https://blueimp.net/ajax/
  */
 
-#content input, select, #content textarea, #loginButton {
+input, select, textarea, button {
   border: 0; box-shadow:1px 1px 4px 0px rgba(0,0,0,0.5);
 }
 #content textarea { border-color: #383838; }
-#content input, #loginButton { border-radius: 8px; }
+#content input, button { border-radius: 8px; }
 #content {
   background-color:#2A112F;
   color:#9765A0;
@@ -20,7 +20,6 @@ a {
 }
 input, select {
   background:#17081a;
-  border: 1px solid rgba(0,0,0,1);
   color:#9765A0;
 }
 #content textarea {
@@ -42,11 +41,11 @@ input, select {
 #content #emoticonsContainer { border-radius: 3px; }
 #content #bbCodeContainer { border: 0; padding-left: 0; }
 
-#content #bbCodeContainer input, #loginButton {
+#content #bbCodeContainer input, button {
   background-color:#461124;
   color:#DAABBC;
 }
-#content #bbCodeContainer input:hover, #loginButton:hover {
+#content #bbCodeContainer input:hover, button:hover {
   background-color:#591E33;
 }
 #content #optionsContainer input.button { border: 0; }

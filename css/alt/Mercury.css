@@ -10,7 +10,7 @@
  * http://punbb.org/
  */
 
-#content input, #content select, #content textarea {
+input, select, textarea {
   border: 1px solid #565656;
 }
 #content textarea {
@@ -31,7 +31,7 @@
 #content a {
   color:#F6B620;
 }
-#content input, #content select, #content textarea {
+input, select, textarea {
   background-color:#383838;
   color:#D4D4D4;
 }
@@ -71,9 +71,6 @@
 }
 #trayContainer input.button, button {
   border: 0;
-}
-#trayContainer input {
-  background-color:transparent;
 }
 .author {
   color:#D4D4D4;

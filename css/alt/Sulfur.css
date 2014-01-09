@@ -41,9 +41,6 @@
 #content #colorCodesContainer a {
   border-color:black;
 }
-#trayContainer input {
-  background-color:transparent;
-}
 .row:nth-child(odd) {
   background:rgba(0,0,0,0.2);
 }
