@@ -174,7 +174,7 @@ visual = {
     else hex = [hex.substring(0,2), hex.substring(2,4), hex.substring(4,6)];
     dec = [parseInt(hex[0], 16), parseInt(hex[1], 16), parseInt(hex[1], 16)];
     return 'rgba(' + dec.join(',') + ',' + alpha + ')';
-  }
+  },
 
   lengthLimit: function(str, len) {
     return str.length > len ? str.substring(0, len-3) + '...' : str;
