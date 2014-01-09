@@ -1,67 +1,24 @@
-/*
- * @package AJAX_Chat
- * @author Rosina Ramirez
- * @copyright (c) Rosina Ramirez
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
-input, select, textarea, button {
-  border: 0; box-shadow:1px 1px 4px 0px rgba(0,0,0,0.5);
-}
-#content textarea { border-color: #383838; }
-#content input, button { border-radius: 8px; }
 #content {
-  background-color:#2A112F;
-  color:#9765A0;
+  background-color: #2a112f;
+  color: #9765a0;
 }
-a {
-  color:#DA83A1;
+a { color: #dA83a1 }
+input[type=text], input[type=password], select, button {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 1px 1px 4px 0px;
 }
-input, select {
-  background:#17081a;
-  color:#9765A0;
+input, select, textarea, .box, #chatList {
+  background-color: rgba(0,0,0,0.5);
+  color: #9765a0;
 }
-#content textarea {
-  background:rgba(0,0,0,0.3);
-  color:#9765A0;
+button {
+  background-color: #461124;
+  color: #daabbc;
 }
-#content #chatList{
-  background: url('Plum/plum.png') no-repeat bottom right rgba(0,0,0,0.3);
-}
-#content #colorCodesContainer {
-  padding: 5px;
-  box-shadow: 2px 2px 4px #000;
-  border-radius: 3px;
-  background:rgba(225,225,225,0.2)
-}
-#content .menuContainer {
-  background: url('Plum/plum2.png') no-repeat bottom left rgba(0,0,0,0.3);
-}
-#content #emoticonsContainer { border-radius: 3px; }
-#content #bbCodeContainer { border: 0; padding-left: 0; }
-
-#content #bbCodeContainer input, button {
-  background-color:#461124;
-  color:#DAABBC;
-}
-#content #bbCodeContainer input:hover, button:hover {
-  background-color:#591E33;
-}
-#content #optionsContainer input.button { border: 0; }
-#content #optionsContainer input {
-  background-color:transparent;
-}
-.author {
-  color:#CDA6D2;
-}
-.user-role-bot {
-  color:#CDA6D2;
-}
-.menuContainer h3 {
-  color:#CDA6D2;
-  height: 15px;
-}
-.row.delayed .log-room, .row.delayed .dateTime {
-  color:#673570;
-}
+button:hover { background-color: #591e33 }
+textarea { border-color: #9765a0 }
+#chatList { background: url('Plum/plum.png') no-repeat bottom right }
+.menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
+h3, .author { color: #cda6d2 }
+.row.delayed .log-room, .row.delayed .dateTime { color: #673570 }
