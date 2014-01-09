@@ -1,59 +1,20 @@
-﻿/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @author Philip Nicolcev
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- *
- * Color palette inspired by PunBB style "Sulfur":
- * http://punbb.org/
- */
-
-/* Buttons */
-#content #bbCodeContainer input, #content button {
-  background-color:#6C8A3F;
-  color: #fff;
-  border: 1px solid #6C8A3F;
-}
-
-#content textarea {
-  color:#333333;
-  border: 1px solid #6C8A3F;
-}
-
 #content {
-background: url('omg/heartscape-diamond.png') #700070;
-color:#32cd32;
+  background: url('omg/heartscape-diamond.png') #700070;
+  color: #32cd32;
 }
-#content a {
-  color:#52ed52;
-}
-input, select, textarea {
+a { color: #fc0 }
+button, input, select, textarea {
   background-color: rgba(0,0,0,0.3);
-  color:#32cd32;
+  border-color: #6c8a3f;
+  color: #32cd32;
 }
-#content #chatList, #content .menuContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
-  border-color:#32cd32;
+button {
+  background-color: #6c8a3f;
+  color: white;
+}
+.box, #content #bbCodeContainer input {
+  border-color: #32cd32;
   background-color: rgba(0,0,0,0.3);
 }
-#content #bbCodeContainer input {
-  background-color: rgba(0,0,0,0.3);
-  color:#32cd32;
-}
-#content #colorCodesContainer a {
-  border-color:#32cd32;
-}
-#content .author {
-  color:#FFFFCC;
-}
-.user-role-bot {
-  color:#32cd32;
-}
-#content #chatList a {
-  color:#32cd32;
-}
-.menuContainer h3 {
-  background: url('omg/darker.png') transparent;
-  color:#32cd32;
-}
+.author { color: #ffc }
+.user-role-bot { color: #32cd32 }

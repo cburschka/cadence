@@ -1,34 +1,10 @@
-/*
- * This file describes the default colors for messages.
- */
-
 .author .user-affiliation-owner,
-#onlineList .user-affiliation-owner {
-  color:red;
-}
+#onlineList .user-affiliation-owner,
+.body.error { color: red }
 .author .user-affiliation-admin,
-#onlineList .user-affiliation-admin {
-  color:#00AA00;
-}
-.user-role-bot {
-  color:#c90;
-}
-.author .user-affiliation-none,
-#onlineList .user-affiliation-none {
-    color: gray;
-}
-.body.error {
-  color:red;
-}
-
-.row.delayed .dateTime,
-.row.delayed .log-room {
-  color:#aaa;
-}
-
-.row:nth-child(even) {
-  background:rgba(0,0,0,0.1);
-}
-.row:nth-child(odd) {
-  background:rgba(0,0,0,0.5);
-}
+#onlineList .user-affiliation-admin { color: #0a0 }
+.author .user-role-visitor,
+#onlineList .user-role-visitor,
+.row.delayed .dateTime, .row.delayed .log-room { color: gray }
+.row:nth-child(even) { background:rgba(0,0,0,0.1) }
+.row:nth-child(odd) { background:rgba(0,0,0,0.5) }

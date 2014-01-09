@@ -1,76 +1,14 @@
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
-/* Fonts */
-#loginContent {
-  font-family:Verdana, Arial, Helvetica, sans-serif;
-  font-size:0.8em;
-}
-#loginContent h1 {
-  font-size:1.3em;
-  font-family:"Trebuchet MS", Verdana, Arial, sans-serif;
-  font-weight:bold;
-}
-#loginContent a {
-  text-decoration:none;
-}
-#loginContent a:hover {
-  text-decoration:underline;
-}
-#loginContent #loginRegisteredUsers {
-    font-size:0.8em;
-}
-#loginContent #copyright {
-  font-size:0.8em;
-}
 #content {
-  font-family:Verdana, Arial, Helvetica, sans-serif;
-  font-size:0.8em;
+  font-family: sans-serif;
+  font-size: 0.9em;
 }
-#content h1 {
-  font-size:1.3em;
-  font-family:"Trebuchet MS", Verdana, Arial, sans-serif;
-  font-weight:bold;
-}
-#content h3 {
-  font-size:1.0em;
-}
-#content a {
-  text-decoration:none;
-}
-#content a:hover {
-  text-decoration:underline;
-}
-#copyright {
-  font-size:0.8em;
-}
-#chatList .author {
-  font-weight:bold;
-}
-#chatList .user-role-bot {
-  font-style:italic;
-}
-#chatList .action {
-  font-style:italic;
-}
-#chatList q {
-  font-variant:small-caps;
-}
-#chatList code {
-    font-size:1.2em;
-    white-space:pre;
-}
-#helpList td {
-  font-size:0.9em;
-}
-#helpList td.code {
-  font-style:italic;
-}
-#settingsList td {
-  font-size:0.9em;
+h3 { font-size:1.3em }
+a { text-decoration:none }
+a:hover { text-decoration:underline }
+.author { font-weight:bold }
+.action, .user-role-bot, #helpList td.code { font-style:italic }
+q { font-variant:small-caps }
+code {
+  font-size:1.2em;
+  white-space:pre;
 }
