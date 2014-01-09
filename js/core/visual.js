@@ -32,8 +32,9 @@ visual = {
                + userPrefix + this.formatUser(message.user) + userSuffix
                + '<div id="message-body"></div>' + bodySuffix + '</div>');
     // Then, fill in the rendered message (which is rendered in DOM form).
+    var body = $('<span class="body">' + message.body + '</span>');
     node.find('#message-body').replaceWith(
-      this.formatBody($('<span class="body">' + message.body + '</span>'))
+      message.user.role == 'bot' ? body : this.formatBody(body)
     );
     return {
       timestamp: message.time.getTime(),
