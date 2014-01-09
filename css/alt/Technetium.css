@@ -13,9 +13,6 @@
   background: url("Technetium/bg.png") repeat scroll 0 0 #161616;
   color: #E7E7E7;
 }
-#content h1 {
-  color:#E7E7E7;
-}
 #content a {
   color: #00ADEE;
   text-decoration: none;
@@ -38,7 +35,7 @@ input[type=text], input[type=password], #content select, #content textarea {
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   color: #E7E7E7;
 }
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
+#content #chatList, #content .menuContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
   background: url("Technetium/stripe.png");
   border-color: #272727;
   border-radius: 10px 10px 10px 10px;
@@ -46,9 +43,6 @@ input[type=text], input[type=password], #content select, #content textarea {
   border-width: 2px;
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   color: #E7E7E7;
-}
-#statusIcon {
-  box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
 }
 #content #bbCodeContainer input, #content #submitButton {
   background: none repeat scroll 0 0 #161616;
