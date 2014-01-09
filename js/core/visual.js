@@ -51,16 +51,17 @@ visual = {
     var nick = this.textPlain(user.nick);
     if (user.role != 'bot' && (!user.jid || user.nick != Strophe.getNodeFromJid(user.jid)))
       nick = '(' + nick + ')';
-    return '<span class="user-role-' + user.role +
-           ' user-affiliation-' + user.affiliation + '" ' +
-             (user.jid ? ('title="' + user.jid + '">') : '>') +
-              nick + '</span>';
+    return  '<span class="user-role-' + user.role
+          + ' user-affiliation-' + user.affiliation
+          + ' user-show-' + (user.show || 'default')
+          + '" ' + (user.jid ? ('title="' + user.jid + '"') : '')
+          + '>' + nick + '</span>';
   },
 
   formatText: function(text, variables) {
     text = text.replace(/\{([a-z]+)\}|\[([a-z]+)\]/g, function(rep, plain, raw) {
       var key = plain || raw;
-      return variables[key] ? (plain ? visual.textPlain(variables[key]) : variables[key]) : rep;
+      return typeof variables[key] == 'string' ? (plain ? visual.textPlain(variables[key]) : variables[key]) : rep;
     });
     return text;
   },

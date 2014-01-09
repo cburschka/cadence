@@ -148,7 +148,18 @@ var xmpp = {
         to:Strophe.escapeNode(room) + '@' + config.xmpp.muc_service + '/' + nick
       })
       .attrs(attrs)
-      .c('x', {xmlns:Strophe.NS.MUC});
+      .c('x', {xmlns:Strophe.NS.MUC})
+      .up();
+  },
+
+  sendStatus: function(show, status) {
+    var p = this.presence(this.room.current, this.nick.current);
+    if (show) {
+      p.c('show', {}, show);
+      if (status) p.c('status', {}, status);
+    }
+    console.log(p.toString());
+    this.connection.send(p);
   },
 
   sendMessage: function(html) {
@@ -251,6 +262,7 @@ var xmpp = {
 
             // away, dnd, xa, chat, [default].
             var show = $('show', stanza).text() || 'default';
+            var status = $('status', stanza).text() || '';
             // create user object:
             var user = {
               nick: nick,
@@ -258,6 +270,7 @@ var xmpp = {
               role: item.attr('role'),
               affiliation: item.attr('affiliation'),
               show: show,
+              status: status
             };
             // Self-presence.
             if (codes.indexOf(110) >= 0) {
@@ -288,17 +301,18 @@ var xmpp = {
             // We have fully joined this room - track the presence changes.
             if (self.room.current == room) {
               var userText = visual.formatUser(user)
+              var vars = {user: userText, status: status ? ' (' + status + ')' : ''}
               if (!self.roster[room][nick]) {
-                ui.messageAddInfo('[user] logs into the Chat.', {user: userText});
+                ui.messageAddInfo('[user] logs into the Chat.', vars);
               }
               if (show == 'away' || show == 'xa') {
-                ui.messageAddInfo('[user] is away.', {user: userText});
+                ui.messageAddInfo('[user] is away{status}.', vars);
               }
               else if (show == 'dnd') {
-                ui.messageAddInfo('[user] is busy.', {user: userText});
+                ui.messageAddInfo('[user] is busy{status}.', vars);
               }
               else if (self.roster[room][nick] && self.roster[room][nick].show != show) {
-                ui.messageAddInfo('[user] has returned.', {user: userText});
+                ui.messageAddInfo('[user] has returned{status}.', vars);
               }
             }
 

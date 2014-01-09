@@ -1,5 +1,12 @@
 var chat = {
   commands: {
+    away: function(arg) {
+      arg = arg.trim().match(/^\(*(.*?)\)*$/);
+      xmpp.sendStatus('away', arg[1].trim());
+    },
+    back: function() {
+      xmpp.sendStatus();
+    },
     connect: function(arg) {
       if (typeof arg == 'string') {
         var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
@@ -39,7 +46,7 @@ var chat = {
   },
 
   cmdAvailableStatus: {
-    online: ['join', 'quit', 'nick', 'me', 'say'],
+    online: ['away', 'back', 'join', 'me', 'nick', 'quit', 'say'],
     offline: ['connect'],
     waiting: [],
   },

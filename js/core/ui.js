@@ -262,12 +262,15 @@ var ui = {
   },
 
   userAdd: function(user, animate) {
+    var userLink = $('<div class="row">' + visual.formatUser(user) + '</div>');
+
     if (!this.userLinks[user.nick]) {
-      this.userLinks[user.nick] = $('<div class="row">' + visual.formatUser(user) + '</div>'),
-      this.dom.onlineList.append(this.userLinks[user.nick]);
-      if (animate) this.userLinks[user.nick].slideDown(1000);
-      else this.userLinks[user.nick].css('display', 'block');
+      userLink.appendTo(this.dom.onlineList);
+      if (animate) userLink.slideDown(1000);
     }
+    else userLink.replaceAll(this.userLinks[user.nick])
+    userLink.css('display', 'block');
+    this.userLinks[user.nick] = userLink;
   },
 
   userRemove: function(user) {
