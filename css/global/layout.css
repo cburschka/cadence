@@ -214,3 +214,6 @@ body {
 #settingsList #settings-textColorClear {
   display: none;
 }
+#fakeLoginForm {
+  display:inline;
+}

@@ -87,7 +87,10 @@ var ui = {
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
     };
-    $('#loginButton').click(loginCallback);
+    $('#fakeLoginForm').submit(function(e) {
+      loginCallback();
+      e.preventDefault();
+    });
     $('#loginPass, #loginUser').keypress(this.onEnterKey(loginCallback));
     $('#trayContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
