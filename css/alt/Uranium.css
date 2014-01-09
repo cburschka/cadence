@@ -9,7 +9,7 @@
 
 @media screen,projection,handheld {
 
-  input, select, textarea, #chatList, .menuContainer,
+  input, button, select, textarea, #chatList, .menuContainer,
   .row:nth-child(even),
   .menuContainer h3, #inputFieldContainer
   { border-radius: 5px; -webkit-border-radius:5px;border:0;}
@@ -76,7 +76,7 @@
   #content #helplist table, #content  #settingsList table{border-spacing:0;}
   #content #emoticonsContainer { border-radius: 3px; }
   #content #bbCodeContainer { border: 0; padding-left: 0; }
-  #content #bbCodeContainer input {
+  #content #bbCodeContainer input, button#settings-textColorClear {
     background-color: #d8ffd6;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#d8ffd6), to(#467a44));
     background-image: -webkit-linear-gradient(top, #d8ffd6, #467a44);
