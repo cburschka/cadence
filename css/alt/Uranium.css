@@ -32,7 +32,7 @@ background-image:      -o-linear-gradient(top, #464646, #181818);
 background-image:         linear-gradient(to bottom, #464646, #181818);
 color:#b0b8a8;
 }
-h1, h3 {
+h3 {
   color:#e2e9db;
   text-shadow: 1px 1px 2px #191919;
 }
@@ -121,32 +121,17 @@ box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49
 #trayContainer input {
     background-color:transparent;
 }
-#content .rowEven {
+.row:nth-child(even) {
   background-color:#131413;
 }
-#content .guest {
-  color:gray;
-}
-#content .author {
+.author {
   color:#b0b8a8;
 }
-#content .moderator {
-  color:#00AA00;
-}
-#content .admin {
-  color:red;
-}
-#content .chatBot {
+.user-role-bot {
   color:#4c9546;
-}
-#content #chatList .chatBotErrorMessage {
-  color:red;
 }
 #content #chatList a {
   color:#4c9546;
-}
-#content #chatList .deleteSelected {
-  border-color:red;
 }
 .menuContainer h3 {
 background-color: #171717;

@@ -4,7 +4,7 @@
   color: #fff;
   border: 1px solid #0066B9;
 }
-#content select, #loginForm select, #loginForm input, #content textarea {
+#content select, #loginForm select, #loginContainer input, #content textarea {
   color:#333333;
   border: 1px solid #0066B9;
 }
@@ -17,17 +17,17 @@
   color:#E7E7E7;
 }
 #content a {
-color: #00ADEE;
-text-decoration: none;
+  color: #00ADEE;
+  text-decoration: none;
 }
 #content #chatlist a {
-color: #00adee !important;
+  color: #00adee !important;
 }
 #content a:hover {
-transition: all 0.1s ease-in 0s;
-color: #00ADEE !important;
-text-decoration: underline;
-text-shadow: 0 0 3px #00ADEE;
+  transition: all 0.1s ease-in 0s;
+  color: #00ADEE !important;
+  text-decoration: underline;
+  text-shadow: 0 0 3px #00ADEE;
 }
 input[type=text], input[type=password], #content select, #content textarea {
   background: none repeat scroll 0 0 #161616;
@@ -63,29 +63,24 @@ input[type=text], input[type=password], #content select, #content textarea {
   border-color: #E7E7E7;
 }
 #trayContainer input {
-    background-color:transparent;
+  background-color: transparent;
 }
 .row:nth-child(odd):hover {
-box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
-transition-duration: 0.1s;
-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
+  box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
+  transition-duration: 0.1s;
+  transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
-#content .guest {
+.author .user-affiliation-none,
+#onlineList .user-affiliation-none {
   color:#E7E7E7;
 }
-#content .author {
+.author {
   color:#E7E7E7;
 }
-#content .moderator {
-  color:#00AA00;
-}
-#content .admin {
-  color:red;
-}
-#content .chatBot {
+.user-role-bot {
   color:#32cd32;
 }
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
-color: #00ADEE !important;
-text-shadow: 0 0 3px #00ADEE;
+.menuContainer h3 {
+  color: #00ADEE !important;
+  text-shadow: 0 0 3px #00ADEE;
 }

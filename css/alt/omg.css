@@ -26,9 +26,6 @@
 background: url('omg/heartscape-diamond.png') #700070;
 color:#32cd32;
 }
-#content h1 {
-  color:#32cd32;
-}
 #content a {
   color:#52ed52;
 }
@@ -36,7 +33,7 @@ color:#32cd32;
   background-color: rgba(0,0,0,0.3);
   color:#32cd32;
 }
-#content #chatList, #content #onlineListContainer, #content #poniconContainer, #content #helpContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
+#content #chatList, #content .menuContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
   border-color:#32cd32;
   background-color: rgba(0,0,0,0.3);
 }
@@ -48,33 +45,18 @@ color:#32cd32;
   border-color:#32cd32;
 }
 #trayContainer input {
-    background-color:transparent;
-}
-#content .guest {
-  color:gray;
+  background-color:transparent;
 }
 #content .author {
   color:#FFFFCC;
 }
-#content .moderator {
-  color:#00AA00;
-}
-#content .admin {
-  color:red;
-}
-#content .chatBot {
+.user-role-bot {
   color:#32cd32;
-}
-#content #chatList .chatBotErrorMessage {
-  color:red;
 }
 #content #chatList a {
   color:#32cd32;
 }
-#content #chatList .deleteSelected {
-  border-color:red;
-}
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+.menuContainer h3 {
   background: url('omg/darker.png') transparent;
   color:#32cd32;
 }

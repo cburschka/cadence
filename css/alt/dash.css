@@ -2,9 +2,6 @@
     background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
     color: white;
 }
-#content h1 {
-    color: white;
-}
 #content a {
     color: #DDDDDD;
 }
@@ -38,23 +35,21 @@ input[type=text], input[type=password], #content select, #content textarea {
 .row:nth-child(odd) {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
 }
-
-#content .guest {
-    color: gray;
-}
-#content .author {
+.author {
     color: #FFFFCC;
 }
-#content .moderator {
+.author .user-affiliation-admin,
+#onlineList .user-affiliation-admin {
     color: #5BBB47;
 }
-#content .admin {
+.author .user-affiliation-owner,
+#onlineList .user-affiliation-owner {
     color: #EE3F44;
 }
-#content .chatBot {
+.user-role-bot {
     color: #F4F4AE;
 }
-#content #chatList a {
+#chatList a {
     color: #CCCCCC;
 }
 .menuContainer h3 {

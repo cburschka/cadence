@@ -19,35 +19,13 @@
 #content input, button {
   border-radius: 3px;
 }
-#loginContent {
-  background-color:#2A2A2A;
-  color:#D4D4D4;
-}
-#loginContent h1 {
-  color:#D4D4D4;
-}
-#loginContent a {
-  color:#F6B620;
-}
-#loginContent input, #loginContent select {
-  background-color:#424242;
-  border-color:#565656;
-  color:#D4D4D4;
-}
-#loginContent #loginFormContainer #loginButton {
+#loginButton {
   background-color:#424242;
   color:#D4D4D4;
   border-radius: 3px;
 }
-#loginContent #errorContainer {
-  color:red;
-}
-
 #content {
   background-color:#2A2A2A;
-  color:#D4D4D4;
-}
-#content h1 {
   color:#D4D4D4;
 }
 #content a {
@@ -57,7 +35,7 @@
   background-color:#383838;
   color:#D4D4D4;
 }
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #colorCodesContainer, #content #emoticonsContainer {
+#content #chatList, #content .menuContainer, #content #colorCodesContainer, #content #emoticonsContainer {
   border: 0;
   background-color:#383838;
 }
@@ -88,40 +66,25 @@
   background-color:#383838;
   color:#D4D4D4;
 }
-#content #bbCodeContainer input:hover, #content #logoutButton:hover, #content #submitButton:hover {
+#content #bbCodeContainer input:hover {
   background-color:#565656;
 }
 #trayContainer input.button, button {
   border: 0;
 }
 #trayContainer input {
-    background-color:transparent;
+  background-color:transparent;
 }
-#content .guest {
-  color:gray;
-}
-#content .author {
+.author {
   color:#D4D4D4;
 }
-#content .moderator {
-  color:#00AA00;
-}
-#content .admin {
-  color:red;
-}
-#content .chatBot {
+.chatBot {
   color:#F6B620;
-}
-#content #chatList .chatBotErrorMessage {
-  color:red;
 }
 #content #chatList a {
   color:#F6B620;
 }
-#content #chatList .deleteSelected {
-  border-color:red;
-}
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+.menuContainer h3 {
   color:#D4D4D4;
   height: 15px;
 }

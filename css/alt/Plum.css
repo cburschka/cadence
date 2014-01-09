@@ -23,13 +23,6 @@ input, select {
   border: 1px solid rgba(0,0,0,1);
   color:#9765A0;
 }
-#loginContent #errorContainer {
-  color:red;
-}
-h1 {
-  color:#CDA6D2;
-}
-
 #content textarea {
   background:rgba(0,0,0,0.3);
   color:#9765A0;
@@ -43,42 +36,30 @@ h1 {
   border-radius: 3px;
   background:rgba(225,225,225,0.2)
 }
-#content #onlineListContainer, #content #helpContainer, #content #settingsContainer {
+#content .menuContainer {
   background: url('Plum/plum2.png') no-repeat bottom left rgba(0,0,0,0.3);
-}
-#content #onlineListContainer #onlineList ul {
-  list-style: none;
 }
 #content #emoticonsContainer { border-radius: 3px; }
 #content #bbCodeContainer { border: 0; padding-left: 0; }
 
-#content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginButton {
+#content #bbCodeContainer input, #loginButton {
   background-color:#461124;
   color:#DAABBC;
 }
-#content #bbCodeContainer input:hover, #content #logoutButton:hover, #content #submitButton:hover, #loginButton:hover {
+#content #bbCodeContainer input:hover, #loginButton:hover {
   background-color:#591E33;
 }
 #content #optionsContainer input.button { border: 0; }
 #content #optionsContainer input {
-    background-color:transparent;
+  background-color:transparent;
 }
-#content .guest {
-  color:gray;
-}
-#content .author {
+.author {
   color:#CDA6D2;
 }
-#content .moderator {
-  color:#00AA00;
-}
-#content .admin {
-  color:red;
-}
-#content .chatBot {
+.user-role-bot {
   color:#CDA6D2;
 }
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+.menuContainer h3 {
   color:#CDA6D2;
   height: 15px;
 }

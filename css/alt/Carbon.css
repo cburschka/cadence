@@ -14,13 +14,9 @@
   background-color:#212121;
   color:#FFFFCC;
 }
-
 #content {
   background-color:#000;
   color:#FFFFCC;
-}
-#content h1 {
-  color:#CC9900;
 }
 #content a {
   color:#FFFFCC;
@@ -29,7 +25,7 @@
   background-color:#212121;
   color:#FFFFCC;
 }
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #poniconContainer, #content #settingsContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer, #content #poniconContainer {
+#content #chatList, .menuContainer, #content #bbCodeContainer, #content #colorCodesContainer, #content #emoticonsContainer {
   border-color:gray;
   background-color:#212121;
 }
@@ -49,31 +45,17 @@
 .row:nth-child(odd) {
   background-color:#000;
 }
-#content .guest {
-  color:gray;
-}
 #content .author {
   color:#FFFFCC;
 }
-#content .moderator {
+.author. .user-affiliation-admin,
+#onlineList .user-affiliation-admin {
   color:#00AA00;
 }
-#content .admin {
-  color:red;
-}
-#content .chatBot {
-  color:#CC9900;
-}
-#content #chatList .chatBotErrorMessage {
-  color:red;
-}
-#content #chatList a {
+#chatList a {
   color:#FFCC00;
 }
-#content #chatList .deleteSelected {
-  border-color:red;
-}
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
+.menuContainer h3 {
   background-color:#212121;
   color:#FFCC00;
 }

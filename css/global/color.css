@@ -8,12 +8,15 @@
 }
 .author .user-affiliation-admin,
 #onlineList .user-affiliation-admin {
-  color:green;
+  color:#00AA00;
 }
 .user-role-bot {
   color:#c90;
 }
-
+.author .user-affiliation-none,
+#onlineList .user-affiliation-none {
+    color: gray;
+}
 .body.error {
   color:red;
 }
