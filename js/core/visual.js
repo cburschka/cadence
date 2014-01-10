@@ -209,7 +209,13 @@ visual = {
    * Turn URLs into links.
    */
   addLinks: function(jq) {
-    jq.add('*', jq).not('a').replaceText(
+    // First discard the whole thing if it's a link,
+    // then add all elements that are not links,
+    // then discard all of those that have a link as a parent.
+    jq.not('a').add(':not(a)', jq).filter(function() {
+      console.log(this.outerHTML, $(this).parents('a').length);
+      return $(this).parents('a').length < 1;
+    }).replaceText(
       /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
       function(url) {
         return  '<a href="' + url +
