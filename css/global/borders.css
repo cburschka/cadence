@@ -1,5 +1,5 @@
 img { border:none }
-#chatList, .menuContainer, #colorCodesContainer, #colorCodesContainer a, textarea {
+.box, #colorCodesContainer a, textarea {
   border:1px solid;
 }
 #helpList table, #settingsList table { border-collapse: collapse }
