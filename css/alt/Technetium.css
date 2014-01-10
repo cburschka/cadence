@@ -52,9 +52,6 @@ input[type=text], input[type=password], #content select, #content textarea {
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   color: #E7E7E7;
 }
-#content #colorCodesContainer a {
-  border-color: #E7E7E7;
-}
 .row:nth-child(odd):hover {
   box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
   transition-duration: 0.1s;
