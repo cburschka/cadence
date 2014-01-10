@@ -8,7 +8,13 @@ BUILDING
 ========
 
 This development version references multiple JavaScript libraries as
-submodules. Most of these can be used as checked out, but strophejs needs
+submodules. After cloning this repository, you will need to pull in
+the submodules as well:
+
+    $ git submodule init
+    $ git submodule update
+
+Most of the modules can be used as checked out, but strophejs needs
 to be built before use.
 
 Install the YUI Compressor using your distribution's package manager or download
