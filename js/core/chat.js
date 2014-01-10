@@ -52,7 +52,7 @@ var chat = {
      *   Alias for /say "/me <msg>".
      */
     me: function(arg) {
-      chat.sendMessage('/me ' + arg); // XEP-0245 says to send this in plain.
+      this.commands.say('/me ' + arg); // XEP-0245 says to send this in plain.
     },
 
     /**
@@ -75,7 +75,7 @@ var chat = {
         return ui.messageAddInfo('You are already in room {room}.', {room:room}, 'error');
       }
       xmpp.joinRoom(room);
-      chat.setSetting('xmpp.room', room);
+      this.setSetting('xmpp.room', room);
     },
 
     /**
@@ -92,7 +92,7 @@ var chat = {
      */
     say: function(arg) {
       arg = visual.lengthLimit(visual.textPlain(arg), config.ui.maxMessageLength);
-      chat.sendMessage(arg);
+      this.sendMessage(arg);
     },
   },
 
