@@ -12,7 +12,7 @@ button {
   background-color: #6c8a3f;
   color: white;
 }
-.box, #content #bbCodeContainer input {
+.box, #bbCodeContainer button {
   border-color: #32cd32;
   background-color: rgba(0,0,0,0.3);
 }

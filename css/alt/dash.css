@@ -21,7 +21,7 @@ input[type=text], input[type=password], #content select, #content textarea {
     color:white;
     text-shadow:0px 0px 5px black;
 }
-#content #bbCodeContainer input, #content button {
+#content button {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
     color: white;
 }

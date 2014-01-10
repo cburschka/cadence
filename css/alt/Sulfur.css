@@ -10,13 +10,12 @@
  * http://punbb.org/
  */
 
-/* Buttons */
-#content #bbCodeContainer input, button {
+button {
   background-color:#B84623;
   color: #fff;
   border: 1px solid #B84623;
 }
-#content select, #loginForm select, #loginContainer input, #content textarea {
+#content select, #content textarea {
   color:#333333;
   border: 1px solid #B84623;
 }

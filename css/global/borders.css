@@ -1,27 +1,6 @@
-/* Borders */
-#content img {
-  border:none;
+img { border:none }
+#chatList, .menuContainer, #colorCodesContainer, #colorCodesContainer a, textarea {
+  border:1px solid;
 }
-#chatList, #onlineListContainer, #helpContainer, #settingsContainer, #colorCodesContainer,
-#poniconContainer, #colorCodesContainer a, #content textarea {
-  border-width:1px;
-  border-style:solid;
-}
-#chatList .deleteSelected {
-  border-width:1px;
-  border-style:dotted;
-}
-#helpList table, #settingsList table {
-  border-collapse:collapse;
-}
-#bbCodeContainer input, #trayContainer input.button, #loginButton {
-  cursor:pointer;
-}
-
-/*  #content, #content h1, #content a, #content input, #content select, #content textarea, #chatList, #onlineListContainer, #helpContainer, #settingsContainer, #bbCodeContainer, #colorCodesContainer, #emoticonsContainer, .waiting, .online, .offline, #bbCodeContainer input, #logoutButton, #submitButton, #colorCodesContainer a, #trayContainer input, #content .rowEven, #content .rowOdd, #content .guest, #content .user, #content .moderator, #content .admin, #content .chatBot, #chatList .chatBotErrorMessage, #chatList a, #onlineListContainer h3, #helpContainer h3, #settingsContainer h3 {
-  -moz-transition-duration: 0.5s;
-  -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
-  -webkit-transition-duration: 0.5s;
-  -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
-  }
-}*/
+#helpList table, #settingsList table { border-collapse: collapse }
+#trayContainer input.button, button { cursor:pointer }

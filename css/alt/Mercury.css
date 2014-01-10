@@ -62,11 +62,11 @@ input, select, textarea {
 #content #bbCodeContainer {
   border: 0; padding-left: 0;
 }
-#content #bbCodeContainer input, button {
+button {
   background-color:#383838;
   color:#D4D4D4;
 }
-#content #bbCodeContainer input:hover {
+#content button:hover {
   background-color:#565656;
 }
 #trayContainer input.button, button {

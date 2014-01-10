@@ -1,5 +1,5 @@
 /* Buttons */
-#content #bbCodeContainer input, #loginButton {
+#content button, #loginButton {
   background-color:#0066B9;
   color: #fff;
   border: 1px solid #0066B9;
@@ -43,7 +43,7 @@ input[type=text], input[type=password], #content select, #content textarea {
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   color: #E7E7E7;
 }
-#content #bbCodeContainer input, button {
+button {
   background: none repeat scroll 0 0 #161616;
   border-color: #272727;
   border-radius: 10px 10px 10px 10px;

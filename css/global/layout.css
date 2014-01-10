@@ -1,65 +1,45 @@
 body {
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
 }
 
-/* Elements that are initially hidden. */
 #channelContainer,
 .menuContainer,
 #chatList .row,
-#onlineList .row {
-  display:none;
-}
+#onlineList .row,
+#settingsList #settings-textColorClear { display: none }
 
-.menuContainer {
-  overflow-x:hidden;
-}
+.row { word-wrap: break-word }
+.menuContainer { overflow-x:hidden }
 
-/* Layout */
 #content {
-  position:absolute;
-  width:100%;
-  height:100%;
-}
-
-#copyright {
-  position:absolute;
-  right:20px;
-  top:20px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 #headlineContainer {
-  position:absolute;
-  left:20px;
-  top:15px;
+  position: absolute;
+  left: 20px;
+  top: 15px;
 }
-
-#trayContainer input,
-#trayContainer div {
-  display:inline;
-  margin:0 2px;
-  vertical-align:middle;
-  background-color: transparent;
-}
-#trayContainer input.button {
-  width:22px;
-  height:22px;
-}
-
-#statusIcon,
-#autoScrollIcon {
-  width: 22px;
-  height: 22px;
-}
+#fakeLoginForm { display:inline }
 
 #chatList {
-  position:absolute;
-  left:20px;
-  right:230px;
-  top:50px;
-  bottom:115px;
-  overflow:auto;
+  position: absolute;
+  left: 20px;
+  right: 230px;
+  top: 50px;
+  bottom: 115px;
+  overflow: auto;
   hyphens: auto;
 }
+#chatList div { padding: 2px 10px }
+#chatList img.emote {
+  vertical-align:middle;
+  margin-bottom:2px;
+}
+#chatList cite { margin-right:5px }
+
 #inputFieldContainer {
   bottom: 55px;
   left: 20px;
@@ -67,13 +47,16 @@ body {
   position: absolute;
   right: 20px;
 }
+#inputField {
+  resize: none;
+  width: 100%;
+  height: 48px;
+}
 #messageLengthContainer {
   bottom: 58px;
   font-size: 20px;
-  opacity: 0.5;
   position: absolute;
   right: 26px;
-  z-index: 0;
 }
 .menuContainer {
   bottom: 115px;
@@ -81,25 +64,35 @@ body {
   top: 50px;
   position: absolute;
 }
+h3 {
+  height: 30px;
+  padding: 4px 10px;
+  margin: 0px;
+  text-align: center;
+}
+.menuContainer div {
+  margin: auto;
+  bottom: 0;
+}
+#onlineList div, #emoticonList-pony {
+  padding-left:10px;
+  padding-right:10px;
+  padding-bottom:2px;
+}
+#emoticonsList-pony { width:140px }
 #onlineListContainer,
-#poniconContainer {
-  width: 200px;
-}
+#poniconContainer { width: 200px }
 #helpContainer,
-#settingsContainer {
-  width:360px;
-}
+#settingsContainer { width:360px }
 
 #footerContainer {
   bottom: 19px;
   left: 20px;
   padding: 3px;
   position: absolute;
-  right:20px;
+  right: 20px;
 }
-#footerContainer div {
-  display: inline-block;
-}
+#footerContainer div { display: inline-block }
 #footerContainer #colorCodesContainer {
   bottom: 48px;
   left: 20px;
@@ -108,116 +101,57 @@ body {
   z-index: 1;
   display: none;
 }
+#content #colorCodesContainer a {
+  display:block;
+  float:left;
+  width:20px;
+  height:20px;
+  border-color: black;
+}
+#emoticonsContainer {
+  padding: 3px;
+  vertical-align:middle;
+}
+#emoticonsContainer a {
+  margin-left:2px;
+  margin-right:1px;
+}
 #trayContainer {
   position:absolute;
   right:0;
   padding:3px;
   padding-right:0px;
 }
-
-#colorCodesContainer a {
-  display:block;
-  float:left;
-  width:20px;
-  height:20px;
-}
-#content #colorCodesContainer a { border-color: black; }
-#emoticonsContainer {
-  padding: 3px;
-}
-#emoticonsContainer a {
-  margin-left:1px;
-  margin-right:1px;
-}
-#emoticonsContainer,
-#emoticonsContainer img {
-  vertical-align:middle;
-  margin-bottom:2px;
-}
-#headlineContainer h1 {
-  display:inline;
-  margin-left:auto;
-  margin-top:12px;
-}
-#chatList div {
-  padding: 2px 10px;
-}
-#chatList img {
-  vertical-align:middle;
-  margin-bottom:2px;
-}
-#chatList cite {
-  margin-right:5px;
-}
-#chatList .bbCodeImage {
-  vertical-align:top;
-  overflow:auto;
-  margin:5px;
-}
-#inputField {
-  resize: none;
-  width:100%;
-  height:48px;
-}
-.menuContainer h3 {
-  height:30px;
-  padding: 4px 10px;
-  margin:0px;
-  text-align:center;
-}
-#onlineList, #helpList, #settingsList, #emoticonsList-pony {
-  margin:auto;
-  bottom:0;
-}
-#onlineList div, #emoticonList-pony {
-  padding-left:10px;
-  padding-right:10px;
-  padding-bottom:2px;
-}
-#emoticonsList-pony {
-  width:140px;
-}
-
-#onlineList a {
-  display:block;
-}
-#onlineList ul {
-  margin: 5px 0;
-  padding-left:20px;
-}
-#helpList td, #settingsList td {
-  padding: 4px 10px;
-  vertical-align:top;
-}
-#settingsList td {
-  vertical-align:middle;
-}
-#settingsList td.setting {
-  width:115px;
-}
-#settingsList input.text {
-  width:100px;
-}
-#settingsList select.left {
-  text-align:right;
-}
-#settingsList input.button {
+#trayContainer input,
+#trayContainer div {
+  display: inline-block;
+  margin: 0 2px;
   width:22px;
   height:22px;
-  vertical-align:middle;
-  margin-bottom:2px;
+  vertical-align: middle;
 }
+
+#onlineList a { display:block }
+#helpList td, #settingsList td {
+  padding: 4px 10px;
+  vertical-align: top;
+}
+#settingsList td { vertical-align: middle }
+#settingsList td.setting {
+  width:140px;
+  white-space: nowrap;
+}
+#settingsList input[type=text] { width:100px }
 #settingsList #settings-textColor {
   background-color: rgba(255,255,255,0.1);
-  font-family: monospace;
+  width:75px;
 }
-#settingsList #settings-textColorClear {
-  display: none;
+
+#footerContainer #trayContainer div,
+#footerContainer #trayContainer input {
+  background-color: transparent;
 }
-#fakeLoginForm {
-  display:inline;
-}
-#trayContainer div,
-#trayContainer input {
-  background-color:transparent;
+#onlineList .user-show-away {
+  background:url(../../img/away.png) center right no-repeat;
+  padding-right:20px;
 }
