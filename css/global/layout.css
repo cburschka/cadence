@@ -67,7 +67,7 @@ body {
   position: absolute;
   right: 20px;
 }
-#submitButtonContainer {
+#messageLengthContainer {
   bottom: 58px;
   font-size: 20px;
   opacity: 0.5;

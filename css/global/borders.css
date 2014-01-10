@@ -14,9 +14,7 @@
 #helpList table, #settingsList table {
   border-collapse:collapse;
 }
-
-/* Misc */
-#bbCodeContainer input, #trayContainer input.button, #settingsList input.button, #logoutButton, #submitButton, #loginButton {
+#bbCodeContainer input, #trayContainer input.button, #loginButton {
   cursor:pointer;
 }
 
