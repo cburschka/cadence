@@ -14,29 +14,38 @@ visual = {
     this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
   },
 
+  findMe: function(jq) {
+    while (jq.length) {
+      if (jq[0].constructor == Text && jq[0].nodeValue.substring(0,4) == '/me ')
+        return jq[0];
+      jq = jq.contents().first();
+    }
+    return false;
+  },
+
   formatMessage: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
-    var userPrefix = '<span class="author">';
-    var userSuffix = '</span> ';
-    var bodySuffix = '';
-    var body = message.body;
-    body = this.lengthLimit(body, config.ui.maxMessageLength);
-    body = $('<span class="body">' + body + '</span>');
-    if (body.text().substring(0,4) == '/me ') {
-      userPrefix = '<span class="action">* ' + userPrefix;
-      bodySuffix += '</span>';
-      body.add('span.color', body).replaceText('/me ', '');
+    var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
+    body = $('<span>' + body + '</span>');
+    body = message.user.role == 'bot' ? body : this.formatBody(body);
+
+    var node =  $('<div class="row messageContainer">'
+                  + '<span class="dateTime"></span> '
+                  + '<span class="authorMessageContainer">'
+                  + '<span class="author"></span> '
+                  + '<span class="body"></span></span></div>');
+
+    $('span.dateTime', node).append(this.formatTime(message.time));
+    $('span.author', node).append(this.formatUser(message.user));
+    $('span.body', node).append(body);
+    var me = this.findMe(body);
+    if (me) {
+      $('span.authorMessageContainer', node)
+        .prepend('* ').wrap('<span class="action"></span>');
+      me.nodeValue = ' ' + me.nodeValue.substring(4);
     }
-    else userSuffix = ':' + userSuffix;
-    // First, generate the DIV element from the above markup pieces.
-    var node = $('<div class="row">'
-               + '<span class="dateTime">' + this.formatTime(message.time) + '</span> '
-               + userPrefix + this.formatUser(message.user) + userSuffix
-               + '<div id="message-body"></div>' + bodySuffix + '</div>');
-    // Then, fill in the rendered message (which is rendered in DOM form).
-    node.find('#message-body').replaceWith(
-      message.user.role == 'bot' ? body : this.formatBody(body)
-    );
+    else $('span.author', node).append(':');
+
     return {
       timestamp: message.time.getTime(),
       hash: str_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
