@@ -104,7 +104,7 @@ var chat = {
   cmdAvailableStatus: {
     online: ['away', 'back', 'join', 'me', 'nick', 'quit', 'say'],
     offline: ['connect'],
-    waiting: [],
+    waiting: ['connect', 'quit'],
   },
 
   /**
