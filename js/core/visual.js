@@ -295,11 +295,11 @@ visual = {
    * Truncate a string if necessary, appending "...".
    *
    * @param {string} text The text to truncate.
-   * @param {int} len The maximum length.
+   * @param {int} len The maximum length, or 0.
    *
    * @return {string} Either the string, or its first (len-3) characters and "...".
    */
   lengthLimit: function(str, len) {
-    return str.length > len ? str.substring(0, len-3) + '...' : str;
+    return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
   }
 };
