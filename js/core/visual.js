@@ -1,4 +1,15 @@
+/**
+ * visual.js contains all the functions that render output for
+ * display on the local client.
+ *
+ * @author Christoph Burschka <christoph@burschka.de>
+ * @year 2014
+ * @license GPL3+
+ */
 visual = {
+  /**
+   * Initialize the emoticon regular expression.
+   */
   init: function() {
     var i = 1;
     this.emoticonSets = [];
@@ -6,14 +17,24 @@ visual = {
     for (var set in config.markup.emoticons) {
       var keys = []
       for (var code in config.markup.emoticons[set].codes) {
+        // Escape all meta-characters for regular expressions: ^$*+?.|()[]{}.
         keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
       }
+      // The sub-expression for the set matches any single emoticon in it.
       emoticonRegs.push('(' + keys.join('|') + ')'),
       this.emoticonSets.push(set);
     }
+    // The complete expression matches any single emoticon from any set.
     this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
   },
 
+  /**
+   * Traverse a jQuery set to find a text node prefixed by "/me ".
+   * The text node must be in a direct line of first descendants of the root.
+   *
+   * @param {jQuery} jq The jquery node to search through.
+   * @return {Text} The text node, or false.
+   */
   findMe: function(jq) {
     while (jq.length) {
       if (jq[0].constructor == Text && jq[0].nodeValue.substring(0,4) == '/me ')
@@ -23,6 +44,18 @@ visual = {
     return false;
   },
 
+  /**
+   * Format a message for output.
+   *
+   * @param {object} message The message to render. It must have these
+   *                    keys:
+   *                    * user : {Object} The author.
+   *                    * time : {Date} the message timestamp or null.
+   *                    * body : {string} The message body.
+   *
+   * @return {jQuery} the rendered node. It has events attached and must not be
+   *                  copied or transformed back into markup before insertion.
+   */
   formatMessage: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
     var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
@@ -53,11 +86,30 @@ visual = {
     };
   },
 
+  /**
+   * Render a time-stamp for output.
+   *
+   * @param {Date} time The timestamp or null for the current time.
+   * @return {string} A timestamp formatted according to config.settings.dateFormat.
+   */
   formatTime: function(time) {
     time = time || (new Date());
     return moment(time).format(config.settings.dateFormat);
   },
 
+  /**
+   * Render a user object for output.
+   *
+   * @param {Object} user The user object to render. It must have these keys:
+   *                 * nick: {string} The user's nickname.
+   *                 * jid: {string} The user's jid, or null.
+   *                 * role: {string} The XEP-0045 room role of the user.
+   *                 * affiliation: {string} The XEP-0045 room affiliation.
+   *                 * [show]: The <show/> (mostly away or null) of the user.
+   * @return {string} The rendered user markup. It will have classes for role,
+   *                  affiliation and status. Guests and people whose real nodes
+   *                  don't match their nickname will be parenthesized.
+   */
   formatUser: function(user) {
     var nick = this.textPlain(user.nick);
     var jid = this.textPlain(user.jid || '');
@@ -78,6 +130,42 @@ visual = {
           + '>' + nick + '</span>';
   },
 
+  /**
+   * Filter a message body for output, according to settings.
+   *
+   * This function acts on the node in-place. Its return value will be identical
+   * to its argument.
+   */
+  formatBody: function(jq) {
+    // Security: Replace all but the following whitelisted tags with their content.
+    $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
+      function() { return $('<span></span>').text(this.outerHTML) }
+    );
+    // If markup is disabled, replace the entire node with its text content.
+    if (!config.settings.markup.html)
+      jq.text(jq.text());
+    if (config.settings.markup.colors)
+      this.addColor(jq);
+    if (config.settings.markup.links)
+      this.addLinks(jq);
+    // Handle images - either make them auto-scale, or remove them entirely.
+    this.processImages(jq);
+    if (config.settings.markup.emoticons)
+      this.addEmoticons(jq);
+    return jq;
+  },
+
+  /**
+   * Poor man's sprintf, with some features from Drupal's t().
+   * Splice variables into a template, optionally escaping them.
+   *
+   * @param {string} text A format string with placeholders like {a} and [b].
+   * @param {Object} variables A hash keyed by variable name.
+   *
+   * Any placeholder with a corresponding variable will be replaced.
+   * If the placeholder is in curly brackets, the variable will be HTML-escaped.
+   * @return {string} The rendered text.
+   */
   formatText: function(text, variables) {
     text = text.replace(/\{([a-z]+)\}|\[([a-z]+)\]/g, function(rep, plain, raw) {
       var key = plain || raw;
@@ -86,23 +174,10 @@ visual = {
     return text;
   },
 
-  formatBody: function(jq) {
-    // Security: Replace all but the following whitelisted tags with their content.
-    $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
-      function() { return $('<span></span>').text(this.outerHTML) }
-    );
-    if (!config.settings.markup.html)
-      jq.text(jq.text());
-    if (config.settings.markup.colors)
-      this.addColor(jq);
-    if (config.settings.markup.links)
-      this.addLinks(jq);
-    this.processImages(jq);
-    if (config.settings.markup.emoticons)
-      this.addEmoticons(jq);
-    return jq;
-  },
-
+  /**
+   * Find span.color elements with a class named "color-{x}" and set their
+   * CSS color property to {x}.
+   */
   addColor: function(jq) {
     jq.find('span.color').css('color', function() {
       for (var i in this.classList)
@@ -111,6 +186,9 @@ visual = {
     });
   },
 
+  /**
+   * Find emoticon codes in the node's text and replace them with images.
+   */
   addEmoticons: function(jq) {
     var emoticonSets = this.emoticonSets;
     var emoticonImg = function(set, code) {
@@ -127,6 +205,9 @@ visual = {
     return jq;
   },
 
+  /**
+   * Turn URLs into links.
+   */
   addLinks: function(jq) {
     jq.add('*', jq).not('a').replaceText(
       /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
@@ -138,6 +219,9 @@ visual = {
     );
   },
 
+  /**
+   * Remove images, or add auto-scaling listeners to them
+   */
   processImages: function(jq) {
     var maxWidth = ui.dom.chatList.width() - 30;
     var maxHeight = ui.dom.chatList.height() - 20;
@@ -158,11 +242,25 @@ visual = {
       });
   },
 
+  /**
+   * Escape < and > in a text.
+   *
+   * Wherever possible, this function should be avoided in favor of DOM
+   * and jQuery methods like $.text() and Text().
+   * Only use it when working on strings.
+   */
   textPlain: function(text) {
     var replacers = {'<': '&lt;', '>': '&gt;', '&':'&amp;'};
     return text.replace(/[<>&]/g, function(x) { return replacers[x]; });
   },
 
+  /**
+   * Rescale an image proportionally, to fit inside a rectangle.
+   *
+   * @param {jQuery} img The image node.
+   * @param {int} maxWidth The maximum width.
+   * @param {int} maxHeight The maximum height.
+   */
   rescale: function(img, maxWidth, maxHeight) {
     var width = img.prop('naturalWidth');
     var height = img.prop('naturalHeight');
@@ -177,6 +275,14 @@ visual = {
     }
   },
 
+  /**
+   * Convert a hex color into an RGBa color with an alpha channel.
+   *
+   * @param {string} hex The hex code of the color, short or long, prefixed with #.
+   * @param {float} alpha The alpha value to set, a number between 0 and 1.
+   *
+   * @return {string} an rgba() value.
+   */
   hex2rgba: function(hex, alpha) {
     hex = hex.substring(1);
     if (hex.length == 3) hex = [hex[0], hex[1], hex[2]];
@@ -185,6 +291,14 @@ visual = {
     return 'rgba(' + dec.join(',') + ',' + alpha + ')';
   },
 
+  /**
+   * Truncate a string if necessary, appending "...".
+   *
+   * @param {string} text The text to truncate.
+   * @param {int} len The maximum length.
+   *
+   * @return {string} Either the string, or its first (len-3) characters and "...".
+   */
   lengthLimit: function(str, len) {
     return str.length > len ? str.substring(0, len-3) + '...' : str;
   }
