@@ -318,7 +318,13 @@ var ui = {
   },
 
   updateMessageLengthCounter: function() {
-    this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
+    var length = this.dom.inputField.val().length;
+    if (config.ui.maxMessageLength) {
+      var content = (config.ui.maxMessageLength - length);
+      this.dom.messageLengthCounter.css('color', content < 0 ? 'red' : '');
+      this.dom.messageLengthCounter.text(content);
+    }
+    else this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
   },
 
   scrollDown: function() {
