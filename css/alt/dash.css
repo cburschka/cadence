@@ -3,11 +3,12 @@
   color: white;
 }
 #content a {
-  color: #ddd;
+  color: #88c4eb;
 }
 h3 {
-  background: rgba(0,0,0,0.1);
-  color: #32cd32;
+  background: rgba(158, 219, 249, 0.5);
+  color: #c6006f;
+  text-shadow: 1px 1px 3px white;
 }
 .box, input[type=text], input[type=password], select, textarea, button,
 #emoticonsContainer, #trayContainer {
@@ -31,4 +32,6 @@ h3 {
 #onlineList .user-affiliation-admin { color: #5bbb47 }
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
-.user-role-bot { color: #a3a }
+.user-role-bot {
+  color: #d9559f;
+}
