@@ -1,15 +1,32 @@
+/**
+ * Plum.css is based in part on on the "Plum" style from AJAX-Chat.
+ *
+ * @author Christoph Burschka
+ * @license GPLv3+
+ *
+ * Original version (color palette and images): 
+ * https://github.com/Frug/AJAX-Chat/blob/9da21807c60679c6a511732bebebcf30b76c0106/chat/css/Plum.css
+ *
+ * Original version's copyright:
+ * @author Rosina Ramirez
+ * @copyright (c) Rosina Ramirez
+ * @license Modified MIT License
+ * @link https://blueimp.net/ajax/
+ */
 #content {
   background-color: #2a112f;
   color: #9765a0;
 }
-a { color: #dA83a1 }
+a { color: #da83a1 }
 input[type=text], input[type=password], select, button {
   border: 0;
   border-radius: 8px;
   box-shadow: 1px 1px 4px 0px;
 }
-input, select, textarea, .box, #chatList {
-  background-color: rgba(0,0,0,0.5);
+#chatList { background: url('Plum/plum.png') no-repeat bottom right }
+.menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
+input, select, .box, #chatList {
+  background-color: rgba(0,0,0,0.3);
   color: #9765a0;
 }
 button {
@@ -17,8 +34,5 @@ button {
   color: #daabbc;
 }
 button:hover { background-color: #591e33 }
-textarea { border-color: #9765a0 }
-#chatList { background: url('Plum/plum.png') no-repeat bottom right }
-.menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
 h3, .author { color: #cda6d2 }
 .row.delayed .log-room, .row.delayed .dateTime { color: #673570 }

@@ -1,20 +1,19 @@
-#content {
-  background: url('omg/heartscape-diamond.png') #700070;
-  color: #32cd32;
-}
+/**
+ * omg.css is copyright Sylae Corell (@sylae),
+ * modified by Christoph Burschka (@cburschka) 2014
+ *
+ * @license GPLv3+
+ *
+ * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/omg.css
+ */
+#content { background: url('omg/heartscape-diamond.png') #700070 }
+#content, button, input, select, .user-role-bot { color: #32cd32 }
+.author { color: #ffc }
 a { color: #fc0 }
-button, input, select, textarea {
-  background-color: rgba(0,0,0,0.3);
-  border-color: #6c8a3f;
-  color: #32cd32;
-}
+.box, input, select, #bbCodeContainer button { background-color: rgba(0,0,0,0.3) }
+button, input, select { border-color: #6c8a3f }
 button {
   background-color: #6c8a3f;
   color: white;
 }
-.box, #bbCodeContainer button {
-  border-color: #32cd32;
-  background-color: rgba(0,0,0,0.3);
-}
-.author { color: #ffc }
-.user-role-bot { color: #32cd32 }
+.box, #bbCodeContainer button { border-color: #32cd32 }

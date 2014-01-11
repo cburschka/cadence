@@ -1,37 +1,36 @@
+/**
+ * dash.css is copyright Sylae Corell (@sylae),
+ * modified by Christoph Burschka (@cburschka) 2014
+ *
+ * @license GPLv3+
+ *
+ * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
+ */
 #content {
   background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070;
   color: white;
 }
-#content a {
-  color: #88c4eb;
-}
+a { color: #88c4eb }
 h3 {
   background: rgba(158, 219, 249, 0.5);
   color: #c6006f;
   text-shadow: 1px 1px 3px white;
 }
-.box, input[type=text], input[type=password], select, textarea, button,
-#emoticonsContainer, #trayContainer {
+.box, input[type=text], input[type=password], select, button, #emoticonsContainer, #trayContainer {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   border: 1px solid #222;
   color: white;
 }
-.menuContainer {
-  background: url("dash/cutie-dash.png") no-repeat bottom rgba(0, 0, 0, 0.6);
-}
+.menuContainer { background: url("dash/cutie-dash.png") no-repeat bottom rgba(0, 0, 0, 0.6) }
 #headlineContainer label {
-  font-weight:bold;
-  text-shadow:0px 0px 5px black;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
 }
-#content #colorCodesContainer a { border-color: #222 }
 .row:nth-child(even) { background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5) }
 .row:nth-child(odd) { background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3) }
-}
 .author { color: #ffc }
 .author .user-affiliation-admin,
 #onlineList .user-affiliation-admin { color: #5bbb47 }
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
-.user-role-bot {
-  color: #d9559f;
-}
+.user-role-bot { color: #d9559f }

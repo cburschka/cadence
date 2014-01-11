@@ -1,13 +1,20 @@
-/*
- * @package AJAX_Chat
+/**
+ * Uranium.css is based on the "Uranium" style from AJAX-Chat.
+ *
+ * Modifications:
+ * @author Christoph Burschka
+ * @license GPLv3+
+ *
+ * Original version: 
+ * https://github.com/Frug/AJAX-Chat/blob/9da21807c60679c6a511732bebebcf30b76c0106/chat/css/Uranium.css
+ *
+ * Original version's copyright:
  * @author Rosina Ramirez
  * @copyright (c) Rosina Ramirez
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
- *
  */
-
-input, button, select, textarea, #chatList, .menuContainer,
+input, button, select, #chatList, .menuContainer,
 .row:nth-child(even),
 .menuContainer h3, #inputFieldContainer
 { border-radius: 5px; -webkit-border-radius:5px;border:0;}
@@ -41,7 +48,7 @@ h3 {
 }
 select{background:#171717; color:#b0b8a8;}
 input, select{padding: 3px;}
-#content input,#content select,#content textarea {
+#content input,#content select {
   background-color:#0e0e0e;
   color:#b0b8a8;
 }
@@ -49,7 +56,7 @@ input, select{padding: 3px;}
 input[type=text], input[type=password]{
 box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49;
 }
-.menuContainer {
+.box {
   background-color:#171717;
   border:0;
 }
