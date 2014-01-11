@@ -44,7 +44,7 @@ Basis
 -----
 
 The visual style and static markup is based in part on 
-AJAX-Chat (blueimp.net): https://github.com/frug/jquery-replacetext
+AJAX-Chat (blueimp.net): https://github.com/Frug/AJAX-Chat
 (MIT)
 
 
