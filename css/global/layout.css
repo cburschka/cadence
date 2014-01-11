@@ -33,7 +33,10 @@ body {
   overflow: auto;
   hyphens: auto;
 }
-#chatList div { padding: 2px 10px }
+#chatList .row {
+  padding: 2px 10px;
+  white-space: pre;
+}
 #chatList img.emote {
   vertical-align:middle;
   margin-bottom:2px;
