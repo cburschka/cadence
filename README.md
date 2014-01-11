@@ -4,8 +4,8 @@ cadence
 cadence is a strophe.js-powered XMPP multi-user chat client that 
 runs entirely in the browser without a server backend.
 
-BUILDING
-========
+Building
+--------
 
 This development version references multiple JavaScript libraries as
 submodules. Most of the modules can be used as checked out, but strophejs needs
@@ -22,8 +22,8 @@ By default, the `yui-compressor.jar` file will be looked for in
 `/usr/share/yui-compressor/yui-compressor.jar`. If this is not correct,
 set the YUI_COMPRESSOR variable to the correct path when running make.
 
-LICENSE
-=======
+License
+-------
 
     Copyright (c) 2014 "Arancaytar" (Christoph Burschka).
 
@@ -40,16 +40,16 @@ LICENSE
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-BASIS
-=====
+Basis
+-----
 
 The visual style and static markup is based in part on 
 AJAX-Chat (blueimp.net): https://github.com/frug/jquery-replacetext
 (MIT)
 
 
-LIBRARIES
-=========
+Libraries
+---------
 
 The following libraries are used without modifications in this project:
 
