@@ -1,6 +1,7 @@
 $(document).ready(function() {
   $.cookie.json = true;
   init.loadSettings();
+  strings.init();
   ui.init();
   visual.init();
   xmpp.initialize();

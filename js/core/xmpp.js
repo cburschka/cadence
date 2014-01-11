@@ -187,7 +187,7 @@ var xmpp = {
     var self = this;
 
     var joinRoom = function() {
-      ui.messageAddInfo('Joining room {room} as [user] ...', {
+      ui.messageAddInfo(strings.info.joining, {
         room: room,
         user: visual.formatUser({
           nick: self.nick.target,
@@ -201,7 +201,7 @@ var xmpp = {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != self.nick.target) {
           self.nick.target = nick;
-          ui.messageAddInfo('Switching to registered nick {nick}.', {nick:nick}, 'verbose');
+          ui.messageAddInfo(strings.info.nickRegistered, {nick:nick}, 'verbose');
         }
         joinRoom();
       });
@@ -337,12 +337,12 @@ var xmpp = {
         if (type == 'error') {
           if ($('conflict', stanza).length) {
             if (room == self.room.current) {
-              ui.messageAddInfo('Error: Username already in use.', 'error');
+              ui.messageAddInfo(strings.error.nickConflict, 'error');
             }
             else {
-              ui.messageAddInfo('Error: Unable to join; username already in use.', 'error');
+              ui.messageAddInfo(strings.error.joinConflict, 'error');
               self.nickConflictResolve();
-              ui.messageAddInfo('Rejoining as {nick} ...', {nick:self.nick.target});
+              ui.messageAddInfo(strings.info.rejoinNick, {nick:self.nick.target});
               self.joinRoom(self.room.target, self.nick.target);
             }
           }
@@ -359,7 +359,7 @@ var xmpp = {
               // An `unavailable` 303 is a nick change to <item nick="{new}"/>
               if (codes.indexOf(303) >= 0) {
                 var newNick = item.attr('nick');
-                ui.messageAddInfo('[from] is now known as [to].', {
+                ui.messageAddInfo(strings.info.userNick, {
                   from:visual.formatUser(self.roster[room][nick]),
                   to:visual.formatUser({
                     nick:newNick,
@@ -374,7 +374,7 @@ var xmpp = {
               }
               // Any other `unavailable` presence indicates a logout.
               else {
-                ui.messageAddInfo('[user] has logged out of the Chat.', {
+                ui.messageAddInfo(strings.info.userOut, {
                   user:visual.formatUser(self.roster[room][nick])
                 });
               }
@@ -403,20 +403,20 @@ var xmpp = {
               // A 210 code indicates the server modified the nick we requested.
               // This may happen either on joining or changing nicks.
               if (codes.indexOf(210) >= 0) {
-                ui.messageAddInfo('Your nick has been modified by the server.', 'verbose')
+                ui.messageAddInfo(strings.code[210], 'verbose')
               }
               // A 201 code indicates we created this room by joining it.
               if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo('The room {room} has been newly created.', {room:room}, 'verbose');
+                ui.messageAddInfo(strings.code[201], {room:room}, 'verbose');
               }
 
               if (room != self.room.current) {
                 // We are in a different room now. Leave the old one.
                 if (self.room.current) {
-                  ui.messageAddInfo('Leaving room {room} ...', {room:self.room.current}, 'verbose');
+                  ui.messageAddInfo(strings.info.leave, {room:self.room.current}, 'verbose');
                   self.leaveRoom(self.room.current);
                 }
-                ui.messageAddInfo('Now talking in room {room}.', {room:room}, 'verbose');
+                ui.messageAddInfo(strings.info.joined, {room:room}, 'verbose');
                 // If this room is not on the room list, add it.
                 if (!self.room.available[room]) {
                   self.room.available[room] = {title: room, members: 1};
@@ -435,15 +435,10 @@ var xmpp = {
               var userText = visual.formatUser(user)
               var vars = {user: userText, status: status ? ' (' + status + ')' : ''}
               if (!self.roster[room][nick]) {
-                ui.messageAddInfo('[user] logs into the Chat.', vars);
+                ui.messageAddInfo(strings.info.userIn, vars);
               }
               else if (self.roster[room][nick].show != show || self.roster[room][nick].status != status) {
-                if (show == 'away' || show == 'xa')
-                  ui.messageAddInfo('[user] is away{status}.', vars);
-                else if (show == 'dnd')
-                  ui.messageAddInfo('[user] is busy{status}.', vars);
-                else
-                  ui.messageAddInfo('[user] has returned{status}.', vars);
+                ui.messageAddInfo(strings.show[show], vars);
               }
             }
 
@@ -498,7 +493,7 @@ var xmpp = {
     return function(status, errorCondition) {
       self.status = self.readConnectionStatus(status)
       ui.setStatus(self.status);
-      var msg = self.readStatusMessage(status)
+      var msg = strings.connection[status];
       if (errorCondition) msg += ' (' + errorCondition + ')';
       if (self.status == 'online') {
         ui.messageAddInfo(msg, 'verbose');
@@ -541,23 +536,6 @@ var xmpp = {
       case Strophe.Status.CONNECTED:
       case Strophe.Status.ATTACHED:
         return 'online';
-    }
-  },
-
-  /**
-   * Determine the status message that should be printed.
-   */
-  readStatusMessage: function(status) {
-    switch (status) {
-      case Strophe.Status.ERROR: return config.xmpp.strings.status.ERROR;
-      case Strophe.Status.CONNECTING: return config.xmpp.strings.status.CONNECTING;
-      case Strophe.Status.CONNFAIL: return config.xmpp.strings.status.CONNFAIL;
-      case Strophe.Status.AUTHENTICATING: return config.xmpp.strings.status.AUTHENTICATING;
-      case Strophe.Status.AUTHFAIL: return config.xmpp.strings.status.AUTHFAIL;
-      case Strophe.Status.CONNECTED: return config.xmpp.strings.status.CONNECTED;
-      case Strophe.Status.DISCONNECTED: return config.xmpp.strings.status.DISCONNECTED;
-      case Strophe.Status.DISCONNECTING: return config.xmpp.strings.status.DISCONNECTING;
-      case Strophe.Status.ATTACHED: return config.xmpp.strings.status.ATTACHED;
     }
   },
 

@@ -43,7 +43,7 @@ var chat = {
         arg = {user: m[1], pass: m[2].trim()};
       }
       if (!arg.user || !arg.pass)
-        return ui.messageAddInfo('User and password are required.', 'error');
+        return ui.messageAddInfo(strings.error.userpass, 'error');
       if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
         arg.pass = arg.pass.substring(1, arg.pass.length-1);
       }
@@ -75,7 +75,7 @@ var chat = {
     join: function(arg) {
       var room = arg.trim();
       if (xmpp.room.current == room) {
-        return ui.messageAddInfo('You are already in room {room}.', {room:room}, 'error');
+        return ui.messageAddInfo(strings.error.joinSame, {room:room}, 'error');
       }
       xmpp.joinRoom(room);
       chat.setSetting('xmpp.room', room);
@@ -135,12 +135,12 @@ var chat = {
 
     if (this.commands[cmd]) {
       if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
-        return ui.messageAddInfo('/{cmd} command not available while {status}', {cmd:cmd,status:xmpp.status}, 'error');
+        return ui.messageAddInfo(strings.error.cmdStatus, {cmd:cmd,status:xmpp.status}, 'error');
       }
       this.commands[cmd](text);
     }
     else {
-      ui.messageAddInfo('Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.', {cmd:cmd}, 'error');
+      ui.messageAddInfo(strings.error.cmdUnknown, {cmd:cmd}, 'error');
     }
   },
 
