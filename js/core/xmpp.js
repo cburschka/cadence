@@ -1,3 +1,10 @@
+/**
+ * xmpp.js contains all the functions that communicate with the XMPP server.
+ *
+ * @author Christoph Burschka <christoph@burschka.de>
+ * @year 2014
+ * @license GPL3+
+ */
 var xmpp = {
   connection: null,
   room: {
@@ -13,6 +20,12 @@ var xmpp = {
   status: 'offline',
   roster: {},
 
+  /**
+   * Initialize the helper functions and create the connection object.
+   *
+   * The `this.callback = this.callback()` pattern is used to inject a reference
+   * to the module (`this`) into the callback's scope, which is named `self`.
+   */
   initialize: function() {
     this.discoverRooms = this.discoverRooms();
     this.eventConnectCallback = this.eventConnectCallback();
@@ -24,6 +37,9 @@ var xmpp = {
     this.resumeConnection();
   },
 
+  /**
+   * Build a new connection object. This is used whenever the client reconnects.
+   */
   buildConnection: function() {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
@@ -39,6 +55,9 @@ var xmpp = {
     //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
   },
 
+  /**
+   * Resume a stored connection. This is not currently implemented!
+   */
   resumeConnection: function() {
     var session = localStorage.getItem('session');
     if (session) {
@@ -50,6 +69,9 @@ var xmpp = {
     else return false;
   },
 
+  /**
+   * Open the connection and authenticate.
+   */
   newConnection: function(user, pass) {
     this.session = {};
     this.nick.target = user;
@@ -57,10 +79,16 @@ var xmpp = {
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
 
+  /**
+   * Wrapper for $pres() that fills in the current JID.
+   */
   pres: function() {
     return $pres({from:this.connection.jid});
   },
 
+  /**
+   * Wrapper for $msg() that fills in the sender JID and the room/nick JID.
+   */
   msg: function() {
     return $msg({
       from: this.connection.jid,
@@ -69,14 +97,25 @@ var xmpp = {
     });
   },
 
+  /**
+   * Announce general availability to the server by sending an empty presence
+   * with no recipient.
+   */
   announce: function() {
     this.connection.send(this.pres());
   },
 
+  /**
+   * Create a unique client identifier from the current millisecond timestamp.
+   */
   createResourceName: function() {
     return 'strophe/' + (new Date()).getTime();
   },
 
+  /**
+   * Attempt to create a different nick by first appending, then incrementing
+   * a numerical suffix.
+   */
   nickConflictResolve: function() {
     var m = /^(.*?)([\d]*)$/.exec(this.nick.target);
     var i = 1;
@@ -86,15 +125,38 @@ var xmpp = {
     this.nick.target = m[1] + i;
   },
 
+  /**
+   * Attempt to change to a new nick in the current room.
+   *
+   * The current nick will only be changed once the server responds with a
+   * 110 status to assign the new nick.
+   *
+   * @param {string} nick The new nick to acquire.
+   */
   changeNick: function(nick) {
     this.nick.target = nick;
     this.connection.send(this.presence(this.room.current, nick));
   },
 
+  /**
+   * Send an unavailable presence to a specified room.
+   *
+   * @param {string} room The room to leave.
+   */
   leaveRoom: function(room) {
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
   },
 
+  /**
+   * Query the server for a reserved nickname in a room, and execute callbacks.
+   *
+   * The callback will be executed regardless of success or failure. As its
+   * argument, it will receive either the nickname or {undefined}.
+   *
+   * @param {string} room The room to get a nickname from.
+   * @param {function} callback The function to execute after the request is
+   *                   complete.
+   */
   getReservedNick: function(room, callback) {
     var iqCallback = function(stanza) {
       var nick = (
@@ -115,6 +177,11 @@ var xmpp = {
     );
   },
 
+  /**
+   * Attempt to join a room.
+   *
+   * @param {string} The room to join.
+   */
   joinRoom: function(room) {
     this.room.target = room;
     var self = this;
@@ -142,6 +209,14 @@ var xmpp = {
     else joinRoom();
   },
 
+  /**
+   * Create a directed presence to a specific room/nick, with specific attributes.
+   * The stanza is not yet sent, but returned to the caller for additional data.
+   *
+   * @param {string} room The room name.
+   * @param {string} nick The nickname.
+   * @param {Object} attrs The attributes of the <presence/> element.
+   */
   presence: function(room, nick, attrs) {
     return this.pres()
       .attrs({
@@ -152,6 +227,15 @@ var xmpp = {
       .up();
   },
 
+  /**
+   * Create and send a presence stanza to the current room, with optional
+   * <show/> and <status/> elements.
+   * Note: To return from away-mode, a presence without <show/> is sent.
+   * The <status/> element is only present in stanzas with <show/>.
+   *
+   * @param {string} show This must be one of "away", "xa", "chat".
+   * @param {string} status This is an arbitrary away-message to send.
+   */
   sendStatus: function(show, status) {
     var p = this.presence(this.room.current, this.nick.current);
     if (show) {
@@ -161,6 +245,11 @@ var xmpp = {
     this.connection.send(p);
   },
 
+  /**
+   * Send a message to the room.
+   *
+   * @param {jQuery} html The HTML node to send.
+   */
   sendMessage: function(html) {
     html = $('<p>' + html + '</p>');
     this.connection.send(this.msg()
@@ -170,6 +259,14 @@ var xmpp = {
     );
   },
 
+  /**
+   * Query the server for rooms and execute a callback.
+   *
+   * This function is actually a callback-wrapper (see xmpp.initialize() ),
+   * which is replaced with its own return value on initialization.
+   *
+   * @param {function} callback The function to execute after the server responds.
+   */
   discoverRooms: function() {
     var self = this;
     return function(callback) {
@@ -183,6 +280,7 @@ var xmpp = {
           var rooms = {};
           $('item', stanza).each(function(s,t) {
             var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
+            // Strip off the parenthesized number of participants in the name:
             var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
             if (m) {
               rooms[room] = {title: Strophe.unescapeNode(m[1]), members: m[2] || null};
@@ -199,19 +297,43 @@ var xmpp = {
     }
   },
 
+  /**
+   * The heart of the XMPP module: This callback handles any presence stanza
+   * the server sends, changing the client state (room, nick, rosters, etc.)
+   * as appropriate.
+   *
+   * To wit, there are three main kinds of presences that hit this function:
+   *
+   * `error`-type presence stanzas, which indicate the server was unable
+   * or unwilling to carry out a request made by a <presence/> stanza:
+   * changing nicknames, joining rooms, etc.
+   *
+   * 110-code presences, which acknowledge/reflect a presence that we sent.
+   * These may indicate the success of a join or nick request, which make us 
+   * alter the client state.
+   *
+   * Any other presence (with or without `unavailable` type). These, including
+   * the 110-codes, alter the state of the user roster. Some changes
+   * (leaving/joining a room, changing nick, changing <show/>) will also
+   * generate a notification.
+   */
   eventPresenceCallback: function() {
     var self = this;
     return function(stanza) {
       if (stanza) {
         var from = $(stanza).attr('from');
-        // We are only interested in communicating with the room.
+        // Discard any <presence/> that is not from the MUC domain.
+        // (This client does not support direct non-MUC communication.)
         if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service) return true;
+
+        // Find the room and nickname that the presence came from, and the type.
         var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
         var nick = Strophe.getResourceFromJid(from);
+        var type = $(stanza).attr('type');
 
+        // Initialize the room roster if it doesn't exist yet.
         if (!self.roster[room]) self.roster[room] = {};
 
-        var type = $(stanza).attr('type');
         if (type == 'error') {
           if ($('conflict', stanza).length) {
             if (room == self.room.current) {
@@ -226,6 +348,7 @@ var xmpp = {
           }
         }
         else {
+          // Find the status codes.
           var item = $(stanza).find('item');
           var codes = $.makeArray($('status', stanza).map(function() {
               return parseInt($(this).attr('code'));
@@ -233,6 +356,7 @@ var xmpp = {
 
           if (type == 'unavailable') {
             if (room == self.room.current) {
+              // An `unavailable` 303 is a nick change to <item nick="{new}"/>
               if (codes.indexOf(303) >= 0) {
                 var newNick = item.attr('nick');
                 ui.messageAddInfo('[from] is now known as [to].', {
@@ -248,21 +372,23 @@ var xmpp = {
                 // won't trigger a notification.
                 self.roster[room][newNick] = self.roster[room][nick];
               }
+              // Any other `unavailable` presence indicates a logout.
               else {
                 ui.messageAddInfo('[user] has logged out of the Chat.', {
                   user:visual.formatUser(self.roster[room][nick])
                 });
               }
+              // In either case, the old nick must be removed and destroyed.
               ui.userRemove(self.roster[room][nick]);
               delete self.roster[room][nick];
             }
           }
           else {
-
             // away, dnd, xa, chat, [default].
             var show = $('show', stanza).text() || 'default';
             var status = $('status', stanza).text() || '';
-            // create user object:
+
+            // Create the user object.
             var user = {
               nick: nick,
               jid: item.attr('jid') || null, // if not anonymous.
@@ -271,27 +397,34 @@ var xmpp = {
               show: show,
               status: status
             };
-            // Self-presence.
+
+            // A 110-code presence reflects a presence that we sent.
             if (codes.indexOf(110) >= 0) {
+              // A 210 code indicates the server modified the nick we requested.
+              // This may happen either on joining or changing nicks.
               if (codes.indexOf(210) >= 0) {
                 ui.messageAddInfo('Your nick has been modified by the server.', 'verbose')
               }
+              // A 201 code indicates we created this room by joining it.
               if (codes.indexOf(201) >= 0) {
                 ui.messageAddInfo('The room {room} has been newly created.', {room:room}, 'verbose');
               }
 
-              // Only be in one room at a time:
               if (room != self.room.current) {
+                // We are in a different room now. Leave the old one.
                 if (self.room.current) {
                   ui.messageAddInfo('Leaving room {room} ...', {room:self.room.current}, 'verbose');
                   self.leaveRoom(self.room.current);
                 }
                 ui.messageAddInfo('Now talking in room {room}.', {room:room}, 'verbose');
+                // If this room is not on the room list, add it.
                 if (!self.room.available[room]) {
                   self.room.available[room] = {title: room, members: 1};
                   ui.refreshRooms(self.room.available);
                 }
+                // The room roster has been received by now. Refresh it.
                 ui.updateRoom(room, self.roster[room]);
+                // Delete the old room's roster, if one exists.
                 delete self.roster[self.room.current];
                 self.room.current = room;
               }
@@ -323,6 +456,9 @@ var xmpp = {
     }
   },
 
+  /**
+   * This function handles any <message> stanzas received.
+   */
   eventMessageCallback: function() {
     var self = this;
     return function(stanza) {
@@ -330,8 +466,10 @@ var xmpp = {
         var from = $(stanza).attr('from');
         var nick = Strophe.getResourceFromJid(from);
         var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
+        // Only accept messages in the current room.
         if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.room.current)
           return true;
+        // Only accept messages from nicks we know are in the room.
         var user = self.roster[room][nick];
         if (user) {
           var body = null;
@@ -352,6 +490,9 @@ var xmpp = {
     }
   },
 
+  /**
+   * This function handles any changes in the connection state.
+   */
   eventConnectCallback: function() {
     var self = this;
     return function(status, errorCondition) {
@@ -381,6 +522,10 @@ var xmpp = {
     }
   },
 
+  /**
+   * Determine the status (online, waiting, offline) of the connection from
+   * the code.
+   */
   readConnectionStatus: function(status) {
     switch (status) {
       case Strophe.Status.ERROR:
@@ -398,6 +543,9 @@ var xmpp = {
     }
   },
 
+  /**
+   * Determine the status message that should be printed.
+   */
   readStatusMessage: function(status) {
     switch (status) {
       case Strophe.Status.ERROR: return config.xmpp.strings.status.ERROR;
@@ -412,11 +560,17 @@ var xmpp = {
     }
   },
 
+  /**
+   * Set the connection status.
+   */
   setStatus: function(status) {
     this.status = status
     ui.setStatus(status);
   },
 
+  /**
+   * Close the connection, first sending an `unavailable` presence.
+   */
   disconnect: function() {
     var self = this;
     return function() {
