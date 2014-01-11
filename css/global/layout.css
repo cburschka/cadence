@@ -10,7 +10,7 @@ body {
 #settingsList #settings-textColorClear { display: none }
 
 .row { word-wrap: break-word }
-.menuContainer { overflow-x:hidden }
+.menuContainer { overflow-x: hidden }
 
 #content {
   position: absolute;
@@ -22,7 +22,7 @@ body {
   left: 20px;
   top: 15px;
 }
-#fakeLoginForm { display:inline }
+#fakeLoginForm { display: inline }
 
 #chatList {
   position: absolute;
@@ -38,10 +38,10 @@ body {
   white-space: pre;
 }
 #chatList img.emote {
-  vertical-align:middle;
-  margin-bottom:2px;
+  vertical-align: middle;
+  margin-bottom: 2px;
 }
-#chatList cite { margin-right:5px }
+#chatList cite { margin-right: 5px }
 
 #inputFieldContainer {
   bottom: 55px;
@@ -78,15 +78,15 @@ h3 {
   bottom: 0;
 }
 #onlineList div, #emoticonList-pony {
-  padding-left:10px;
-  padding-right:10px;
-  padding-bottom:2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 2px;
 }
-#emoticonsList-pony { width:140px }
+#emoticonsList-pony { width: 140px }
 #onlineListContainer,
 #poniconContainer { width: 200px }
 #helpContainer,
-#settingsContainer { width:360px }
+#settingsContainer { width: 360px }
 
 #footerContainer {
   bottom: 19px;
@@ -105,10 +105,10 @@ h3 {
   display: none;
 }
 #content #colorCodesContainer a {
-  display:block;
-  float:left;
-  width:20px;
-  height:20px;
+  display: block;
+  float: left;
+  width: 20px;
+  height: 20px;
   border-color: black;
 }
 #emoticonsContainer {
@@ -116,21 +116,21 @@ h3 {
   vertical-align:middle;
 }
 #emoticonsContainer a {
-  margin-left:2px;
-  margin-right:1px;
+  margin-left: 2px;
+  margin-right: 1px;
 }
 #trayContainer {
-  position:absolute;
-  right:0;
-  padding:3px;
-  padding-right:0px;
+  position: absolute;
+  right: 0px;
+  padding: 3px;
+  padding-right: 0px;
 }
 #trayContainer input,
 #trayContainer div {
   display: inline-block;
   margin: 0 2px;
-  width:22px;
-  height:22px;
+  width: 22px;
+  height: 22px;
   vertical-align: middle;
 }
 
@@ -141,13 +141,13 @@ h3 {
 }
 #settingsList td { vertical-align: middle }
 #settingsList td.setting {
-  width:140px;
+  width: 140px;
   white-space: nowrap;
 }
 #settingsList input[type=text] { width:100px }
 #settingsList #settings-textColor {
   background-color: rgba(255,255,255,0.1);
-  width:75px;
+  width: 75px;
 }
 
 #footerContainer #trayContainer div,
@@ -155,6 +155,6 @@ h3 {
   background-color: transparent;
 }
 #onlineList .user-show-away {
-  background:url(../../img/away.png) center right no-repeat;
-  padding-right:20px;
+  background: url(../../img/away.png) center right no-repeat;
+  padding-right: 20px;
 }
