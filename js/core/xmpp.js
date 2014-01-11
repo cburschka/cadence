@@ -496,7 +496,8 @@ var xmpp = {
   eventConnectCallback: function() {
     var self = this;
     return function(status, errorCondition) {
-      self.setStatus(self.readConnectionStatus(status))
+      self.status = self.readConnectionStatus(status)
+      ui.setStatus(self.status);
       var msg = self.readStatusMessage(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
       if (self.status == 'online') {
@@ -561,14 +562,6 @@ var xmpp = {
   },
 
   /**
-   * Set the connection status.
-   */
-  setStatus: function(status) {
-    this.status = status
-    ui.setStatus(status);
-  },
-
-  /**
    * Close the connection, first sending an `unavailable` presence.
    */
   disconnect: function() {
@@ -576,7 +569,6 @@ var xmpp = {
     return function() {
       self.connection.send(self.pres().attrs({type: 'unavailable'}));
       self.connection.disconnect();
-      self.setStatus('offline');
     };
   }
 }
