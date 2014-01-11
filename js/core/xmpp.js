@@ -158,7 +158,6 @@ var xmpp = {
       p.c('show', {}, show);
       if (status) p.c('status', {}, status);
     }
-    console.log(p.toString());
     this.connection.send(p);
   },
 
