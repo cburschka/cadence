@@ -80,7 +80,7 @@ var config = {
 
     emoticons: {
       general: {
-        baseURL: 'img/emoticons/',
+        baseURL: 'img/emoticons/general/',
         codes: {
           ':)': 'smile.png',
           ':(': 'sad.png',
