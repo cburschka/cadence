@@ -152,6 +152,7 @@ var ui = {
 
     this.dom.chatList.scroll(function() {
       ui.checkAutoScroll();
+      return true;
     });
   },
 
@@ -328,13 +329,16 @@ var ui = {
   scrollDown: function() {
     // Only autoscroll if we are at the bottom.
     if(this.autoScroll) {
-      this.dom.chatList.animate({scrollTop: $('#chatList').prop('scrollHeight')}, 500);
+      this.autoScrolled = true;
+      this.dom.chatList[0].scrollTop = this.dom.chatList[0].scrollHeight;
+      this.autoScrolled = false;
     }
   },
 
   checkAutoScroll: function() {
+    if (this.autoScrolled) return;
     var chatListHeight = parseInt($(this.dom.chatList).css('height'));
-    var autoScroll = this.dom.chatList.scrollTop() + chatListHeight == this.dom.chatList.prop('scrollHeight');
+    var autoScroll = this.dom.chatList.scrollTop() + 1.3*chatListHeight >= this.dom.chatList.prop('scrollHeight');
     if (this.autoScroll != autoScroll) {
       this.autoScroll = autoScroll;
       this.dom.autoScrollIcon.attr('class', autoScroll ? 'on' : 'off');
