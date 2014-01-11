@@ -76,11 +76,18 @@ var ui = {
 
   initializeEvents: function() {
     this.dom.inputField.on({
-      keypress: this.onEnterKey(function(x) {
-        chat.executeInput($(x).val());
-        $(x).val('');
+      keypress: this.onKeyMap({
+        13: function(e,x) {
+          if (!e.shiftKey) {
+            chat.executeInput($(x).val())
+            $(x).val('');
+            return true;
+          }
+        },
+        38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
+        40: function(e) { return e.ctrlKey && chat.historyDown(); }
       }),
-      keyup: this.eventInputKeyUp()
+      keyup: function() { ui.updateMessageLengthCounter(); }
     });
     this.dom.channelSelection.change(function() { chat.commands.join(this.value); });
 
@@ -91,7 +98,7 @@ var ui = {
       loginCallback();
       e.preventDefault();
     });
-    $('#loginPass, #loginUser').keypress(this.onEnterKey(loginCallback));
+    $('#loginPass, #loginUser').keypress(this.onKeyMap({13:loginCallback}));
     $('#trayContainer .button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
@@ -294,27 +301,18 @@ var ui = {
     });
   },
 
-  onEnterKey: function(callback) {
-    return function(event) {
-      // <enter> without shift.
-      if(event.keyCode === 13 && !event.shiftKey) {
-        callback(this);
+  onKeyMap: function(callbacks) {
+    return function(e) {
+      if (callbacks[e.keyCode] && callbacks[e.keyCode](e, this)) {
         try {
-          event.preventDefault();
-        } catch(e) {
-          event.returnValue = false; // IE
+          e.preventDefault();
+        } catch(ex) {
+          e.returnValue = false;
         }
         return false;
       }
       return true;
     }
-  },
-
-  eventInputKeyUp: function() {
-    var self = this;
-    return function(event) {
-      self.updateMessageLengthCounter();
-    };
   },
 
   updateMessageLengthCounter: function() {

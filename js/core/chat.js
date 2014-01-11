@@ -7,6 +7,9 @@
  * @license GPL3+
  */
 var chat = {
+  history: [],
+  historyIndex: 0,
+
   /**
    * All commands executable in chat by prefixing them with '/'.
    */
@@ -111,6 +114,8 @@ var chat = {
    * Parse input sent by the user and execute the appropriate command.
    */
   executeInput: function(text) {
+    this.history.push(text);
+    this.historyIndex = this.history.length;
     text = text.trim();
     if (!text) return;
 
@@ -148,6 +153,29 @@ var chat = {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
     }
     xmpp.sendMessage(html);
+  },
+
+  /**
+   * Go up to the previously sent message.
+   */
+  historyUp: function() {
+    // Stop at the beginning.
+    if (this.historyIndex <= 0) return false;
+
+    // If a new non-history command is entered, save it first.
+    if (this.historyIndex == this.history.length && ui.dom.inputField.val().trim())
+      this.history.push(ui.dom.inputField.val());
+    return ui.dom.inputField.val(this.history[--this.historyIndex]);
+  },
+
+  /**
+   * Go down to the next sent message.
+   */
+  historyDown: function() {
+    // Stop at the end.
+    if (this.historyIndex >= this.history.length) return false;
+
+    return ui.dom.inputField.val(this.history[++this.historyIndex] || '');
   },
 
   /**
