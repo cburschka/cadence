@@ -8,23 +8,19 @@ BUILDING
 ========
 
 This development version references multiple JavaScript libraries as
-submodules. After cloning this repository, you will need to pull in
-the submodules as well:
-
-    $ git submodule init
-    $ git submodule update
-
-Most of the modules can be used as checked out, but strophejs needs
+submodules. Most of the modules can be used as checked out, but strophejs needs
 to be built before use.
 
 Install the YUI Compressor using your distribution's package manager or download
 it here: https://github.com/yui/yuicompressor/downloads
 
-    $ cd js/lib/strophe/
-    $ env YUI_COMPRESSOR=/path/to/yui-compressor.jar make
+Then simply execute the Makefile.
 
-Optionally, you can skip the compression and change the `index.html` file
-to load `strophe.js` instead of `strophe.min.js`.
+    $ make
+
+By default, the `yui-compressor.jar` file will be looked for in 
+`/usr/share/yui-compressor/yui-compressor.jar`. If this is not correct,
+set the YUI_COMPRESSOR variable to the correct path when running make.
 
 LICENSE
 =======
