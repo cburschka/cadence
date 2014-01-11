@@ -304,14 +304,13 @@ var xmpp = {
               if (!self.roster[room][nick]) {
                 ui.messageAddInfo('[user] logs into the Chat.', vars);
               }
-              if (show == 'away' || show == 'xa') {
-                ui.messageAddInfo('[user] is away{status}.', vars);
-              }
-              else if (show == 'dnd') {
-                ui.messageAddInfo('[user] is busy{status}.', vars);
-              }
-              else if (self.roster[room][nick] && self.roster[room][nick].show != show) {
-                ui.messageAddInfo('[user] has returned{status}.', vars);
+              else if (self.roster[room][nick].show != show || self.roster[room][nick].status != status) {
+                if (show == 'away' || show == 'xa')
+                  ui.messageAddInfo('[user] is away{status}.', vars);
+                else if (show == 'dnd')
+                  ui.messageAddInfo('[user] is busy{status}.', vars);
+                else
+                  ui.messageAddInfo('[user] has returned{status}.', vars);
               }
             }
 
