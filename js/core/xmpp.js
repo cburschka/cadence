@@ -517,27 +517,28 @@ var xmpp = {
   eventConnectCallback: function() {
     var self = this;
     return function(status, errorCondition) {
-      self.status = self.readConnectionStatus(status)
-      ui.setStatus(self.status);
       var msg = strings.connection[status];
+      var status = self.readConnectionStatus(status)
       if (errorCondition) msg += ' (' + errorCondition + ')';
-      if (self.status == 'online') {
-        ui.messageAddInfo(msg, 'verbose');
+      if (status != self.status)
+        ui.messageAddInfo(msg, status == 'offline' ? 'error' : 'verbose');
+      self.status = status;
+      ui.setStatus(self.status);
+
+      if (status == 'online') {
         self.announce();
         self.discoverRooms(function(rooms) {
           var room = self.room.current || config.settings.xmpp.room;
           self.joinRoom(room);
         });
       }
-      else if (self.status == 'offline') {
-        ui.messageAddInfo(msg, 'error');
+      else if (status == 'offline') {
         // The connection is closed and cannot be reused.
         self.buildConnection();
         self.roster = {};
         ui.userRefresh({});
         ui.refreshRooms({});
       }
-      else ui.messageAddInfo(msg, 'verbose');
       return true;
     }
   },
@@ -555,8 +556,9 @@ var xmpp = {
         return 'offline';
       case Strophe.Status.CONNECTING:
       case Strophe.Status.AUTHENTICATING:
-      case Strophe.Status.DISCONNECTING:
         return 'waiting';
+      case Strophe.Status.DISCONNECTING:
+        return this.status == 'offline' ? 'offline' : 'waiting';
       case Strophe.Status.CONNECTED:
       case Strophe.Status.ATTACHED:
         return 'online';
