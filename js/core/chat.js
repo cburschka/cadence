@@ -106,7 +106,7 @@ var chat = {
              + '>' + rooms[room].title + '</a>'
           );
         }
-        ui.messageAddInfo(links.join(', '));
+        ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
       });
     },
 
@@ -126,6 +126,26 @@ var chat = {
       arg = visual.lengthLimit(visual.textPlain(arg), config.ui.maxMessageLength);
       chat.sendMessage(arg);
     },
+
+    /**
+     * who [room]
+     *   Query the user list of a room.
+     */
+    who: function(arg) {
+      var room = arg.trim();
+      if (room && room != xmpp.room.current) {
+        xmpp.getOccupants(room, function(users) {
+          if (users) ui.messageAddInfo(strings.info.usersInRoom, {room: room, users:users.join(', ')});
+          else ui.messageAddInfo(strings.info.noUsers, {room: room});
+        })
+      }
+      else {
+        var links = []
+        for (var user in xmpp.roster[xmpp.room.current])
+          links.push(visual.formatUser(xmpp.roster[xmpp.room.current][user]));
+        ui.messageAddInfo(strings.info.usersInThisRoom, {users:links.join(', ')});
+      }
+    }
   },
 
   /**
@@ -134,7 +154,7 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'nick', 'quit', 'say'],
+    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'nick', 'quit', 'say', 'who'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],
   },

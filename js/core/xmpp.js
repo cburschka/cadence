@@ -260,6 +260,27 @@ var xmpp = {
   },
 
   /**
+   * Query a room for its occupant list.
+   */
+  getOccupants: function(room, callback) {
+    this.connection.sendIQ(
+      $iq({
+        from: this.connection.jid,
+        to: Strophe.escapeNode(room) + '@' + config.xmpp.muc_service,
+        type:'get'
+      }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+      function (stanza) {
+        var users = [];
+        $('item', stanza).each(function() {
+          users.push(Strophe.getResourceFromJid($(this).attr('jid')));
+        });
+        callback(users);
+      },
+      function () { callback(); }
+    );
+  },
+
+  /**
    * Query the server for rooms and execute a callback.
    *
    * This function is actually a callback-wrapper (see xmpp.initialize() ),
