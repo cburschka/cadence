@@ -6,6 +6,7 @@ var ui = {
   messageId: 0,
   messageHash: {},
   colorPicker: null,
+  autoScroll: true,
 
   init: function() {
     this.dom = {
