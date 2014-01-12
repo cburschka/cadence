@@ -95,7 +95,7 @@ var chat = {
      * quit
      *   Ask XMPP to disconnect.
      */
-    quit: function(arg) {
+    quit: function() {
       xmpp.disconnect();
     },
 
