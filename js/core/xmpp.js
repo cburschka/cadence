@@ -44,12 +44,7 @@ var xmpp = {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
-    this.connection.addTimedHandler(30, function() {
-      xmpp.discoverRooms(function(rooms) {
-        self.room.available = rooms;
-        ui.refreshRooms(self.room.available);
-      });
-    });
+    this.connection.addTimedHandler(30, this.discoverRooms);
     // DEBUG: print connection stream to console:
     //this.connection.rawInput = function(data) { console.log("RECV " + data) }
     //this.connection.rawOutput = function(data) { console.log("SEND " + data) }
@@ -310,7 +305,9 @@ var xmpp = {
               rooms[room] = {title: room, members: null};
             }
           });
-          callback(rooms);
+          self.room.available = rooms;
+          ui.refreshRooms(self.room.available);
+          if (callback) callback(rooms);
         },
         function() {}
       );
@@ -528,8 +525,6 @@ var xmpp = {
         ui.messageAddInfo(msg, 'verbose');
         self.announce();
         self.discoverRooms(function(rooms) {
-          self.room.available = rooms;
-          ui.refreshRooms(self.room.available);
           var room = self.room.current || config.settings.xmpp.room;
           self.joinRoom(room);
         });
