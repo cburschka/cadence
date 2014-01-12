@@ -114,7 +114,7 @@ visual = {
     var nick = this.textPlain(user.nick);
     var jid = this.textPlain(user.jid || '');
     nick = this.lengthLimit(nick, config.ui.maxNickLength);
-    // Show guest users as guests regardless of channel status.
+    // Show guest users as guests regardless of room status.
     if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
       user.role = 'visitor';
       user.affiliation = 'none';

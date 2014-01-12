@@ -10,13 +10,13 @@ var ui = {
   init: function() {
     this.dom = {
       loginContainer: $('#loginContainer'),
-      channelContainer: $('#channelContainer'),
+      roomContainer: $('#roomContainer'),
       colorCodesContainer: $('#colorCodesContainer'),
       inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
       onlineList: $('#onlineList'),
-      channelSelection: $('#channelSelection'),
+      roomSelection: $('#roomSelection'),
       statusIcon: $('#statusIcon'),
       autoScrollIcon: $('#autoScrollIcon'),
       messageLengthCounter: $('#messageLengthCounter'),
@@ -89,7 +89,7 @@ var ui = {
       }),
       keyup: function() { ui.updateMessageLengthCounter(); }
     });
-    this.dom.channelSelection.change(function() { chat.commands.join(this.value); });
+    this.dom.roomSelection.change(function() { chat.commands.join(this.value); });
 
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
@@ -267,13 +267,13 @@ var ui = {
   },
 
   refreshRooms: function(rooms) {
-    var options = this.dom.channelSelection.html('').prop('options');
+    var options = this.dom.roomSelection.html('').prop('options');
     var anyRooms = false;
     for (id in rooms) {
       options[options.length] = new Option(rooms[id].title, id);
       anyRooms = true;
     }
-    this.dom.channelContainer[anyRooms ? 'show' : 'hide'](500);
+    this.dom.roomContainer[anyRooms ? 'show' : 'hide'](500);
   },
 
   userAdd: function(user, animate) {
@@ -297,7 +297,7 @@ var ui = {
 
   updateRoom: function(room, roster) {
     var self = this;
-    this.dom.channelSelection.val(room);
+    this.dom.roomSelection.val(room);
     this.dom.onlineList.slideUp(function() {
       $(this).html('');
       self.userLinks = {};

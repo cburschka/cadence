@@ -3,7 +3,7 @@ body {
   margin: 0;
 }
 h3 { white-space: nowrap }
-#channelContainer,
+#roomContainer,
 .menuContainer,
 #chatList .row,
 #onlineList .row,
