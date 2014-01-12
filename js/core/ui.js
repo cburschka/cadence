@@ -156,6 +156,13 @@ var ui = {
     });
   },
 
+  clearMessages: function() {
+    this.messages = [];
+    this.messageId = 0;
+    this.messageHash = {};
+    this.dom.chatList.html('');
+  },
+
   setStatus: function(status) {
     // status options are: online, waiting, offline.
     this.dom.statusIcon.attr('class', status).attr('title');

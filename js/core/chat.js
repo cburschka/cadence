@@ -33,6 +33,16 @@ var chat = {
     },
 
     /**
+     * clear:
+     *   Clear the entire chat list screen.
+     */
+    clear: function() {
+      ui.clearMessages();
+      this.history = [];
+      this.historyIndex = 0;
+    },
+
+    /**
      * connect <user> <pass>
      * connect {user:<user>, pass:<pass>}
      *   Open a connection and authenticate.
@@ -105,9 +115,9 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'join', 'me', 'nick', 'quit', 'say'],
-    offline: ['connect'],
-    waiting: ['connect', 'quit'],
+    online: ['away', 'back', 'clear', 'join', 'me', 'nick', 'quit', 'say'],
+    offline: ['clear', 'connect'],
+    waiting: ['clear', 'connect', 'quit'],
   },
 
   /**
