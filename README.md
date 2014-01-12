@@ -51,7 +51,9 @@ AJAX-Chat (blueimp.net): https://github.com/Frug/AJAX-Chat
 Libraries
 ---------
 
-The following libraries are used without modifications in this project:
+The following libraries are used without modifications in this project.
+These libraries are not included, but are downloaded automatically
+during the build process.
 
    * strophejs (Collecta Inc.): https://github.com/strophe/strophejs
      (MIT, with BSD and public domain parts)
