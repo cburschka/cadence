@@ -192,8 +192,9 @@ visual = {
   addEmoticons: function(jq) {
     var emoticonSets = this.emoticonSets;
     var emoticonImg = function(set, code) {
-      return '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL +
-             config.markup.emoticons[set].codes[code] + '" />';
+      return  '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL
+            + config.markup.emoticons[set].codes[code]
+            + '" title="' + code + '" alt="' + code + '" />';
     }
     jq.add('*', jq).replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
