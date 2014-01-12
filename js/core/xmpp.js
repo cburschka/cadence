@@ -546,6 +546,8 @@ var xmpp = {
     var self = this;
     return function() {
       self.connection.send(self.pres().attrs({type: 'unavailable'}));
+      self.nick.current = null;
+      self.room.current = null;
       self.connection.disconnect();
     };
   }
