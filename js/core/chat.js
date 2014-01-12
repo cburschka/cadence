@@ -111,6 +111,25 @@ var chat = {
     },
 
     /**
+     * msg <nick> <msg>
+     *   Send a private message to another occupant.
+     */
+    msg: function(arg) {
+      arg = /^(.+?)\s+(.+)$/.exec(arg.trim());
+      var nick = arg[1];
+      if (!xmpp.roster[xmpp.room.current][nick])
+        return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+      var msg = visual.lengthLimit(visual.textPlain(arg[2]), config.ui.maxMessageLength);
+      chat.sendMessage(msg, nick);
+      ui.messageAppend(visual.formatMessage({
+        type: 'chat',
+        to: nick,
+        user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
+        body: chat.formatOutgoing(msg)
+      }));
+    },
+
+    /**
      * quit
      *   Ask XMPP to disconnect.
      */
@@ -154,7 +173,7 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'nick', 'quit', 'say', 'who'],
+    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'msg', 'nick', 'quit', 'say', 'who'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],
   },
@@ -194,14 +213,28 @@ var chat = {
   },
 
   /**
-   * Ask XMPP to send a message to the current room.
+   * Ask XMPP to send a message to the current room, or one of its occupants.
+   *
+   * @param {string} text: The message to send (already escaped, but pre-BBCode).
+   * @param {string} nick: The recipient, or undefined.
    */
-  sendMessage: function(text) {
+  sendMessage: function(text, nick) {
+    html = this.formatOutgoing(text);
+    xmpp.sendMessage(html, nick);
+  },
+
+  /**
+   * Format an outgoing message.
+   *
+   * @param {string} text The message to send.
+   * @return {string} The HTML output.
+   */
+  formatOutgoing: function(text) {
     html = bbcode.render(text);
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
     }
-    xmpp.sendMessage(html);
+    return html;
   },
 
   /**

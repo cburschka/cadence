@@ -89,11 +89,11 @@ var xmpp = {
   /**
    * Wrapper for $msg() that fills in the sender JID and the room/nick JID.
    */
-  msg: function() {
+  msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   this.room.current + '@' + config.xmpp.muc_service,
-      type: 'groupchat'
+      to:   this.room.current + '@' + config.xmpp.muc_service + (nick ? '/' + nick : ''),
+      type: (nick ? 'chat' : 'groupchat')
     });
   },
 
@@ -250,9 +250,9 @@ var xmpp = {
    *
    * @param {jQuery} html The HTML node to send.
    */
-  sendMessage: function(html) {
+  sendMessage: function(html, nick) {
     html = $('<p>' + html + '</p>');
-    this.connection.send(this.msg()
+    this.connection.send(this.msg(nick)
       .c('body', html.text()).up()
       .c('html', {xmlns:Strophe.NS.XHTML_IM})
       .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
@@ -480,11 +480,19 @@ var xmpp = {
     return function(stanza) {
       if (stanza) {
         var from = $(stanza).attr('from');
+        var type = $(stanza).attr('type');
         var nick = Strophe.getResourceFromJid(from);
         var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
         // Only accept messages in the current room.
         if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.room.current)
           return true;
+        if (type == 'error') {
+          if ($('error', stanza).attr('code') == '404') {
+            ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+            return true
+          }
+        }
+
         // Only accept messages from nicks we know are in the room.
         var user = self.roster[room][nick];
         if (user) {
@@ -497,9 +505,9 @@ var xmpp = {
           }
           var time = $('delay', stanza).attr('stamp');
           if (time) message = ui.messageDelayed(
-            {user: user, body: body, time: time, room: room}
+            {user: user, body: body, time: time, room: room, type: type}
           );
-          else ui.messageAppend(visual.formatMessage({user: user, body: body}));
+          else ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
         }
       }
       return true;

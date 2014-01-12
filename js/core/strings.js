@@ -53,6 +53,8 @@ var strings = {
     userIn: '[user] logs into the Chat.',
     userNick: '[from] is now known as [to].',
     userOut: '[user] has logged out of the Chat.',
+    whisperTo: '(whispers to {nick})',
+    whisper: '(whispers)',
   },
 
   error: {
@@ -62,5 +64,6 @@ var strings = {
     joinSame: 'You are already in room {room}.',
     nickConflict: 'Username already in use.',
     userpass: 'User and password are required.',
+    unknownUser: 'User {nick} not found.',
   }
 };

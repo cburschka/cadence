@@ -79,6 +79,15 @@ visual = {
     }
     else $('span.author', node).append(':');
 
+    if (message.type == 'chat') {
+      $('span.' + (me ? 'body' : 'author'), node).after(
+        ' <span class="privmsg">' + (message.to ?
+          this.formatText(strings.info.whisperTo, {nick:message.to})
+        : strings.info.whisper)
+        + '</span> '
+      );
+    }
+
     return {
       timestamp: message.time.getTime(),
       hash: str_sha1(message.user.nick + ' ' + new Date(message.time).getTime() + message.body),
