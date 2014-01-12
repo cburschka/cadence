@@ -92,6 +92,25 @@ var chat = {
     },
 
     /**
+     * list:
+     *   List available rooms.
+     */
+    list: function() {
+      xmpp.discoverRooms(function(rooms) {
+        var links = [];
+        for (var room in rooms) {
+          links.push(
+               '<a href="javascript:void()" onclick="chat.commands.join(\''
+             + room + '\');"'
+             + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
+             + '>' + rooms[room].title + '</a>'
+          );
+        }
+        ui.messageAddInfo(links.join(', '));
+      });
+    },
+
+    /**
      * quit
      *   Ask XMPP to disconnect.
      */
@@ -115,7 +134,7 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'me', 'nick', 'quit', 'say'],
+    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'nick', 'quit', 'say'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],
   },
