@@ -1,0 +1,30 @@
+/**
+ * @file Selenium.css
+ * @package cadence
+ * @author Christoph Burschka
+ * @copyright Christoph Burschka (2014)
+ * @license GPLv3+
+ */
+#content { 
+  background: linear-gradient(135deg, 
+    #363b6c 20%,
+    #2f55c3 51%,
+    #363b6c 80%
+  ) #363b6c;
+}
+a { color: #adfcf3 }
+#content, button, input, select, textarea { color: #29caac }
+.box, button, input, select { 
+  border-radius: 4px;
+  border: none;
+}
+h3 { background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) }
+.box {
+  background-color: rgba(0,0,0, 0.4);
+  border: 1px solid rgba(256,256,256,0.3);
+}
+button, input { background: rgba(0,0,0,0.4) }
+select { background: #101040 }
+button:hover { background: rgba(0,0,0,0.3) }
+button:active { background: rgba(256,256,256,0.1) }
+input[type=text], input[type=password] { padding-left: 5px }

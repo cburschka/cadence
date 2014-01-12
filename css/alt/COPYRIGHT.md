@@ -8,6 +8,8 @@ different copyrights:
   originally written by Sylae Corell (@sylae) for AJAX-Chat,
   used with permission.
 
+* Helium.css and Selenium.css are original works.
+
 * Uranium.css is a modified version of a style originally
   by Rosina Ramirez for AJAX-Chat. 
   This style is copyright Rosina Ramirez, and used under the

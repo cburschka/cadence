@@ -301,7 +301,7 @@ var config = {
   },
 
   ui: {
-    css: ['dash', 'omg', 'Sulfur', 'Mercury', 'Carbon', 'Technetium', 'Plum', 'Uranium'],
+    css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
     cssURL: 'css/alt/',
     chatBotName: 'Ligrev',
     maxNickLength: 24,

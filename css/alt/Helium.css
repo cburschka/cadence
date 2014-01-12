@@ -1,0 +1,25 @@
+/**
+ * @file Helium.css
+ * @package cadence
+ * @author Christoph Burschka
+ * @copyright Christoph Burschka (2014)
+ * @license GPLv3+
+ */
+#content { 
+  background: #aeb;
+  background: linear-gradient(135deg, 
+    #7cd 0%,
+    #aeb 40%,
+    #99f 60%,
+    #ebf 100%
+  );
+}
+a { color: #84f }
+#content, button, input, select, textarea {   color: #206 }
+.box, button, input, select { border: none }
+h3 { background: linear-gradient(180deg, rgba(256,256,256,0.8) 0%, rgba(0,0,0,0) 100%) }
+button, input, select, .box { background-color: rgba(256,256,256, 0.4) }
+button:hover { background: rgba(0,0,0,0.05) }
+button:active { background: rgba(0,0,0,0.2) }
+input[type=text], input[type=password] { padding-left: 5px }
+.row:nth-child(odd) { background: rgba(256,256,256,0) }
