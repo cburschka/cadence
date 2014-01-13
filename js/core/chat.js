@@ -130,6 +130,14 @@ var chat = {
     },
 
     /**
+     * part
+     *   Leave the current room without joining a different one.
+     */
+    part: function() {
+      if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+    },
+
+    /**
      * quit
      *   Ask XMPP to disconnect.
      */
@@ -173,7 +181,8 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'msg', 'nick', 'quit', 'say', 'who'],
+    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'say', 'who'],
+    prejoin: ['join', 'list', 'nick', 'quit', 'who'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],
   },

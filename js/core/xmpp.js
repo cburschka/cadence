@@ -139,7 +139,17 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
+    ui.messageAddInfo(strings.info.leave, {room:this.room.current}, 'verbose');
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
+    // The server does not acknowledge the /part command, so we need to change
+    // the state right here: If the room we left is the current one, enter
+    // prejoin status and list the rooms again.
+    if (room == this.room.current) {
+      this.room.current = null;
+      this.status = 'prejoin';
+      ui.setStatus(this.status);
+      chat.commands.list();
+    }
   },
 
   /**
@@ -327,7 +337,7 @@ var xmpp = {
    * changing nicknames, joining rooms, etc.
    *
    * 110-code presences, which acknowledge/reflect a presence that we sent.
-   * These may indicate the success of a join or nick request, which make us 
+   * These may indicate the success of a join or nick request, which make us
    * alter the client state.
    *
    * Any other presence (with or without `unavailable` type). These, including
@@ -430,11 +440,9 @@ var xmpp = {
 
               if (room != self.room.current) {
                 // We are in a different room now. Leave the old one.
-                if (self.room.current) {
-                  ui.messageAddInfo(strings.info.leave, {room:self.room.current}, 'verbose');
-                  self.leaveRoom(self.room.current);
-                }
+                if (self.room.current) self.leaveRoom(self.room.current);
                 ui.messageAddInfo(strings.info.joined, {room:room}, 'verbose');
+                self.status = 'online';
                 // If this room is not on the room list, add it.
                 if (!self.room.available[room]) {
                   self.room.available[room] = {title: room, members: 1};
@@ -525,12 +533,11 @@ var xmpp = {
       self.status = status;
       ui.setStatus(self.status);
 
-      if (status == 'online') {
+      if (status == 'prejoin') {
         self.announce();
-        self.discoverRooms(function(rooms) {
-          var room = self.room.current || config.settings.xmpp.room;
-          self.joinRoom(room);
-        });
+        var room = self.room.target || config.settings.room;
+        if (config.settings.autoJoin) self.joinRoom(room);
+        else chat.commands.list();
       }
       else if (status == 'offline') {
         // The connection is closed and cannot be reused.
@@ -563,7 +570,7 @@ var xmpp = {
         return this.status == 'offline' ? 'offline' : 'waiting';
       case Strophe.Status.CONNECTED:
       case Strophe.Status.ATTACHED:
-        return 'online';
+        return 'prejoin';
     }
   },
 

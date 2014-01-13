@@ -90,7 +90,10 @@ var ui = {
       }),
       keyup: function() { ui.updateMessageLengthCounter(); }
     });
-    this.dom.roomSelection.change(function() { chat.commands.join(this.value); });
+    this.dom.roomSelection.change(function() {
+      if (this.value) chat.commands.join(this.value);
+      else chat.commands.part();
+    });
 
     var loginCallback = function() {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
@@ -165,9 +168,14 @@ var ui = {
   },
 
   setStatus: function(status) {
-    // status options are: online, waiting, offline.
+    // status options are: online, waiting, offline, prejoin.
+    if (status == 'prejoin') {
+      ui.updateRoom('', {});
+      status = 'online';
+    }
     this.dom.statusIcon.attr('class', status).attr('title');
-    this.dom.loginContainer[status == 'online' ? 'hide' : 'show'](500);
+    this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
+    this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
   },
 
   setStyle: function(style) {
@@ -268,13 +276,13 @@ var ui = {
   },
 
   refreshRooms: function(rooms) {
-    var options = this.dom.roomSelection.html('').prop('options');
-    var anyRooms = false;
+    var room = this.dom.roomSelection.val();
+    $('option', this.dom.roomSelection).remove();
+    var options = [new Option('---', '')];
     for (id in rooms) {
-      options[options.length] = new Option(rooms[id].title, id);
-      anyRooms = true;
+      options.push(new Option(rooms[id].title, id));
     }
-    this.dom.roomContainer[anyRooms ? 'show' : 'hide'](500);
+    this.dom.roomSelection.html(options).val(room);
   },
 
   userAdd: function(user, animate) {
