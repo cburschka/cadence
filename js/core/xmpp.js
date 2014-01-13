@@ -535,6 +535,8 @@ var xmpp = {
       else if (status == 'offline') {
         // The connection is closed and cannot be reused.
         self.buildConnection();
+        self.nick.current = null;
+        self.room.current = null;
         self.roster = {};
         ui.userRefresh({});
         ui.refreshRooms({});
@@ -572,8 +574,6 @@ var xmpp = {
     var self = this;
     return function() {
       self.connection.send(self.pres().attrs({type: 'unavailable'}));
-      self.nick.current = null;
-      self.room.current = null;
       self.connection.disconnect();
     };
   }
