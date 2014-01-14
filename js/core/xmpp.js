@@ -144,12 +144,14 @@ var xmpp = {
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
-    if (room == this.room.current) {
-      this.room.current = null;
-      this.status = 'prejoin';
-      ui.setStatus(this.status);
-      chat.commands.list();
-    }
+    if (room == this.room.current) this.prejoin();
+  },
+
+  prejoin: function() {
+    this.room.current = null;
+    this.status = 'prejoin';
+    ui.setStatus(this.status);
+    chat.commands.list();
   },
 
   /**
@@ -563,7 +565,7 @@ var xmpp = {
         self.announce();
         var room = self.room.target || config.settings.room;
         if (config.settings.autoJoin) self.joinRoom(room);
-        else chat.commands.list();
+        else self.prejoin();
       }
       else if (status == 'offline') {
         // The connection is closed and cannot be reused.
