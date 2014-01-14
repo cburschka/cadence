@@ -68,6 +68,7 @@ var strings = {
     joinSame: 'You are already in room {room}.',
     nickConflict: 'Username already in use.',
     userpass: 'User and password are required.',
+    unknownRoom: 'Room {room} does not exist.',
     unknownUser: 'User {nick} not found.',
   }
 };

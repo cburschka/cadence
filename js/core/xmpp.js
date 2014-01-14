@@ -183,6 +183,26 @@ var xmpp = {
   },
 
   /**
+   * Query the server for extended room information.
+   */
+  getRoomInfo: function(room, callback) {
+    this.connection.sendIQ($iq({
+      from: this.connection.jid,
+      to: Strophe.escapeNode(room) + '@' + config.xmpp.muc_service,
+      type: 'get',
+    }).c('query', {xmlns: Strophe.NS.DISCO_INFO}),
+    function(stanza) {
+      var query = $('query', stanza);
+      callback({
+        title: $('identity', query).attr('name'),
+        members: $('x field[var=muc#roominfo_occupants] value').text(),
+        info: query
+      });
+    },
+    function(error) { callback(null) });
+  },
+
+  /**
    * Attempt to join a room.
    *
    * @param {string} The room to join.
@@ -200,9 +220,9 @@ var xmpp = {
         })
       }, 'verbose');
       self.connection.send(self.presence(room, self.nick.target));
-    }
+    };
 
-    if (config.settings.xmpp.registerNick) {
+    var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != self.nick.target) {
           self.nick.target = nick;
@@ -210,8 +230,14 @@ var xmpp = {
         }
         joinRoom();
       });
-    }
-    else joinRoom();
+    };
+
+    this.getRoomInfo(room, function(roomInfo) {
+      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {room: room}, 'error');
+      self.room.available[room] = roomInfo;
+      if (config.settings.xmpp.registerNick) joinWithReservedNick();
+      else joinRoom();
+    });
   },
 
   /**
