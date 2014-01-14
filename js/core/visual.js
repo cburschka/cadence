@@ -165,6 +165,14 @@ visual = {
   },
 
   /**
+   * Format a room object.
+   * Currently only returns the room title.
+   */
+  formatRoom: function(room) {
+    return room.title;
+  },
+
+  /**
    * Poor man's sprintf, with some features from Drupal's t().
    * Splice variables into a template, optionally escaping them.
    *

@@ -242,7 +242,11 @@ var ui = {
     if (!this.messageHash[entry.hash]) {
       this.messageHash[entry.hash] = true;
       entry.html.addClass('delayed');
-      entry.html.find('.dateTime').after(' <span class="log-room log-room-' + message.room + '">[' + message.room + ']</span> ');
+      entry.html.find('.dateTime').after(
+          ' <span class="log-room log-room-' + message.room.id + '">['
+        + visual.formatRoom(message.room)
+        + ']</span>'
+      );
       this.messageInsert(entry);
     }
   },

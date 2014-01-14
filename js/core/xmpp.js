@@ -139,7 +139,9 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
-    ui.messageAddInfo(strings.info.leave, {room:this.room.available[this.room.current].title}, 'verbose');
+    ui.messageAddInfo(strings.info.leave, {room:
+      visual.formatRoom(this.room.available[this.room.current])
+    }, 'verbose');
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
@@ -215,7 +217,7 @@ var xmpp = {
 
     var joinRoom = function() {
       ui.messageAddInfo(strings.info.joining, {
-        room: self.room.available[room].title,
+        room: visual.formatRoom(self.room.available[room]),
         user: visual.formatUser({
           nick: self.nick.target,
           jid: self.connection.jid
@@ -463,17 +465,21 @@ var xmpp = {
               }
               // A 201 code indicates we created this room by joining it.
               if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo(strings.code[201], {room:self.room.available[room].title}, 'verbose');
+                ui.messageAddInfo(strings.code[201], {
+                  room: visual.formatRoom(self.room.available[room])
+                }, 'verbose');
               }
 
               if (room != self.room.current) {
                 // We are in a different room now. Leave the old one.
                 if (self.room.current) self.leaveRoom(self.room.current);
                 self.status = 'online';
-                ui.messageAddInfo(strings.info.joined, {room:self.room.available[room].title}, 'verbose');
+                ui.messageAddInfo(strings.info.joined, {
+                  room: visual.formatRoom(self.room.available[room])
+                }, 'verbose');
                 // If this room is not on the room list, add it.
                 if (!self.room.available[room]) {
-                  self.room.available[room] = {title: room, members: 1};
+                  self.room.available[room] = {id: room, title: room, members: 1};
                   ui.refreshRooms(self.room.available);
                 }
                 // The room roster has been received by now. Refresh it.
@@ -538,7 +544,7 @@ var xmpp = {
           }
           var time = $('delay', stanza).attr('stamp');
           if (time) message = ui.messageDelayed(
-            {user: user, body: body, time: time, room: room, type: type}
+            {user: user, body: body, time: time, room: self.room.available[room], type: type}
           );
           else ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
         }
