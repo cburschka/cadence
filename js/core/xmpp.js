@@ -431,6 +431,25 @@ var xmpp = {
                 self.roster[room][newNick] = self.roster[room][nick];
                 if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
               }
+              // An `unavailable` 307 is a kick.
+              else if (codes.indexOf(307) >= 0) {
+                var actor = $('actor', item).attr('nick');
+                var reason = $('reason', item).text();
+                var index = (actor != null) * 2 + (reason != "");
+                if (nick == xmpp.nick.current) {
+                  console.log(nick, xmpp.nick.current);
+                  ui.messageAddInfo(strings.info.kickedMe[index], {
+                    actor: actor && visual.formatUser(actor),
+                    reason: reason
+                  }, 'error');
+                  xmpp.prejoin();
+                }
+                else ui.messageAddInfo(strings.info.kicked[index], {
+                  actor: actor,
+                  reason: reason,
+                  user: visual.formatUser(self.roster[room][nick])
+                });
+              }
               // Any other `unavailable` presence indicates a logout.
               else {
                 ui.messageAddInfo(strings.info.userOut, {

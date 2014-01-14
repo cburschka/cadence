@@ -59,6 +59,18 @@ var strings = {
     usersInThisRoom: 'Users in this room: [users].',
     whisperTo: '(whispers to {nick})',
     whisper: '(whispers)',
+    kicked: [
+      '[user] has been kicked.',
+      '[user] has been kicked ({reason}).',
+      '[actor] has kicked [user].',
+      '[actor] has kicked [user] ({reason}).'
+    ],
+    kickedMe: [
+      'You have been kicked!',
+      'You have been been kicked ({reason})!',
+      'You have been kicked by [actor]!',
+      'You have been kicked by [actor] ({reason})!'
+    ]
   },
 
   error: {
