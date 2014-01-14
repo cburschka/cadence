@@ -139,7 +139,7 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
-    ui.messageAddInfo(strings.info.leave, {room:this.room.current}, 'verbose');
+    ui.messageAddInfo(strings.info.leave, {room:this.room.available[this.room.current].title}, 'verbose');
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
@@ -193,7 +193,7 @@ var xmpp = {
 
     var joinRoom = function() {
       ui.messageAddInfo(strings.info.joining, {
-        room: room,
+        room: self.room.available[room].title,
         user: visual.formatUser({
           nick: self.nick.target,
           jid: self.connection.jid
@@ -435,14 +435,14 @@ var xmpp = {
               }
               // A 201 code indicates we created this room by joining it.
               if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo(strings.code[201], {room:room}, 'verbose');
+                ui.messageAddInfo(strings.code[201], {room:self.room.available[room].title}, 'verbose');
               }
 
               if (room != self.room.current) {
                 // We are in a different room now. Leave the old one.
                 if (self.room.current) self.leaveRoom(self.room.current);
-                ui.messageAddInfo(strings.info.joined, {room:room}, 'verbose');
                 self.status = 'online';
+                ui.messageAddInfo(strings.info.joined, {room:self.room.available[room].title}, 'verbose');
                 // If this room is not on the room list, add it.
                 if (!self.room.available[room]) {
                   self.room.available[room] = {title: room, members: 1};
