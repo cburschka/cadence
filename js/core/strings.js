@@ -70,7 +70,8 @@ var strings = {
       'You have been been kicked ({reason})!',
       'You have been kicked by [actor]!',
       'You have been kicked by [actor] ({reason})!'
-    ]
+    ],
+    nickPrejoin: 'Your preferred nickname is now {nick}',
   },
 
   error: {

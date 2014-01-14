@@ -130,7 +130,9 @@ var xmpp = {
    */
   changeNick: function(nick) {
     this.nick.target = nick;
-    this.connection.send(this.presence(this.room.current, nick));
+    if (this.status == 'online')
+      this.connection.send(this.presence(this.room.current, nick));
+    else ui.messageAddInfo(strings.info.nickPrejoin, {nick: nick});
   },
 
   /**
