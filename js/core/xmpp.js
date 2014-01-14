@@ -198,6 +198,7 @@ var xmpp = {
     function(stanza) {
       var query = $('query', stanza);
       callback({
+        id: room,
         title: $('identity', query).attr('name'),
         members: $('x field[var=muc#roominfo_occupants] value').text(),
         info: query
@@ -305,9 +306,10 @@ var xmpp = {
         type:'get'
       }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
       function (stanza) {
-        var users = [];
+        var users = {};
         $('item', stanza).each(function() {
-          users.push(Strophe.getResourceFromJid($(this).attr('jid')));
+          var nick = $(this).attr('name');
+          users[nick] = nick;
         });
         callback(users);
       },
@@ -338,12 +340,10 @@ var xmpp = {
             var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
             // Strip off the parenthesized number of participants in the name:
             var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
-            if (m) {
-              rooms[room] = {title: Strophe.unescapeNode(m[1]), members: m[2] || null};
-            }
-            else {
-              rooms[room] = {title: room, members: null};
-            }
+            if (m)
+              rooms[room] = {id: room, title: Strophe.unescapeNode(m[1]), members: m[2] || null};
+            else
+              rooms[room] = {id: room, title: room, members: null};
           });
           self.room.available = rooms;
           ui.refreshRooms(self.room.available);

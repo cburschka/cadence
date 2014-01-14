@@ -83,12 +83,16 @@ var chat = {
      *   will automatically leave the current room.
      */
     join: function(arg) {
-      var room = arg.trim();
-      if (xmpp.room.current == room) {
-        return ui.messageAddInfo(strings.error.joinSame, {room:room}, 'error');
+      var room = chat.getRoomFromTitle(arg.trim());
+      if (!room)
+        return ui.messageAddInfo(strings.error.unknownRoom, {room: arg.trim()}, 'error');
+      if (xmpp.room.current == room.id) {
+        return ui.messageAddInfo(strings.error.joinSame, {
+          room: visual.formatRoom(room)
+        }, 'error');
       }
-      xmpp.joinRoom(room);
-      chat.setSetting('xmpp.room', room);
+      xmpp.joinRoom(room.id);
+      chat.setSetting('xmpp.room', room.id);
     },
 
     /**
@@ -103,7 +107,7 @@ var chat = {
                '<a href="javascript:void()" onclick="chat.commands.join(\''
              + room + '\');"'
              + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-             + '>' + rooms[room].title + '</a>'
+             + '>' + visual.formatRoom(rooms[room]) + '</a>'
           );
         }
         ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
@@ -159,11 +163,22 @@ var chat = {
      *   Query the user list of a room.
      */
     who: function(arg) {
-      var room = arg.trim();
-      if (room && room != xmpp.room.current) {
-        xmpp.getOccupants(room, function(users) {
-          if (users) ui.messageAddInfo(strings.info.usersInRoom, {room: room, users:users.join(', ')});
-          else ui.messageAddInfo(strings.info.noUsers, {room: room});
+      arg = arg.trim();
+      var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
+      console.log(room);
+      if (!room)
+        return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {room: arg}, 'error');
+      if (room.id != xmpp.room.current) {
+        xmpp.getOccupants(room.id, function(users) {
+          var out = [];
+          for (var nick in users) out.push(nick)
+          if (users) ui.messageAddInfo(strings.info.usersInRoom, {
+            room: visual.formatRoom(room),
+            users: out.join(', ')
+          });
+          else ui.messageAddInfo(strings.info.noUsers, {
+            room: visual.formatRoom(room)
+          });
         })
       }
       else {
@@ -293,6 +308,17 @@ var chat = {
     end = start;
     inputField.selectionStart = start;
     inputField.selectionEnd = end;
+  },
+
+  /**
+   * Find a room by its title.
+   */
+  getRoomFromTitle: function(title) {
+    if (xmpp.room.available[title]) return xmpp.room.available[title];
+    for (var room in xmpp.room.available) {
+      if (xmpp.room.available[room].title == title)
+          return xmpp.room.available[room];
+    }
   },
 
   /**
