@@ -21,17 +21,14 @@ var xmpp = {
   roster: {},
 
   /**
-   * Initialize the helper functions and create the connection object.
-   *
-   * The `this.callback = this.callback()` pattern is used to inject a reference
-   * to the module (`this`) into the callback's scope, which is named `self`.
+   * Bind the object methods and create the connection object.
    */
   initialize: function() {
-    this.discoverRooms = this.discoverRooms();
-    this.eventConnectCallback = this.eventConnectCallback();
-    this.eventPresenceCallback = this.eventPresenceCallback();
-    this.eventMessageCallback = this.eventMessageCallback();
-    this.disconnect = this.disconnect();
+    this.discoverRooms = this.discoverRooms.bind(this);
+    this.eventConnectCallback = this.eventConnectCallback.bind(this);
+    this.eventPresenceCallback = this.eventPresenceCallback.bind(this);
+    this.eventMessageCallback = this.eventMessageCallback.bind(this);
+    this.disconnect = this.disconnect.bind(this);
     this.buildConnection();
     // Try to attach to an old session. If it fails, wait for user to log in.
     this.resumeConnection();
@@ -216,35 +213,34 @@ var xmpp = {
    */
   joinRoom: function(room) {
     this.room.target = room;
-    var self = this;
 
     var joinRoom = function() {
       ui.messageAddInfo(strings.info.joining, {
-        room: visual.formatRoom(self.room.available[room]),
+        room: visual.formatRoom(this.room.available[room]),
         user: visual.formatUser({
-          nick: self.nick.target,
-          jid: self.connection.jid
+          nick: this.nick.target,
+          jid: this.connection.jid
         })
       }, 'verbose');
-      self.connection.send(self.presence(room, self.nick.target));
-    };
+      this.connection.send(this.presence(room, this.nick.target));
+    }.bind(this);
 
     var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
-        if (nick && nick != self.nick.target) {
-          self.nick.target = nick;
+        if (nick && nick != this.nick.target) {
+          this.nick.target = nick;
           ui.messageAddInfo(strings.info.nickRegistered, {nick:nick}, 'verbose');
         }
         joinRoom();
       });
-    };
+    }.bind(this);
 
     this.getRoomInfo(room, function(roomInfo) {
       if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {room: room}, 'error');
-      self.room.available[room] = roomInfo;
+      this.room.available[room] = roomInfo;
       if (config.settings.xmpp.registerNick) joinWithReservedNick();
       else joinRoom();
-    });
+    }.bind(this));
   },
 
   /**
@@ -327,34 +323,31 @@ var xmpp = {
    *
    * @param {function} callback The function to execute after the server responds.
    */
-  discoverRooms: function() {
-    var self = this;
-    return function(callback) {
-      self.connection.sendIQ(
-        $iq({
-          from: this.connection.jid,
-          to:config.xmpp.muc_service,
-          type:'get'
-        }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
-        function(stanza) {
-          var rooms = {};
-          $('item', stanza).each(function(s,t) {
-            var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
-            // Strip off the parenthesized number of participants in the name:
-            var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
-            if (m)
-              rooms[room] = {id: room, title: Strophe.unescapeNode(m[1]), members: m[2] || null};
-            else
-              rooms[room] = {id: room, title: room, members: null};
-          });
-          self.room.available = rooms;
-          ui.refreshRooms(self.room.available);
-          if (callback) callback(rooms);
-        },
-        function() {}
-      );
-      return true;
-    }
+  discoverRooms: function(callback) {
+    this.connection.sendIQ(
+      $iq({
+        from: this.connection.jid,
+        to:config.xmpp.muc_service,
+        type:'get'
+      }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+      function(stanza) {
+        var rooms = {};
+        $('item', stanza).each(function(s,t) {
+          var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
+          // Strip off the parenthesized number of participants in the name:
+          var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
+          if (m)
+            rooms[room] = {id: room, title: Strophe.unescapeNode(m[1]), members: m[2] || null};
+          else
+            rooms[room] = {id: room, title: room, members: null};
+        });
+        this.room.available = rooms;
+        ui.refreshRooms(this.room.available);
+        if (callback) callback(rooms);
+      }.bind(this),
+      function() {}
+    );
+    return true;
   },
 
   /**
@@ -368,244 +361,248 @@ var xmpp = {
    * or unwilling to carry out a request made by a <presence/> stanza:
    * changing nicknames, joining rooms, etc.
    *
-   * 110-code presences, which acknowledge/reflect a presence that we sent.
-   * These may indicate the success of a join or nick request, which make us
-   * alter the client state.
+   * `unavailable`-type presences, which are caused by users leaving, being
+   * kicked, or changing their names.
    *
-   * Any other presence (with or without `unavailable` type). These, including
-   * the 110-codes, alter the state of the user roster. Some changes
-   * (leaving/joining a room, changing nick, changing <show/>) will also
-   * generate a notification.
+   * Any other presence that alters the user roster or client state.
    */
-  eventPresenceCallback: function() {
-    var self = this;
-    return function(stanza) {
-      if (stanza) {
-        var from = $(stanza).attr('from');
-        // Discard any <presence/> that is not from the MUC domain.
-        // (This client does not support direct non-MUC communication.)
-        if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service) return true;
+  eventPresenceCallback: function(stanza) {
+    if (!stanza) return true;
+    var from = $(stanza).attr('from');
+    // Discard any <presence/> that is not from the MUC domain.
+    // (This client does not support direct non-MUC communication.)
+    if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service) return true;
 
-        // Find the room and nickname that the presence came from, and the type.
-        var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
-        var nick = Strophe.getResourceFromJid(from);
-        var type = $(stanza).attr('type');
+    // Find the room and nickname that the presence came from, and the type.
+    var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
+    var nick = Strophe.getResourceFromJid(from);
+    var type = $(stanza).attr('type');
 
-        // Initialize the room roster if it doesn't exist yet.
-        if (!self.roster[room]) self.roster[room] = {};
+    // Initialize the room roster if it doesn't exist yet.
+    if (!this.roster[room]) this.roster[room] = {};
 
-        if (type == 'error') {
-          if ($('conflict', stanza).length) {
-            if (room == self.room.current) {
-              ui.messageAddInfo(strings.error.nickConflict, 'error');
-            }
-            else {
-              ui.messageAddInfo(strings.error.joinConflict, 'error');
-              self.nickConflictResolve();
-              ui.messageAddInfo(strings.info.rejoinNick, {nick:self.nick.target});
-              self.joinRoom(self.room.target, self.nick.target);
-            }
-          }
-        }
-        else {
-          // Find the status codes.
-          var item = $(stanza).find('item');
-          var codes = $.makeArray($('status', stanza).map(function() {
-              return parseInt($(this).attr('code'));
-          }));
+    if (type == 'error')
+      return this.eventPresenceError(room, nick, stanza) || true;
 
-          if (type == 'unavailable') {
-            if (room == self.room.current) {
-              // An `unavailable` 303 is a nick change to <item nick="{new}"/>
-              if (codes.indexOf(303) >= 0) {
-                var newNick = item.attr('nick');
-                ui.messageAddInfo(strings.info.userNick, {
-                  from:visual.formatUser(self.roster[room][nick]),
-                  to:visual.formatUser({
-                    nick:newNick,
-                    jid:self.roster[room][nick].jid,
-                    role:self.roster[room][nick].role,
-                    affiliation:self.roster[room][nick].affiliation
-                  })
-                });
-                // Move the roster entry to the new nick, so the new presence
-                // won't trigger a notification.
-                self.roster[room][newNick] = self.roster[room][nick];
-                if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
-              }
-              // An `unavailable` 307 is a kick.
-              else if (codes.indexOf(307) >= 0) {
-                var actor = $('actor', item).attr('nick');
-                var reason = $('reason', item).text();
-                var index = (actor != null) * 2 + (reason != "");
-                if (nick == xmpp.nick.current) {
-                  console.log(nick, xmpp.nick.current);
-                  ui.messageAddInfo(strings.info.kickedMe[index], {
-                    actor: actor && visual.formatUser(actor),
-                    reason: reason
-                  }, 'error');
-                  xmpp.prejoin();
-                }
-                else ui.messageAddInfo(strings.info.kicked[index], {
-                  actor: actor,
-                  reason: reason,
-                  user: visual.formatUser(self.roster[room][nick])
-                });
-              }
-              // Any other `unavailable` presence indicates a logout.
-              else {
-                ui.messageAddInfo(strings.info.userOut, {
-                  user:visual.formatUser(self.roster[room][nick])
-                });
-              }
-              // In either case, the old nick must be removed and destroyed.
-              ui.userRemove(self.roster[room][nick]);
-              delete self.roster[room][nick];
-            }
-          }
-          else {
-            // away, dnd, xa, chat, [default].
-            var show = $('show', stanza).text() || 'default';
-            var status = $('status', stanza).text() || '';
+    // Find the status codes.
+    var item = $(stanza).find('item');
+    var codes = $.makeArray($('status', stanza).map(function() {
+        return parseInt($(this).attr('code'));
+    }));
 
-            // Create the user object.
-            var user = {
-              nick: nick,
-              jid: item.attr('jid') || null, // if not anonymous.
-              role: item.attr('role'),
-              affiliation: item.attr('affiliation'),
-              show: show,
-              status: status
-            };
+    if (type == 'unavailable')
+      this.eventPresenceUnavailable(room, nick, codes, item);
+    else
+      this.eventPresenceDefault(room, nick, codes, item, stanza);
+    return true;
+  },
 
-            // A 110-code presence reflects a presence that we sent.
-            if (codes.indexOf(110) >= 0) {
-              // A 210 code indicates the server modified the nick we requested.
-              // This may happen either on joining or changing nicks.
-              if (codes.indexOf(210) >= 0) {
-                ui.messageAddInfo(strings.code[210], 'verbose')
-              }
-              // A 201 code indicates we created this room by joining it.
-              if (codes.indexOf(201) >= 0) {
-                ui.messageAddInfo(strings.code[201], {
-                  room: visual.formatRoom(self.room.available[room])
-                }, 'verbose');
-              }
-
-              if (room != self.room.current) {
-                // We are in a different room now. Leave the old one.
-                if (self.room.current) self.leaveRoom(self.room.current);
-                self.status = 'online';
-                ui.messageAddInfo(strings.info.joined, {
-                  room: visual.formatRoom(self.room.available[room])
-                }, 'verbose');
-                // If this room is not on the room list, add it.
-                if (!self.room.available[room]) {
-                  self.room.available[room] = {id: room, title: room, members: 1};
-                  ui.refreshRooms(self.room.available);
-                }
-                // The room roster has been received by now. Refresh it.
-                ui.updateRoom(room, self.roster[room]);
-                // Delete the old room's roster, if one exists.
-                delete self.roster[self.room.current];
-                self.room.current = room;
-              }
-              self.nick.current = nick;
-            }
-            // We have fully joined this room - track the presence changes.
-            if (self.room.current == room) {
-              var userText = visual.formatUser(user)
-              var vars = {user: userText, status: status ? ' (' + status + ')' : ''}
-              if (!self.roster[room][nick]) {
-                ui.messageAddInfo(strings.info.userIn, vars);
-              }
-              else if (self.roster[room][nick].show != show || self.roster[room][nick].status != status) {
-                ui.messageAddInfo(strings.show[show], vars);
-              }
-            }
-
-            self.roster[room][nick] = user;
-            ui.userAdd(self.roster[room][nick]);
-          }
-        }
+  /**
+   * Handle presence stanzas of type `error`.
+   */
+  eventPresenceError: function(room, nick, stanza) {
+    if ($('conflict', stanza).length) {
+      if (room == this.room.current) {
+        ui.messageAddInfo(strings.error.nickConflict, 'error');
       }
-      return true;
+      else {
+        ui.messageAddInfo(strings.error.joinConflict, 'error');
+        this.nickConflictResolve();
+        ui.messageAddInfo(strings.info.rejoinNick, {nick:this.nick.target});
+        this.joinRoom(this.room.target, this.nick.target);
+      }
     }
+  },
+
+  /**
+   * Handle presence stanzas of type `unavailable`.
+   */
+  eventPresenceUnavailable: function(room, nick, codes, item) {
+    if (room == this.room.current) {
+      // An `unavailable` 303 is a nick change to <item nick="{new}"/>
+      if (codes.indexOf(303) >= 0) {
+        var newNick = item.attr('nick');
+        ui.messageAddInfo(strings.info.userNick, {
+          from:visual.formatUser(this.roster[room][nick]),
+          to:visual.formatUser({
+            nick:newNick,
+            jid:this.roster[room][nick].jid,
+            role:this.roster[room][nick].role,
+            affiliation:this.roster[room][nick].affiliation
+          })
+        });
+        // Move the roster entry to the new nick, so the new presence
+        // won't trigger a notification.
+        this.roster[room][newNick] = this.roster[room][nick];
+        // ejabberd bug: presence does not use 110 code; check nick.
+        if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
+      }
+      // An `unavailable` 307 is a kick.
+      else if (codes.indexOf(307) >= 0) {
+        var actor = $('actor', item).attr('nick');
+        var reason = $('reason', item).text();
+        var index = (actor != null) * 2 + (reason != "");
+        // ejabberd bug: presence does not use 110 code; check nick.
+        if (nick == xmpp.nick.current) {
+          ui.messageAddInfo(strings.info.kickedMe[index], {
+            actor: actor && visual.formatUser(actor),
+            reason: reason
+          }, 'error');
+          xmpp.prejoin();
+        }
+        else ui.messageAddInfo(strings.info.kicked[index], {
+          actor: actor,
+          reason: reason,
+          user: visual.formatUser(this.roster[room][nick])
+        });
+      }
+      // Any other `unavailable` presence indicates a logout.
+      else {
+        ui.messageAddInfo(strings.info.userOut, {
+          user:visual.formatUser(this.roster[room][nick])
+        });
+      }
+      // In either case, the old nick must be removed and destroyed.
+      ui.userRemove(this.roster[room][nick]);
+      delete this.roster[room][nick];
+    }
+  },
+
+  /**
+   * Handle presence stanzas without a type.
+   */
+  eventPresenceDefault: function(room, nick, codes, item, stanza) {
+    // away, dnd, xa, chat, [default].
+    var show = $('show', stanza).text() || 'default';
+    var status = $('status', stanza).text() || '';
+
+    // Create the user object.
+    var user = {
+      nick: nick,
+      jid: item.attr('jid') || null, // if not anonymous.
+      role: item.attr('role'),
+      affiliation: item.attr('affiliation'),
+      show: show,
+      status: status
+    };
+
+    // A 110-code presence reflects a presence that we sent.
+    if (codes.indexOf(110) >= 0) {
+      // A 210 code indicates the server modified the nick we requested.
+      // This may happen either on joining or changing nicks.
+      if (codes.indexOf(210) >= 0) {
+        ui.messageAddInfo(strings.code[210], 'verbose')
+      }
+      // A 201 code indicates we created this room by joining it.
+      if (codes.indexOf(201) >= 0) {
+        ui.messageAddInfo(strings.code[201], {
+          room: visual.formatRoom(this.room.available[room])
+        }, 'verbose');
+      }
+
+      if (room != this.room.current) {
+        // We are in a different room now. Leave the old one.
+        if (this.room.current) this.leaveRoom(this.room.current);
+        this.status = 'online';
+        ui.messageAddInfo(strings.info.joined, {
+          room: visual.formatRoom(this.room.available[room])
+        }, 'verbose');
+        // If this room is not on the room list, add it.
+        if (!this.room.available[room]) {
+          this.room.available[room] = {id: room, title: room, members: 1};
+          ui.refreshRooms(this.room.available);
+        }
+        // The room roster has been received by now. Refresh it.
+        ui.updateRoom(room, this.roster[room]);
+        // Delete the old room's roster, if one exists.
+        delete this.roster[this.room.current];
+        this.room.current = room;
+      }
+      this.nick.current = nick;
+    }
+    // We have fully joined this room - track the presence changes.
+    if (this.room.current == room) {
+      var userText = visual.formatUser(user)
+      var vars = {user: userText, status: status ? ' (' + status + ')' : ''}
+      if (!this.roster[room][nick]) {
+        ui.messageAddInfo(strings.info.userIn, vars);
+      }
+      else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
+        ui.messageAddInfo(strings.show[show], vars);
+      }
+    }
+
+    this.roster[room][nick] = user;
+    ui.userAdd(this.roster[room][nick]);
   },
 
   /**
    * This function handles any <message> stanzas received.
    */
-  eventMessageCallback: function() {
-    var self = this;
-    return function(stanza) {
-      if (stanza) {
-        var from = $(stanza).attr('from');
-        var type = $(stanza).attr('type');
-        var nick = Strophe.getResourceFromJid(from);
-        var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
-        // Only accept messages in the current room.
-        if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != self.room.current)
-          return true;
-        if (type == 'error') {
-          if ($('error', stanza).attr('code') == '404') {
-            ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-            return true
-          }
-        }
-
-        // Only accept messages from nicks we know are in the room.
-        var user = self.roster[room][nick];
-        if (user) {
-          var body = null;
-          var html = $('html body p', stanza).html();
-          if (html) {
-            body = html;
-          } else {
-            body = $($('body', stanza)[0]).text();
-          }
-          var time = $('delay', stanza).attr('stamp');
-          if (time) message = ui.messageDelayed(
-            {user: user, body: body, time: time, room: self.room.available[room], type: type}
-          );
-          else ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
+  eventMessageCallback: function(stanza) {
+    if (stanza) {
+      var from = $(stanza).attr('from');
+      var type = $(stanza).attr('type');
+      var nick = Strophe.getResourceFromJid(from);
+      var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
+      // Only accept messages in the current room.
+      if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != this.room.current)
+        return true;
+      if (type == 'error') {
+        if ($('error', stanza).attr('code') == '404') {
+          ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+          return true
         }
       }
-      return true;
+
+      // Only accept messages from nicks we know are in the room.
+      var user = this.roster[room][nick];
+      if (user) {
+        var body = null;
+        var html = $('html body p', stanza).html();
+        if (html) {
+          body = html;
+        } else {
+          body = $($('body', stanza)[0]).text();
+        }
+        var time = $('delay', stanza).attr('stamp');
+        if (time) message = ui.messageDelayed(
+          {user: user, body: body, time: time, room: this.room.available[room], type: type}
+        );
+        else ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
+      }
     }
+    return true;
   },
 
   /**
    * This function handles any changes in the connection state.
    */
-  eventConnectCallback: function() {
-    var self = this;
-    return function(status, errorCondition) {
-      var msg = strings.connection[status];
-      var status = self.readConnectionStatus(status)
-      if (errorCondition) msg += ' (' + errorCondition + ')';
-      if (status != self.status)
-        ui.messageAddInfo(msg, status == 'offline' ? 'error' : 'verbose');
-      self.status = status;
-      ui.setStatus(self.status);
+  eventConnectCallback: function(status, errorCondition) {
+    var msg = strings.connection[status];
+    var status = this.readConnectionStatus(status)
+    if (errorCondition) msg += ' (' + errorCondition + ')';
+    if (status != this.status)
+      ui.messageAddInfo(msg, status == 'offline' ? 'error' : 'verbose');
+    this.status = status;
+    ui.setStatus(this.status);
 
-      if (status == 'prejoin') {
-        self.announce();
-        var room = self.room.target || config.settings.room;
-        if (config.settings.autoJoin) self.joinRoom(room);
-        else self.prejoin();
-      }
-      else if (status == 'offline') {
-        // The connection is closed and cannot be reused.
-        self.buildConnection();
-        self.nick.current = null;
-        self.room.current = null;
-        self.roster = {};
-        ui.userRefresh({});
-        ui.refreshRooms({});
-      }
-      return true;
+    if (status == 'prejoin') {
+      this.announce();
+      var room = this.room.target || config.settings.room;
+      if (config.settings.autoJoin) this.joinRoom(room);
+      else this.prejoin();
     }
+    else if (status == 'offline') {
+      // The connection is closed and cannot be reused.
+      this.buildConnection();
+      this.nick.current = null;
+      this.room.current = null;
+      this.roster = {};
+      ui.userRefresh({});
+      ui.refreshRooms({});
+    }
+    return true;
   },
 
   /**
@@ -634,10 +631,9 @@ var xmpp = {
    * Close the connection, first sending an `unavailable` presence.
    */
   disconnect: function() {
-    var self = this;
-    return function() {
-      self.connection.send(self.pres().attrs({type: 'unavailable'}));
-      self.connection.disconnect();
-    };
+    if (this.connection) {
+      this.connection.send(this.pres().attrs({type: 'unavailable'}));
+      this.connection.disconnect();
+    }
   }
 }
