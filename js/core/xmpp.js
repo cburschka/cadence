@@ -429,6 +429,7 @@ var xmpp = {
                 // Move the roster entry to the new nick, so the new presence
                 // won't trigger a notification.
                 self.roster[room][newNick] = self.roster[room][nick];
+                if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
               }
               // Any other `unavailable` presence indicates a logout.
               else {
