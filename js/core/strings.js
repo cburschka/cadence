@@ -45,9 +45,9 @@ var strings = {
   },
 
   info: {
-    joined: 'Now talking in room {room}.',
-    joining: 'Joining room {room} as [user] ...',
-    leave: 'Leaving room {room} ...',
+    joined: 'Now talking in {room}.',
+    joining: 'Joining {room} as [user] ...',
+    leave: 'Leaving {room} ...',
     nickRegistered: 'Switching to registered nick {nick}.',
     rejoinNick: 'Rejoining as {nick} ...',
     userIn: '[user] logs into the Chat.',
