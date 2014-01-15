@@ -60,7 +60,7 @@ visual = {
     message.time = message.time ? new Date(message.time) : new Date();
     var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
     body = $('<span>' + body + '</span>');
-    body = message.user.role == 'bot' ? body : this.formatBody(body);
+    if (message.user.role != 'bot') body = this.formatBody(body);
 
     var node =  $('<div class="row messageContainer">'
                   + '<span class="dateTime"></span> '
@@ -71,7 +71,7 @@ visual = {
     $('span.dateTime', node).append(this.formatTime(message.time));
     $('span.author', node).append(this.formatUser(message.user));
     $('span.body', node).append(body);
-    var me = this.findMe(body);
+    var me = message.user.role != 'bot' && this.findMe(body);
     if (me) {
       $('span.authorMessageContainer', node)
         .prepend('* ').wrap('<span class="action"></span>');
