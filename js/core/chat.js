@@ -322,6 +322,24 @@ var chat = {
   },
 
   /**
+   * Attempt to authenticate using an existing web session.
+   */
+  sessionAuth: function(url) {
+    var salt = (new Date().getTime()) + Math.random();
+    $.post(url, {salt: salt}, function(data) {
+      if (!data) return;
+      if (data.user && data.secret) {
+        ui.messageAddInfo(strings.info.auto, {user:data.user});
+        chat.commands.connect({user:data.user, pass:data.secret});
+      }
+      else {
+        ui.setStatus('offline');
+      }
+    }, 'json');
+  },
+
+
+  /**
    * Take a dotted string and return the respective value
    * in the settings dictionary.
    */

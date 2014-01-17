@@ -72,6 +72,7 @@ var strings = {
       'You have been kicked by [actor] ({reason})!'
     ],
     nickPrejoin: 'Your preferred nickname is now {nick}',
+    sessionAuth: 'Automatically logging in as {user}',
   },
 
   error: {

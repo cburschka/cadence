@@ -7,6 +7,9 @@ $(document).ready(function() {
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
   $(window).unload(function() { init.shutDown(); });
+  if (config.settings.autologin && config.xmpp.session_url) {
+    chat.sessionAuth(config.xmpp.session_url);
+  }
 });
 
 init = {
