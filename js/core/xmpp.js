@@ -139,7 +139,7 @@ var xmpp = {
    */
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room:
-      visual.formatRoom(this.room.available[this.room.current])
+      visual.formatRoom(this.room.available[room])
     }, 'verbose');
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
@@ -501,8 +501,13 @@ var xmpp = {
       }
 
       if (room != this.room.current) {
+        var oldRoom = this.room.current;
+        this.room.current = room;
         // We are in a different room now. Leave the old one.
-        if (this.room.current) this.leaveRoom(this.room.current);
+        if (oldRoom) {
+          delete this.roster[oldRoom];
+          this.leaveRoom(oldRoom);
+        }
         this.status = 'online';
         ui.messageAddInfo(strings.info.joined, {
           room: visual.formatRoom(this.room.available[room])
@@ -515,8 +520,6 @@ var xmpp = {
         // The room roster has been received by now. Refresh it.
         ui.updateRoom(room, this.roster[room]);
         // Delete the old room's roster, if one exists.
-        delete this.roster[this.room.current];
-        this.room.current = room;
       }
       this.nick.current = nick;
     }
