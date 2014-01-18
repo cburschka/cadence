@@ -592,8 +592,16 @@ var xmpp = {
 
     if (status == 'prejoin') {
       this.announce();
-      var room = this.room.target || config.settings.room;
-      if (config.settings.xmpp.autoJoin) this.joinRoom(room);
+      var room = this.room.target || config.settings.xmpp.room;
+      if (config.settings.xmpp.autoJoin) {
+        this.discoverRooms(function (rooms) {
+          if (rooms[room]) chat.commands.join(room);
+          else {
+            ui.messageAddInfo(strings.error.unknownRoomAuto, {room: room});
+            xmpp.prejoin();
+          }
+        });
+      }
       else this.prejoin();
     }
     else if (status == 'offline') {
