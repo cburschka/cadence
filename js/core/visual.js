@@ -120,7 +120,7 @@ visual = {
    *                  don't match their nickname will be parenthesized.
    */
   formatUser: function(user) {
-    var nick = this.textPlain(user.nick);
+    var nick = this.textPlain(user.nick.replace(/%20/g, ' ');
     var jid = this.textPlain(user.jid || '');
     nick = this.lengthLimit(nick, config.ui.maxNickLength);
     // Show guest users as guests regardless of room status.

@@ -77,7 +77,7 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = visual.lengthLimit(visual.textPlain(arg.trim().replace(/ /g, '_')), config.ui.maxNickLength);
+      var nick = visual.lengthLimit(visual.textPlain(arg.trim().replace(/\s/g, '%20'), config.ui.maxNickLength);
       xmpp.changeNick(nick);
     },
 
