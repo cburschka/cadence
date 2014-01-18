@@ -105,16 +105,19 @@ var chat = {
      */
     list: function() {
       xmpp.discoverRooms(function(rooms) {
-        var links = [];
-        for (var room in rooms) {
-          links.push(
-               '<a href="javascript:void()" onclick="chat.commands.join(\''
-             + room + '\');"'
-             + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-             + '>' + visual.formatRoom(rooms[room]) + '</a>'
-          );
+        if (rooms) {
+          var links = [];
+          for (var room in rooms) {
+            links.push(
+                 '<a href="javascript:void()" onclick="chat.commands.join(\''
+               + room + '\');"'
+               + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
+               + '>' + visual.formatRoom(rooms[room]) + '</a>'
+            );
+          }
+          ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
         }
-        ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
+        else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
       });
     },
 

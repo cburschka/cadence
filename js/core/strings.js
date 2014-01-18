@@ -85,5 +85,6 @@ var strings = {
     unknownRoom: 'Room {room} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {room}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',
+    noRoomsAvailable: 'There are no rooms available.',
   }
 };
