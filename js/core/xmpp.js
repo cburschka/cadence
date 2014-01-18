@@ -590,7 +590,7 @@ var xmpp = {
     if (status == 'prejoin') {
       this.announce();
       var room = this.room.target || config.settings.room;
-      if (config.settings.autoJoin) this.joinRoom(room);
+      if (config.settings.xmpp.autoJoin) this.joinRoom(room);
       else this.prejoin();
     }
     else if (status == 'offline') {

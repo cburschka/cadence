@@ -38,6 +38,8 @@ var config = {
 
     xmpp: {
       room: 'lounge',
+      autoJoin: true,
+      sessionAuth: true,
     }
   },
 

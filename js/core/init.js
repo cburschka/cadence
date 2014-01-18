@@ -7,7 +7,7 @@ $(document).ready(function() {
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
   $(window).unload(function() { init.shutDown(); });
-  if (config.settings.sessionAuth && config.xmpp.sessionAuthURL) {
+  if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
     chat.sessionAuth(config.xmpp.sessionAuthURL);
   }
   else ui.setStatus('offline');

@@ -54,7 +54,7 @@ var chat = {
         arg = {user: m[1], pass: m[2].trim()};
       }
       if (!arg.user || !arg.pass) {
-        if (config.settings.sessionAuth && config.xmpp.sessionAuthURL) {
+        if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
           return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
         else return fail();
       }
