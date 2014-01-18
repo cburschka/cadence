@@ -120,9 +120,8 @@ visual = {
    *                  don't match their nickname will be parenthesized.
    */
   formatUser: function(user) {
-    var nick = this.textPlain(user.nick.replace(/%20/g, ' '));
+    var nick = this.formatNick(user.nick);
     var jid = this.textPlain(user.jid || '');
-    nick = this.lengthLimit(nick, config.ui.maxNickLength);
     // Show guest users as guests regardless of room status.
     if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
       user.role = 'visitor';
@@ -169,6 +168,16 @@ visual = {
   formatRoom: function(room) {
     return room.title;
   },
+
+  /**
+   * Format a nick.
+   */
+  formatNick: function(nick) {
+    return this.lengthLimit(
+      this.textPlain(nick.replace(/%20/g, ' ')),
+      config.ui.maxNickLength
+    );
+  }
 
   /**
    * Poor man's sprintf, with some features from Drupal's t().

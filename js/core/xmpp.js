@@ -129,7 +129,9 @@ var xmpp = {
     this.nick.target = nick;
     if (this.status == 'online')
       this.connection.send(this.presence(this.room.current, nick));
-    else ui.messageAddInfo(strings.info.nickPrejoin, {nick: nick});
+    else ui.messageAddInfo(strings.info.nickPrejoin, {
+      nick: visual.formatNick(nick)
+    });
   },
 
   /**
@@ -229,7 +231,9 @@ var xmpp = {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
-          ui.messageAddInfo(strings.info.nickRegistered, {nick:nick}, 'verbose');
+          ui.messageAddInfo(strings.info.nickRegistered, {
+            nick:visual.formatNick(nick)
+          }, 'verbose');
         }
         joinRoom();
       });
@@ -403,12 +407,18 @@ var xmpp = {
   eventPresenceError: function(room, nick, stanza) {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
-        ui.messageAddInfo(strings.error.nickConflict, {nick:nick}, 'error');
+        ui.messageAddInfo(strings.error.nickConflict, {
+          nick:visual.formatNick(nick)
+        }, 'error');
       }
       else {
-        ui.messageAddInfo(strings.error.joinConflict, {nick:nick}, 'error');
+        ui.messageAddInfo(strings.error.joinConflict, {
+          nick:visual.formatNick(nick)
+        } 'error');
         this.nickConflictResolve();
-        ui.messageAddInfo(strings.info.rejoinNick, {nick:this.nick.target});
+        ui.messageAddInfo(strings.info.rejoinNick, {
+          nick:visual.formatNick(this.nick.target)
+        });
         this.joinRoom(this.room.target, this.nick.target);
       }
     }
@@ -553,7 +563,9 @@ var xmpp = {
         return true;
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {
+            nick: visual.formatNick(nick)
+          }, 'error');
           return true
         }
       }
