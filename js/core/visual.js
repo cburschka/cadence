@@ -68,8 +68,8 @@ visual = {
                   + '<span class="author"></span> '
                   + '<span class="body"></span></span></div>');
 
-    $('span.dateTime', node).append(this.formatTime(message.time));
-    $('span.author', node).append(this.formatUser(message.user));
+    $('span.dateTime', node).append(this.format.time(message.time));
+    $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
     var me = message.user.role != 'bot' && this.findMe(body);
     if (me) {
@@ -95,45 +95,81 @@ visual = {
     };
   },
 
-  /**
-   * Render a time-stamp for output.
-   *
-   * @param {Date} time The timestamp or null for the current time.
-   * @return {string} A timestamp formatted according to config.settings.dateFormat.
-   */
-  formatTime: function(time) {
-    time = time || (new Date());
-    return moment(time).format(config.settings.dateFormat);
-  },
+  format: {
+    /**
+     * Render a time-stamp for output.
+     *
+     * @param {Date} time The timestamp or null for the current time.
+     * @return {string} A timestamp formatted according to config.settings.dateFormat.
+     */
+    time: function(time) {
+      time = time || (new Date());
+      return moment(time).format(config.settings.dateFormat);
+    },
 
-  /**
-   * Render a user object for output.
-   *
-   * @param {Object} user The user object to render. It must have these keys:
-   *                 * nick: {string} The user's nickname.
-   *                 * jid: {string} The user's jid, or null.
-   *                 * role: {string} The XEP-0045 room role of the user.
-   *                 * affiliation: {string} The XEP-0045 room affiliation.
-   *                 * [show]: The <show/> (mostly away or null) of the user.
-   * @return {string} The rendered user markup. It will have classes for role,
-   *                  affiliation and status. Guests and people whose real nodes
-   *                  don't match their nickname will be parenthesized.
-   */
-  formatUser: function(user) {
-    var nick = this.formatNick(user.nick);
-    var jid = this.textPlain(user.jid || '');
-    // Show guest users as guests regardless of room status.
-    if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
-      user.role = 'visitor';
-      user.affiliation = 'none';
+    /**
+     * Render a user object for output.
+     *
+     * @param {Object} user The user object to render. It must have these keys:
+     *                 * nick: {string} The user's nickname.
+     *                 * jid: {string} The user's jid, or null.
+     *                 * role: {string} The XEP-0045 room role of the user.
+     *                 * affiliation: {string} The XEP-0045 room affiliation.
+     *                 * [show]: The <show/> (mostly away or null) of the user.
+     * @return {string} The rendered user markup. It will have classes for role,
+     *                  affiliation and status. Guests and people whose real nodes
+     *                  don't match their nickname will be parenthesized.
+     */
+    user: function(user) {
+      var nick = visual.format.nick(user.nick);
+      var jid = visual.format.plain(user.jid || '');
+      // Show guest users as guests regardless of room status.
+      if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
+        user.role = 'visitor';
+        user.affiliation = 'none';
+      }
+      if (user.role == 'visitor' || (user.jid && user.nick != Strophe.getNodeFromJid(user.jid)))
+        nick = '(' + nick + ')';
+      return  '<span class="user-role-' + user.role
+            + ' user-affiliation-' + user.affiliation
+            + ' user-show-' + (user.show || 'default')
+            + '" ' + (jid ? ('title="' + jid + '"') : '')
+            + '>' + nick + '</span>';
+    },
+
+    /**
+     * Format a room object.
+     * Currently only returns the room title.
+     */
+    room: function(room) {
+      return room.title;
+    },
+
+    /**
+     * Format a nick.
+     */
+    nick: function(nick) {
+      return visual.lengthLimit(
+        visual.format.plain(nick.replace(/%20/g, ' ')),
+        config.ui.maxNickLength
+      );
+    },
+
+    /**
+     * Escape < and > in a text.
+     *
+     * Wherever possible, this function should be avoided in favor of DOM
+     * and jQuery methods like $.text() and Text().
+     * Only use it when working on strings.
+     */
+    plain: function(text) {
+      var replacers = {'<': '&lt;', '>': '&gt;', '&':'&amp;'};
+      return text.replace(/[<>&]/g, function(x) { return replacers[x]; });
+    },
+
+    raw: function(text) {
+      return raw;
     }
-    if (user.role == 'visitor' || (user.jid && user.nick != Strophe.getNodeFromJid(user.jid)))
-      nick = '(' + nick + ')';
-    return  '<span class="user-role-' + user.role
-          + ' user-affiliation-' + user.affiliation
-          + ' user-show-' + (user.show || 'default')
-          + '" ' + (jid ? ('title="' + jid + '"') : '')
-          + '>' + nick + '</span>';
   },
 
   /**
@@ -161,23 +197,6 @@ visual = {
     return jq;
   },
 
-  /**
-   * Format a room object.
-   * Currently only returns the room title.
-   */
-  formatRoom: function(room) {
-    return room.title;
-  },
-
-  /**
-   * Format a nick.
-   */
-  formatNick: function(nick) {
-    return this.lengthLimit(
-      this.textPlain(nick.replace(/%20/g, ' ')),
-      config.ui.maxNickLength
-    );
-  }
 
   /**
    * Poor man's sprintf, with some features from Drupal's t().
@@ -191,9 +210,15 @@ visual = {
    * @return {string} The rendered text.
    */
   formatText: function(text, variables) {
-    text = text.replace(/\{([a-z]+)\}|\[([a-z]+)\]/g, function(rep, plain, raw) {
-      var key = plain || raw;
-      return typeof variables[key] == 'string' ? (plain ? visual.textPlain(variables[key]) : variables[key]) : rep;
+    for (var key in variables) if (!variables[key]) delete variables[key];
+    for (var key in variables) {
+      var m = /([a-z]+)\.[a-z]+/.exec(key);
+      var type = m ? m[1] : key;
+      type = this.format[type] ? type : 'plain';
+      variables[key] = this.format[type](variables[key]);
+    }
+    text = text.replace(/\{([a-z\.]+)\}/g, function(rep, key) {
+      return typeof variables[key] == 'string' ? variables[key] : rep;
     });
     return text;
   },
@@ -270,18 +295,6 @@ visual = {
       jq.find('img').replaceWith(function() {
         return '[image:' + $(this).attr('src') + ']'
       });
-  },
-
-  /**
-   * Escape < and > in a text.
-   *
-   * Wherever possible, this function should be avoided in favor of DOM
-   * and jQuery methods like $.text() and Text().
-   * Only use it when working on strings.
-   */
-  textPlain: function(text) {
-    var replacers = {'<': '&lt;', '>': '&gt;', '&':'&amp;'};
-    return text.replace(/[<>&]/g, function(x) { return replacers[x]; });
   },
 
   /**

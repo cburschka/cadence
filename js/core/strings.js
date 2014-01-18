@@ -33,10 +33,10 @@ var strings = {
   },
 
   show: {
-    away: '[user] is away{status}.',
-    xa: '[user] is away{status}.',
-    busy: '[user] is busy{status}.',
-    default: '[user] has returned.',
+    away: '{user} is away{status}.',
+    xa: '{user} is away{status}.',
+    busy: '{user} is busy{status}.',
+    default: '{user} has returned.',
   },
 
   code: {
@@ -46,33 +46,33 @@ var strings = {
 
   info: {
     joined: 'Now talking in {room}.',
-    joining: 'Joining {room} as [user] ...',
+    joining: 'Joining {room} as {user} ...',
     leave: 'Leaving {room} ...',
     nickRegistered: 'Switching to registered nick {nick}.',
     rejoinNick: 'Rejoining as {nick} ...',
-    userIn: '[user] logs into the Chat.',
-    userNick: '[from] is now known as [to].',
-    userOut: '[user] has logged out of the Chat.',
+    userIn: '{user} logs into the Chat.',
+    userNick: '{user.from} is now known as {user.to}.',
+    userOut: '{user} has logged out of the Chat.',
     noUsers: 'No users are online in {room}.',
-    roomsAvailable: 'Available rooms: [rooms]',
+    roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {users}.',
-    usersInThisRoom: 'Users in this room: [users].',
+    usersInThisRoom: 'Users in this room: {raw.users}.',
     whisperTo: '(whispers to {nick})',
     whisper: '(whispers)',
     kicked: [
-      '[user] has been kicked.',
-      '[user] has been kicked ({reason}).',
-      '[actor] has kicked [user].',
-      '[actor] has kicked [user] ({reason}).'
+      '{user} has been kicked.',
+      '{user} has been kicked ({reason}).',
+      '{user.actor} has kicked {user}.',
+      '{user.actor} has kicked {user} ({reason}).'
     ],
     kickedMe: [
       'You have been kicked!',
       'You have been been kicked ({reason})!',
-      'You have been kicked by [actor]!',
-      'You have been kicked by [actor] ({reason})!'
+      'You have been kicked by {user.actor}!',
+      'You have been kicked by {user.actor} ({reason})!'
     ],
     nickPrejoin: 'Your preferred nickname is now {nick}',
-    sessionAuth: 'Automatically logging in as {user}',
+    sessionAuth: 'Automatically logging in as {username}',
   },
 
   error: {

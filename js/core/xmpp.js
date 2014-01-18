@@ -129,9 +129,7 @@ var xmpp = {
     this.nick.target = nick;
     if (this.status == 'online')
       this.connection.send(this.presence(this.room.current, nick));
-    else ui.messageAddInfo(strings.info.nickPrejoin, {
-      nick: visual.formatNick(nick)
-    });
+    else ui.messageAddInfo(strings.info.nickPrejoin, {nick: nick});
   },
 
   /**
@@ -140,9 +138,7 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
-    ui.messageAddInfo(strings.info.leave, {room:
-      visual.formatRoom(this.room.available[room])
-    }, 'verbose');
+    ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
     this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
@@ -218,11 +214,11 @@ var xmpp = {
 
     var joinRoom = function() {
       ui.messageAddInfo(strings.info.joining, {
-        room: visual.formatRoom(this.room.available[room]),
-        user: visual.formatUser({
+        room: this.room.available[room],
+        user: {
           nick: this.nick.target,
           jid: this.connection.jid
-        })
+        }
       }, 'verbose');
       this.connection.send(this.presence(room, this.nick.target));
     }.bind(this);
@@ -231,9 +227,7 @@ var xmpp = {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
-          ui.messageAddInfo(strings.info.nickRegistered, {
-            nick:visual.formatNick(nick)
-          }, 'verbose');
+          ui.messageAddInfo(strings.info.nickRegistered, {nick: nick}, 'verbose');
         }
         joinRoom();
       });
@@ -407,18 +401,12 @@ var xmpp = {
   eventPresenceError: function(room, nick, stanza) {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
-        ui.messageAddInfo(strings.error.nickConflict, {
-          nick:visual.formatNick(nick)
-        }, 'error');
+        ui.messageAddInfo(strings.error.nickConflict, {nick: nick}, 'error');
       }
       else {
-        ui.messageAddInfo(strings.error.joinConflict, {
-          nick:visual.formatNick(nick)
-        } 'error');
+        ui.messageAddInfo(strings.error.joinConflict, {nick: nick}, 'error');
         this.nickConflictResolve();
-        ui.messageAddInfo(strings.info.rejoinNick, {
-          nick:visual.formatNick(this.nick.target)
-        });
+        ui.messageAddInfo(strings.info.rejoinNick, {nick: this.nick.target});
         this.joinRoom(this.room.target, this.nick.target);
       }
     }
@@ -433,13 +421,13 @@ var xmpp = {
       if (codes.indexOf(303) >= 0) {
         var newNick = item.attr('nick');
         ui.messageAddInfo(strings.info.userNick, {
-          from:visual.formatUser(this.roster[room][nick]),
-          to:visual.formatUser({
-            nick:newNick,
-            jid:this.roster[room][nick].jid,
-            role:this.roster[room][nick].role,
-            affiliation:this.roster[room][nick].affiliation
-          })
+          'user.from': this.roster[room][nick],
+          'user.to': {
+            nick: newNick,
+            jid: this.roster[room][nick].jid,
+            role: this.roster[room][nick].role,
+            affiliation: this.roster[room][nick].affiliation
+          }
         });
         // Move the roster entry to the new nick, so the new presence
         // won't trigger a notification.
@@ -455,22 +443,20 @@ var xmpp = {
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
           ui.messageAddInfo(strings.info.kickedMe[index], {
-            actor: actor && visual.formatUser(actor),
+            'user.actor': actor,
             reason: reason
           }, 'error');
           xmpp.prejoin();
         }
         else ui.messageAddInfo(strings.info.kicked[index], {
-          actor: actor,
+          'user.actor': actor,
           reason: reason,
-          user: visual.formatUser(this.roster[room][nick])
+          user: this.roster[room][nick]
         });
       }
       // Any other `unavailable` presence indicates a logout.
       else {
-        ui.messageAddInfo(strings.info.userOut, {
-          user:visual.formatUser(this.roster[room][nick])
-        });
+        ui.messageAddInfo(strings.info.userOut, {user: this.roster[room][nick]});
       }
       // In either case, the old nick must be removed and destroyed.
       ui.userRemove(this.roster[room][nick]);
@@ -505,9 +491,7 @@ var xmpp = {
       }
       // A 201 code indicates we created this room by joining it.
       if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {
-          room: visual.formatRoom(this.room.available[room])
-        }, 'verbose');
+        ui.messageAddInfo(strings.code[201], {room: this.room.available[room]}, 'verbose');
       }
 
       if (room != this.room.current) {
@@ -519,9 +503,7 @@ var xmpp = {
           this.leaveRoom(oldRoom);
         }
         this.status = 'online';
-        ui.messageAddInfo(strings.info.joined, {
-          room: visual.formatRoom(this.room.available[room])
-        }, 'verbose');
+        ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
         // If this room is not on the room list, add it.
         if (!this.room.available[room]) {
           this.room.available[room] = {id: room, title: room, members: 1};
@@ -535,13 +517,14 @@ var xmpp = {
     }
     // We have fully joined this room - track the presence changes.
     if (this.room.current == room) {
-      var userText = visual.formatUser(user)
-      var vars = {user: userText, status: status ? ' (' + status + ')' : ''}
       if (!this.roster[room][nick]) {
-        ui.messageAddInfo(strings.info.userIn, vars);
+        ui.messageAddInfo(strings.info.userIn, {user: user});
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
-        ui.messageAddInfo(strings.show[show], vars);
+        ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
+          user: user,
+          status: status
+        });
       }
     }
 
@@ -563,9 +546,7 @@ var xmpp = {
         return true;
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {
-            nick: visual.formatNick(nick)
-          }, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
           return true
         }
       }

@@ -333,7 +333,7 @@ var ui = {
       entry.html.addClass('delayed');
       entry.html.find('.dateTime').after(
           ' <span class="log-room log-room-' + message.room.id + '">['
-        + visual.formatRoom(message.room)
+        + visual.format.room(message.room)
         + ']</span>'
       );
       this.messageInsert(entry);
@@ -393,7 +393,7 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row">' + visual.formatUser(user) + '</div>');
+    var userLink = $('<div class="row">' + visual.format.user(user) + '</div>');
 
     if (!this.userLinks[user.nick]) {
       userLink.appendTo(this.dom.onlineList);

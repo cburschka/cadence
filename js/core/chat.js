@@ -77,7 +77,7 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = visual.lengthLimit(visual.textPlain(arg.trim().replace(/\s/g, '%20')), config.ui.maxNickLength);
+      var nick = visual.format.nick(arg.trim()).replace(/\s/g, '%20');
       xmpp.changeNick(nick);
     },
 
@@ -89,11 +89,9 @@ var chat = {
     join: function(arg) {
       var room = chat.getRoomFromTitle(arg.trim());
       if (!room)
-        return ui.messageAddInfo(strings.error.unknownRoom, {room: arg.trim()}, 'error');
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.trim()}, 'error');
       if (xmpp.room.current == room.id) {
-        return ui.messageAddInfo(strings.error.joinSame, {
-          room: visual.formatRoom(room)
-        }, 'error');
+        return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
       }
       xmpp.joinRoom(room.id);
       chat.setSetting('xmpp.room', room.id);
@@ -112,10 +110,10 @@ var chat = {
                  '<a href="javascript:void()" onclick="chat.commands.join(\''
                + room + '\');"'
                + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-               + '>' + visual.formatRoom(rooms[room]) + '</a>'
+               + '>' + visual.format.room(rooms[room]) + '</a>'
             );
           }
-          ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
+          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
         }
         else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
       });
@@ -130,7 +128,7 @@ var chat = {
       var nick = arg[1];
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.textPlain(arg[2]), config.ui.maxMessageLength);
+      var msg = visual.lengthLimit(visual.format.plain(arg[2]), config.ui.maxMessageLength);
       chat.sendMessage(msg, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
@@ -161,7 +159,7 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      arg = visual.lengthLimit(visual.textPlain(arg), config.ui.maxMessageLength);
+      arg = visual.lengthLimit(visual.format.plain(arg), config.ui.maxMessageLength);
       chat.sendMessage(arg);
     },
 
@@ -174,25 +172,23 @@ var chat = {
       var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
       console.log(room);
       if (!room)
-        return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {room: arg}, 'error');
+        return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {name: arg}, 'error');
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, function(users) {
           var out = [];
           for (var nick in users) out.push(nick)
           if (users) ui.messageAddInfo(strings.info.usersInRoom, {
-            room: visual.formatRoom(room),
-            users: out.join(', ')
+            room: room,
+            'raw.users': out.join(', ')
           });
-          else ui.messageAddInfo(strings.info.noUsers, {
-            room: visual.formatRoom(room)
-          });
+          else ui.messageAddInfo(strings.info.noUsers, {room: room});
         })
       }
       else {
         var links = []
         for (var user in xmpp.roster[xmpp.room.current])
-          links.push(visual.formatUser(xmpp.roster[xmpp.room.current][user]));
-        ui.messageAddInfo(strings.info.usersInThisRoom, {users:links.join(', ')});
+          links.push(visual.format.user(xmpp.roster[xmpp.room.current][user]));
+        ui.messageAddInfo(strings.info.usersInThisRoom, {'raw.users': links.join(', ')});
       }
     }
   },
@@ -336,7 +332,7 @@ var chat = {
     $.post(url, {salt: salt}, function(data) {
       if (!data) return;
       if (data.user && data.secret) {
-        ui.messageAddInfo(strings.info.sessionAuth, {user:data.user});
+        ui.messageAddInfo(strings.info.sessionAuth, {username:data.user});
         chat.commands.connect({user:data.user, pass:data.secret});
       }
       else {
