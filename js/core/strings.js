@@ -78,9 +78,9 @@ var strings = {
   error: {
     cmdStatus: '/{cmd} command not available while {status}',
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
-    joinConflict: 'Unable to join; username already in use.',
-    joinSame: 'You are already in room {room}.',
-    nickConflict: 'Username already in use.',
+    joinConflict: 'Unable to join; username {nick} already in use.',
+    joinSame: 'You are already in {room}.',
+    nickConflict: 'Username {nick} already in use.',
     userpass: 'User and password are required.',
     unknownRoom: 'Room {room} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {room}; it doesn\'t exist.',

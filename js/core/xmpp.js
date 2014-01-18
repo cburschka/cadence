@@ -403,10 +403,10 @@ var xmpp = {
   eventPresenceError: function(room, nick, stanza) {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
-        ui.messageAddInfo(strings.error.nickConflict, 'error');
+        ui.messageAddInfo(strings.error.nickConflict, {nick:nick}, 'error');
       }
       else {
-        ui.messageAddInfo(strings.error.joinConflict, 'error');
+        ui.messageAddInfo(strings.error.joinConflict, {nick:nick}, 'error');
         this.nickConflictResolve();
         ui.messageAddInfo(strings.info.rejoinNick, {nick:this.nick.target});
         this.joinRoom(this.room.target, this.nick.target);
