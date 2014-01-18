@@ -269,7 +269,7 @@ visual = {
       function(url) {
         return  '<a href="' + url +
                 '" onclick="window.open(this.href); return false;">' // I'm sorry. I'm so, so sorry.
-                + url + '</a>';
+                + visual.ellipsis(url, 32) + '</a>';
       }
     );
   },
@@ -293,7 +293,7 @@ visual = {
       });
     else
       jq.find('img').replaceWith(function() {
-        return '[image:' + $(this).attr('src') + ']'
+        return '[image:' + visual.ellipsis($(this).attr('src'), 32) + ']'
       });
   },
 
@@ -344,5 +344,9 @@ visual = {
    */
   lengthLimit: function(str, len) {
     return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
+  },
+
+  ellipsis: function(str, len) {
+    return (len && str.length > len) ? str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2) : str;
   }
 };
