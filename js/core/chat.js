@@ -48,12 +48,16 @@ var chat = {
      *   Open a connection and authenticate.
      */
     connect: function(arg) {
+      var fail = function() { return ui.messageAddInfo(strings.error.userpass, 'error') };
       if (typeof arg == 'string') {
         var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
         arg = {user: m[1], pass: m[2].trim()};
       }
-      if (!arg.user || !arg.pass)
-        return ui.messageAddInfo(strings.error.userpass, 'error');
+      if (!arg.user || !arg.pass) {
+        if (config.settings.sessionAuth && config.xmpp.sessionAuthURL) {
+          return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
+        else return fail();
+      }
       if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
         arg.pass = arg.pass.substring(1, arg.pass.length-1);
       }
@@ -324,18 +328,19 @@ var chat = {
   /**
    * Attempt to authenticate using an existing web session.
    */
-  sessionAuth: function(url) {
+  sessionAuth: function(url, callback) {
     var salt = (new Date().getTime()) + Math.random();
     $.post(url, {salt: salt}, function(data) {
       if (!data) return;
       if (data.user && data.secret) {
-        ui.messageAddInfo(strings.info.auto, {user:data.user});
+        ui.messageAddInfo(strings.info.sessionAuth, {user:data.user});
         chat.commands.connect({user:data.user, pass:data.secret});
       }
       else {
         ui.setStatus('offline');
+        if (callback) callback();
       }
-    }, 'json');
+    }, 'json').fail(callback);
   },
 
 

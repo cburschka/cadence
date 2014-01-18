@@ -298,7 +298,7 @@ var config = {
     domain: 'eris.ermarian.net',
     boshURL: 'http://eris.ermarian.net:5280/http-bind/',
     muc_service: 'conference.ermarian.net',
-    session_url: 'http://ermarian.net/smf/xmpp-login.php',
+    sessionAuthURL: 'http://ermarian.net/smf/xmpp-login.php',
   },
 
   ui: {

@@ -7,9 +7,10 @@ $(document).ready(function() {
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
   $(window).unload(function() { init.shutDown(); });
-  if (config.settings.autologin && config.xmpp.session_url) {
-    chat.sessionAuth(config.xmpp.session_url);
+  if (config.settings.sessionAuth && config.xmpp.sessionAuthURL) {
+    chat.sessionAuth(config.xmpp.sessionAuthURL);
   }
+  else ui.setStatus('offline');
 });
 
 init = {
