@@ -293,6 +293,26 @@ var xmpp = {
   },
 
   /**
+   * Set a user's role (by roomnick) or affiliation (by jid).
+   */
+  setUser: function(item, success, error) {
+    this.connection.sendIQ(
+      $iq({
+        from: this.connection.jid,
+        to: Strophe.escapeNode(this.room.current) + '@' + config.xmpp.muc_service,
+        type: 'set'
+      })
+      .c('query', {xmlns: Strophe.NS.MUC + '#admin'})
+      .c('item', item),
+      success,
+      function(response) {
+        var code = $('error', response).attr('code');
+        error(code, response);
+      }
+    );
+  },
+
+  /**
    * Query a room for its occupant list.
    */
   getOccupants: function(room, callback) {

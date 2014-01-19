@@ -93,6 +93,10 @@ var strings = {
       waiting: '/{cmd}: Not available while connecting.',
       prejoin: '/{cmd}: You need to join a room first.',
     },
+    kick: {
+      405: 'You don\'t have the authority to kick {nick}.',
+      406: 'You can\'t kick {nick} because they\'re not in the room.',
+    },
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',

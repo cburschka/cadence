@@ -81,6 +81,19 @@ var chat = {
     },
 
     /**
+     * kick <nick>
+     *   Ask XMPP to kick a user.
+     *   The client will not validate the command or its authority; that's the
+     *   server's job.
+     */
+    kick: function(arg) {
+      var nick = arg.trim();
+      xmpp.setUser({nick: nick, role: 'none'}, function() {}, function(errorCode) {
+        ui.messageAddInfo(strings.error.kick[errorCode], {nick: nick}, 'error');
+      });
+    },
+
+    /**
      * list:
      *   List available rooms.
      */
@@ -198,7 +211,7 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'say', 'who'],
+    online: ['away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'say', 'who'],
     prejoin: ['join', 'list', 'nick', 'quit', 'who'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],
