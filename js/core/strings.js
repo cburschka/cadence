@@ -33,10 +33,21 @@ var strings = {
   },
 
   show: {
-    away: '{user} is away{status}.',
-    xa: '{user} is away{status}.',
-    busy: '{user} is busy{status}.',
-    default: '{user} has returned.',
+    away: [
+      '{user} is away.',
+      '{user} is away ({status}).',
+    ],
+    xa: [
+      '{user} is away.',
+      '{user} is away ({status}).',
+    ],
+    busy: [
+      '{user} is busy.',
+      '{user} is busy ({status}).',
+    ],
+    default: [
+      '{user} has returned.',
+    ],
   },
 
   code: {
