@@ -65,23 +65,6 @@ var chat = {
     },
 
     /**
-     * me <msg>
-     *   Alias for /say "/me <msg>".
-     */
-    me: function(arg) {
-      this.say('/me ' + arg); // XEP-0245 says to send this in plain.
-    },
-
-    /**
-     * nick <nick>
-     *   Ask XMPP to change the nick in the current room.
-     */
-    nick: function(arg) {
-      var nick = visual.format.nick(arg.trim()).replace(/\s/g, '%20');
-      xmpp.changeNick(nick);
-    },
-
-    /**
      * join <room>
      *   Ask XMPP to join <room>. If successful, XMPP
      *   will automatically leave the current room.
@@ -120,6 +103,14 @@ var chat = {
     },
 
     /**
+     * me <msg>
+     *   Alias for /say "/me <msg>".
+     */
+    me: function(arg) {
+      this.say('/me ' + arg); // XEP-0245 says to send this in plain.
+    },
+
+    /**
      * msg <nick> <msg>
      *   Send a private message to another occupant.
      */
@@ -136,6 +127,15 @@ var chat = {
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
         body: chat.formatOutgoing(msg)
       }));
+    },
+
+    /**
+     * nick <nick>
+     *   Ask XMPP to change the nick in the current room.
+     */
+    nick: function(arg) {
+      var nick = visual.format.nick(arg.trim()).replace(/\s/g, '%20');
+      xmpp.changeNick(nick);
     },
 
     /**
