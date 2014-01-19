@@ -348,5 +348,18 @@ visual = {
 
   ellipsis: function(str, len) {
     return (len && str.length > len) ? str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2) : str;
+  },
+
+  messagesToText: function(messages) {
+    var x = [];
+    $(messages).each(function() {
+      var jQ = this.html.clone();
+      jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
+      jQ.find('img.emoticon').replaceWith(function() { return $(this).attr('alt'); });
+      jQ.find('img').replaceWith(function() { return '[img]' + this.src + '[/img]'; });
+      jQ.find('q').replaceWith(function() { return '"' + $(this).html() + '"'; });
+      x.push(jQ.text());
+    });
+    return x.join("\n");
   }
 };

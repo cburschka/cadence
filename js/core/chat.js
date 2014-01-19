@@ -168,6 +168,20 @@ var chat = {
     },
 
     /**
+     * save
+     *   Create a text file (by data: URI) from the chat history.
+     */
+    save: function(arg) {
+      var type = arg.trim();
+      type = type == 'html' ? 'html' : 'plain';
+      var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
+      var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
+      var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+      var suffix = type == 'html' ? 'html' : 'log';
+      saveAs(blob, xmpp.room.current + '-' + timestamp + '.' + suffix);
+    },
+
+    /**
      * say <msg>
      *   The default command that simply sends a message verbatim.
      */
@@ -211,7 +225,7 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'say', 'who'],
+    online: ['away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'save', 'say', 'who'],
     prejoin: ['join', 'list', 'nick', 'quit', 'who'],
     offline: ['clear', 'connect'],
     waiting: ['clear', 'connect', 'quit'],

@@ -16,3 +16,6 @@
 [submodule "js/lib/buzz"]
 	path = js/lib/buzz
 	url = git://github.com/jaysalvat/buzz.git
+[submodule "js/lib/FileSaver.js"]
+	path = js/lib/filesaver
+	url = https://github.com/eligrey/FileSaver.js
