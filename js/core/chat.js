@@ -228,8 +228,12 @@ var chat = {
     }
 
     if (this.commands[cmd]) {
+      var status = xmpp.status;
+      if (xmpp.status == 'prejoin' && this.cmdAvailableStatus['online'].indexOf(cmd) < 0) {
+        return ui.messageAddInfo(strings.error.cmdStatus['online'], {cmd:cmd}, 'error');
+      }
       if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
-        return ui.messageAddInfo(strings.error.cmdStatus, {cmd:cmd,status:xmpp.status}, 'error');
+        return ui.messageAddInfo(strings.error.cmdStatus[xmpp.status], {cmd:cmd}, 'error');
       }
       this.commands[cmd](text);
     }

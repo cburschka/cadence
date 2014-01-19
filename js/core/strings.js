@@ -87,7 +87,12 @@ var strings = {
   },
 
   error: {
-    cmdStatus: '/{cmd} command not available while {status}',
+    cmdStatus: {
+      online: '/{cmd}: You are already online.',
+      offline: '/{cmd}: You are offline.',
+      waiting: '/{cmd}: Not available while connecting.',
+      prejoin: '/{cmd}: You need to join a room first.',
+    },
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',
