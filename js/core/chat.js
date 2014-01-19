@@ -170,7 +170,6 @@ var chat = {
     who: function(arg) {
       arg = arg.trim();
       var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
-      console.log(room);
       if (!room)
         return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {name: arg}, 'error');
       if (room.id != xmpp.room.current) {
@@ -342,6 +341,12 @@ var chat = {
     }, 'json').fail(callback);
   },
 
+  /**
+   * Set the volume.
+   */
+  setAudioVolume: function(volume) {
+    buzz.all().setVolume(volume);
+  },
 
   /**
    * Take a dotted string and return the respective value

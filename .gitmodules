@@ -13,3 +13,6 @@
 [submodule "js/lib/jquery-replacetext"]
 	path = js/lib/jquery-replacetext
 	url = git://github.com/cowboy/jquery-replacetext.git
+[submodule "js/lib/buzz"]
+	path = js/lib/buzz
+	url = git://github.com/jaysalvat/buzz.git

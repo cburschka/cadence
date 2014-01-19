@@ -29,6 +29,7 @@
   <script src="js/lib/strophe/strophe.min.js" type="text/javascript" charset="UTF-8"></script>
   <script src="js/lib/moment/moment.js" type="text/javascript" charset="UTF-8"></script>
   <script src="js/lib/xbbcode/xbbcode.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="js/lib/buzz/src/buzz.js" type="text/javascript" charset="UTF-8"></script>
 
   <!-- core -->
   <script src="js/core/strings.js" type="text/javascript" charset="UTF-8"></script>
@@ -200,6 +201,34 @@
           <tr class="row">
             <td><label for="settings-verbose">Display verbose messages:</label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.soundVolume">Sound volume:</label></td>
+            <td class="setting"><input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.receive">Receive sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.receive"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.send">Send sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.send"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.enter">Enter sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.enter"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.leave">Leave sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.leave"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.info">Info sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.info"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.error">Error sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.blink">Blink window title on new messages:</label></td>

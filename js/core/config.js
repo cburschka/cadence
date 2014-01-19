@@ -30,7 +30,18 @@ var config = {
       // Defines the blink interval in ms:
       blinkInterval: 500,
       // Defines the number of blink intervals:
-      blinkIntervalNumber: 10
+      blinkIntervalNumber: 10,
+
+      // The sound files used for notifications.
+      sounds: {
+        receive: 'sound_1',
+        send: 'sound_2',
+        enter: 'sound_3',
+        leave: 'sound_4',
+        info: 'sound_5',
+        error: 'sound_6',
+      },
+      soundVolume: 100,
     },
 
     // Persistent font color that is displayed to other cadence users.
@@ -40,7 +51,7 @@ var config = {
       room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
-    }
+    },
   },
 
   markup: {
@@ -294,6 +305,10 @@ var config = {
       }
     }
   },
+
+  // Defines the available sounds loaded on chat start:
+  sounds: ['droneriots', 'sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6', 'yay'],
+  soundURL: 'sounds/',
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.

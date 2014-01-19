@@ -14,6 +14,7 @@ var ui = {
   messageHash: {},
   colorPicker: null,
   autoScroll: true,
+  sounds: {},
 
   /**
    * Initialize the module:
@@ -41,15 +42,25 @@ var ui = {
         settings: $('#settingsContainer'),
       }
     };
+    this.loadSounds();
     this.initializePage();
     this.initializeEvents();
+  },
+
+  /**
+   * Load the sound files.
+   */
+  loadSounds: function() {
+    for (var i in config.sounds) {
+      var sound = config.sounds[i];
+      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {formats: ['ogg', 'mp3'], preload: true});
+    }
   },
 
   /**
    * Create dynamic page elements.
    */
   initializePage: function() {
-
     // Build the emoticon containers.
     for (var set in config.markup.emoticons) {
       var html = '';
@@ -88,8 +99,12 @@ var ui = {
       $('#content').fadeIn('slow');
     });
 
+    var sounds = [new Option('---', '')];
+    for (var sound in this.sounds) sounds.push(new Option(sound, sound));
+    $('#settingsContainer select.soundSelect').html(sounds);
+
     // Set the form values.
-    $('#settingsContainer input.settings').val(function() {
+    $('#settingsContainer .settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     this.setTextColorPicker(config.settings.textColor);
@@ -99,6 +114,9 @@ var ui = {
 
     // Open the last active sidebar.
     this.toggleMenu(config.settings.activeMenu, true);
+
+    // Set the volume.
+    chat.setAudioVolume(config.settings.notifications.soundVolume);
   },
 
   /**
@@ -193,9 +211,14 @@ var ui = {
     );
 
     // Instantly save changed settings in the cookie.
-    $('#settingsContainer input.settings').change(function() {
+    $('#settingsContainer .settings').change(function() {
       var value = this.type == 'checkbox' ? this.checked : this.value;
       chat.setSetting(this.id.substring('settings-'.length), value);
+    });
+
+    // Instantly apply sound volume.
+    $('.soundVolume').change(function() {
+      chat.setAudioVolume(this.value);
     });
 
     // /quit button.
@@ -307,6 +330,9 @@ var ui = {
     // Suppress verbose messages.
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
       if (!config.settings.verbose) return;
+    }
+    else if (0 <= (' ' + classes + ' ').indexOf(' error ')) {
+      this.playSound('error');
     }
 
     text = visual.formatText(text, variables);
@@ -491,6 +517,16 @@ var ui = {
     if (this.autoScroll != autoScroll) {
       this.autoScroll = autoScroll;
       this.dom.autoScrollIcon.attr('class', autoScroll ? 'on' : 'off');
+    }
+  },
+
+  /**
+   * Trigger a particular sound event.
+   */
+  playSound: function(event) {
+    var sound = config.settings.notifications.sounds[event];
+    if (sound && this.sounds[sound] && config.settings.notifications.soundVolume) {
+      this.sounds[sound].play();
     }
   }
 };

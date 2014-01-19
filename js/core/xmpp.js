@@ -289,6 +289,7 @@ var xmpp = {
       .c('html', {xmlns:Strophe.NS.XHTML_IM})
       .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
     );
+    ui.playSound('send');
   },
 
   /**
@@ -434,6 +435,7 @@ var xmpp = {
         this.roster[room][newNick] = this.roster[room][nick];
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
+        ui.playSound('info');
       }
       // An `unavailable` 307 is a kick.
       else if (codes.indexOf(307) >= 0) {
@@ -453,10 +455,12 @@ var xmpp = {
           reason: reason,
           user: this.roster[room][nick]
         });
+        ui.playSound('leave');
       }
       // Any other `unavailable` presence indicates a logout.
       else {
         ui.messageAddInfo(strings.info.userOut, {user: this.roster[room][nick]});
+        ui.playSound('leave');
       }
       // In either case, the old nick must be removed and destroyed.
       ui.userRemove(this.roster[room][nick]);
@@ -519,12 +523,14 @@ var xmpp = {
     if (this.room.current == room) {
       if (!this.roster[room][nick]) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
+        ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
         ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
           user: user,
           status: status
         });
+        ui.playSound('info');
       }
     }
 
@@ -565,7 +571,10 @@ var xmpp = {
         if (time) message = ui.messageDelayed(
           {user: user, body: body, time: time, room: this.room.available[room], type: type}
         );
-        else ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
+        else {
+          ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
+          ui.playSound('receive');
+        }
       }
     }
     return true;
