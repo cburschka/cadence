@@ -35,7 +35,7 @@ h3 { white-space: nowrap }
 }
 #chatList .row {
   padding: 2px 10px;
-  white-space: pre;
+  white-space: pre-wrap;
 }
 #chatList img.emote {
   vertical-align: middle;
