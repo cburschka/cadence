@@ -6,6 +6,9 @@ $(document).ready(function() {
   visual.init();
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
+  $(window).on({beforeunload : function() {
+    if (config.settings.notifications.leavePage) return strings.info.leavePage;
+  }});
   $(window).unload(function() { init.shutDown(); });
   if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
     chat.sessionAuth(config.xmpp.sessionAuthURL);

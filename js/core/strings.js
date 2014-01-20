@@ -84,6 +84,7 @@ var strings = {
     ],
     nickPrejoin: 'Your preferred nickname is now {nick}',
     sessionAuth: 'Automatically logging in as {username}',
+    leavePage: 'Leaving this page will delete the chat history.',
   },
 
   error: {

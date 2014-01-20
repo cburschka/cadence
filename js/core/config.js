@@ -42,6 +42,9 @@ var config = {
         error: 'sound_6',
       },
       soundVolume: 100,
+
+      // Warn before leaving the page.
+      leavePage: true,
     },
 
     // Persistent font color that is displayed to other cadence users.
