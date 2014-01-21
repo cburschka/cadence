@@ -42,6 +42,7 @@ var ui = {
         settings: $('#settingsContainer'),
       }
     };
+    this.title = $(document).attr('title');
     this.loadSounds();
     this.initializePage();
     this.initializeEvents();
@@ -394,12 +395,13 @@ var ui = {
    */
   messageAppend: function(message) {
     this.messageHash[message.hash] = true;
-    this.messages[this.messages.length] = message;
+    this.messages.push(message);
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(function() {
       ui.scrollDown();
     });
     this.scrollDown();
+    this.blinkTitle(message.message.user.nick);
   },
 
   /**
@@ -528,5 +530,27 @@ var ui = {
     if (sound && this.sounds[sound] && config.settings.notifications.soundVolume) {
       this.sounds[sound].play();
     }
+  },
+
+  /**
+   * Blink.
+   */
+  blinkTitle: function(string) {
+    window.clearInterval(this.blinker);
+    string = string ? ' ' + string + ' - ' : '';
+    var speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
+    var delay = Math.ceil(1000 / speed);
+    var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
+    if (!number) return;
+    var state = false;
+    this.blinker = window.setInterval(function() {
+      if (!number) {
+        $(document).attr('title', ui.title);
+        return window.clearInterval(ui.blinker);
+      }
+      $(document).attr('title', (state ? '[@ ]' : '[ @]') + string + ui.title);
+      state = !state;
+      number--;
+    }, delay);
   }
 };

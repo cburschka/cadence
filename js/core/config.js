@@ -25,12 +25,10 @@ var config = {
     },
 
     notifications: {
-      // Defines if the document title blinks on new messages:
-      blink: true,
-      // Defines the blink interval in ms:
-      blinkInterval: 500,
-      // Defines the number of blink intervals:
-      blinkIntervalNumber: 10,
+      // Blinks per second.
+      blinkSpeed: 2,
+      // Minimum number of seconds to blink (rounded up to whole intervals).
+      blinkLength: 5,
 
       // The sound files used for notifications.
       sounds: {
