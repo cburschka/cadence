@@ -2,6 +2,13 @@ body {
   padding: 0;
   margin: 0;
 }
+#logo {
+  float: right;
+}
+#logo img {
+  vertical-align: middle;
+  padding-right:5px;
+}
 h3 { white-space: nowrap }
 #roomContainer,
 .menuContainer,
@@ -21,6 +28,7 @@ h3 { white-space: nowrap }
   position: absolute;
   left: 20px;
   top: 15px;
+  right: 20px;
 }
 #fakeLoginForm { display: inline }
 
