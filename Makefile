@@ -10,6 +10,9 @@ clean:
 submodules:
 	@@git submodule update --init
 
+update-libs:
+	for lib in `ls js/lib/`; do git -C js/lib/$$lib pull; done;
+
 strophe:
 	env YUI_COMPRESSOR=$(YUI_COMPRESSOR) $(MAKE) -C js/lib/strophe
 
