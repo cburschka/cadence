@@ -5,6 +5,7 @@ endif
 all: submodules strophe config
 
 config:
+	if [ ! -f ".config.status" ]; then ./configure; fi
 	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%/' > .sed.script;
 	cat js/core/config.sample.js | replace '$$version$$' `git describe` | \
 	sed -f .sed.script > js/core/config.js
