@@ -9,7 +9,7 @@
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/Technetium.css
  */
 #content { background: url("Technetium/bg.png") repeat scroll 0 0 #161616 }
-#content, input, select, button { color: #e7e7e7 }
+#content, input, select, button, textarea { color: #e7e7e7 }
 a, a:hover, h3 { color: #0ae }
 a:hover, h3 { text-shadow: 0 0 3px #0ae }
 a:hover {

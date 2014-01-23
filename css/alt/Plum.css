@@ -13,7 +13,7 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content {
+#content, textarea {
   background-color: #2a112f;
   color: #9765a0;
 }
