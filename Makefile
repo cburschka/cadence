@@ -4,8 +4,7 @@ endif
 
 all: submodules strophe config
 
-config:
-	if [ ! -f ".config.status" ]; then ./configure; fi
+config: .config.status
 	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%/' > .sed.script;
 	cat js/core/config.sample.js | sed 's/\$$version\$$/'`git describe`'/' | \
 	sed -f .sed.script > js/core/config.js
@@ -22,4 +21,7 @@ update-libs:
 strophe:
 	env YUI_COMPRESSOR=$(YUI_COMPRESSOR) $(MAKE) -C js/lib/strophe
 
-.PHONY: all clean submodules strophe
+.config.status: configure
+	./configure ; if [ $$? -eq "1" ]; then exit 1; fi
+
+.PHONY: all clean submodules strophe config
