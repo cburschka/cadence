@@ -1,14 +1,65 @@
 #!/bin/sh
 
-echo "XMPP BOSH URL (eg. http://example.com:5280/http-bind/) > "
-read boshURL
-echo "XMPP domain (eg. example.com) > "
-read domain
-echo "XMPP MUC domain (eg. conference.example.com) > "
-read muc
-echo "Session Auth URL (when using ejabberd-auth-php) > "
-read sessionAuthURL
-echo "Chatbot Name > "
-read chatBotName
+OPTFIND=1
 
-echo > .config.status "xmppBoshURL=$boshURL\nxmppDomain=$domain\nxmppMucService=$muc\nxmppSessionAuthURL=$SessionAuthURL\nuiChatBotName=$chatBotName"
+TEMP=`getopt -o hs --long title:,help,https,domain:,bosh:,muc:,session-auth:,chatbot: -- "$@"`
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+eval set -- "$TEMP"
+prot="http://"
+port=5280
+while true ; do
+  case "$1" in
+    -h|--help)
+     echo \
+"Usage: ./configure
+  -s, --https         automatically generate HTTPS URLs.
+  --domain=DOMAIN     XMPP domain to log in on.
+  --bosh=URL          BOSH URL to connect to [http://DOMAIN:5280/http-bind/]
+                                          or [https://DOMAIN:5281/http-bind/]
+  --muc=DOMAIN        the MUC domain to log in on. [conference.DOMAIN]
+  --session-auth=URL  Optional. The URL to use for session authentication.
+  --chatbot=STR       the displayed name of the virtual ChatBot [Info]"
+     exit;;
+    -s|--https)
+      https="https://"
+      port=5281;;
+    --domain)
+      domain=$2;
+      shift 2;;
+    --bosh)
+      boshURL=$2;
+      shift 2;;
+    --muc)
+      muc=$2;
+      shift 2;;
+    --session-auth)
+      sessionAuthURL=$2;
+      shift 2;;
+    --chatbot)
+      chatBotName=$2
+      shift 2;;
+    --) shift; break;;
+    *) echo "Error!"; exit;;
+  esac
+done
+
+if [ -z "$domain" ]; then
+  $0 --help
+  exit
+fi
+
+if [ -z "$boshURL" ]; then
+   boshURL="$prot$domain:$port/http-bind/"
+fi
+if [ -z "$muc" ]; then
+  muc="conference.$domain"
+fi
+if [ -z "$chatbotName" ]; then
+  chatBotName="Info"
+fi
+echo >.config.status \
+"xmpp.boshURL=$boshURL
+xmpp.domain=$domain
+xmpp.mucService=$muc
+xmpp.sessionAuthURL=$sessionAuthURL
+ui.chatBotName=$chatBotName"

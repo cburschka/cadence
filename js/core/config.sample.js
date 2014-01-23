@@ -315,16 +315,16 @@ var config = {
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
-    domain: '$xmppDomain$',
-    boshURL: '$xmppBoshURL$',
-    mucService: '$xmppMucService$',
-    sessionAuthURL: '$xmppSessionAuthURL$',
+    domain: '$xmpp.domain$',
+    boshURL: '$xmpp.boshURL$',
+    mucService: '$xmpp.mucService$',
+    sessionAuthURL: '$xmpp.sessionAuthURL$',
   },
 
   ui: {
     css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
     cssURL: 'css/alt/',
-    chatBotName: '$uiChatBotName$',
+    chatBotName: '$ui.chatBotName$',
     maxNickLength: 24,
     maxMessageLength: 1024,
   },
