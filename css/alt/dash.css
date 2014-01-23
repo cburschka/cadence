@@ -18,6 +18,7 @@ h3 {
 }
 .box, input[type=text], input[type=password], select, button, #emoticonsContainer, #trayContainer {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 4px white;
   border: 1px solid #222;
   color: white;
 }
