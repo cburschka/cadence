@@ -266,9 +266,9 @@ var chat = {
    */
   cmdAvailableStatus: {
     online: ['alias', 'away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'save', 'say', 'who'],
-    prejoin: ['alias', 'join', 'list', 'nick', 'quit', 'who'],
-    offline: ['alias', 'clear', 'connect'],
-    waiting: ['alias', 'clear', 'connect', 'quit'],
+    prejoin: ['alias', 'join', 'list', 'nick', 'quit', 'save', 'who'],
+    offline: ['alias', 'clear', 'connect', 'save'],
+    waiting: ['alias', 'clear', 'connect', 'quit', 'save'],
   },
 
   /**
