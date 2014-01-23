@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "XMPP BOSH URL (eg. http://example.com:5280/http-bind/) > "
+read boshURL
+echo "XMPP domain (eg. example.com) > "
+read domain
+echo "XMPP MUC domain (eg. conference.example.com) > "
+read muc
+echo "Session Auth URL (when using ejabberd-auth-php) > "
+read sessionAuthURL
+echo "Chatbot Name > "
+read chatBotName
+
+echo > .config.status "xmppBoshURL=$boshURL\nxmppDomain=$domain\nxmppMucService=$muc\nxmppSessionAuthURL=$SessionAuthURL\nuiChatBotName=$chatBotName"

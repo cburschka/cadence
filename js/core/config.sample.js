@@ -4,7 +4,7 @@ var config = {
     // Which option container is open when the page loads.
     activeMenu: 'onlineList',
     // Which stylesheet is selected when the page loads.
-    activeStyle: 'Carbon',
+    activeStyle: 'Selenium',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
@@ -49,7 +49,7 @@ var config = {
     textColor: null,
 
     xmpp: {
-      room: 'lounge',
+      room: 'test',
       autoJoin: true,
       sessionAuth: true,
     },
@@ -315,20 +315,21 @@ var config = {
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
-    domain: 'eris.ermarian.net',
-    boshURL: 'http://eris.ermarian.net:5280/http-bind/',
-    muc_service: 'conference.ermarian.net',
-    sessionAuthURL: 'http://ermarian.net/smf/xmpp-login.php',
+    domain: '$xmppDomain$',
+    boshURL: '$xmppBoshURL$',
+    muc_service: '$xmppMucService$',
+    sessionAuthURL: '$xmppSessionAuthURL$',
   },
 
   ui: {
     css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
     cssURL: 'css/alt/',
-    chatBotName: 'Ligrev',
+    chatBotName: '$uiChatBotName$',
     maxNickLength: 24,
     maxMessageLength: 1024,
   },
 
   poniconVersion: "v1.13",
   sessionName: "cadence",
+  version: '$version$',
 };
