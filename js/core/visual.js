@@ -129,7 +129,8 @@ visual = {
         user.role = 'visitor';
         user.affiliation = 'none';
       }
-      if (user.role == 'visitor' || (user.jid && user.nick != Strophe.getNodeFromJid(user.jid)))
+      if (user.role == 'visitor' || (user.jid &&
+        user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
         nick = '(' + nick + ')';
       return  '<span class="user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
