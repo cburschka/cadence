@@ -84,7 +84,7 @@ var xmpp = {
   msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   this.room.current + '@' + config.xmpp.muc_service + (nick ? '/' + nick : ''),
+      to:   this.room.current + '@' + config.xmpp.mucService + (nick ? '/' + nick : ''),
       type: (nick ? 'chat' : 'groupchat')
     });
   },
@@ -173,7 +173,7 @@ var xmpp = {
     this.connection.sendIQ(
       $iq({
         from: this.connection.jid,
-        to:room + '@' + config.xmpp.muc_service,
+        to:room + '@' + config.xmpp.mucService,
         type:'get',
       }).c('query', {
         xmlns:Strophe.NS.DISCO_INFO,
@@ -189,7 +189,7 @@ var xmpp = {
   getRoomInfo: function(room, callback) {
     this.connection.sendIQ($iq({
       from: this.connection.jid,
-      to: Strophe.escapeNode(room) + '@' + config.xmpp.muc_service,
+      to: Strophe.escapeNode(room) + '@' + config.xmpp.mucService,
       type: 'get',
     }).c('query', {xmlns: Strophe.NS.DISCO_INFO}),
     function(stanza) {
@@ -252,7 +252,7 @@ var xmpp = {
   presence: function(room, nick, attrs) {
     return this.pres()
       .attrs({
-        to:Strophe.escapeNode(room) + '@' + config.xmpp.muc_service + '/' + nick
+        to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + '/' + nick
       })
       .attrs(attrs)
       .c('x', {xmlns:Strophe.NS.MUC})
@@ -299,7 +299,7 @@ var xmpp = {
     this.connection.sendIQ(
       $iq({
         from: this.connection.jid,
-        to: Strophe.escapeNode(this.room.current) + '@' + config.xmpp.muc_service,
+        to: Strophe.escapeNode(this.room.current) + '@' + config.xmpp.mucService,
         type: 'set'
       })
       .c('query', {xmlns: Strophe.NS.MUC + '#admin'})
@@ -319,7 +319,7 @@ var xmpp = {
     this.connection.sendIQ(
       $iq({
         from: this.connection.jid,
-        to: Strophe.escapeNode(room) + '@' + config.xmpp.muc_service,
+        to: Strophe.escapeNode(room) + '@' + config.xmpp.mucService,
         type:'get'
       }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
       function (stanza) {
@@ -346,7 +346,7 @@ var xmpp = {
     this.connection.sendIQ(
       $iq({
         from: this.connection.jid,
-        to:config.xmpp.muc_service,
+        to:config.xmpp.mucService,
         type:'get'
       }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
       function(stanza) {
@@ -390,7 +390,7 @@ var xmpp = {
     var from = $(stanza).attr('from');
     // Discard any <presence/> that is not from the MUC domain.
     // (This client does not support direct non-MUC communication.)
-    if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service) return true;
+    if (Strophe.getDomainFromJid(from) != config.xmpp.mucService) return true;
 
     // Find the room and nickname that the presence came from, and the type.
     var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
@@ -568,7 +568,7 @@ var xmpp = {
       var nick = Strophe.getResourceFromJid(from);
       var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
       // Only accept messages in the current room.
-      if (Strophe.getDomainFromJid(from) != config.xmpp.muc_service || room != this.room.current)
+      if (Strophe.getDomainFromJid(from) != config.xmpp.mucService || room != this.room.current)
         return true;
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {

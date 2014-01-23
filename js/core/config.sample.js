@@ -317,7 +317,7 @@ var config = {
     // This is NOT the server, but the domain portion of the JID.
     domain: '$xmppDomain$',
     boshURL: '$xmppBoshURL$',
-    muc_service: '$xmppMucService$',
+    mucService: '$xmppMucService$',
     sessionAuthURL: '$xmppSessionAuthURL$',
   },
 
