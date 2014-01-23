@@ -2,12 +2,13 @@ ifndef YUI_COMPRESSOR
 	YUI_COMPRESSOR=/usr/share/yui-compressor/yui-compressor.jar
 endif
 
-all: submodules strophe config
+all: submodules strophe js/core/config.js index.html
 
-config: .config.status
-	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%/' > .sed.script;
-	cat js/core/config.sample.js | sed 's/\$$version\$$/'`git describe`'/' | \
-	sed -f .sed.script > js/core/config.js
+js/core/config.js: .sed.script
+	sed -f .sed.script < js/core/config.sample.js > js/core/config.js
+
+index.html: .sed.script
+	sed -f .sed.script < index.tpl.html > index.html
 
 clean:
 	$(MAKE) -C js/lib/strophe clean
@@ -21,7 +22,11 @@ update-libs:
 strophe:
 	env YUI_COMPRESSOR=$(YUI_COMPRESSOR) $(MAKE) -C js/lib/strophe
 
+.sed.script: .config.status
+	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%g/' > .sed.script;
+
 .config.status: configure
 	./configure ; if [ $$? -eq "1" ]; then exit 1; fi
 
-.PHONY: all clean submodules strophe config
+
+.PHONY: all clean submodules strophe

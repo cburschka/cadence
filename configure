@@ -2,11 +2,16 @@
 
 OPTFIND=1
 
-TEMP=`getopt -o hs --long title:,help,https,domain:,bosh:,muc:,session-auth:,chatbot: -- "$@"`
+TEMP=`getopt -o hs --long logo:,version:,title:,help,https,domain:,bosh:,muc:,session-auth:,chatbot: -- "$@"`
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
-prot="http://"
+
+logo="img/logo.png"
+protocol="http"
 port=5280
+title="cadence"
+version=`git describe`
+
 while true ; do
   case "$1" in
     -h|--help)
@@ -18,11 +23,15 @@ while true ; do
                                           or [https://DOMAIN:5281/http-bind/]
   --muc=DOMAIN        the MUC domain to log in on. [conference.DOMAIN]
   --session-auth=URL  Optional. The URL to use for session authentication.
-  --chatbot=STR       the displayed name of the virtual ChatBot [Info]"
+  --chatbot=STR       the displayed name of the virtual ChatBot [Info]
+  --version=STR       the version string to be displayed [$version]
+  --title=STR         the page title to be displayed [$title]
+  --logo=URL          URL (can be relative) of the logo to show [$logo]"
      exit;;
     -s|--https)
-      https="https://"
-      port=5281;;
+      protocol="https"
+      port=5281
+      shift;;
     --domain)
       domain=$2;
       shift 2;;
@@ -38,6 +47,15 @@ while true ; do
     --chatbot)
       chatBotName=$2
       shift 2;;
+    --title)
+      title=$2
+      shift 2;;
+    --logo)
+      logo=$2
+      shift 2;;
+    --version)
+      version=$2
+      shift 2;;
     --) shift; break;;
     *) echo "Error!"; exit 1;;
   esac
@@ -49,7 +67,7 @@ if [ -z "$domain" ]; then
 fi
 
 if [ -z "$boshURL" ]; then
-   boshURL="$prot$domain:$port/http-bind/"
+   boshURL="$protocol://$domain:$port/http-bind/"
 fi
 if [ -z "$muc" ]; then
   muc="conference.$domain"
@@ -58,7 +76,11 @@ if [ -z "$chatbotName" ]; then
   chatBotName="Info"
 fi
 echo >.config.status \
-"xmpp.boshURL=$boshURL
+"logo=$logo
+title=$title
+protocol=$protocol
+version=$version
+xmpp.boshURL=$boshURL
 xmpp.domain=$domain
 xmpp.mucService=$muc
 xmpp.sessionAuthURL=$sessionAuthURL
