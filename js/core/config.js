@@ -328,4 +328,5 @@ var config = {
   },
 
   poniconVersion: "v1.13",
+  sessionName: "cadence",
 };
