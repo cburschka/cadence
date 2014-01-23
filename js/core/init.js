@@ -35,6 +35,7 @@ function objMerge(a, b) {
   if (typeof a != 'object' || typeof b != 'object') return b;
   if (a.constructor != Object || b.constructor != Object) return b;
   var c = {}
+  for (var key in b) c[key] = b[key];
   for (var key in a) {
     c[key] = (b[key] != undefined) ? objMerge(a[key], b[key]) : a[key];
   }

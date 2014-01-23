@@ -85,9 +85,17 @@ var strings = {
     nickPrejoin: 'Your preferred nickname is now {nick}',
     sessionAuth: 'Automatically logging in as {username}',
     leavePage: 'Leaving this page will delete the chat history.',
+    macros: 'Macros:<br /><code>{macros}</code>',
+    aliasAdd: 'Alias /{cmd} added.',
+    aliasReplace: 'Alias /{cmd} replaced.',
+    aliasDelete: 'Alias /{cmd} deleted.',
   },
 
   error: {
+    aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
+    aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
+    aliasRecursion: 'Failed to execute macro; it is probably recursive.',
+    noMacros: 'No macros are defined.',
     cmdStatus: {
       online: '/{cmd}: You are already online.',
       offline: '/{cmd}: You are offline.',

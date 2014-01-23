@@ -15,6 +15,46 @@ var chat = {
    */
   commands: {
     /**
+     * alias <cmd> <commands>
+     *   Create a macro.
+     */
+    alias: function(arg) {
+      arg = arg.trim();
+      if (!arg) {
+        var out = '';
+        for (var macro in config.settings.macros) {
+          out += '    /' + macro + ' - ' + config.settings.macros[macro].join('; ') + '\n';
+        }
+        if (out) return ui.messageAddInfo(strings.info.macros, {
+          macros: out
+        });
+        else return ui.messageAddInfo(strings.error.noMacros, 'error');
+      }
+      arg = arg.match(/^\/?([a-zA-Z0-9_-]+)((\s.*)?)$/);
+      if (!arg) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
+      var cmd = arg[1];
+      if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
+        cmd: cmd
+      }, 'error');
+      var macro = arg[2].trim();
+      if (!macro.trim()) {
+        delete config.settings.macros[cmd];
+        return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
+      }
+      macro = macro.split(';');
+      for (var i in macro) {
+        macro[i] = macro[i].trim();
+      }
+      if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
+      if (config.settings.macros[cmd]) {
+        ui.messageAddInfo(strings.info.aliasReplace, {cmd: cmd});
+      }
+      else ui.messageAddInfo(strings.info.aliasAdd, {cmd: cmd});
+      config.settings.macros[cmd] = macro;
+      chat.saveSettings();
+    },
+
+    /**
      * away <msg>:
      *   Send a room presence with <show/> set to "away" and
      *   <status/> to "msg".
@@ -225,10 +265,10 @@ var chat = {
    * each command handler.
    */
   cmdAvailableStatus: {
-    online: ['away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'save', 'say', 'who'],
-    prejoin: ['join', 'list', 'nick', 'quit', 'who'],
-    offline: ['clear', 'connect'],
-    waiting: ['clear', 'connect', 'quit'],
+    online: ['alias', 'away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'save', 'say', 'who'],
+    prejoin: ['alias', 'join', 'list', 'nick', 'quit', 'who'],
+    offline: ['alias', 'clear', 'connect'],
+    waiting: ['alias', 'clear', 'connect', 'quit'],
   },
 
   /**
@@ -264,8 +304,28 @@ var chat = {
       }
       this.commands[cmd](text);
     }
+    else if (config.settings.macros[cmd]) {
+      this.executeMacro(config.settings.macros[cmd], text);
+    }
     else {
       ui.messageAddInfo(strings.error.cmdUnknown, {cmd:cmd}, 'error');
+    }
+  },
+
+  /**
+   * Run a stored macro:
+   *
+   * @param {[string]} macro: An array of commands.
+   * @param {string} text: A string to replace $ with in the command array.
+   */
+  executeMacro: function(macro, text) {
+    try {
+      for (var i in macro) {
+        this.executeInput(macro[i].replace(/\$/g, text.trim()));
+      }
+    }
+    catch (ex) {
+      ui.messageAddInfo(strings.error.aliasRecursion, 'error');
     }
   },
 

@@ -53,6 +53,8 @@ var config = {
       autoJoin: true,
       sessionAuth: true,
     },
+
+    macros: {},
   },
 
   markup: {
