@@ -60,6 +60,7 @@ h3 { white-space: nowrap }
   height:48px;
 }
 #inputField {
+  box-sizing: border-box;
   resize: none;
   padding:5px;
   width:100%;
