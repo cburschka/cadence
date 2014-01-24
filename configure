@@ -10,7 +10,6 @@ logo="img/logo.png"
 protocol="http"
 port=5280
 title="cadence"
-version=`git describe`
 chatBotName=Info
 
 while true ; do
@@ -25,7 +24,6 @@ while true ; do
   --muc=DOMAIN        the MUC domain to log in on. [conference.DOMAIN]
   --session-auth=URL  Optional. The URL to use for session authentication.
   --chatbot=STR       the displayed name of the virtual ChatBot [$chatBotName]
-  --version=STR       the version string to be displayed [$version]
   --title=STR         the page title to be displayed [$title]
   --logo=URL          URL (can be relative) of the logo to show [$logo]"
      exit;;
@@ -77,7 +75,6 @@ echo >.config.status \
 "logo=$logo
 title=$title
 protocol=$protocol
-version=$version
 xmpp.boshURL=$boshURL
 xmpp.domain=$domain
 xmpp.mucService=$muc

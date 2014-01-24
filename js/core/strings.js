@@ -89,6 +89,7 @@ var strings = {
     aliasAdd: 'Alias /{cmd} added.',
     aliasReplace: 'Alias /{cmd} replaced.',
     aliasDelete: 'Alias /{cmd} deleted.',
+    version: 'Cadence version: {raw.version}',
   },
 
   error: {

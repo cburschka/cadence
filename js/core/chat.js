@@ -232,6 +232,19 @@ var chat = {
     },
 
     /**
+     * version
+     *   Emit the config.version key.
+     */
+    version: function() {
+      var v = config.version.match(/-g(.*)$/);
+      var version = v ?
+          '<a href="https://github.com/cburschka/cadence/tree/' + v[1] + '">'
+        + config.version + '</a>'
+        : config.version;
+      ui.messageAddInfo(strings.info.version, {'raw.version': version});
+    },
+
+    /**
      * who [room]
      *   Query the user list of a room.
      */
@@ -264,7 +277,7 @@ var chat = {
    * Validate the current command by xmpp.status.
    */
   cmdAvailableStatus: function(command) {
-    var always = ['alias', 'clear', 'nick', 'save'];
+    var always = ['alias', 'clear', 'nick', 'save', 'version'];
     var chat = ['away', 'back', 'kick', 'me', 'msg', 'part', 'say'];
     var offline = ['connect'];
     var waiting = ['quit'];

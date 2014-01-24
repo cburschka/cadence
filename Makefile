@@ -22,11 +22,8 @@ update-libs:
 strophe:
 	env YUI_COMPRESSOR=$(YUI_COMPRESSOR) $(MAKE) -C js/lib/strophe
 
-.sed.script: .config.status
-	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%g/' > .sed.script;
+.sed.script:
+	cat .config.status | sed 's/[\%]/\\&/g;s/\([^=]*\)=\(.*\)/s%\\$$\1\\$$%\2%g/' > .sed.script
+	echo 's%\$$version\$$%'`git describe --long`'%g' >> .sed.script
 
-.config.status: configure
-	./configure ; if [ $$? -eq "1" ]; then exit 1; fi
-
-
-.PHONY: all clean submodules strophe
+.PHONY: all clean submodules strophe .sed.script
