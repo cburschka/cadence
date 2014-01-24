@@ -68,7 +68,7 @@ var config = {
       quote: '<q>{content}</q>',
       code: '<code>{content}</code>',
       url: '<a href="{option}">{content}</a>',
-      img: '<img src="{content}" alt="Image({content}" />',
+      img: '<img src="{content}" alt="Image({content})" />',
       color: '<span style="color:{option}">{content}</span>'
     },
 
