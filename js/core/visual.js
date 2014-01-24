@@ -75,7 +75,7 @@ visual = {
     if (me) {
       $('span.authorMessageContainer', node)
         .prepend('* ').wrap('<span class="action"></span>');
-      me.nodeValue = ' ' + me.nodeValue.substring(4);
+      me.nodeValue = me.nodeValue.substring(4);
     }
     else $('span.author', node).append(':');
 
