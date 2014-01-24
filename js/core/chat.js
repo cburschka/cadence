@@ -260,15 +260,36 @@ var chat = {
   },
 
   /**
-   * List the commands available by connection state.
-   * This saves having to check the connection state in
-   * each command handler.
+   * Validate the current command by xmpp.status.
    */
-  cmdAvailableStatus: {
-    online: ['alias', 'away', 'back', 'clear', 'join', 'kick', 'list', 'me', 'msg', 'nick', 'part', 'quit', 'save', 'say', 'who'],
-    prejoin: ['alias', 'join', 'list', 'nick', 'quit', 'save', 'who'],
-    offline: ['alias', 'clear', 'connect', 'save'],
-    waiting: ['alias', 'clear', 'connect', 'quit', 'save'],
+  cmdAvailableStatus: function(command) {
+    var always = ['alias', 'clear', 'nick', 'save'];
+    var chat = ['away', 'back', 'kick', 'me', 'msg', 'part', 'say'];
+    var offline = ['connect'];
+    var waiting = ['quit'];
+
+    // always allow these commands (hence the name).
+    if (always.indexOf(command) >= 0) return true;
+
+    switch (xmpp.status) {
+      case 'prejoin':
+        // do not allow chat commands in prejoin.
+        if (chat.indexOf(command) >= 0)
+          return ui.messageAddInfo(strings.error.cmdStatus.prejoin, {cmd:command}, 'error') && false;
+      case 'online':
+        // do not allow offline commands in prejoin or in rooms.
+        if (offline.indexOf(command) >= 0)
+          return ui.messageAddInfo(strings.error.cmdStatus.online, {cmd:command}, 'error') && false;
+        return true;
+
+      // switch from blacklist to whitelist here.
+      case 'waiting':
+        if (waiting.indexOf(command) >= 0) return true;
+      case 'offline':
+        // allow offline commands while waiting or offline.
+        if (offline.indexOf(command) >= 0) return true;
+        return ui.messageAddInfo(strings.error.cmdStatus.offline, {cmd:command}, 'error') && false;
+    }
   },
 
   /**
@@ -295,21 +316,12 @@ var chat = {
     }
 
     if (this.commands[cmd]) {
-      var status = xmpp.status;
-      if (xmpp.status == 'prejoin' && this.cmdAvailableStatus['online'].indexOf(cmd) < 0) {
-        return ui.messageAddInfo(strings.error.cmdStatus['online'], {cmd:cmd}, 'error');
-      }
-      if (this.cmdAvailableStatus[xmpp.status].indexOf(cmd) < 0) {
-        return ui.messageAddInfo(strings.error.cmdStatus[xmpp.status], {cmd:cmd}, 'error');
-      }
-      this.commands[cmd](text);
+      if (this.cmdAvailableStatus(cmd)) this.commands[cmd](text);
     }
-    else if (config.settings.macros[cmd]) {
+    else if (config.settings.macros[cmd])
       this.executeMacro(config.settings.macros[cmd], text);
-    }
-    else {
+    else
       ui.messageAddInfo(strings.error.cmdUnknown, {cmd:cmd}, 'error');
-    }
   },
 
   /**

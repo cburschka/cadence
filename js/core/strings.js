@@ -99,7 +99,6 @@ var strings = {
     cmdStatus: {
       online: '/{cmd}: You are already online.',
       offline: '/{cmd}: You are offline.',
-      waiting: '/{cmd}: Not available while connecting.',
       prejoin: '/{cmd}: You need to join a room first.',
     },
     kick: {
