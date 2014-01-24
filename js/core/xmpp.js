@@ -599,7 +599,7 @@ var xmpp = {
         );
         else {
           ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
-          ui.playSound('receive');
+          if (nick != this.nick.current) ui.playSound('receive');
         }
       }
     }
