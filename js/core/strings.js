@@ -109,6 +109,7 @@ var strings = {
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',
     nickConflict: 'Username {nick} already in use.',
+    noNick: 'You must set a nickname.',
     userpass: 'User and password are required.',
     unknownRoom: 'Room {room} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {room}; it doesn\'t exist.',

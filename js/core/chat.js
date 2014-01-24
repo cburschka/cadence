@@ -187,8 +187,9 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = visual.format.nick(arg.trim()).replace(/\s/g, '%20');
-      xmpp.changeNick(nick);
+      var nick = arg.trim().replace(/\s+/g, '_');
+      if (nick) xmpp.changeNick(nick);
+      else ui.messageAddInfo(strings.error.noNick, 'error');
     },
 
     /**
