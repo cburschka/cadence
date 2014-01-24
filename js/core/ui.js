@@ -409,7 +409,8 @@ var ui = {
       ui.scrollDown();
     });
     this.scrollDown();
-    this.blinkTitle(message.message.user.nick);
+    if (message.message.user.nick != xmpp.nick.current)
+    	this.blinkTitle(message.message.user.nick);
   },
 
   /**
