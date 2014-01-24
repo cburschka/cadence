@@ -162,7 +162,7 @@ var ui = {
       e.preventDefault();
     });
     $('#loginPass, #loginUser').keypress(this.onKeyMap({13:loginCallback}));
-    $('#trayContainer .button.toggleMenu').click(function() {
+    $('#trayContainer button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 

@@ -135,12 +135,13 @@ h3 {
   padding: 3px;
   padding-right: 0px;
 }
-#trayContainer input,
+#trayContainer button,
 #trayContainer div {
   display: inline-block;
   margin: 0 2px;
   width: 22px;
   height: 22px;
+  border: none;
   vertical-align: middle;
 }
 
@@ -161,7 +162,7 @@ h3 {
 }
 
 #footerContainer #trayContainer div,
-#footerContainer #trayContainer input {
+#footerContainer #trayContainer button {
   background-color: transparent;
 }
 #onlineList .user-show-away {

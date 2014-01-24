@@ -18,7 +18,7 @@
   color: #9765a0;
 }
 a { color: #da83a1 }
-input[type=text], input[type=password], select, button {
+input[type=text], input[type=password], select, button.button {
   border: 0;
   border-radius: 8px;
   box-shadow: 1px 1px 4px 0px;

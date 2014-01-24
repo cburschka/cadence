@@ -1,5 +1,5 @@
 /* Buttons */
-#trayContainer .button {
+#trayContainer button {
   background-repeat:no-repeat;
 }
 #logoutButton {

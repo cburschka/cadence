@@ -57,7 +57,7 @@
           <input type="text" id="loginUser" />
           <label for="loginPass">Password:</label>
           <input type="password" id="loginPass" />
-          <button type="submit" id="loginButton">Log in</button>
+          <button class="button" type="submit" id="loginButton">Log in</button>
         </form>
       </span>
       <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="img/logo.png" />cadence</a></span>
@@ -72,15 +72,15 @@
     </div>
     <div id="footerContainer">
       <div id="bbCodeContainer" class="container">
-        <button class="insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;">b</button>
-        <button class="insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;">i</button>
-        <button class="insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;">u</button>
-        <button class="insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;">s</button>
-        <button class="insert-bbcode" value="quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]">Quote</button>
-        <button class="insert-bbcode" value="code" title="Code display: [code]code[/code]">Code</button>
-        <button class="insert-bbcode insert-bbcode-arg" value="url" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]">URL</button>
-        <button class="insert-bbcode" value="img" title="Insert image: [img]http://example.org/image.jpg[/img]">IMG</button>
-        <button id="colorBBCode" value="color" title="Text color: [color=red]text[/color]">Color</button>
+        <button class="button insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;">b</button>
+        <button class="button insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;">i</button>
+        <button class="button insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;">u</button>
+        <button class="button insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;">s</button>
+        <button class="button insert-bbcode" value="quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]">Quote</button>
+        <button class="button insert-bbcode" value="code" title="Code display: [code]code[/code]">Code</button>
+        <button class="button insert-bbcode insert-bbcode-arg" value="url" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]">URL</button>
+        <button class="button insert-bbcode" value="img" title="Insert image: [img]http://example.org/image.jpg[/img]">IMG</button>
+        <button class="button" id="colorBBCode" value="color" title="Text color: [color=red]text[/color]">Color</button>
       </div>
       <!-- / bbCodeContainer -->
       <div id="emoticonsContainer" class="container">
@@ -88,12 +88,12 @@
       </div>
       <div id="colorCodesContainer" class="box" dir="ltr" class="container"></div>
       <div id="trayContainer" class="container">
-        <input type="image" src="img/pixel.gif" class="button" id="logoutButton" alt="Logout" title="Logout" />
-        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="helpButton" alt="Show/hide help" title="Show/hide help" />
-        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="poniconButton" alt="Ponicons" title="Ponicons" />
-        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="settingsButton" alt="Show/hide settings" title="Show/hide settings" />
-        <input type="image" src="img/pixel.gif" class="button toggleMenu" id="onlineListButton" alt="Show/hide online list" title="Show/hide online list" />
-        <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="Sound on/off" title="Sound on/off" />
+        <button class="tray" id="logoutButton" title="Logout"></button>
+        <button class="tray toggleMenu" id="helpButton" title="Show/hide help"></button>
+        <button class="tray toggleMenu" id="poniconButton" title="Ponicons"></button>
+        <button class="tray toggleMenu" id="settingsButton" title="Show/hide settings"></button>
+        <button class="tray toggleMenu" id="onlineListButton" title="Show/hide online list"></button>
+        <button class="tray" id="audioButton" title="Sound on/off"></button>
         <div id="statusIcon" class="offline"></div>
         <div id="autoScrollIcon" class="on"></div>
       </div>
@@ -192,8 +192,8 @@
           <tr class="row">
             <td><label for="settings-textColor">Text color:</label></td>
             <td class="setting">
-              <button class="settings" id="settings-textColor">None</button>
-              <button class="settings" id="settings-textColorClear">Clear</button>
+              <button class="button settings" id="settings-textColor">None</button>
+              <button class="button settings" id="settings-textColorClear">Clear</button>
             </td>
           </tr>
           <tr class="row">
