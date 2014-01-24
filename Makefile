@@ -4,10 +4,10 @@ endif
 
 all: submodules strophe js/core/config.js index.html
 
-js/core/config.js: .sed.script
+js/core/config.js: .sed.script js/core/config.sample.js
 	sed -f .sed.script < js/core/config.sample.js > js/core/config.js
 
-index.html: .sed.script
+index.html: .sed.script index.tpl.html
 	sed -f .sed.script < index.tpl.html > index.html
 
 clean:
