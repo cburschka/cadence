@@ -404,6 +404,19 @@ var chat = {
   },
 
   /**
+   * Prepend a /msg <nick> prefix.
+   * This will replace any existing /msg <nick> prefix.
+   */
+  prefixMsg: function(nick) {
+    var text = ui.dom.inputField.val();
+    var m = text.match(/\/msg\s+(\S+)/);
+    if (m) text = text.substring(m[0].length).trimLeft();
+    if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
+    ui.dom.inputField.val(text);
+    ui.dom.inputField.focus();
+  },
+
+  /**
    * Find a room by its title.
    */
   getRoomFromTitle: function(title) {

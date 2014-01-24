@@ -132,10 +132,11 @@ visual = {
       if (user.role == 'visitor' || (user.jid &&
         user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
         nick = '(' + nick + ')';
-      return  '<span class="user-role-' + user.role
+      return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
-            + ' user-show-' + (user.show || 'default')
-            + '" ' + (jid ? ('title="' + jid + '"') : '')
+            + ' user-show-' + (user.show || 'default') + '"'
+            + (jid ? (' title="' + jid + '"') : '')
+            + ' onclick="chat.prefixMsg(\'' + encodeURIComponent(nick).replace('\'', "\\\'", 'g') + '\')"'
             + '>' + nick + '</span>';
     },
 
