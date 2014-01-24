@@ -95,7 +95,16 @@ during the build process.
    * momentjs: http://momentjs.com/ (MIT)
    
    * jquery-replacetext (Ben Alman): https://github.com/cowboy/jquery-replacetext
-     (GPL / MIT)
+     (GPL / MIT, used under MIT terms)
   
    * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
      (MIT)
+
+   * buzz (Jay Salvat): https://github.com/jaysalvat/buzz
+     (MIT)
+
+   * FileSaver.js (Eli Grey): https://github.com/eligrey/FileSaver.js
+     (MIT/X11)
+
+   * xbbcode.js (Christoph Burschka): https://github.com/cburschka/xbbcode.js
+     (GPL v2+)
