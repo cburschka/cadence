@@ -1,6 +1,4 @@
 img, textarea { border:none }
-.box, #colorCodesContainer a {
-  border:1px solid;
-}
+.box, #colorCodesContainer a { border:1px solid }
 #helpList table, #settingsList table { border-collapse: collapse }
-#trayContainer button { cursor:pointer }
+button { cursor:pointer }
