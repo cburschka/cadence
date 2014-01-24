@@ -45,7 +45,7 @@ var strings = {
       '{user} is busy.',
       '{user} is busy ({status}).',
     ],
-    default: [
+    'default': [
       '{user} has returned.',
     ],
   },
