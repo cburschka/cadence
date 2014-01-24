@@ -8,4 +8,4 @@
 .row.delayed .dateTime, .row.delayed .log-room { color: gray }
 .row:nth-child(even) { background:rgba(0,0,0,0.1) }
 .row:nth-child(odd) { background:rgba(0,0,0,0.5) }
-textarea { background: none }
+input[type=range], textarea { background: none }
