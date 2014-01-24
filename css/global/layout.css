@@ -137,11 +137,12 @@ h3 {
 }
 #trayContainer button,
 #trayContainer div {
+  border: none;
+  color: transparent;
   display: inline-block;
   margin: 0 2px;
   width: 22px;
   height: 22px;
-  border: none;
   vertical-align: middle;
 }
 
