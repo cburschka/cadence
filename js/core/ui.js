@@ -285,9 +285,9 @@ var ui = {
    */
   setTextColorPicker: function(color) {
     $('#settings-textColor')
-      .css('color', color || '#FFFFFF')
+      .css('color', color || '')
       .text(color || 'None')
-      .css('background-color', visual.hex2rgba(color || '#FFFFFF', 0.3));
+      .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', color || '');
     $('#settings-textColorClear').css('display', color ? 'inline-block' : 'none');
   },

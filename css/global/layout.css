@@ -158,7 +158,6 @@ h3 {
 }
 #settingsList input[type=text] { width:100px }
 #settingsList #settings-textColor {
-  background-color: rgba(255,255,255,0.1);
   width: 75px;
 }
 
