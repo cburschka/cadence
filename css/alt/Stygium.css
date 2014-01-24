@@ -9,6 +9,6 @@
 #content, button, input, select, textarea {   color: #ccc }
 a { color: white }
 .box, button, input, select { border: none }
-button, input, select { background: #222 }
-button:hover, #inputFieldContainer { background: #444 }
+button, input, select, #inputFieldContainer { background: #222 }
+button:hover { background: #444 }
 button:active { background: #666 }
