@@ -571,6 +571,7 @@ var xmpp = {
       var type = $(stanza).attr('type');
       var nick = Strophe.getResourceFromJid(from);
       var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
+      var time = $('delay', stanza).attr('stamp');
       // Only accept messages in the current room.
       if (Strophe.getDomainFromJid(from) != config.xmpp.mucService || room != this.room.current)
         return true;
@@ -583,6 +584,8 @@ var xmpp = {
 
       // Only accept messages from nicks we know are in the room.
       var user = this.roster[room][nick];
+      // But accept delayed messages from users who have since left.
+      if (time && !user) user = {nick: nick};
       if (user) {
         var body = null;
         var html = $('html body p', stanza).html();
@@ -591,7 +594,6 @@ var xmpp = {
         } else {
           body = $($('body', stanza)[0]).text();
         }
-        var time = $('delay', stanza).attr('stamp');
         if (time) message = ui.messageDelayed(
           {user: user, body: body, time: time, room: this.room.available[room], type: type}
         );
