@@ -270,9 +270,9 @@ visual = {
     jq.not('a').add(':not(a)', jq).filter(function() {
       return $(this).parents('a').length < 1;
     }).replaceText(
-      /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
-      function(url) {
-        return  '<a href="' + url + '">' + url + '</a>';
+      /(^|[^"'])((https?|s?ftp|mailto):\/\/[^\s"']+[_\-=\wd\/])/g,
+      function(all, pre, url) {
+        return  pre + '<a href="' + url + '">' + url + '</a>';
       }
     );
   },
