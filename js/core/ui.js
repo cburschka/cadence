@@ -118,6 +118,8 @@ var ui = {
 
     // Set the volume.
     chat.setAudioVolume(config.settings.notifications.soundVolume);
+
+    $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
   },
 
   /**
@@ -225,6 +227,12 @@ var ui = {
     // /quit button.
     $('#logoutButton').click(function() {
       chat.commands.quit();
+    });
+
+    $('#audioButton').click(function() {
+      var audio = !config.settings.notifications.soundEnabled;
+      chat.setSetting('notifications.soundEnabled', audio);
+      $(this).toggleClass('off', !audio);
     });
 
     // scrolling up the chat list turns off auto-scrolling.
@@ -526,10 +534,10 @@ var ui = {
    * Trigger a particular sound event.
    */
   playSound: function(event) {
+    if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
+      return;
     var sound = config.settings.notifications.sounds[event];
-    if (sound && this.sounds[sound] && config.settings.notifications.soundVolume) {
-      this.sounds[sound].play();
-    }
+    if (sound && this.sounds[sound]) this.sounds[sound].play();
   },
 
   /**

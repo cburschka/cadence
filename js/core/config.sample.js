@@ -40,6 +40,7 @@ var config = {
         error: 'sound_6',
       },
       soundVolume: 100,
+      soundEnabled: true,
 
       // Warn before leaving the page.
       leavePage: true,
