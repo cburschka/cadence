@@ -160,7 +160,7 @@ var chat = {
      *   Alias for /say "/me <msg>".
      */
     me: function(arg) {
-      this.say('/me ' + arg); // XEP-0245 says to send this in plain.
+      this.say('/me' + arg); // XEP-0245 says to send this in plain.
     },
 
     /**
