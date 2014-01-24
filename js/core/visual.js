@@ -196,6 +196,8 @@ visual = {
     this.processImages(jq);
     if (config.settings.markup.emoticons)
       this.addEmoticons(jq);
+    // Make links open in new tabs.
+    this.linkOnClick(jq);
     return jq;
   },
 
@@ -269,9 +271,7 @@ visual = {
     }).replaceText(
       /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
       function(url) {
-        return  '<a href="' + url +
-                '" onclick="window.open(this.href); return false;">' // I'm sorry. I'm so, so sorry.
-                + visual.ellipsis(url, 64) + '</a>';
+        return  '<a href="' + url + '">' + url + '</a>';
       }
     );
   },
@@ -284,8 +284,7 @@ visual = {
     var maxHeight = ui.dom.chatList.height() - 20;
 
     jq.find('img').wrap(function() {
-      return '<a href="' + $(this).attr('src') +
-             '" onclick="window.open(this.href); return false;"></a>';
+      return '<a href="' + this.src + '"></a>';
     });
 
     if (config.settings.markup.images)
@@ -295,8 +294,18 @@ visual = {
       });
     else
       jq.find('img').replaceWith(function() {
-        return '[image:' + visual.ellipsis($(this).attr('src'), 64) + ']'
+        return '[image:' + visual.ellipsis(this.src, 64) + ']'
       });
+  },
+
+  /**
+   * Make links open in a new tab.
+   */
+  linkOnClick: function(jq) {
+    $('a[href]', jq).click(function(event) {
+      event.preventDefault();
+      window.open(this.href);
+    });
   },
 
   /**
