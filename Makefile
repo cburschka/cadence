@@ -32,7 +32,7 @@ clean:
 
 js/lib/buzz/.git:
 	if [ -d ".git" ]; then \
-		@@git submodule update --init; \
+		git submodule update --init; \
 	else \
 		cat .gitmodules | \
 		grep '\(url\|path\)' | \
