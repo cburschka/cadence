@@ -236,7 +236,7 @@ var chat = {
      *   Emit the config.version key.
      */
     version: function() {
-      var version = '<a href="https://github.com/cburschka/cadence/tree/'
+      var version = '<a href="https://github.com/calref/cadence/tree/'
                   + config.version + '">' + 'cadence-' + config.version + '</a>';
       ui.messageAddInfo(strings.info.version, {'raw.version': version});
     },

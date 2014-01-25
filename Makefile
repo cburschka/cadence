@@ -1,5 +1,5 @@
 # Bump this version whenever tagging a new release.
-VERSION=1.1
+VERSION=1.1-calref
 
 ifndef YUI_COMPRESSOR
 	YUI_COMPRESSOR=/usr/share/yui-compressor/yui-compressor.jar
