@@ -227,7 +227,7 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      arg = visual.lengthLimit(visual.format.plain(arg), config.ui.maxMessageLength);
+      arg = visual.lengthLimit(visual.format.plain(arg.trim()), config.ui.maxMessageLength);
       chat.sendMessage(arg);
     },
 
@@ -312,7 +312,7 @@ var chat = {
   executeInput: function(text) {
     this.history.push(text);
     this.historyIndex = this.history.length;
-    text = text.trim();
+    text = text.trimRight();
     if (!text) return;
 
     // Without commands, execute /say.
