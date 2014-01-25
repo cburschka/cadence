@@ -4,7 +4,7 @@ var config = {
     // Which option container is open when the page loads.
     activeMenu: 'onlineList',
     // Which stylesheet is selected when the page loads.
-    activeStyle: 'Selenium',
+    activeStyle: 'Carbon',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
@@ -50,7 +50,7 @@ var config = {
     textColor: null,
 
     xmpp: {
-      room: 'test',
+      room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
     },
