@@ -274,9 +274,10 @@ var ui = {
    */
   setStyle: function(style) {
     config.settings.activeStyle = style;
-    this.dom.styleSheets.each(function() {
-      this.disabled = this.title != style;
-    });
+    this.dom.styleSheets.attr('disabled', 'disabled');
+    this.dom.styleSheets
+      .filter(function() { return this.title == style; })
+      .removeAttr('disabled');
     chat.saveSettings();
   },
 
