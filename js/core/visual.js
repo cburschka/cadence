@@ -84,7 +84,7 @@ visual = {
         ' <span class="privmsg">' + (message.to ?
           this.formatText(strings.info.whisperTo, {nick:message.to})
         : strings.info.whisper)
-        + '</span> '
+        + '</span>'
       );
     }
 
