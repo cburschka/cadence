@@ -11,7 +11,7 @@ all: init js/core/config.js index.html js/lib/buzz/.git strophe
 
 init:
 	if [ -d ".git" ]; then \
-		VERSION=`git describe`; \
+		VERSION=`git describe --always`; \
 		touch .version; \
 		if [ "`cat .version`" != "$$VERSION" ]; then \
 			touch -c .config.status; \
