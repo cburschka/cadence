@@ -543,6 +543,20 @@ var xmpp = {
       }
       this.nick.current = nick;
     }
+
+    // Workaround for ejabberd bug @processone/ejabberd/issues/136:
+    // Detect nick change when neither 110 nor 303 code are sent.
+    // This only happens when the old nick remains logged in - copy the item.
+    if (this.nick.current != this.nick.target && nick == this.nick.target) {
+      ui.messageAddInfo(strings.info.userNick, {
+        'user.from': this.roster[room][this.nick.current],
+        'user.to': user
+      });
+      // Fill in the roster so we don't get a login message.
+      this.roster[room][nick] = user;
+      this.nick.current = nick;
+    }
+
     // We have fully joined this room - track the presence changes.
     if (this.room.current == room) {
       if (!this.roster[room][nick]) {
