@@ -152,10 +152,7 @@ visual = {
      * Format a nick.
      */
     nick: function(nick) {
-      return visual.lengthLimit(
-        visual.format.plain(nick.replace(/%20/g, ' ')),
-        config.ui.maxNickLength
-      );
+      return visual.lengthLimit(visual.format.plain(nick), config.ui.maxNickLength);
     },
 
     /**
