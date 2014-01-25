@@ -105,7 +105,7 @@ var xmpp = {
    * Create a unique client identifier from the current millisecond timestamp.
    */
   createResourceName: function() {
-    return 'strophe/' + (new Date()).getTime();
+    return 'cadence/' + (new Date()).getTime();
   },
 
   /**

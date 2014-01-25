@@ -309,7 +309,7 @@ var chat = {
   executeInput: function(text) {
     this.history.push(text);
     this.historyIndex = this.history.length;
-    text = text.trimRight();
+    text = text.replace(/\s\s*$/, '');
     if (!text) return;
 
     // Without commands, execute /say.
