@@ -1,5 +1,6 @@
 $(document).ready(function() {
   $.cookie.json = true;
+  $.cookie.defaults.expires = 365;
   init.loadSettings();
   strings.init();
   ui.init();
