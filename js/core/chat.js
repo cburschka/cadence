@@ -254,7 +254,7 @@ var chat = {
         xmpp.getOccupants(room.id, function(users) {
           var out = [];
           for (var nick in users) out.push(nick)
-          if (users) ui.messageAddInfo(strings.info.usersInRoom, {
+          if (out.length) ui.messageAddInfo(strings.info.usersInRoom, {
             room: room,
             'raw.users': out.join(', ')
           });
