@@ -30,14 +30,14 @@ var chat = {
         });
         else return ui.messageAddInfo(strings.error.noMacros, 'error');
       }
-      arg = arg.match(/^\/?([a-zA-Z0-9_-]+)((\s.*)?)$/);
-      if (!arg) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
-      var cmd = arg[1];
+      var m = arg.match(/^\/*(\S+)/);
+      if (!m) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
+      var cmd = m[1];
       if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
         cmd: cmd
       }, 'error');
-      var macro = arg[2].trim();
-      if (!macro.trim()) {
+      var macro = arg.substring(m[0].length).trim();
+      if (!macro) {
         delete config.settings.macros[cmd];
         return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
       }
@@ -60,8 +60,9 @@ var chat = {
      *   <status/> to "msg".
      */
     away: function(arg) {
-      arg = arg.trim().match(/^\(*(.*?)\)*$/);
-      xmpp.sendStatus('away', arg[1].trim());
+      // strip all parentheses and spaces:
+      arg = arg.trim().replace(/(^[\(\s]*|[\)\s]*$)/g, '');
+      xmpp.sendStatus('away', arg);
     },
 
     /**
@@ -90,16 +91,18 @@ var chat = {
     connect: function(arg) {
       var fail = function() { return ui.messageAddInfo(strings.error.userpass, 'error') };
       if (typeof arg == 'string') {
-        var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
-        arg = {user: m[1], pass: m[2].trim()};
+        arg = arg.trim();
+        var m = /^[^\s"&'\/:<>@]+/.exec(arg);
+        if (!m) return fail();
+        arg = {user: m[0], pass: arg.substring(m[0].length).trim()};
+        if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
+          arg.pass = arg.pass.substring(1, arg.pass.length-1);
+        }
       }
       if (!arg.user || !arg.pass) {
         if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL)
           return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
         else return fail();
-      }
-      if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
-        arg.pass = arg.pass.substring(1, arg.pass.length-1);
       }
       xmpp.newConnection(arg.user, arg.pass);
     },
@@ -168,11 +171,12 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      arg = /^(.+?)\s+(.+)$/.exec(arg.trim());
-      var nick = arg[1];
+      var m = /^(\S+)/.exec(arg.trim());
+      var nick = m[1];
+      var msg = arg.substring(m[0].length + 1);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.format.plain(arg[2]), config.ui.maxMessageLength);
+      var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
       chat.sendMessage(msg, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
@@ -316,12 +320,11 @@ var chat = {
     var cmd = 'say';
 
     // Execute /cmd, but turn //cmd into /say /cmd.
-    if (text[0] == '/') {
-      if (text[1] != '/') {
-        var i = text.indexOf(' ');
-        if (i < 0) i = text.length;
-        cmd = text.substring(1, i);
-        text = text.substring(i);
+    var m = /^\/(\/?)(\S+)/.exec(text);
+    if (m) {
+      if (!m[1]) {
+        cmd = m[2];
+        text = text.substring(m[0].length);
       }
       else text = text.substring(1);
     }

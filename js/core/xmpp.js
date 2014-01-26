@@ -113,12 +113,14 @@ var xmpp = {
    * a numerical suffix.
    */
   nickConflictResolve: function() {
-    var m = /^(.*?)([\d]*)$/.exec(this.nick.target);
-    var i = 1;
-    if (m[2]) {
-      i = parseInt(m[2]) + 1;
+    var nick = this.nick.target;
+    var m = /[\d]+$/.exec(nick);
+    if (m) {
+      i = parseInt(m[0]) + 1;
+      nick = nick.substring(0, nick.length - m[0].length);
     }
-    this.nick.target = m[1] + i;
+    else var i = 1;
+    this.nick.target = nick + i;
   },
 
   /**
@@ -358,11 +360,12 @@ var xmpp = {
         $('item', stanza).each(function(s,t) {
           var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
           // Strip off the parenthesized number of participants in the name:
-          var m = /^(.*?)(?: *\((\d+)\))?$/.exec($(t).attr('name'));
-          if (m)
-            rooms[room] = {id: room, title: Strophe.unescapeNode(m[1]), members: m[2] || null};
+          var name = $(t).attr('name');
+          if (name)
+            name = Strophe.unescapeNode(name.replace(/\((\d+)\)$/, '').trim());
           else
-            rooms[room] = {id: room, title: room, members: null};
+            name = room;
+          rooms[room] = {id: room, title: name, members: null};
         });
         this.room.available = rooms;
         ui.refreshRooms(this.room.available);
