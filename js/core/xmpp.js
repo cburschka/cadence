@@ -642,7 +642,7 @@ var xmpp = {
         this.discoverRooms(function (rooms) {
           if (rooms[room]) chat.commands.join(room);
           else {
-            ui.messageAddInfo(strings.error.unknownRoomAuto, {room: room});
+            ui.messageAddInfo(strings.error.unknownRoomAuto, {name: room});
             xmpp.prejoin();
           }
         });

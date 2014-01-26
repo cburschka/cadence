@@ -113,7 +113,7 @@ var strings = {
     noNick: 'You must set a nickname.',
     userpass: 'User and password are required.',
     unknownRoom: 'Room {name} does not exist.',
-    unknownRoomAuto: 'Cannot rejoin {room}; it doesn\'t exist.',
+    unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',
     noRoomsAvailable: 'There are no rooms available.',
   }
