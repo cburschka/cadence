@@ -325,7 +325,7 @@ var config = {
     css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
     cssURL: 'css/alt/',
     chatBotName: '$ui.chatBotName$',
-    maxNickLength: 24,
+    maxNickLength: 32,
     maxMessageLength: 1024,
   },
 
