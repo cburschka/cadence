@@ -47,7 +47,7 @@ install: all
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 	rsync -a "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	rsync ${JS_FILES} "${CDN_PREFIX}/js"
-	rsync ${CSS_FILES} "${CDN_PREFIX}/css"
+	rsync ${CSS_FILES} "${CDN_PREFIX}/css/global/"
 	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
 	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
 	rsync index.html "${PREFIX}/"
