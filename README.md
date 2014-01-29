@@ -10,7 +10,7 @@ Requirements
 * Building cadence requires Python 2.7+ (or 3+) and GNU Make
 * Optional JS and CSS compression uses the YUI Compressor utility.
   Install it using your distribution's package manager or download
-  it here: https://github.com/yui/yuicompressor/downloads
+  it here: https://github.com/yui/yuicompressor/releases
 
 Building
 --------
