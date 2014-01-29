@@ -36,7 +36,12 @@ init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/*.js js/lib/*.js css/*.css
+	rm -f index.html js/core/config.js js/*.js js/lib/*.js css/global/all.*
+	rmdir -p --ignore-fail-on-non-empty js/core/ js/lib/ css/global/
+
+distclean: clean
+	rm .config.vars
+	rm Makefile
 
 install: all
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
