@@ -180,7 +180,6 @@ visual = {
    */
   formatBody: function(jq) {
     // Security: Replace all but the following whitelisted tags with their content.
-    $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
       function() { return $('<span></span>').text(this.outerHTML) }
     );
