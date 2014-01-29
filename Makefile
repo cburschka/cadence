@@ -1,5 +1,7 @@
 include .config.vars
-include VERSION
+include ${SRC_PATH}/VERSION
+
+VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
               js/core/ui.js js/core/visual.js js/core/config.js \
@@ -27,7 +29,10 @@ ifeq (${MODE},debug)
   CSS_FILES = ${CSS_FILES_GLOBAL}
 endif
 
-all: index.html ${JS_FILES} ${CSS_FILES}
+init:
+	mkdir -p js/lib/ js/core/ css/
+
+all: init index.html strophe ${JS_FILES} ${CSS_FILES}
 
 clean:
 	rm -f index.html js/*.js js/lib/*.js css/*.css
@@ -72,7 +77,7 @@ js/lib/strophe.js: js/lib/strophe/strophe.js
 	cp $^ $@
 
 strophe:
-	$(MAKE) -C ${SRC_PATH}js/lib/strophe/ strophe.js
+	$(MAKE) -C ${SRC_PATH}/js/lib/strophe/ strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	cp $^ $@
@@ -94,8 +99,8 @@ js/core.min.js: js/core.js
 core:
 	rsync --exclude "*.tpl.js" ${SRC_PATH}/js/core/ js/core
 
-css/global.css: css/global/global.css ${CSS_FILES_GLOBAL}
-	cat ${CSS_FILES_GLOBAL} > $@
+css/global.css: ${CSS_FILES_GLOBAL}
+	cat $^ > $@
 
 css/global.min.css: css/global.css
 	yui-compressor $^ > $@
@@ -105,4 +110,4 @@ css/global.min.css: css/global.css
 	${SRC_PATH}/configure --help
 	exit 1
 
-.PHONY: all js core strophe
+.PHONY: all js core strophe init

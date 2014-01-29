@@ -16,7 +16,7 @@ def generate_file(src, dest, var):
 def generate_files(src_path, var):
     files = [('index.tpl.html', 'index.html'), ('js/core/config.tpl.js', 'js/core/config.js')]
     for src, dest in files:
-        generate_file(src_path + src, dest, var)
+        generate_file(src_path + '/' + src, dest, var)
 
 def generate_script_links(cdn_url, mode):
     if mode == 'minify':
