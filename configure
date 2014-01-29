@@ -4,6 +4,12 @@ import os
 import shutil
 import subprocess
 
+def check_file(parser, str):
+    if os.path.exists(str) and not os.path.isdir(str):
+        return str
+    else:
+        parser.error("The logo file {logo} does not exist!".format(logo=str))
+
 def main():
     args = parser().parse_args()
     args.protocol = 'http' + (args.https and 's' or '')
@@ -74,7 +80,7 @@ def parser():
       help='The page title. ["cadence"]', metavar='TITLE', dest='title', default='cadence'
       )
     parser.add_argument(
-      '--logo', type=str,
+      '--logo', type=lambda x: check_file(parser, x),
       help='Path of the splash logo ["img/logo.png"]', metavar='LOGO', dest='logo', default='img/logo.png'
       )
     parser.add_argument(
