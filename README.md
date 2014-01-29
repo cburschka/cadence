@@ -65,6 +65,17 @@ Then simply execute the Makefile.
 
     $ make && make install
 
+Customizing the Settings
+------------------------
+
+It is not recommended to edit `js/core/config.js` (if this file even exists, and has
+not been aggregated and minified), because it will be overwritten if the software
+is rebuilt from source.
+
+Instead, the installer places a file named `config.custom.js` into the install directory
+along with your index.html file. Add any configuration changes to this file
+by assigning or deleting keys in the global `config` object.
+
 License
 -------
 

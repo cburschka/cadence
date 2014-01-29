@@ -51,6 +51,7 @@ install: all
 	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
 	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
 	rsync index.html "${PREFIX}/"
+	touch -a "${PREFIX}/config.custom.js"
 
 templates:
 	VERSION=${VERSION}
