@@ -30,7 +30,7 @@ def generate_script_links(cdn_url, mode):
             'js/lib/jquery.replacetext.js',
             'js/lib/jquery.cookie.js',
             'js/lib/strophe.js',
-            'js/lib/moment.js'
+            'js/lib/moment.js',
             'js/lib/xbbcode.js',
             'js/lib/buzz.js',
             'js/lib/filesaver.js'

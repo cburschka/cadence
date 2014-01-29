@@ -10,6 +10,10 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
               js/core/ui.js js/core/visual.js js/core/config.js \
               js/core/init.js
 
+LIB_FILES = js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.cookie.js \
+            js/lib/jquery.replacetext.js js/lib/moment.js js/lib/strophe.js \
+            js/lib/xbbcode.js
+
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
                     css/global/borders.css
@@ -25,12 +29,11 @@ ifeq (${MODE},minify)
   CSS_FILES = css/global/all.min.css
 endif
 ifeq (${MODE},debug)
-  JS_FILES = ${CORE_FILES}
-  CSS_FILES = ${CSS_FILES_GLOBAL}
+  CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 endif
 
 
-all: init index.html strophe ${JS_FILES} ${CSS_FILES}
+all: submodules init index.html strophe ${JS_FILES} ${CSS_FILES}
 
 init:
 	mkdir -p js/lib/ js/core/ css/global/
@@ -43,15 +46,31 @@ distclean: clean
 	rm .config.vars
 	rm Makefile
 
-install: all
+install: all install-js install-css
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 	rsync -a "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
-	rsync ${JS_FILES} "${CDN_PREFIX}/js"
-	rsync ${CSS_FILES} "${CDN_PREFIX}/css/global/"
 	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
 	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
 	rsync index.html "${PREFIX}/"
 	touch -a "${PREFIX}/config.custom.js"
+
+ifeq (${MODE},debug)
+install-js: install-js-core install-js-lib
+else
+install-js: ${JS_FILES}
+	rsync $^ "${CDN_PREFIX}/js"
+endif
+
+install-js-core: ${CORE_FILES}
+	mkdir -p ${CDN_PREFIX}/js/core/
+	rsync $^ "${CDN_PREFIX}/js/core/"
+install-js-lib: ${LIB_FILES}
+	mkdir -p ${CDN_PREFIX}/js/lib/
+	rsync $^ "${CDN_PREFIX}/js/lib/"
+
+
+install-css: ${CSS_FILES}
+	rsync $^ "${CDN_PREFIX}/css/global/"
 
 templates:
 	VERSION=${VERSION}
@@ -83,8 +102,8 @@ js/lib/moment.js: js/lib/moment/moment.js
 js/lib/strophe.js: js/lib/strophe/strophe.js
 	cp $^ $@
 
-strophe:
-	$(MAKE) -C ${SRC_PATH}/js/lib/strophe/ strophe.js
+strophe: js/lib/strophe/
+	$(MAKE) -C $^ strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	cp $^ $@
@@ -108,8 +127,8 @@ core:
 css/global/all.css: ${CSS_FILES_GLOBAL}
 	cat $^ > $@
 
-.config.vars:
-	${SRC_PATH}/configure --help
-	exit 1
+submodules:
+	cd "${SRC_PATH}"; \
+	git submodule update --init
 
-.PHONY: all js core strophe init
+.PHONY: all js core strophe init submodules
