@@ -19,6 +19,7 @@ Building
 
 First, run the configure script. These arguments are supported:
 
+```
   -h, --help            show this help message and exit
   -s, --https           Generate HTTPS URLs
   --domain DOMAIN       XMPP domain to log in on.
@@ -34,25 +35,26 @@ First, run the configure script. These arguments are supported:
                         Directory to install resources to [PREFIX]
   --mode debug|aggregate|minify
                         Whether to optimize JS/CSS files ["minify"]
+```
 
-Only `--domain` is strictly required. `--muc` and `--bosh` are required if
-they differ from the default values.
+* Only `--domain` is strictly required. `--muc` and `--bosh` are required if
+  they differ from the default values.
 
-`--session-auth` is required if you would like to hook into an existing site's login 
-system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
-the public URL of the `rpc.php` script in that software's session authentication plugin.
+* `--session-auth` is required if you would like to hook into an existing site's login 
+  system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
+  the public URL of the `rpc.php` script in that software's session authentication plugin.
 
-`--chatbot`, `--title` and `--logo` merely affect the client branding.
+* `--chatbot`, `--title` and `--logo` merely affect the client branding.
 
-The `--prefix` is required to cleanly deploy the application to a directory.
-(An in-source build is a functional installation, but an out-of-source build must
-be installed before use.)
+* The `--prefix` is required to cleanly deploy the application to a directory.
+  (An in-source build is a functional installation, but an out-of-source build must
+  be installed before use.)
 
-The `--cdn-prefix` and `cdn-url` options are used to deploy the application's resources
-to a CDN. If this is given, all but the index.html file are deployed there.
-(You can also use the CDN for index.html file with `--prefix`, but this will make
-the application harder to find, and will break session-authentication due to
-cross-site security policies.
+* The `--cdn-prefix` and `cdn-url` options are used to deploy the application's resources
+  to a CDN. If this is given, all but the index.html file are deployed there.
+  (You can also use the CDN for index.html file with `--prefix`, but this will make
+  the application harder to find, and will break session-authentication due to
+  cross-site security policies.
 
 The `--mode` determines whether to aggregate and minify the scripts and stylesheets.
 For development, "debug" is recommended.
