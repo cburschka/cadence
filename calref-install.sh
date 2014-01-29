@@ -8,7 +8,7 @@ echo "Configuring cadence"
   --session-auth="https://calref.net/xmpp-auth.php" \
   --logo="img/CalRef2.png" \
   --chatbot="Ligrev" \
-  --title="Calamity Refuge"
+  --title="Ligrev's Lounge"
 
 echo "Building cadence"
 
