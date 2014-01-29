@@ -55,7 +55,7 @@ install: all
 templates:
 	VERSION=${VERSION}
 	if [ -d "${SRC_PATH}/.git" ]; then \
-	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always --dirty`; \
+	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always`; \
 	fi; \
 	"${SRC_PATH}/setup.py" $$VERSION
 
