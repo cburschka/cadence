@@ -15,7 +15,7 @@ def main():
     args.cdn_prefix = args.cdn_prefix.rstrip('/')
     args.cdn_url = args.cdn_url and (args.cdn_url.rstrip('/') + '/') or ''
 
-    args.src_path = os.path.dirname(__file__)
+    args.src_path = os.path.dirname(__file__) or '.'
     if os.path.realpath(args.src_path) != os.path.realpath(os.getcwd()):
         shutil.copy(os.path.realpath(args.src_path) + '/Makefile', os.getcwd())
     args.css_link_global = {'debug': 'css/global/global.css',

@@ -10,9 +10,6 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
                     css/global/borders.css
-ifndef SRC_PATH
-  SRC_PATH = .
-endif
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
 endif
@@ -29,10 +26,11 @@ ifeq (${MODE},debug)
   CSS_FILES = ${CSS_FILES_GLOBAL}
 endif
 
-init:
-	mkdir -p js/lib/ js/core/ css/
 
 all: init index.html strophe ${JS_FILES} ${CSS_FILES}
+
+init:
+	mkdir -p js/lib/ js/core/ css/
 
 clean:
 	rm -f index.html js/*.js js/lib/*.js css/*.css
