@@ -4,7 +4,7 @@ var config = {
     // Which option container is open when the page loads.
     activeMenu: 'onlineList',
     // Which stylesheet is selected when the page loads.
-    activeStyle: 'Selenium',
+    activeStyle: 'Carbon',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
@@ -50,7 +50,7 @@ var config = {
     textColor: null,
 
     xmpp: {
-      room: 'test',
+      room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
     },
@@ -96,7 +96,7 @@ var config = {
 
     emoticons: {
       general: {
-        baseURL: 'img/emoticons/general/',
+        baseURL: '@@@CDN_URL@@@img/emoticons/general/',
         codes: {
           ':)': 'smile.png',
           ':(': 'sad.png',
@@ -115,7 +115,7 @@ var config = {
         },
       },
       pony: {
-        baseURL: 'img/emoticons/mlp/',
+        baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
           ':angel:': 'angel.png',
           ':abbored:': 'abbored.png',
@@ -311,25 +311,25 @@ var config = {
 
   // Defines the available sounds loaded on chat start:
   sounds: ['droneriots', 'sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6', 'yay'],
-  soundURL: 'sounds/',
+  soundURL: '@@@CDN_URL@@@sounds/',
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
-    domain: '$xmpp.domain$',
-    boshURL: '$xmpp.boshURL$',
-    mucService: '$xmpp.mucService$',
-    sessionAuthURL: '$xmpp.sessionAuthURL$',
+    domain: '@@@XMPP_DOMAIN@@@',
+    boshURL: '@@@XMPP_BOSH@@@',
+    mucService: '@@@XMPP_MUC@@@',
+    sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
   },
 
   ui: {
     css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
-    cssURL: 'css/alt/',
-    chatBotName: '$ui.chatBotName$',
+    cssURL: '@@@CDN_URL@@@css/alt/',
+    chatBotName: '@@@CHATBOT@@@',
     maxNickLength: 32,
     maxMessageLength: 1024,
   },
 
   poniconVersion: "v1.13",
   sessionName: "cadence",
-  version: '$version$',
+  version: '@@@VERSION@@@',
 };
