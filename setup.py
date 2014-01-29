@@ -51,6 +51,14 @@ def main():
     variables['JS_LINKS_LIB'] = libjs
     variables['JS_LINKS_CORE'] = corejs
     variables['VERSION'] = sys.argv[1]
+
+    if variables['MODE'] == 'minify':
+        variables['CSS_LINK_GLOBAL'] = 'css/global/all.min.css'
+    elif variables['MODE'] == 'aggregate':
+        variables['CSS_LINK_GLOBAL'] = 'css/global/all.css'
+    else:
+        variables['CSS_LINK_GLOBAL'] = 'css/global/import.css'
+
     generate_files(variables['SRC_PATH'], variables)
 
 main()

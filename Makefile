@@ -1,4 +1,7 @@
 include .config.vars
+ifndef SRC_PATH
+  SRC_PATH=.
+endif
 include ${SRC_PATH}/VERSION
 
 VPATH = ${SRC_PATH}
@@ -15,11 +18,11 @@ ifndef CDN_PREFIX
 endif
 ifeq (${MODE},aggregate)
   JS_FILES = js/lib.js js/core.js
-  CSS_FILES = css/global.css
+  CSS_FILES = css/global/all.css
 endif
 ifeq (${MODE},minify)
   JS_FILES = js/lib.min.js js/core.min.js
-  CSS_FILES = css/global.min.css
+  CSS_FILES = css/global/all.min.css
 endif
 ifeq (${MODE},debug)
   JS_FILES = ${CORE_FILES}
@@ -30,7 +33,7 @@ endif
 all: init index.html strophe ${JS_FILES} ${CSS_FILES}
 
 init:
-	mkdir -p js/lib/ js/core/ css/
+	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
 	rm -f index.html js/*.js js/lib/*.js css/*.css
@@ -88,21 +91,16 @@ js/lib.js: js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.cookie.js \
 js/core.js: ${CORE_FILES}
 	cat $^ > $@
 
-js/lib.min.js: js/lib.js
+%.min.js: %.js
 	yui-compressor $^ > $@
-
-js/core.min.js: js/core.js
+%.min.css: %.css
 	yui-compressor $^ > $@
 
 core:
 	rsync --exclude "*.tpl.js" ${SRC_PATH}/js/core/ js/core
 
-css/global.css: ${CSS_FILES_GLOBAL}
+css/global/all.css: ${CSS_FILES_GLOBAL}
 	cat $^ > $@
-
-css/global.min.css: css/global.css
-	yui-compressor $^ > $@
-
 
 .config.vars:
 	${SRC_PATH}/configure --help

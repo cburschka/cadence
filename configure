@@ -18,8 +18,6 @@ def main():
     args.src_path = os.path.dirname(__file__) or '.'
     if os.path.realpath(args.src_path) != os.path.realpath(os.getcwd()):
         shutil.copy(os.path.realpath(args.src_path) + '/Makefile', os.getcwd())
-    args.css_link_global = {'debug': 'css/global/global.css',
-        'aggregate': 'css/global.css', 'minify': 'css/global.min.css'}[args.mode]
 
     open('.config.vars', 'w+').write(
 '''LOGO={logo}
@@ -35,7 +33,6 @@ CDN_PREFIX={cdn_prefix}
 CDN_URL={cdn_url}
 MODE={mode}
 SRC_PATH={src_path}
-CSS_LINK_GLOBAL={css_link_global}
 '''.format(**vars(args)))
 
 

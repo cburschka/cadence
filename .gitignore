@@ -1,9 +1,10 @@
 *~
+*.min.*
 index.html
 js/core/config.js
 .config.vars
 .sed.script
 js/lib/*.js
-js/lib.*js
-js/core.*js
-css/*.css
+js/lib.js
+js/core.js
+css/global/all.css
