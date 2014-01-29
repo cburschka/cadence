@@ -45,6 +45,7 @@ SRC_PATH={src_path}
 
 
 def parser():
+    src_path = os.path.dirname(__file__) or '.'
     parser = argparse.ArgumentParser(
       prog='configure',
       description='''Configure cadence for installation.
@@ -80,7 +81,7 @@ def parser():
       )
     parser.add_argument(
       '--logo', type=lambda x: check_file(parser, x),
-      help='Path of the splash logo ["img/logo.png"]', metavar='LOGO', dest='logo', default='img/logo.png'
+      help='Path of the splash logo ["img/logo.png"]', metavar='LOGO', dest='logo', default=src_path + '/img/logo.png'
       )
     parser.add_argument(
       '--cdn-url', type=str,
