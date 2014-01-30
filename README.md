@@ -17,7 +17,11 @@ Building
 
 ### Configuration
 
-First, run the configure script. These arguments are supported:
+First, run the configure script. The script can be executed from any
+location outside the source directory ("out-of-source") or directly inside
+("in source").
+
+These arguments are supported:
 
 ```
   -h, --help            show this help message and exit
@@ -48,7 +52,7 @@ First, run the configure script. These arguments are supported:
 
 * The `--prefix` is required to cleanly deploy the application to a directory.
   (An in-source build is a functional installation, but an out-of-source build must
-  be installed before use.)
+  be installed before use, because static resources are not copied to the build location.)
 
 * The `--cdn-prefix` and `cdn-url` options are used to deploy the application's resources
   to a CDN. If this is given, all but the index.html file are deployed there.
