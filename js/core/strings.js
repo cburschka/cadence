@@ -70,18 +70,36 @@ var strings = {
     usersInThisRoom: 'Users in this room: {raw.users}.',
     whisperTo: '(whispers to {nick})',
     whisper: '(whispers)',
-    kicked: [
-      '{user} has been kicked.',
-      '{user} has been kicked ({reason}).',
-      '{user.actor} has kicked {user}.',
-      '{user.actor} has kicked {user} ({reason}).'
-    ],
-    kickedMe: [
-      'You have been kicked!',
-      'You have been been kicked ({reason})!',
-      'You have been kicked by {user.actor}!',
-      'You have been kicked by {user.actor} ({reason})!'
-    ],
+    evicted: {
+      kick: {
+        me: [
+          'You have been kicked!',
+          'You have been been kicked ({reason})!',
+          'You have been kicked by {user.actor}!',
+          'You have been kicked by {user.actor} ({reason})!'
+        ],
+        other: [
+          '{user} has been kicked.',
+          '{user} has been kicked ({reason}).',
+          '{user.actor} has kicked {user}.',
+          '{user.actor} has kicked {user} ({reason}).'
+        ],
+      },
+      ban: {
+        me: [
+          'You have been banned from {room}!',
+          'You have been been banned from {room} ({reason})!',
+          'You have been banned from {room} by {user.actor}!',
+          'You have been banned from {room} by {user.actor} ({reason})!'
+        ],
+        other: [
+          '{user} has been banned from {room}.',
+          '{user} has been banned from {room} ({reason}).',
+          '{user.actor} has banned {user} from {room}.',
+          '{user.actor} has banned {user} from room ({reason}).'
+        ],
+      },
+    },
     nickPrejoin: 'Your preferred nickname is now {nick}',
     sessionAuth: 'Automatically logging in as {username}',
     leavePage: 'Leaving this page will delete the chat history.',

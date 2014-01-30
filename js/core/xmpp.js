@@ -464,21 +464,24 @@ var xmpp = {
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
         ui.playSound('info');
       }
-      // An `unavailable` 307 is a kick.
-      else if (codes.indexOf(307) >= 0) {
+      // An `unavailable` 301 is a ban; a 307 is a kick.
+      else if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
+        var type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
         var actor = $('actor', item).attr('nick');
         var reason = $('reason', item).text();
         var index = (actor != null) * 2 + (reason != "");
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
-          ui.messageAddInfo(strings.info.kickedMe[index], {
+          ui.messageAddInfo(strings.info.evicted[type].me[index], {
             'user.actor': actor,
+            room: this.room.available[room],
             reason: reason
           }, 'error');
           xmpp.prejoin();
         }
-        else ui.messageAddInfo(strings.info.kicked[index], {
+        else ui.messageAddInfo(strings.info.evicted[type].other[index], {
           'user.actor': actor,
+          room: this.room.available[room],
           reason: reason,
           user: this.roster[room][nick]
         });
