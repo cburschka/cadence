@@ -94,6 +94,18 @@ var xmpp = {
   },
 
   /**
+   * Generate an IQ.
+   */
+  iq: function(type, query, room) {
+    room = room !== null && (room || this.room.current);
+    return $iq({
+      from: this.connection.jid,
+      to: (room ? (Strophe.escapeNode(room) + '@') : '') + config.xmpp.mucService,
+      type: type
+    }).c('query', query);
+  },
+
+  /**
    * Announce general availability to the server by sending an empty presence
    * with no recipient.
    */
@@ -177,14 +189,7 @@ var xmpp = {
       callback(nick);
     }
     this.connection.sendIQ(
-      $iq({
-        from: this.connection.jid,
-        to:room + '@' + config.xmpp.mucService,
-        type:'get',
-      }).c('query', {
-        xmlns:Strophe.NS.DISCO_INFO,
-        node:'x-roomuser-item',
-      }),
+      this.iq('get', {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'}),
       iqCallback, iqCallback
     );
   },
@@ -193,21 +198,19 @@ var xmpp = {
    * Query the server for extended room information.
    */
   getRoomInfo: function(room, callback) {
-    this.connection.sendIQ($iq({
-      from: this.connection.jid,
-      to: Strophe.escapeNode(room) + '@' + config.xmpp.mucService,
-      type: 'get',
-    }).c('query', {xmlns: Strophe.NS.DISCO_INFO}),
-    function(stanza) {
-      var query = $('query', stanza);
-      callback({
-        id: room,
-        title: $('identity', query).attr('name'),
-        members: $('x field[var=muc#roominfo_occupants] value').text(),
-        info: query
-      });
-    },
-    function(error) { callback(null) });
+    this.connection.sendIQ(
+      this.iq('get', {xmlns: Strophe.NS.DISCO_INFO}, room),
+      function(stanza) {
+        var query = $('query', stanza);
+        callback({
+          id: room,
+          title: $('identity', query).attr('name'),
+          members: $('x field[var=muc#roominfo_occupants] value').text(),
+          info: query
+        });
+      },
+      function(error) { callback(null) }
+    );
   },
 
   /**
@@ -303,19 +306,11 @@ var xmpp = {
    */
   setUser: function(item, success, error) {
     this.connection.sendIQ(
-      $iq({
-        from: this.connection.jid,
-        to: Strophe.escapeNode(this.room.current) + '@' + config.xmpp.mucService,
-        type: 'set'
-      })
-      .c('query', {xmlns: Strophe.NS.MUC + '#admin'})
-      .c('item', item),
-      success,
-      function(response) {
-        var code = $('error', response).attr('code');
-        error(code, response);
-      }
-    );
+      this.iq('set', {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
+      success, function(response) {
+      var code = $('error', response).attr('code');
+      error(code, response);
+    });
   },
 
   /**
@@ -323,11 +318,7 @@ var xmpp = {
    */
   getOccupants: function(room, callback) {
     this.connection.sendIQ(
-      $iq({
-        from: this.connection.jid,
-        to: Strophe.escapeNode(room) + '@' + config.xmpp.mucService,
-        type:'get'
-      }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+      this.iq('get', {xmlns:Strophe.NS.DISCO_ITEMS}, room),
       function (stanza) {
         var users = {};
         $('item', stanza).each(function() {
@@ -350,11 +341,7 @@ var xmpp = {
    */
   discoverRooms: function(callback) {
     this.connection.sendIQ(
-      $iq({
-        from: this.connection.jid,
-        to:config.xmpp.mucService,
-        type:'get'
-      }).c('query', {xmlns:Strophe.NS.DISCO_ITEMS}),
+      this.iq('get', {xmlns:Strophe.NS.DISCO_ITEMS}, null),
       function(stanza) {
         var rooms = {};
         $('item', stanza).each(function(s,t) {
