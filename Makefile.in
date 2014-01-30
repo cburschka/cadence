@@ -46,13 +46,15 @@ distclean: clean
 	rm .config.vars
 	rm Makefile
 
-install: all install-js install-css
-	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
+install: all install-init install-js install-css-global
 	rsync -a "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
 	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
 	rsync index.html "${PREFIX}/"
 	touch -a "${PREFIX}/config.custom.js"
+
+install-init:
+	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 
 ifeq (${MODE},debug)
 install-js: install-js-core install-js-lib
@@ -67,9 +69,7 @@ install-js-core: ${CORE_FILES}
 install-js-lib: ${LIB_FILES}
 	mkdir -p ${CDN_PREFIX}/js/lib/
 	rsync $^ "${CDN_PREFIX}/js/lib/"
-
-
-install-css: ${CSS_FILES}
+install-css-global: ${CSS_FILES}
 	rsync $^ "${CDN_PREFIX}/css/global/"
 
 templates:
