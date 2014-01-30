@@ -458,6 +458,8 @@ var ui = {
   updateRoom: function(room, roster) {
     var self = this;
     this.dom.roomSelection.val(room);
+    // If no roster is given, only update the menu.
+    if (!roster) return;
     this.dom.onlineList.slideUp(function() {
       $(this).html('');
       self.userLinks = {};

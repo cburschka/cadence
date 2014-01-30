@@ -438,6 +438,12 @@ var xmpp = {
         this.joinRoom(this.room.target, this.nick.target);
       }
     }
+    else if ($('forbidden', stanza).length) {
+      ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+      // Cancel join attempt:
+      xmpp.room.target = xmpp.room.current;
+      ui.updateRoom(xmpp.room.current);
+    }
   },
 
   /**
