@@ -74,6 +74,48 @@ var chat = {
     },
 
     /**
+     * ban [<nick>|<node>|<jid>]
+     *   Ban a user currently in the room by their nick, or ban a user on the
+     *   same domain as the logged-in user by their username, or ban a user
+     *   by JID.
+     */
+    ban: function(arg) {
+      arg = arg.trim();
+      var room = xmpp.room.available[xmpp.room.current]
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      if (arg.indexOf('@') < 0) {
+        var user = roster[arg];
+        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error')
+        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error')
+        arg = Strophe.getBareJidFromJid(user.jid);
+      }
+      else {
+        arg = Strophe.getBareJidFromJid(arg);
+        for (nick in roster)
+          if (roster[nick].jid && arg == Strophe.getBareJidFromJid(roster[nick].jid))
+            user = roster[nick];
+        if (!user) {
+          user = {jid: arg, nick: arg};
+          var absent = true;
+        }
+      }
+
+      xmpp.setUser({jid: arg, affiliation: 'outcast'}, function(iq) {
+        if ($(iq).attr('type') == 'result' && absent)
+          ui.messageAddInfo(strings.info.banSuccess, {user: user, room: room});
+      }, function(code, iq) {
+        var error = 'default';
+        if ($('conflict', iq).length || arg == Strophe.getBareJidFromJid(xmpp.connection.jid))
+          error = 'self';
+        else if ($('not-allowed', iq).length)
+          error = 'notAllowed';
+        ui.messageAddInfo(strings.error.ban[error], {user: user, room: room}, 'error');
+      });
+    },
+
+    /**
      * clear:
      *   Clear the entire chat list screen.
      */
@@ -279,7 +321,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['away', 'back', 'kick', 'me', 'msg', 'part', 'say'];
+    var chat = ['away', 'back', 'ban', 'kick', 'me', 'msg', 'part', 'say'];
     var offline = ['connect'];
     var waiting = ['quit'];
 

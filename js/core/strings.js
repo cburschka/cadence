@@ -108,6 +108,7 @@ var strings = {
     aliasReplace: 'Alias /{cmd} replaced.',
     aliasDelete: 'Alias /{cmd} deleted.',
     version: 'Cadence version: {raw.version}',
+    banSuccess: 'You have banned {user} from {room}.',
   },
 
   error: {
@@ -115,13 +116,20 @@ var strings = {
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to execute macro; it is probably recursive.',
     noMacros: 'No macros are defined.',
+    ban: {
+      anon: 'You can\'t even see {user}\'s JID, and probably can\'t ban anybody.',
+      'default': 'Unknown error while attempting to ban {user} from {room}.',
+      notAllowed: 'You lack the authority to ban {user} from {room}.',
+      self: 'You can\'t ban yourself!',
+      unknown: 'Nobody in {room} is named {nick}. Enter the JID.',
+    },
     cmdStatus: {
       online: '/{cmd}: You are already online.',
       offline: '/{cmd}: You are offline.',
       prejoin: '/{cmd}: You need to join a room first.',
     },
     kick: {
-      405: 'You don\'t have the authority to kick {nick}.',
+      405: 'You lack the authority to kick {nick}.',
       406: 'You can\'t kick {nick} because they\'re not in the room.',
     },
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
