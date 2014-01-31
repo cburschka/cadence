@@ -108,9 +108,7 @@ var strings = {
     aliasReplace: 'Alias /{cmd} replaced.',
     aliasDelete: 'Alias /{cmd} deleted.',
     version: 'Cadence version: {raw.version}',
-    banList: 'Banned users in this room:\n{users}',
     banSuccess: 'You have banned {user} from {room}.',
-    unbanSuccess: 'Unbanned {jid} from this room.',
   },
 
   error: {
@@ -124,10 +122,6 @@ var strings = {
       notAllowed: 'You lack the authority to ban {user} from {room}.',
       self: 'You can\'t ban yourself!',
       unknown: 'Nobody in {room} is named {nick}. Enter the JID.',
-    },
-    banList: {
-      'default': 'Unknown error while getting the ban list.',
-      forbidden: 'You are not authorized to get the ban list for this room.',
     },
     cmdStatus: {
       online: '/{cmd}: You are already online.',
@@ -144,8 +138,6 @@ var strings = {
     joinSame: 'You are already in {room}.',
     nickConflict: 'Username {nick} already in use.',
     noNick: 'You must set a nickname.',
-    unban: 'Could not unban {jid} from this room.',
-    unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
     unknownRoom: 'Room {name} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',

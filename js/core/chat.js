@@ -116,22 +116,6 @@ var chat = {
     },
 
     /**
-     * bans:
-     *   Get the ban list.
-     */
-    bans: function() {
-      xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
-        var users = [];
-        $('item', stanza).each(function() { users.push($(this).attr('jid')); });
-        ui.messageAddInfo(strings.info.banList, {users: users.join('\n')});
-      }, function(stanza) {
-        if ($('forbidden', iq).length)
-          ui.messageAddInfo(strings.error.banList.forbidden);
-        else ui.messageAddInfo(strings.error.banList.default);
-      });
-    },
-
-    /**
      * clear:
      *   Clear the entire chat list screen.
      */
@@ -294,35 +278,6 @@ var chat = {
     },
 
     /**
-     * unban
-     *   Unban a user from the current room.
-     */
-    unban: function(arg) {
-      arg = arg.trim()
-      if (arg.indexOf('@') < 0) arg += '@';
-      xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
-        var user = null;
-        $('item', stanza).each(function() {
-          var x = $(this).attr('jid');
-          if (arg == x.substring(0, arg.length)) user = x;
-        });
-        if (!user) return ui.messageAddInfo(strings.error.unbanNone, 'error');
-        xmpp.setUser({jid: user, affiliation: 'none'},
-          function(info) {
-            ui.messageAddInfo(strings.info.unbanSuccess, {jid: user});
-          },
-          function(info) {
-            ui.messageAddInfo(strings.error.unban, {jid: user}, 'error');
-          }
-        );
-      }, function(stanza) {
-        if ($('forbidden', iq).length)
-          ui.messageAddInfo(strings.error.banList.forbidden);
-        else ui.messageAddInfo(strings.error.banList.default);
-      });
-    },
-
-    /**
      * version
      *   Emit the config.version key.
      */
@@ -366,7 +321,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['away', 'back', 'ban', 'bans', 'kick', 'me', 'msg', 'part', 'say', 'unban'];
+    var chat = ['away', 'back', 'ban', 'kick', 'me', 'msg', 'part', 'say'];
     var offline = ['connect'];
     var waiting = ['quit'];
 
