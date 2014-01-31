@@ -314,6 +314,16 @@ var xmpp = {
   },
 
   /**
+   * Get user list (by affiliation or role).
+   */
+  getUsers: function(query, success, error) {
+    this.connection.sendIQ(
+      this.iq('get', {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
+      success, error
+    );
+  },
+
+  /**
    * Query a room for its occupant list.
    */
   getOccupants: function(room, callback) {
@@ -466,9 +476,7 @@ var xmpp = {
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
           ui.messageAddInfo(strings.info.evicted[type].me[index], {
-            'user.actor': actor,
-            room: this.room.available[room],
-            reason: reason
+            'user.actor': actor, reason: reason
           }, 'error');
           xmpp.prejoin();
         }
