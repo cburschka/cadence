@@ -200,7 +200,7 @@ var chat = {
      */
     list: function() {
       xmpp.discoverRooms(function(rooms) {
-        if (rooms) {
+        if (rooms.length) {
           var links = [];
           for (var room in rooms) {
             links.push(
