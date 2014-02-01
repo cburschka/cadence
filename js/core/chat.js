@@ -127,7 +127,7 @@ var chat = {
       }, function(stanza) {
         if ($('forbidden', iq).length)
           ui.messageAddInfo(strings.error.banList.forbidden);
-        else ui.messageAddInfo(strings.error.banList.default);
+        else ui.messageAddInfo(strings.error.banList['default']);
       });
     },
 
@@ -318,7 +318,7 @@ var chat = {
       }, function(stanza) {
         if ($('forbidden', iq).length)
           ui.messageAddInfo(strings.error.banList.forbidden);
-        else ui.messageAddInfo(strings.error.banList.default);
+        else ui.messageAddInfo(strings.error.banList['default']);
       });
     },
 
