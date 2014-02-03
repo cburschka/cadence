@@ -14,13 +14,11 @@
     #splash {
       position:relative;
       top:40%;
-      display:block;
       text-align:center;
       font-family:sans;
     }
-   #throbber { visibility:hidden; }
   </style>
-  <link id="global-style" rel="stylesheet" type="text/css" href="@@@CSS_LINK_GLOBAL@@@" />
+  @@@CSS_LINKS@@@
 
   <!-- libraries -->
   <script src="@@@PROTOCOL@@@://code.jquery.com/jquery-2.0.3.min.js" type="text/javascript" charset="UTF-8"></script>
@@ -35,7 +33,7 @@
   <div id="content">
     <div id="headlineContainer">
       <label for="styleSelection">Style:</label>
-      <select id="styleSelection"></select>
+      <select id="styleSelection">@@@CSS_OPTIONS@@@</select>
       <span id="roomContainer">
         <label for="roomSelection">Room:</label>
         <select id="roomSelection"></select>
@@ -256,14 +254,12 @@
     <!-- / settingsContainer-->
   </div>
   <div id="nocontent">
-    <div id="splash"><img id="throbber" src="img/loading.gif" />
-    <h1><img src="@@@CDN_URL@@@img/splash.png" alt="@@@TITLE@@@" title="@@@TITLE@@@" /></h1>
-    <p id="javascriptWarning">This is a client-side web application. Please open this page with a browser that runs JavaScript.</p>
-    <script type="text/javascript">
-    document.getElementById('javascriptWarning').style.display='none';
-    document.getElementById('throbber').style.visibility='visible';
-    </script>
+    <div id="splash">
+      <span id="javascriptOff">This is a client-side web application. Please open this page with a browser that runs JavaScript.</span>
     </div>
+    <script type="text/javascript">
+    document.getElementById('javascriptOff').style.display='none';
+    </script>
   </div>
 </body>
 </html>

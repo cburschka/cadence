@@ -40,7 +40,8 @@ var ui = {
         onlineList: $('#onlineListContainer'),
         ponicon: $('#poniconContainer'),
         settings: $('#settingsContainer'),
-      }
+      },
+      styleSheets: $('link.alternate-style'),
     };
     this.title = $(document).attr('title');
     this.loadSounds();
@@ -83,22 +84,6 @@ var ui = {
            +  '" class="colorCode" style="background-color:' + code + '"></a>';
     }
     $('#colorCodesContainer').html(html);
-
-    // Build the stylesheet menu and the stylesheet links.
-    var options = '', links = '';
-    for (var i in config.ui.css) {
-      options += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
-      links += '<link class="alternate-style" rel="alternate stylesheet" type="text/css" href="'
-            + config.ui.cssURL + config.ui.css[i] + '.css" title="' + config.ui.css[i] + '" />';
-    }
-    $('#styleSelection').html(options).val(config.settings.activeStyle);
-    this.dom.styleSheets = $(links).appendTo('head');
-    // Once all stylesheets have loaded, fade in the page.
-    this.dom.styleSheets.last().load(function() {
-      ui.setStyle(config.settings.activeStyle);
-      $('#nocontent').fadeOut('slow');
-      $('#content').fadeIn('slow');
-    });
 
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));

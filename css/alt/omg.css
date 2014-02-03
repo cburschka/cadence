@@ -17,3 +17,5 @@ button {
   color: white;
 }
 .box, #bbCodeContainer button { border-color: #32cd32 }
+#content { display: block }
+#nocontent { display: none }

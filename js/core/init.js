@@ -2,6 +2,9 @@ $(document).ready(function() {
   $.cookie.json = true;
   $.cookie.defaults.expires = 365;
   init.loadSettings();
+  $('link.alternate-style').filter(function() {
+    return this.title == config.settings.activeStyle;
+  }).removeAttr('disabled');
   strings.init();
   ui.init();
   visual.init();

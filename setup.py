@@ -18,14 +18,17 @@ def generate_files(src_path, var):
     for src, dest in files:
         generate_file(src_path + '/' + src, dest, var)
 
-def generate_script_links(cdn_url, mode):
+def generate_links(cdn_url, mode, css_alt):
     if mode == 'minify':
+        css = 'css/global/all.min.css'
         lib = ['js/lib.min.js']
         core = ['js/core.min.js']
     elif mode == 'aggregate':
+        css = 'css/global/all.css'
         lib = ['js/lib.js']
         core = ['js/core.js']
     else:
+        css = 'css/global/import.css'
         lib = [
             'js/lib/jquery.replacetext.js',
             'js/lib/jquery.cookie.js',
@@ -40,24 +43,23 @@ def generate_script_links(cdn_url, mode):
             'js/core/ui.js', 'js/core/visual.js', 'js/core/config.js',
             'js/core/init.js'
         ]
-    template = '<script type="text/javascript" src="{src}" charset="UTF-8"></script>'
-    lib_links = ''.join(template.format(src=cdn_url + filename) for filename in lib)
-    core_links = ''.join(template.format(src=cdn_url + filename) for filename in core)
-    return lib_links, core_links
+    css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />'.format(href=cdn_url + css)
+    css_template = '<link class="alternate-style" rel="alternate stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
+    css_links += ''.join(css_template.format(cdn=cdn_url, name=name) for name in css_alt)
+    js_template = '<script type="text/javascript" src="{src}" charset="UTF-8"></script>'
+    lib_links = ''.join(js_template.format(src=cdn_url + filename) for filename in lib)
+    core_links = ''.join(js_template.format(src=cdn_url + filename) for filename in core)
+    return css_links, lib_links, core_links
 
 def main():
     variables = load_variables()
-    libjs, corejs = generate_script_links(variables['CDN_URL'], variables['MODE'])
+    css_alt = variables['CSS_ALT'].split()
+    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt)
+    variables['CSS_LINKS'] = css
+    variables['CSS_OPTIONS'] = ''.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
     variables['JS_LINKS_CORE'] = corejs
     variables['VERSION'] = sys.argv[1]
-
-    if variables['MODE'] == 'minify':
-        variables['CSS_LINK_GLOBAL'] = 'css/global/all.min.css'
-    elif variables['MODE'] == 'aggregate':
-        variables['CSS_LINK_GLOBAL'] = 'css/global/all.css'
-    else:
-        variables['CSS_LINK_GLOBAL'] = 'css/global/import.css'
 
     generate_files(variables['SRC_PATH'], variables)
 
