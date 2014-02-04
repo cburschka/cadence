@@ -63,6 +63,7 @@ var ui = {
    * Create dynamic page elements.
    */
   initializePage: function() {
+    this.setStyle(config.settings.activeStyle);
     // Build the emoticon containers.
     for (var set in config.markup.emoticons) {
       var html = '';
@@ -196,7 +197,7 @@ var ui = {
     // Listen for changes in the style menu.
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }
-    );
+    ).val(config.settings.activeStyle);
 
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
