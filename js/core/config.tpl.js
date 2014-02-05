@@ -56,6 +56,7 @@ var config = {
     },
 
     macros: {},
+    version: '@@@VERSION@@@',
   },
 
   markup: {
