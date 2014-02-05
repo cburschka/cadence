@@ -246,10 +246,8 @@ var ui = {
    */
   setStatus: function(status) {
     // status options are: online, waiting, offline, prejoin.
-    if (status == 'prejoin') {
-      ui.updateRoom('', {});
-      status = 'online';
-    }
+    if (status != 'online') ui.updateRoom('', {});
+    if (status == 'prejoin') status = 'online';
     this.dom.statusIcon.attr('class', status).attr('title');
     this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
     this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
