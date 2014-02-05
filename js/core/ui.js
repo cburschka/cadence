@@ -283,6 +283,7 @@ var ui = {
    * Close the active sidebar and (if needed) open a different one.
    */
   toggleMenu: function(newMenu, init) {
+    var speed = init ? 0 : 'slow';
     var oldMenu = init ? null : config.settings.activeMenu;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
 
@@ -292,15 +293,14 @@ var ui = {
       width += parseInt(px.substring(0,px.length-2)) + 8;
     }
 
-    this.dom.chatList.animate({right : width + 'px'}, 'slow', function() {
+    this.dom.chatList.animate({right : width + 'px'}, speed, function() {
       var maxWidth = ui.dom.chatList.width() - 30;
       var maxHeight = ui.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
     if (oldMenu != newMenu) {
-      if (init) this.dom.menu[newMenu].show();
-      else this.dom.menu[newMenu].animate({width: 'show'}, 'slow');
+      this.dom.menu[newMenu].animate({width: 'show'}, speed);
       config.settings.activeMenu = newMenu;
     }
     else config.settings.activeMenu = null;
