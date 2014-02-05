@@ -299,7 +299,8 @@ var ui = {
     });
 
     if (oldMenu != newMenu) {
-      this.dom.menu[newMenu].animate({width: 'show'}, 'slow');
+      if (init) this.dom.menu[newMenu].show();
+      else this.dom.menu[newMenu].animate({width: 'show'}, 'slow');
       config.settings.activeMenu = newMenu;
     }
     else config.settings.activeMenu = null;
