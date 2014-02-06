@@ -124,11 +124,6 @@ visual = {
     user: function(user) {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
-      // Show guest users as guests regardless of room status.
-      if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
-        user.role = 'visitor';
-        user.affiliation = 'none';
-      }
       if (user.role == 'visitor' || (user.jid &&
         user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
         nick = '(' + nick + ')';
