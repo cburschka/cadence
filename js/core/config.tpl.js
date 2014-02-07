@@ -147,6 +147,7 @@ var config = {
           ':celestia:': 'celestia.png',
           ':celestiamad:': 'celestiamad.png',
           ':celestiawut:': 'celestiawut.png',
+          ':trollestia:': 'trollestia.png',
           ':cheerilee:': 'cheerilee.png',
           ':chrysalis:': 'chrysalis.png',
           ':cockatrice:': 'cockatrice.png',
