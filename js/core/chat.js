@@ -30,14 +30,14 @@ var chat = {
         });
         else return ui.messageAddInfo(strings.error.noMacros, 'error');
       }
-      arg = arg.match(/^\/?([a-zA-Z0-9_-]+)((\s.*)?)$/);
-      if (!arg) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
-      var cmd = arg[1];
+      var m = arg.match(/^\/*(\S+)/);
+      if (!m) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
+      var cmd = m[1];
       if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
         cmd: cmd
       }, 'error');
-      var macro = arg[2].trim();
-      if (!macro.trim()) {
+      var macro = arg.substring(m[0].length).trim();
+      if (!macro) {
         delete config.settings.macros[cmd];
         return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
       }
@@ -60,8 +60,9 @@ var chat = {
      *   <status/> to "msg".
      */
     away: function(arg) {
-      arg = arg.trim().match(/^\(*(.*?)\)*$/);
-      xmpp.sendStatus('away', arg[1].trim());
+      // strip all parentheses and spaces:
+      arg = arg.trim().replace(/(^[\(\s]*|[\)\s]*$)/g, '');
+      xmpp.sendStatus('away', arg);
     },
 
     /**
@@ -70,6 +71,64 @@ var chat = {
      */
     back: function() {
       xmpp.sendStatus();
+    },
+
+    /**
+     * ban [<nick>|<node>|<jid>]
+     *   Ban a user currently in the room by their nick, or ban a user on the
+     *   same domain as the logged-in user by their username, or ban a user
+     *   by JID.
+     */
+    ban: function(arg) {
+      arg = arg.trim();
+      var room = xmpp.room.available[xmpp.room.current]
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      if (arg.indexOf('@') < 0) {
+        var user = roster[arg];
+        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error')
+        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error')
+        arg = Strophe.getBareJidFromJid(user.jid);
+      }
+      else {
+        arg = Strophe.getBareJidFromJid(arg);
+        for (nick in roster)
+          if (roster[nick].jid && arg == Strophe.getBareJidFromJid(roster[nick].jid))
+            user = roster[nick];
+        if (!user) {
+          user = {jid: arg, nick: arg};
+          var absent = true;
+        }
+      }
+
+      xmpp.setUser({jid: arg, affiliation: 'outcast'}, function(iq) {
+        if ($(iq).attr('type') == 'result' && absent)
+          ui.messageAddInfo(strings.info.banSuccess, {user: user, room: room});
+      }, function(code, iq) {
+        var error = 'default';
+        if ($('conflict', iq).length || arg == Strophe.getBareJidFromJid(xmpp.connection.jid))
+          error = 'self';
+        else if ($('not-allowed', iq).length)
+          error = 'notAllowed';
+        ui.messageAddInfo(strings.error.ban[error], {user: user, room: room}, 'error');
+      });
+    },
+
+    /**
+     * bans:
+     *   Get the ban list.
+     */
+    bans: function() {
+      xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
+        var users = [];
+        $('item', stanza).each(function() { users.push($(this).attr('jid')); });
+        ui.messageAddInfo(strings.info.banList, {users: users.join('\n')});
+      }, function(stanza) {
+        if ($('forbidden', iq).length)
+          ui.messageAddInfo(strings.error.banList.forbidden);
+        else ui.messageAddInfo(strings.error.banList['default']);
+      });
     },
 
     /**
@@ -90,16 +149,18 @@ var chat = {
     connect: function(arg) {
       var fail = function() { return ui.messageAddInfo(strings.error.userpass, 'error') };
       if (typeof arg == 'string') {
-        var m = /^([^\s"&'\/:<>@]*)(.*)$/.exec(arg.trim());
-        arg = {user: m[1], pass: m[2].trim()};
+        arg = arg.trim();
+        var m = /^[^\s"&'\/:<>@]+/.exec(arg);
+        if (!m) return fail();
+        arg = {user: m[0], pass: arg.substring(m[0].length).trim()};
+        if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
+          arg.pass = arg.pass.substring(1, arg.pass.length-1);
+        }
       }
       if (!arg.user || !arg.pass) {
         if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL)
           return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
         else return fail();
-      }
-      if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
-        arg.pass = arg.pass.substring(1, arg.pass.length-1);
       }
       xmpp.newConnection(arg.user, arg.pass);
     },
@@ -139,7 +200,7 @@ var chat = {
      */
     list: function() {
       xmpp.discoverRooms(function(rooms) {
-        if (rooms) {
+        if (rooms.length) {
           var links = [];
           for (var room in rooms) {
             links.push(
@@ -168,11 +229,12 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      arg = /^(.+?)\s+(.+)$/.exec(arg.trim());
-      var nick = arg[1];
+      var m = /^(\S+)/.exec(arg.trim());
+      var nick = m[1];
+      var msg = arg.substring(m[0].length + 1);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.format.plain(arg[2]), config.ui.maxMessageLength);
+      var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
       chat.sendMessage(msg, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
@@ -232,6 +294,35 @@ var chat = {
     },
 
     /**
+     * unban
+     *   Unban a user from the current room.
+     */
+    unban: function(arg) {
+      arg = arg.trim()
+      if (arg.indexOf('@') < 0) arg += '@';
+      xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
+        var user = null;
+        $('item', stanza).each(function() {
+          var x = $(this).attr('jid');
+          if (arg == x.substring(0, arg.length)) user = x;
+        });
+        if (!user) return ui.messageAddInfo(strings.error.unbanNone, 'error');
+        xmpp.setUser({jid: user, affiliation: 'none'},
+          function(info) {
+            ui.messageAddInfo(strings.info.unbanSuccess, {jid: user});
+          },
+          function(info) {
+            ui.messageAddInfo(strings.error.unban, {jid: user}, 'error');
+          }
+        );
+      }, function(stanza) {
+        if ($('forbidden', iq).length)
+          ui.messageAddInfo(strings.error.banList.forbidden);
+        else ui.messageAddInfo(strings.error.banList['default']);
+      });
+    },
+
+    /**
      * version
      *   Emit the config.version key.
      */
@@ -253,8 +344,8 @@ var chat = {
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, function(users) {
           var out = [];
-          for (var nick in users) out.push(nick)
-          if (users) ui.messageAddInfo(strings.info.usersInRoom, {
+          for (var nick in users) out.push(visual.format.nick(nick))
+          if (out.length) ui.messageAddInfo(strings.info.usersInRoom, {
             room: room,
             'raw.users': out.join(', ')
           });
@@ -275,7 +366,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['away', 'back', 'kick', 'me', 'msg', 'part', 'say'];
+    var chat = ['away', 'back', 'ban', 'bans', 'kick', 'me', 'msg', 'part', 'say', 'unban'];
     var offline = ['connect'];
     var waiting = ['quit'];
 
@@ -316,12 +407,11 @@ var chat = {
     var cmd = 'say';
 
     // Execute /cmd, but turn //cmd into /say /cmd.
-    if (text[0] == '/') {
-      if (text[1] != '/') {
-        var i = text.indexOf(' ');
-        if (i < 0) i = text.length;
-        cmd = text.substring(1, i);
-        text = text.substring(i);
+    var m = /^\/(\/?)(\S+)/.exec(text);
+    if (m) {
+      if (!m[1]) {
+        cmd = m[2];
+        text = text.substring(m[0].length);
       }
       else text = text.substring(1);
     }

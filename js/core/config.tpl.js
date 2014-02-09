@@ -56,6 +56,7 @@ var config = {
     },
 
     macros: {},
+    version: '@@@VERSION@@@',
   },
 
   markup: {
@@ -96,7 +97,7 @@ var config = {
 
     emoticons: {
       general: {
-        baseURL: 'img/emoticons/general/',
+        baseURL: '@@@CDN_URL@@@img/emoticons/general/',
         codes: {
           ':)': 'smile.png',
           ':(': 'sad.png',
@@ -115,7 +116,7 @@ var config = {
         },
       },
       pony: {
-        baseURL: 'img/emoticons/mlp/',
+        baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
           ':angel:': 'angel.png',
           ':abbored:': 'abbored.png',
@@ -146,6 +147,7 @@ var config = {
           ':celestia:': 'celestia.png',
           ':celestiamad:': 'celestiamad.png',
           ':celestiawut:': 'celestiawut.png',
+          ':trollestia:': 'trollestia.png',
           ':cheerilee:': 'cheerilee.png',
           ':chrysalis:': 'chrysalis.png',
           ':cockatrice:': 'cockatrice.png',
@@ -311,25 +313,23 @@ var config = {
 
   // Defines the available sounds loaded on chat start:
   sounds: ['droneriots', 'sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6', 'yay'],
-  soundURL: 'sounds/',
+  soundURL: '@@@CDN_URL@@@sounds/',
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
-    domain: '$xmpp.domain$',
-    boshURL: '$xmpp.boshURL$',
-    mucService: '$xmpp.mucService$',
-    sessionAuthURL: '$xmpp.sessionAuthURL$',
+    domain: '@@@XMPP_DOMAIN@@@',
+    boshURL: '@@@XMPP_BOSH@@@',
+    mucService: '@@@XMPP_MUC@@@',
+    sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
   },
 
   ui: {
-    css: ['Carbon', 'Selenium', 'Helium', 'Technetium', 'Plum', 'Mercury', 'Uranium', 'Sulfur', 'dash', 'omg', 'Stygium'],
-    cssURL: 'css/alt/',
-    chatBotName: '$ui.chatBotName$',
-    maxNickLength: 24,
+    chatBotName: '@@@CHATBOT@@@',
+    maxNickLength: 32,
     maxMessageLength: 1024,
   },
 
   poniconVersion: "v1.13",
   sessionName: "cadence",
-  version: '$version$',
+  version: '@@@VERSION@@@',
 };

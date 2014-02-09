@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf8" />
-  <title>$title$</title>
+  <title>@@@TITLE@@@</title>
   <style type="text/css">
     html, body { height:100%; }
     #content { display: none; }
@@ -14,39 +14,26 @@
     #splash {
       position:relative;
       top:40%;
-      display:block;
       text-align:center;
       font-family:sans;
     }
-   #throbber { visibility:hidden; }
   </style>
-  <link id="global-style" rel="stylesheet" type="text/css" href="css/global/global.css" />
+  @@@CSS_LINKS@@@
 
   <!-- libraries -->
-  <script src="$protocol$://code.jquery.com/jquery-2.0.3.min.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/jquery-replacetext/jquery.ba-replacetext.min.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/jquery-cookie/jquery.cookie.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/strophe/strophe.min.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/moment/moment.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/xbbcode/xbbcode.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/buzz/src/buzz.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/lib/filesaver/FileSaver.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="@@@PROTOCOL@@@://code.jquery.com/jquery-2.0.3.min.js" type="text/javascript" charset="UTF-8"></script>
+  @@@JS_LINKS_LIB@@@
 
   <!-- core -->
-  <script src="js/core/strings.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/chat.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/xmpp.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/ui.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/visual.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/config.js" type="text/javascript" charset="UTF-8"></script>
-  <script src="js/core/init.js" type="text/javascript" charset="UTF-8"></script>
+  @@@JS_LINKS_CORE@@@
+  <script src="config.custom.js" type="text/javascript" charset="UTF-8"></script>
 </head>
 
 <body>
   <div id="content">
     <div id="headlineContainer">
       <label for="styleSelection">Style:</label>
-      <select id="styleSelection"></select>
+      <select id="styleSelection">@@@CSS_OPTIONS@@@</select>
       <span id="roomContainer">
         <label for="roomSelection">Room:</label>
         <select id="roomSelection"></select>
@@ -267,14 +254,12 @@
     <!-- / settingsContainer-->
   </div>
   <div id="nocontent">
-    <div id="splash"><img id="throbber" src="img/loading.gif" />
-    <h1><img src="$logo$" alt="$title$" title="$title$" /></h1>
-    <p id="javascriptWarning">This is a client-side web application. Please open this page with a browser that runs JavaScript.</p>
-    <script type="text/javascript">
-    document.getElementById('javascriptWarning').style.display='none';
-    document.getElementById('throbber').style.visibility='visible';
-    </script>
+    <div id="splash">
+      <span id="javascriptOff">This is a client-side web application. Please open this page with a browser that runs JavaScript.</span>
     </div>
+    <script type="text/javascript">
+    document.getElementById('javascriptOff').style.display='none';
+    </script>
   </div>
 </body>
 </html>

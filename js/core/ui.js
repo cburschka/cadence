@@ -40,7 +40,8 @@ var ui = {
         onlineList: $('#onlineListContainer'),
         ponicon: $('#poniconContainer'),
         settings: $('#settingsContainer'),
-      }
+      },
+      styleSheets: $('link.alternate-style'),
     };
     this.title = $(document).attr('title');
     this.loadSounds();
@@ -62,6 +63,7 @@ var ui = {
    * Create dynamic page elements.
    */
   initializePage: function() {
+    this.setStyle(config.settings.activeStyle);
     // Build the emoticon containers.
     for (var set in config.markup.emoticons) {
       var html = '';
@@ -83,22 +85,6 @@ var ui = {
            +  '" class="colorCode" style="background-color:' + code + '"></a>';
     }
     $('#colorCodesContainer').html(html);
-
-    // Build the stylesheet menu and the stylesheet links.
-    var options = '', links = '';
-    for (var i in config.ui.css) {
-      options += '<option value="' + config.ui.css[i] + '">' + config.ui.css[i] + '</option>';
-      links += '<link class="alternate-style" rel="alternate stylesheet" type="text/css" href="'
-            + config.ui.cssURL + config.ui.css[i] + '.css" title="' + config.ui.css[i] + '" />';
-    }
-    $('#styleSelection').html(options).val(config.settings.activeStyle);
-    this.dom.styleSheets = $(links).appendTo('head');
-    // Once all stylesheets have loaded, fade in the page.
-    this.dom.styleSheets.last().load(function() {
-      ui.setStyle(config.settings.activeStyle);
-      $('#nocontent').fadeOut('slow');
-      $('#content').fadeIn('slow');
-    });
 
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
@@ -211,7 +197,7 @@ var ui = {
     // Listen for changes in the style menu.
     $('#styleSelection').change(
       function() { ui.setStyle($(this).val()); }
-    );
+    ).val(config.settings.activeStyle);
 
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
@@ -260,10 +246,8 @@ var ui = {
    */
   setStatus: function(status) {
     // status options are: online, waiting, offline, prejoin.
-    if (status == 'prejoin') {
-      ui.updateRoom('', {});
-      status = 'online';
-    }
+    if (status != 'online') ui.updateRoom('', {});
+    if (status == 'prejoin') status = 'online';
     this.dom.statusIcon.attr('class', status).attr('title');
     this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
     this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
@@ -297,6 +281,7 @@ var ui = {
    * Close the active sidebar and (if needed) open a different one.
    */
   toggleMenu: function(newMenu, init) {
+    var speed = init ? 0 : 'slow';
     var oldMenu = init ? null : config.settings.activeMenu;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
 
@@ -306,14 +291,14 @@ var ui = {
       width += parseInt(px.substring(0,px.length-2)) + 8;
     }
 
-    this.dom.chatList.animate({right : width + 'px'}, 'slow', function() {
+    this.dom.chatList.animate({right : width + 'px'}, speed, function() {
       var maxWidth = ui.dom.chatList.width() - 30;
       var maxHeight = ui.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
     if (oldMenu != newMenu) {
-      this.dom.menu[newMenu].animate({width: 'show'}, 'slow');
+      this.dom.menu[newMenu].animate({width: 'show'}, speed);
       config.settings.activeMenu = newMenu;
     }
     else config.settings.activeMenu = null;
@@ -458,6 +443,8 @@ var ui = {
   updateRoom: function(room, roster) {
     var self = this;
     this.dom.roomSelection.val(room);
+    // If no roster is given, only update the menu.
+    if (!roster) return;
     this.dom.onlineList.slideUp(function() {
       $(this).html('');
       self.userLinks = {};

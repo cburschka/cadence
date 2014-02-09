@@ -8,7 +8,8 @@ $(document).ready(function() {
   xmpp.initialize();
   bbcode = xbbcode.init(config.markup.bbcode);
   $(window).on({beforeunload : function() {
-    if (config.settings.notifications.leavePage) return strings.info.leavePage;
+    if (xmpp.status != 'offline' && config.settings.notifications.leavePage)
+      return strings.info.leavePage;
   }});
   $(window).unload(function() { init.shutDown(); });
   if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
@@ -22,7 +23,8 @@ init = {
     var cookie = $.cookie(config.sessionName + '_settings');
     config.settings = config.defaultSettings;
     if (cookie) {
-      config.settings = objMerge(config.settings, cookie);
+      if (cookie.version == config.version) config.settings = cookie;
+      else config.settings = objMerge(config.settings, cookie);
     }
   },
 
@@ -31,10 +33,13 @@ init = {
   }
 }
 
+/**
+ * Make a merged copy of objects a and b, whose structure is exactly that of
+ * a, using b's values for common keys.
+ */
 function objMerge(a, b) {
-  if (b === undefined) return a;
-  if (typeof a != 'object' || typeof b != 'object') return b;
-  if (a.constructor != Object || b.constructor != Object) return b;
+  if (typeof a != typeof b) return a;
+  if (a.constructor != Object) return b;
   var c = {}
   for (var key in b) c[key] = b[key];
   for (var key in a) {

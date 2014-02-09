@@ -22,3 +22,5 @@ button, h3 {
 .user-role-bot, #content a { color: #b84623 }
 .row.delayed .dateTime, .row.delayed .log-room { color: #555 }
 .author { color: black }
+#content { display: block }
+#nocontent { display: none }

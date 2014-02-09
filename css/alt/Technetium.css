@@ -35,3 +35,5 @@ button, #loginContainer input { border: 1px solid #06b } /* blue borders around 
   transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
 .user-role-bot { color:#32cd32 }
+#content { display: block }
+#nocontent { display: none }
