@@ -49,7 +49,7 @@ def parser():
     '''
       )
     parser.add_argument(
-      '-s, --https', action='store_const',
+      '-s', '--https', action='store_const',
       help='Generate HTTPS URLs', dest='https', const=True, default=False
       )
     parser.add_argument(
