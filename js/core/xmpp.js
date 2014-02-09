@@ -29,9 +29,6 @@ var xmpp = {
     this.eventPresenceCallback = this.eventPresenceCallback.bind(this);
     this.eventMessageCallback = this.eventMessageCallback.bind(this);
     this.disconnect = this.disconnect.bind(this);
-    this.buildConnection();
-    // Try to attach to an old session. If it fails, wait for user to log in.
-    this.resumeConnection();
   },
 
   /**
@@ -52,26 +49,13 @@ var xmpp = {
   },
 
   /**
-   * Resume a stored connection. This is not currently implemented!
-   */
-  resumeConnection: function() {
-    var session = localStorage.getItem('session');
-    if (session) {
-      this.session = JSON.parse(session);
-      this.connection.attach(this.session.jid, this.session.sid, this.session.rid, this.eventConnectCallback);
-      localStorage.removeItem('session');
-      return true;
-    }
-    else return false;
-  },
-
-  /**
    * Open the connection and authenticate.
    */
   newConnection: function(user, pass) {
     this.session = {};
     this.nick.target = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    this.buildConnection();
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
 
@@ -654,7 +638,6 @@ var xmpp = {
     }
     else if (status == 'offline') {
       // The connection is closed and cannot be reused.
-      this.buildConnection();
       this.nick.current = null;
       this.room.current = null;
       this.roster = {};
