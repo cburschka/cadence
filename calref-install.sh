@@ -6,9 +6,9 @@ echo "Configuring cadence"
   --https \
   --domain="calref.net" \
   --session-auth="https://calref.net/xmpp-auth.php" \
-  --logo="img/CalRef2.png" \
   --chatbot="Ligrev" \
-  --title="Ligrev's Lounge"
+  --title="Ligrev's Lounge" \
+  $*
 
 echo "Building cadence"
 
