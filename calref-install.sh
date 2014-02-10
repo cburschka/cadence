@@ -14,3 +14,7 @@ echo "Configuring cadence"
 echo "Building cadence"
 
 make > /dev/null
+
+echo "Installing cadence"
+
+make install > /dev/null
