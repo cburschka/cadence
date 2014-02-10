@@ -49,7 +49,6 @@ distclean: clean
 install: all install-init install-js install-css-global
 	rsync -a "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
-	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
 	rsync index.html "${PREFIX}/"
 	touch -a "${PREFIX}/config.custom.js"
 
