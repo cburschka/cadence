@@ -10,5 +10,5 @@ a:hover { text-decoration:underline }
 q { font-variant:small-caps }
 code {
   font-size:1.2em;
-  white-space:pre;
+  white-space:pre-wrap;
 }
