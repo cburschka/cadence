@@ -19,6 +19,7 @@ var xmpp = {
   resource: null,
   status: 'offline',
   roster: {},
+  historyEnd: {},
 
   /**
    * Bind the object methods and create the connection object.
@@ -249,7 +250,8 @@ var xmpp = {
       })
       .attrs(attrs)
       .c('x', {xmlns:Strophe.NS.MUC})
-      .up();
+      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
+      .up().up();
   },
 
   /**
@@ -585,6 +587,7 @@ var xmpp = {
           return true
         }
       }
+      this.historyEnd[room] = time || (new Date()).toISOString();
 
       // Only accept messages from nicks we know are in the room.
       var user = this.roster[room][nick];
