@@ -116,7 +116,7 @@ var strings = {
   error: {
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
-    aliasRecursion: 'Failed to execute macro; it is probably recursive.',
+    aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
     ban: {
       anon: 'You can\'t even see {user}\'s JID, and probably can\'t ban anybody.',

@@ -46,6 +46,20 @@ var chat = {
         macro[i] = macro[i].trim();
       }
       if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
+
+      var search = function(c, t) {
+        if (c) for (var i in c) {
+          var m = c[i].match(/^\/(\S+)/);
+          var u = m && ((m[1] == cmd && t.concat([m[1]])) || search(config.settings.macros[m[1]], t.concat([m[1]])));
+          if (u) return u;
+        }
+        return false;
+      }
+      var rec = search(macro, [cmd]);
+      if (rec) return ui.messageAddInfo(strings.error.aliasRecursion, {
+        cmd: cmd, path: rec.join(' -> ')
+      }, 'error');
+
       if (config.settings.macros[cmd]) {
         ui.messageAddInfo(strings.info.aliasReplace, {cmd: cmd});
       }
