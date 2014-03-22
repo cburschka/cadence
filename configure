@@ -38,6 +38,7 @@ CDN_URL={cdn_url}
 MODE={mode}
 SRC_PATH={src_path}
 CSS_ALT={css_alt}
+STYLE={style}
 '''.format(**vars(args)))
 
 
@@ -91,6 +92,10 @@ def parser():
     parser.add_argument(
       '--mode', type=str,
       help='Whether to optimize JS/CSS files ["minify"]', metavar='debug|aggregate|minify', dest='mode', default='minify'
+      )
+    parser.add_argument(
+      '--style', type=str,
+      help='Default alt stylesheet. ["Stygium"]', metavar='STYLE', dest='style', default='Stygium'
       )
     return parser
 

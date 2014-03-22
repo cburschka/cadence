@@ -4,7 +4,7 @@ var config = {
     // Which option container is open when the page loads.
     activeMenu: 'onlineList',
     // Which stylesheet is selected when the page loads.
-    activeStyle: 'Carbon',
+    activeStyle: '@@@STYLE@@@',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
