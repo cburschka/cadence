@@ -182,6 +182,7 @@ var config = {
           ':happyluna:': 'happyluna.png',
           ':lyra:': 'lyra.png',
           ':lyracup:': 'lyracup.png',
+          ':maudstare:': 'maud.png',
           ':nebponder:': 'nebponder.png',
           ':octavia:': 'octavia.png',
           ':photofinish:': 'photofinish.png',
