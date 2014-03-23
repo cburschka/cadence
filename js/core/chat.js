@@ -446,13 +446,8 @@ var chat = {
    * @param {string} text: A string to replace $ with in the command array.
    */
   executeMacro: function(macro, text) {
-    try {
-      for (var i in macro) {
-        this.executeInput(macro[i].replace(/\$/g, text.trim()));
-      }
-    }
-    catch (ex) {
-      ui.messageAddInfo(strings.error.aliasRecursion, 'error');
+    for (var i in macro) {
+      this.executeInput(macro[i].replace(/\$/g, text.trim()));
     }
   },
 
