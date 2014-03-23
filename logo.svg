@@ -117,7 +117,7 @@
        xlink:href="#linearGradient3039"
        id="linearGradient3209"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-44.794638,19.239695)"
+       gradientTransform="matrix(1,0,0,1.0297962,-44.794638,2.7930163)"
        x1="505.34882"
        y1="567.13361"
        x2="379.73468"
@@ -140,9 +140,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.061871843"
-     inkscape:cx="6967.27"
-     inkscape:cy="-1908.7072"
+     inkscape:zoom="0.69999999"
+     inkscape:cx="942.48631"
+     inkscape:cy="-103.75773"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -196,7 +196,7 @@
          style="fill:#f7edac;fill-opacity:1;stroke:none" />
       <path
          id="path3008"
-         d="m 460.26786,586.98966 c -19.58934,-12.64388 -32.38862,-3.77226 -60.4375,-10.59375 -28.04888,-6.82149 -45.03822,-10.31787 -65.8125,11.84375 38.93012,-18.52082 87.43948,15.82395 126.25,-1.25 z"
+         d="m 460.26786,587.45971 c -19.58934,-13.02062 -32.38862,-3.88466 -60.4375,-10.90941 -28.04888,-7.02474 -45.03822,-10.6253 -65.8125,12.19665 38.93012,-19.07267 87.43948,16.29545 126.25,-1.28724 z"
          style="fill:url(#linearGradient3209);fill-opacity:1;stroke:none"
          inkscape:connector-curvature="0" />
       <path
