@@ -131,7 +131,7 @@ visual = {
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
             + (jid ? (' title="' + jid + '"') : '')
-            + ' onclick="chat.prefixMsg(\'' + encodeURIComponent(nick).replace('\'', "\\\'", 'g') + '\')"'
+            + ' onclick="chat.prefixMsg(\'' + encodeURIComponent(user.nick).replace('\'', "\\\'", 'g') + '\')"'
             + '>' + nick + '</span>';
     },
 

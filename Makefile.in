@@ -2,6 +2,10 @@ include .config.vars
 ifndef SRC_PATH
   SRC_PATH=.
 endif
+ifndef CP
+  CP=cp
+endif
+
 include ${SRC_PATH}/VERSION
 
 VPATH = ${SRC_PATH}
@@ -47,30 +51,30 @@ distclean: clean
 	rm Makefile
 
 install: all install-init install-js install-css-global
-	rsync -a "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
-	rsync -a "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
-	rsync "${LOGO}" "${CDN_PREFIX}/img/splash.png"
-	rsync index.html "${PREFIX}/"
+	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
+	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
+	$(CP) -au index.html "${PREFIX}/"
 	touch -a "${PREFIX}/config.custom.js"
 
 install-init:
-	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
+	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/" "${PREFIX}"
 
 ifeq (${MODE},debug)
 install-js: install-js-core install-js-lib
 else
 install-js: ${JS_FILES}
-	rsync $^ "${CDN_PREFIX}/js"
+	$(CP) -au $^ "${CDN_PREFIX}/js"
 endif
 
 install-js-core: ${CORE_FILES}
-	mkdir -p ${CDN_PREFIX}/js/core/
-	rsync $^ "${CDN_PREFIX}/js/core/"
+	mkdir -p "${CDN_PREFIX}/js/core/"
+	$(CP) -au $^ "${CDN_PREFIX}/js/core/"
 install-js-lib: ${LIB_FILES}
-	mkdir -p ${CDN_PREFIX}/js/lib/
-	rsync $^ "${CDN_PREFIX}/js/lib/"
+	mkdir -p "${CDN_PREFIX}/js/lib/"
+	$(CP) -au $^ "${CDN_PREFIX}/js/lib/"
 install-css-global: ${CSS_FILES}
-	rsync $^ "${CDN_PREFIX}/css/global/"
+	mkdir -p "${CDN_PREFIX}/css/global"
+	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
 
 templates:
 	VERSION=${VERSION}
@@ -85,28 +89,28 @@ index.html: index.tpl.html js/core/config.tpl.js .config.vars
 js/core/config.js: index.html
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib/jquery.cookie.js: js/lib/jquery-cookie/jquery.cookie.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib/jquery.replacetext.js: js/lib/jquery-replacetext/jquery.ba-replacetext.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib/moment.js: js/lib/moment/moment.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib/strophe.js: js/lib/strophe/strophe.js
-	cp $^ $@
+	$(CP) $^ $@
 
 strophe: js/lib/strophe/
 	$(MAKE) -C $^ strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
-	cp $^ $@
+	$(CP) $^ $@
 
 js/lib.js: js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.cookie.js \
                js/lib/jquery.replacetext.js js/lib/moment.js \
@@ -121,9 +125,6 @@ js/core.js: ${CORE_FILES}
 %.min.css: %.css
 	yui-compressor $^ > $@
 
-core:
-	rsync --exclude "*.tpl.js" ${SRC_PATH}/js/core/ js/core
-
 css/global/all.css: ${CSS_FILES_GLOBAL}
 	cat $^ > $@
 
@@ -131,4 +132,4 @@ submodules:
 	cd "${SRC_PATH}"; \
 	git submodule update --init
 
-.PHONY: all js core strophe init submodules
+.PHONY: all js strophe init submodules

@@ -4,7 +4,7 @@ var config = {
     // Which option container is open when the page loads.
     activeMenu: 'onlineList',
     // Which stylesheet is selected when the page loads.
-    activeStyle: 'Carbon',
+    activeStyle: '@@@STYLE@@@',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
@@ -182,6 +182,7 @@ var config = {
           ':happyluna:': 'happyluna.png',
           ':lyra:': 'lyra.png',
           ':lyracup:': 'lyracup.png',
+          ':maudstare:': 'maud.png',
           ':nebponder:': 'nebponder.png',
           ':octavia:': 'octavia.png',
           ':photofinish:': 'photofinish.png',

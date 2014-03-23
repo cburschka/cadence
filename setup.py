@@ -18,7 +18,7 @@ def generate_files(src_path, var):
     for src, dest in files:
         generate_file(src_path + '/' + src, dest, var)
 
-def generate_links(cdn_url, mode, css_alt):
+def generate_links(cdn_url, mode, css_alt, style):
     if mode == 'minify':
         css = 'css/global/all.min.css'
         lib = ['js/lib.min.js']
@@ -44,8 +44,13 @@ def generate_links(cdn_url, mode, css_alt):
             'js/core/init.js'
         ]
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />'.format(href=cdn_url + css)
-    css_template = '<link class="alternate-style" rel="alternate stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
-    css_links += ''.join(css_template.format(cdn=cdn_url, name=name) for name in css_alt)
+    css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
+    css_links += '\n'.join(
+        css_template.format(
+            cdn=cdn_url, name=name, alt=('alternate ' if name != style else '')
+        )
+        for name in css_alt
+    )
     js_template = '<script type="text/javascript" src="{src}" charset="UTF-8"></script>'
     lib_links = ''.join(js_template.format(src=cdn_url + filename) for filename in lib)
     core_links = ''.join(js_template.format(src=cdn_url + filename) for filename in core)
@@ -54,7 +59,7 @@ def generate_links(cdn_url, mode, css_alt):
 def main():
     variables = load_variables()
     css_alt = variables['CSS_ALT'].split()
-    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt)
+    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = ''.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
