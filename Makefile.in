@@ -57,7 +57,7 @@ install: all install-init install-js install-css-global
 	touch -a "${PREFIX}/config.custom.js"
 
 install-init:
-	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
+	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/" "${PREFIX}"
 
 ifeq (${MODE},debug)
 install-js: install-js-core install-js-lib
