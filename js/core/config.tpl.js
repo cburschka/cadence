@@ -283,6 +283,7 @@ var config = {
           ':facehoof:': 'facehoof.png',
           ':twirage:': 'twirage.png',
           ':twiright:': 'twiright.png',
+          ':twisad:': 'twisad.png',
           ':twismile:': 'twismile.png',
           ':twismug:': 'twismug.png',
           ':twisquint:': 'twisquint.png',
