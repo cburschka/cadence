@@ -9,6 +9,8 @@ echo "Configuring cadence"
   --chatbot="Ligrev" \
   --title="Ligrev's Lounge" \
   --mode=debug \
+  --cdn-url="https://c312441.ssl.cf1.rackcdn.com/chat" \
+  --cdn-prefix="/var/www/cloudfiles/calamityrefuge/chat" \
   $*
 
 echo "Building cadence"
