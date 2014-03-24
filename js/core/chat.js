@@ -343,12 +343,7 @@ var chat = {
     version: function() {
       var version = '<a href="https://github.com/cburschka/cadence/tree/'
                   + config.version + '">' + 'cadence-' + config.version + '</a>';
-      ui.messageAddInfo(strings.info.versionClient, {'raw.version': version});
-      if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
-        xmpp.getVersion(function(version) {
-          if (version) ui.messageAddInfo(strings.info.versionServer, version);
-        });
-      }
+      ui.messageAddInfo(strings.info.version, {'raw.version': version});
     },
 
     /**
