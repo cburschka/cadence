@@ -84,7 +84,7 @@ visual = {
         ' <span class="privmsg">' + (message.to ?
           this.formatText(strings.info.whisperTo, {nick:message.to})
         : strings.info.whisper)
-        + '</span> '
+        + '</span>'
       );
     }
 
@@ -124,18 +124,14 @@ visual = {
     user: function(user) {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
-      // Show guest users as guests regardless of room status.
-      if (user.jid && Strophe.getDomainFromJid(user.jid) != config.xmpp.domain) {
-        user.role = 'visitor';
-        user.affiliation = 'none';
-      }
       if (user.role == 'visitor' || (user.jid &&
         user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
         nick = '(' + nick + ')';
-      return  '<span class="user-role-' + user.role
+      return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
-            + ' user-show-' + (user.show || 'default')
-            + '" ' + (jid ? ('title="' + jid + '"') : '')
+            + ' user-show-' + (user.show || 'default') + '"'
+            + (jid ? (' title="' + jid + '"') : '')
+            + ' onclick="chat.prefixMsg(\'' + encodeURIComponent(user.nick).replace('\'', "\\\'", 'g') + '\')"'
             + '>' + nick + '</span>';
     },
 
@@ -151,10 +147,7 @@ visual = {
      * Format a nick.
      */
     nick: function(nick) {
-      return visual.lengthLimit(
-        visual.format.plain(nick.replace(/%20/g, ' ')),
-        config.ui.maxNickLength
-      );
+      return visual.lengthLimit(visual.format.plain(nick), config.ui.maxNickLength);
     },
 
     /**
@@ -182,6 +175,7 @@ visual = {
    */
   formatBody: function(jq) {
     // Security: Replace all but the following whitelisted tags with their content.
+    $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
       function() { return $('<span></span>').text(this.outerHTML) }
     );
@@ -269,9 +263,9 @@ visual = {
     jq.not('a').add(':not(a)', jq).filter(function() {
       return $(this).parents('a').length < 1;
     }).replaceText(
-      /[a-z0-9+\.\-]{1,16}:\/\/[^\s"']+[_\-=\wd\/]/g,
-      function(url) {
-        return  '<a href="' + url + '">' + url + '</a>';
+      /(^|[^"'])((https?|s?ftp|mailto):\/\/[^\s"']+[_\-=\wd\/])/g,
+      function(all, pre, url) {
+        return  pre + '<a href="' + url + '">' + url + '</a>';
       }
     );
   },

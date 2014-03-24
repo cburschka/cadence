@@ -7,51 +7,77 @@ runs entirely in the browser without a server backend.
 Requirements
 ------------
 
-Building cadence currently requires the YUI Compressor to compress Javascript
-libraries. Install it using your distribution's package manager or download
-it here: https://github.com/yui/yuicompressor/downloads
+* Building cadence requires Python 2.7+ (or 3+) and GNU Make
+* Optional JS and CSS compression uses the YUI Compressor utility.
+  Install it using your distribution's package manager or download
+  it here: https://github.com/yui/yuicompressor/releases
 
 Building
 --------
 
-These sources will not work as checked out, but need to be built.
-Currently, only in-source builds are supported.
-
-
 ### Configuration
 
-First, run the configure script. These arguments are supported:
+First, run the configure script. The script can be executed from any
+location outside the source directory ("out-of-source") or directly inside
+("in source").
 
-    -s, --https         automatically generate HTTPS URLs.
-    --domain=DOMAIN     XMPP domain to log in on.
-    --bosh=URL          BOSH URL to connect to [http://DOMAIN:5280/http-bind/]
-                                          or [https://DOMAIN:5281/http-bind/]
-    --muc=DOMAIN        the MUC domain to log in on. [conference.DOMAIN]
-    --session-auth=URL  Optional. The URL to use for session authentication.
-    --chatbot=STR       the displayed name of the virtual ChatBot [Info]
-    --version=STR       the version string to be displayed [calref-1.0-34-gcca45e8]
-    --title=STR         the page title to be displayed [cadence]
-    --logo=URL          URL (can be relative) of the logo to show [img/logo.png]
+These arguments are supported:
 
-Only `--domain` is strictly required. `--muc` and `--bosh` are required if
-they are other than the default values.
+```
+  -h, --help            show this help message and exit
+  -s, --https           Generate HTTPS URLs
+  --domain DOMAIN       XMPP domain to log in on.
+  --bosh BOSH           BOSH URL to connect to [http(s)://DOMAIN:528(0|1)/http-bind]
+  --session-auth AUTH   The URL to use for session authentication.
+  --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
+  --chatbot CHATBOT     The displayed name of the virtual ChatBot. ["Info"]
+  --title TITLE         The page title. ["cadence"]
+  --cdn-url CDN_URL     Base URL for resources. (Optional)
+  --prefix PREFIX       Directory to install cadence to ["."]
+  --cdn-prefix CDN_PREFIX
+                        Directory to install resources to [PREFIX]
+  --mode debug|aggregate|minify
+                        Whether to optimize JS/CSS files ["minify"]
+```
 
-`--session-auth` is required if you would like to hook into an existing site's login 
-system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
-the public URL of the `rpc.php` script in that software's session authentication plugin.
+* Only `--domain` is strictly required. `--muc` and `--bosh` are required if
+  they differ from the default values.
 
-`--chatbot`, `--title`, `--logo` and `--version` merely affect the client branding.
+* `--session-auth` is required if you would like to hook into an existing site's login 
+  system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
+  the public URL of the `rpc.php` script in that software's session authentication plugin.
 
+* `--chatbot` and `--title` merely affect the client branding.
+
+* The `--prefix` is required to cleanly deploy the application to a directory.
+  (An in-source build is a functional installation, but an out-of-source build must
+  be installed before use, because static resources are not copied to the build location.)
+
+* The `--cdn-prefix` and `cdn-url` options are used to deploy the application's resources
+  to a CDN. If this is given, all but the index.html file are deployed there.
+  (You can also use the CDN for index.html file with `--prefix`, but this will make
+  the application harder to find, and will break session-authentication due to
+  cross-site security policies.
+
+The `--mode` determines whether to aggregate and minify the scripts and stylesheets.
+For development, "debug" is recommended.
 
 ### Make
 
 Then simply execute the Makefile.
 
-    $ make
+    $ make && make install
 
-By default, the `yui-compressor.jar` file will be looked for in 
-`/usr/share/yui-compressor/yui-compressor.jar`. If this is not correct,
-set the `YUI_COMPRESSOR` variable to the correct path when running make.
+Customizing the Settings
+------------------------
+
+It is not recommended to edit `js/core/config.js` (if this file even exists, and has
+not been aggregated and minified), because it will be overwritten if the software
+is rebuilt from source.
+
+Instead, the installer places a file named `config.custom.js` into the install directory
+along with your index.html file. Add any configuration changes to this file
+by assigning or deleting keys in the global `config` object.
 
 License
 -------

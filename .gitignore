@@ -1,5 +1,13 @@
+# Temporary files
 *~
+
+# Built files
+.config.vars
+Makefile
+*.min.*
 index.html
 js/core/config.js
-.config.status
-.sed.script
+js/lib/*.js
+js/lib.js
+js/core.js
+css/global/all.css

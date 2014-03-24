@@ -21,3 +21,5 @@ h3, a { color: #fc0 }
 .row:nth-child(odd) { background-color: black }
 .user-role-bot { color: #c90 }
 #content #colorCodesContainer a { border-color: black }
+#content { display: block }
+#nocontent { display: none }

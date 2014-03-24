@@ -1,85 +1,102 @@
-#!/bin/sh
+#!/usr/bin/env python
+import argparse
+import os
+import shutil
+import subprocess
 
-OPTFIND=1
+def main():
+    args = parser().parse_args()
+    args.protocol = 'http' + (args.https and 's' or '')
+    port = str(5280 + args.https)
 
-TEMP=`getopt -o hs --long logo:,version:,title:,help,https,domain:,bosh:,muc:,session-auth:,chatbot: -- "$@"`
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
-eval set -- "$TEMP"
+    args.muc = args.muc or 'conference.' + args.domain
+    args.bosh = args.bosh or args.protocol + '://' + args.domain + ':' + port + '/http-bind/'
+    args.cdn_prefix = args.cdn_prefix or args.prefix
+    args.prefix = args.prefix.rstrip('/')
+    args.cdn_prefix = args.cdn_prefix.rstrip('/')
+    args.cdn_url = args.cdn_url and (args.cdn_url.rstrip('/') + '/') or ''
 
-logo="img/logo.png"
-protocol="http"
-port=5280
-title="cadence"
-version=`git describe`
-chatBotName=Info
+    args.src_path = os.path.dirname(__file__) or '.'
+    shutil.copy(os.path.realpath(args.src_path) + '/Makefile.in', os.getcwd() + '/Makefile')
 
-while true ; do
-  case "$1" in
-    -h|--help)
-     echo \
-"Usage: ./configure
-  -s, --https         automatically generate HTTPS URLs.
-  --domain=DOMAIN     XMPP domain to log in on.
-  --bosh=URL          BOSH URL to connect to [http://DOMAIN:5280/http-bind/]
-                                          or [https://DOMAIN:5281/http-bind/]
-  --muc=DOMAIN        the MUC domain to log in on. [conference.DOMAIN]
-  --session-auth=URL  Optional. The URL to use for session authentication.
-  --chatbot=STR       the displayed name of the virtual ChatBot [$chatBotName]
-  --version=STR       the version string to be displayed [$version]
-  --title=STR         the page title to be displayed [$title]
-  --logo=URL          URL (can be relative) of the logo to show [$logo]"
-     exit;;
-    -s|--https)
-      protocol="https"
-      port=5281
-      shift;;
-    --domain)
-      domain=$2;
-      shift 2;;
-    --bosh)
-      boshURL=$2;
-      shift 2;;
-    --muc)
-      muc=$2;
-      shift 2;;
-    --session-auth)
-      sessionAuthURL=$2;
-      shift 2;;
-    --chatbot)
-      chatBotName=$2
-      shift 2;;
-    --title)
-      title=$2
-      shift 2;;
-    --logo)
-      logo=$2
-      shift 2;;
-    --version)
-      version=$2
-      shift 2;;
-    --) shift; break;;
-    *) echo "Error!"; exit 1;;
-  esac
-done
+    args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
-if [ -z "$domain" ]; then
-  $0 --help
-  exit 1
-fi
+    if args.mode == 'minify' and subprocess.call(['which', 'yui-compressor'], stdout=open(os.devnull, 'w')):
+        args.mode == 'aggregate'
 
-if [ -z "$boshURL" ]; then
-   boshURL="$protocol://$domain:$port/http-bind/"
-fi
-if [ -z "$muc" ]; then
-  muc="conference.$domain"
-fi
-echo >.config.status \
-"logo=$logo
-title=$title
-protocol=$protocol
-version=$version
-xmpp.boshURL=$boshURL
-xmpp.domain=$domain
-xmpp.mucService=$muc
-xmpp.sessionAuthURL=$sessionAuthURL
-ui.chatBotName=$chatBotName"
+    open('.config.vars', 'w+').write(
+'''TITLE={title}
+PROTOCOL={protocol}
+XMPP_BOSH={bosh}
+XMPP_DOMAIN={domain}
+XMPP_MUC={muc}
+XMPP_SESSION_AUTH={session_auth}
+CHATBOT={chatbot}
+PREFIX={prefix}
+CDN_PREFIX={cdn_prefix}
+CDN_URL={cdn_url}
+MODE={mode}
+SRC_PATH={src_path}
+CSS_ALT={css_alt}
+STYLE={style}
+'''.format(**vars(args)))
+
+
+def parser():
+    src_path = os.path.dirname(__file__) or '.'
+    parser = argparse.ArgumentParser(
+      prog='configure',
+      description='''Configure cadence for installation.
+    '''
+      )
+    parser.add_argument(
+      '-s', '--https', action='store_const',
+      help='Generate HTTPS URLs', dest='https', const=True, default=False
+      )
+    parser.add_argument(
+      '--domain', type=str,
+      help='XMPP domain to log in on.', dest='domain', metavar='DOMAIN', required=True
+      )
+    parser.add_argument(
+      '--bosh', type=str,
+      help='BOSH URL to connect to\n[http(s)://DOMAIN:(5280|5281)/http-bind]', metavar='BOSH', dest='bosh', default=''
+      )
+    parser.add_argument(
+      '--session-auth', type=str,
+      help='The URL to use for session authentication.', metavar='AUTH', dest='session_auth', default=''
+      )
+    parser.add_argument(
+      '--muc', type=str,
+      help='The MUC conference server to connect to.', metavar='MUC', dest='muc', default=''
+      )
+    parser.add_argument(
+      '--chatbot', type=str,
+      help='The displayed name of the virtual ChatBot. ["Info"]', metavar='CHATBOT', dest='chatbot', default='Info'
+      )
+    parser.add_argument(
+      '--title', type=str,
+      help='The page title. ["cadence"]', metavar='TITLE', dest='title', default='cadence'
+      )
+    parser.add_argument(
+      '--cdn-url', type=str,
+      help='Base URL for resources.', metavar='CDN_URL', dest='cdn_url', default=''
+      )
+    parser.add_argument(
+      '--prefix', type=str,
+      help='Directory to install cadence to ["."]', metavar='PREFIX', dest='prefix', default='.'
+      )
+    parser.add_argument(
+      '--cdn-prefix', type=str,
+      help='Directory to install resources to [PREFIX]', metavar='CDN_PREFIX', dest='cdn_prefix', default=''
+      )
+    parser.add_argument(
+      '--mode', type=str,
+      help='Whether to optimize JS/CSS files ["minify"]', metavar='debug|aggregate|minify', dest='mode', default='minify'
+      )
+    parser.add_argument(
+      '--style', type=str,
+      help='Default alt stylesheet. ["Stygium"]', metavar='STYLE', dest='style', default='Stygium'
+      )
+    return parser
+
+main()

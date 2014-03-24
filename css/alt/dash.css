@@ -32,3 +32,5 @@ h3 {
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
 .user-role-bot { color: #d9559f }
+#content { display: block }
+#nocontent { display: none }
