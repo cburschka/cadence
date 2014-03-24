@@ -81,11 +81,14 @@ var xmpp = {
   /**
    * Generate an IQ.
    */
-  iq: function(type, query, room) {
-    room = room !== null && (room || this.room.current);
+  iq: function(type, query, room, domain) {
     return $iq({
       from: this.connection.jid,
-      to: (room ? (Strophe.escapeNode(room) + '@') : '') + config.xmpp.mucService,
+      to: (domain ? 
+        config.xmpp.domain : 
+        (room !== null ? (Strophe.escapeNode(room || this.room.current) + '@') : '')
+        + config.xmpp.mucService
+      ),
       type: type
     }).c('query', query);
   },
@@ -324,6 +327,26 @@ var xmpp = {
         callback(users);
       },
       function () { callback(); }
+    );
+  },
+
+
+  /**
+   * Query server version.
+   */
+  getVersion: function(callback) {
+    this.connection.sendIQ(
+      this.iq('get', {xmlns:'jabber:iq:version'}, null, true),
+      function (stanza) {
+        callback({
+          name: $('name', stanza).html() || '-',
+          version: $('version', stanza).html() || '-',
+          os: $('os', stanza).html() || '-'
+        });
+      },
+      function () {
+        callback(false);
+      }
     );
   },
 
