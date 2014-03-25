@@ -188,8 +188,8 @@ var ui = {
 
     // Clear the text color setting.
     $('#settings-textColorClear').click(function() {
-      chat.setSetting('textColor', null);
-      ui.setTextColorPicker(null);
+      chat.setSetting('textColor', '');
+      ui.setTextColorPicker('');
     });
 
     // Listen for changes in the style menu.
