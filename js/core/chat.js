@@ -39,6 +39,7 @@ var chat = {
       var macro = arg.substring(m[0].length).trim();
       if (!macro) {
         delete config.settings.macros[cmd];
+        chat.saveSettings();
         return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
       }
       macro = macro.split(';');
