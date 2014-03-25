@@ -215,18 +215,17 @@ var chat = {
      */
     list: function() {
       xmpp.discoverRooms(function(rooms) {
-        if (rooms.length) {
-          var links = [];
-          for (var room in rooms) {
-            links.push(
-                 '<a href="javascript:void()" onclick="chat.commands.join(\''
-               + room + '\');"'
-               + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-               + '>' + visual.format.room(rooms[room]) + '</a>'
-            );
-          }
-          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
+        var links = [];
+        for (var room in rooms) {
+          links.push(
+               '<a href="javascript:void()" onclick="chat.commands.join(\''
+             + room + '\');"'
+             + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
+             + '>' + visual.format.room(rooms[room]) + '</a>'
+          );
         }
+        if (links.length)
+          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
         else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
       });
     },
