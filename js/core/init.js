@@ -25,6 +25,8 @@ init = {
     if (cookie) {
       if (cookie.version == config.version) config.settings = cookie;
       else config.settings = objMerge(config.settings, cookie);
+      // After merging, update the version.
+      config.settings.version = config.defaultSettings.version;
     }
   },
 
