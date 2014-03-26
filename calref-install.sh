@@ -28,4 +28,4 @@ make install > /dev/null
 
 echo "Deploying CDN"
 
-cp /tmp/cadence-cdn /var/www/cloudfiles/calamityrefuge/chat
+cp -r /tmp/cadence-cdn /var/www/cloudfiles/calamityrefuge/chat
