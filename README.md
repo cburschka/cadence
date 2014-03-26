@@ -32,6 +32,7 @@ These arguments are supported:
   --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
   --chatbot CHATBOT     The displayed name of the virtual ChatBot. ["Info"]
   --title TITLE         The page title. ["cadence"]
+  --style STYLE         The default style. ["Stygium"]
   --cdn-url CDN_URL     Base URL for resources. (Optional)
   --prefix PREFIX       Directory to install cadence to ["."]
   --cdn-prefix CDN_PREFIX

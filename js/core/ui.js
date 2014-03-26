@@ -10,8 +10,6 @@ var ui = {
   dom: null,
   userStatus: {},
   messages: [],
-  messageId: 0,
-  messageHash: {},
   colorPicker: null,
   autoScroll: true,
   sounds: {},
@@ -190,8 +188,8 @@ var ui = {
 
     // Clear the text color setting.
     $('#settings-textColorClear').click(function() {
-      chat.setSetting('textColor', null);
-      ui.setTextColorPicker(null);
+      chat.setSetting('textColor', '');
+      ui.setTextColorPicker('');
     });
 
     // Listen for changes in the style menu.
@@ -233,8 +231,7 @@ var ui = {
    */
   clearMessages: function() {
     this.messages = [];
-    this.messageId = 0;
-    this.messageHash = {};
+    xmpp.historyEnd = {};
     this.dom.chatList.html('');
   },
 
@@ -342,23 +339,18 @@ var ui = {
 
   /**
    * Append a delayed (room history) message.
-   * If the message hash already exists, ignore it. This is to prevent rooms
-   * from readding their history when rejoining without clearing the screen.
    *
-   * @param {Object} message. Must have user, time, room, body and hash keys.
+   * @param {Object} message. Must have user, time, room and body keys.
    */
   messageDelayed: function(message) {
     var entry = visual.formatMessage(message);
-    if (!this.messageHash[entry.hash]) {
-      this.messageHash[entry.hash] = true;
-      entry.html.addClass('delayed');
-      entry.html.find('.dateTime').after(
-          ' <span class="log-room log-room-' + message.room.id + '">['
-        + visual.format.room(message.room)
-        + ']</span>'
-      );
-      this.messageInsert(entry);
-    }
+    entry.html.addClass('delayed');
+    entry.html.find('.dateTime').after(
+        ' <span class="log-room log-room-' + message.room.id + '">['
+      + visual.format.room(message.room)
+      + ']</span>'
+    );
+    this.messageInsert(entry);
   },
 
   /**
@@ -388,7 +380,6 @@ var ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend: function(message) {
-    this.messageHash[message.hash] = true;
     this.messages.push(message);
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(function() {

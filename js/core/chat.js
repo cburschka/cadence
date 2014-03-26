@@ -39,6 +39,7 @@ var chat = {
       var macro = arg.substring(m[0].length).trim();
       if (!macro) {
         delete config.settings.macros[cmd];
+        chat.saveSettings();
         return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
       }
       macro = macro.split(';');
@@ -214,18 +215,17 @@ var chat = {
      */
     list: function() {
       xmpp.discoverRooms(function(rooms) {
-        if (rooms.length) {
-          var links = [];
-          for (var room in rooms) {
-            links.push(
-                 '<a href="javascript:void()" onclick="chat.commands.join(\''
-               + room + '\');"'
-               + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-               + '>' + visual.format.room(rooms[room]) + '</a>'
-            );
-          }
-          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
+        var links = [];
+        for (var room in rooms) {
+          links.push(
+               '<a href="javascript:void()" onclick="chat.commands.join(\''
+             + room + '\');"'
+             + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
+             + '>' + visual.format.room(rooms[room]) + '</a>'
+          );
         }
+        if (links.length)
+          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
         else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
       });
     },
@@ -343,7 +343,12 @@ var chat = {
     version: function() {
       var version = '<a href="https://github.com/calref/cadence/tree/'
                   + config.version + '">' + 'cadence-' + config.version + '</a>';
-      ui.messageAddInfo(strings.info.version, {'raw.version': version});
+      ui.messageAddInfo(strings.info.versionClient, {'raw.version': version});
+      if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
+        xmpp.getVersion(function(version) {
+          if (version) ui.messageAddInfo(strings.info.versionServer, version);
+        });
+      }
     },
 
     /**
