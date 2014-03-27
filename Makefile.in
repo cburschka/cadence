@@ -50,14 +50,23 @@ distclean: clean
 	rm .config.vars
 	rm Makefile
 
-install: all install-init install-js install-css-global
+ifneq (.,${CDN_PREFIX})
+install: all install-cdn
+ifneq (.,${PREFIX})
+	mkdir -p "${PREFIX}"
+	$(CP) -au index.html "${PREFIX}/"
+endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
-	$(CP) -au index.html "${PREFIX}/"
+else
+install: all
+endif
 	touch -a "${PREFIX}/config.custom.js"
 
+install-cdn: install-init install-js install-css-global
+
 install-init:
-	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/" "${PREFIX}"
+	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 
 ifeq (${MODE},debug)
 install-js: install-js-core install-js-lib
