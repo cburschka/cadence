@@ -143,6 +143,7 @@ var config = {
           ':applederp:': 'applederp.png',
           ':aran:': 'aran.png',
           ':bonbon:': 'bonbon.png',
+          ':braeburn:': 'braeburn.png',
           ':punchdrunk:': 'punchdrunk.png',
           ':thehorror:': 'thehorror.png',
           ':eeyup:': 'eeyup.png',
