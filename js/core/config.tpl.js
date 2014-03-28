@@ -216,7 +216,6 @@ var config = {
           ':louder:': 'louder.png',
           ':rdhuh:': 'rdhuh.png',
           ':gross:': 'gross.png',
-          ':wingboner:': 'rdsitting.png',
           ':awwyeah:': 'awwyeah.png',
           ':rdsad:': 'rdsad.png',
           ':rdscared:': 'rdscared.png',
@@ -294,7 +293,6 @@ var config = {
           ':twismug:': 'twismug.png',
           ':twisquint:': 'twisquint.png',
           ':twistare:': 'twistare.png',
-          ':rapidash:': 'twirage.png',
           ':dj:': 'dj.png',
           ':vsbass:': 'vsbass.png',
           ':vscurious:': 'vscurious.png',
@@ -324,6 +322,13 @@ var config = {
           ':yes:': 'yesberry.png',
           ':no:': 'noberry.png',
           ':ponywarn:': 'ponywarn.png'
+        }
+      },
+      ponyHidden: { 
+        baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
+        codes: {
+          ':wingboner:': 'rdsitting.png',
+          ':rapidash:': 'twirage.png'
         }
       }
     }
