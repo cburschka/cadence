@@ -16,6 +16,7 @@ var xmpp = {
     target: null,
     current: null,
   },
+  user: null,
   resource: null,
   status: 'offline',
   roster: {},
@@ -54,6 +55,7 @@ var xmpp = {
    */
   newConnection: function(user, pass) {
     this.session = {};
+    this.user = user;
     this.nick.target = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
@@ -628,8 +630,9 @@ var xmpp = {
           {user: user, body: body, time: time, room: this.room.available[room], type: type}
         );
         else {
-          ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
-          if (nick != this.nick.current) ui.playSound('receive');
+          var message = {user: user, body: body, type: type};
+          ui.messageAppend(visual.formatMessage(message));
+          if (nick != this.nick.current) ui.playSoundMessage(message);
         }
       }
     }

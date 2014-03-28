@@ -96,6 +96,7 @@ var ui = {
     $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
+    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     // Open the last active sidebar.
     this.toggleMenu(config.settings.activeMenu, true);
@@ -200,6 +201,10 @@ var ui = {
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
       var value = this.type == 'checkbox' ? this.checked : this.value;
+      chat.setSetting(this.id.substring('settings-'.length), value);
+    });
+    $('#settings-notifications\\.triggers').change(function() {
+      var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
 
@@ -517,7 +522,26 @@ var ui = {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
     var sound = config.settings.notifications.sounds[event];
-    if (sound && this.sounds[sound]) this.sounds[sound].play();
+    return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
+  },
+
+  /**
+   * Trigger the correct message sound event.
+   * Only one sound is played, in order:
+   * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
+   */
+  playSoundMessage: function(message) {
+    var mention = (message.body.indexOf(xmpp.nick.current) >= 0
+                || message.body.indexOf(xmpp.user) >= 0);
+    var sender = false;
+    for (i in config.settings.notifications.triggers) {
+      mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
+      sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
+    }
+    if (mention && this.playSound('mention')) return;
+    if (message.type == 'chat' && this.playSound('msg')) return;
+    if (sender && this.playSound('mention')) return;
+    this.playSound('receive');
   },
 
   /**

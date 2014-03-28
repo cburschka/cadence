@@ -38,12 +38,17 @@ var config = {
         leave: 'sound_4',
         info: 'sound_5',
         error: 'sound_6',
+        mention: '',
+        privmsg: '',
       },
       soundVolume: 100,
       soundEnabled: true,
 
       // Warn before leaving the page.
       leavePage: true,
+
+      // Triggers for a "mention" sound.
+      triggers: [],
     },
 
     // Persistent font color that is displayed to other cadence users.

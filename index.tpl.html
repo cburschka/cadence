@@ -208,6 +208,10 @@
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
           <tr class="row">
+            <td><label for="settings-notifications.triggers">Alert keywords:</label></td>
+            <td class="setting"><input type="text" id="settings-notifications.triggers"></input></td>
+          </tr>
+          <tr class="row">
             <td><label for="settings-notifications.soundVolume">Sound volume:</label></td>
             <td class="setting"><input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" /></td>
           </tr>
@@ -234,6 +238,14 @@
           <tr class="row">
             <td><label for="settings-notifications.sounds.error">Error sound:</label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.error">Mention sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.mention"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.error">Private message sound:</label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.msg"></select></td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.leavePage">Warn before closing:</label></td>
