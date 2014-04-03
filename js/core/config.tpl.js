@@ -328,6 +328,7 @@ var config = {
         baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
           ':wingboner:': 'rdsitting.png',
+          ':capitalism:': 'sybeam.png',
           ':rapidash:': 'twirage.png'
         }
       }
