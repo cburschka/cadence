@@ -75,9 +75,7 @@ var chat = {
      *   <status/> to "msg".
      */
     away: function(arg) {
-      // strip all parentheses and spaces:
-      arg = arg.trim().replace(/(^[\(\s]*|[\)\s]*$)/g, '');
-      xmpp.sendStatus('away', arg);
+      xmpp.sendStatus('away', arg.trim());
     },
 
     /**
