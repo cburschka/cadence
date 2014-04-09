@@ -616,26 +616,21 @@ var xmpp = {
       }
       this.historyEnd[room] = time || (new Date()).toISOString();
 
-      // Only accept messages from nicks we know are in the room.
-      var user = this.roster[room][nick];
-      // But accept delayed messages from users who have since left.
-      if (time && !user) user = {nick: nick};
-      if (user) {
-        var body = null;
-        var html = $('html body p', stanza).html();
-        if (html) {
-          body = html;
-        } else {
-          body = $($('body', stanza)[0]).text();
-        }
-        if (time) message = ui.messageDelayed(
-          {user: user, body: body, time: time, room: this.room.available[room], type: type}
-        );
-        else {
-          var message = {user: user, body: body, type: type};
-          ui.messageAppend(visual.formatMessage(message));
-          if (nick != this.nick.current) ui.playSoundMessage(message);
-        }
+      // If the sender is not in the room, just show the nick.
+      // This *should* only happen for backlog messages.
+
+      var user = this.roster[room][nick] || {nick: nick};
+      var body = null;
+      var html = $('html body p', stanza).html();
+      var body = html || $($('body', stanza)[0]).text();
+
+      if (time) ui.messageDelayed(
+        {user: user, body: body, time: time, room: this.room.available[room], type: type}
+      );
+      else {
+        var message = {user: user, body: body, type: type};
+        ui.messageAppend(visual.formatMessage(message));
+        if (nick != this.nick.current) ui.playSoundMessage(message);
       }
     }
     return true;
