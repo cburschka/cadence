@@ -402,7 +402,7 @@ var ui = {
     var room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
     var options = [new Option('---', '')];
-    for (id in rooms) {
+    for (var id in rooms) {
       options.push(new Option(rooms[id].title, id));
     }
     this.dom.roomSelection.html(options).val(room);
@@ -445,7 +445,7 @@ var ui = {
       $(this).html('');
       self.userLinks = {};
       self.userStatus = {};
-      for (nick in roster) {
+      for (var nick in roster) {
         self.userAdd(roster[nick], false);
       }
       $(this).slideDown();
@@ -534,7 +534,7 @@ var ui = {
     var mention = (message.body.indexOf(xmpp.nick.current) >= 0
                 || message.body.indexOf(xmpp.user) >= 0);
     var sender = false;
-    for (i in config.settings.notifications.triggers) {
+    for (var i in config.settings.notifications.triggers) {
       mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
       sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
     }

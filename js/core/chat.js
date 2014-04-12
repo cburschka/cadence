@@ -106,7 +106,7 @@ var chat = {
       }
       else {
         arg = Strophe.getBareJidFromJid(arg);
-        for (nick in roster)
+        for (var nick in roster)
           if (roster[nick].jid && arg == Strophe.getBareJidFromJid(roster[nick].jid))
             user = roster[nick];
         if (!user) {
