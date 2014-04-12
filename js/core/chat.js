@@ -241,8 +241,8 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^(\S+)/.exec(arg.trim());
-      var nick = m[1];
+      var m = /^(((\\\s)?\S)+)/.exec(arg.trim());
+      var nick = m[1].replace(/\\(\s)/g, '$1');
       var msg = arg.substring(m[0].length + 1);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
@@ -261,7 +261,7 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = arg.trim().replace(/\s+/g, '_');
+      var nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
       else ui.messageAddInfo(strings.error.noNick, 'error');
     },
