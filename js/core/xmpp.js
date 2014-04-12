@@ -147,7 +147,7 @@ var xmpp = {
    */
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
-    this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
+    this.connection.send(this.presence(room, this.nick.current, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
@@ -219,7 +219,12 @@ var xmpp = {
           jid: this.connection.jid
         }
       }, 'verbose');
-      this.connection.send(this.presence(room, this.nick.target));
+      this.connection.send(
+        this.presence(room, this.nick.target)
+          .c('x', {xmlns:Strophe.NS.MUC})
+          .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
+          .up().up()
+      );
     }.bind(this);
 
     var joinWithReservedNick = function() {
@@ -251,12 +256,9 @@ var xmpp = {
   presence: function(room, nick, attrs) {
     return this.pres()
       .attrs({
-        to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + '/' + nick
+        to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + (nick ? '/' + nick : '')
       })
-      .attrs(attrs)
-      .c('x', {xmlns:Strophe.NS.MUC})
-      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
-      .up().up();
+      .attrs(attrs);
   },
 
   /**
