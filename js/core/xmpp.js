@@ -75,7 +75,7 @@ var xmpp = {
   msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   this.room.current + '@' + config.xmpp.mucService + (nick ? '/' + nick : ''),
+      to:   Strophe.escapeNode(this.room.current) + '@' + config.xmpp.mucService + (nick ? '/' + nick : ''),
       type: (nick ? 'chat' : 'groupchat')
     });
   },
