@@ -184,14 +184,20 @@ var chat = {
      *   will automatically leave the current room.
      */
     join: function(arg) {
-      var room = chat.getRoomFromTitle(arg.trim());
-      if (!room)
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.trim()}, 'error');
-      if (xmpp.room.current == room.id) {
-        return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
-      }
-      xmpp.joinRoom(room.id);
-      chat.setSetting('xmpp.room', room.id);
+      var name = arg.trim();
+      var room = chat.getRoomFromTitle(name);
+      var join = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room && xmpp.room.current == room.id) {
+          return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
+        }
+        room = room ? room.id : name;
+        xmpp.joinExistingRoom(room);
+        chat.setSetting('xmpp.room', room);
+      };
+      // If the room is known, join it now. Otherwise, refresh before joining.
+      if (room) join();
+      else xmpp.discoverRooms(join);
     },
 
     /**

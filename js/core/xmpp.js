@@ -152,6 +152,7 @@ var xmpp = {
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
     if (room == this.room.current) this.prejoin();
+    else this.discoverRooms();
   },
 
   prejoin: function() {
@@ -204,45 +205,50 @@ var xmpp = {
   },
 
   /**
-   * Attempt to join a room.
+   * Attempt to join a room after checking it exists.
    *
    * @param {string} The room to join.
    */
-  joinRoom: function(room) {
+  joinExistingRoom: function(room) {
     this.room.target = room;
-
-    var joinRoom = function() {
-      ui.messageAddInfo(strings.info.joining, {
-        room: this.room.available[room],
-        user: {
-          nick: this.nick.target,
-          jid: this.connection.jid
-        }
-      }, 'verbose');
-      this.connection.send(
-        this.presence(room, this.nick.target)
-          .c('x', {xmlns:Strophe.NS.MUC})
-          .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
-          .up().up()
-      );
-    }.bind(this);
-
     var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
           ui.messageAddInfo(strings.info.nickRegistered, {nick: nick}, 'verbose');
         }
-        joinRoom();
+        this.joinRoom(room);
       });
     }.bind(this);
 
     this.getRoomInfo(room, function(roomInfo) {
-      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {room: room}, 'error');
+      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
       this.room.available[room] = roomInfo;
+      ui.refreshRooms(this.room.available);
+      ui.messageAddInfo(strings.info.joining, {
+      room: this.room.available[room],
+        user: {
+          nick: this.nick.target,
+          jid: this.connection.jid
+        }
+      }, 'verbose');
       if (config.settings.xmpp.registerNick) joinWithReservedNick();
-      else joinRoom();
+      else this.joinRoom(room);
     }.bind(this));
+  },
+
+  /**
+   * Join a room, regardless of whether it exists.
+   *
+   * @param {string} The room name.
+   */
+  joinRoom: function(room) {
+    this.connection.send(
+      this.presence(room, this.nick.target)
+        .c('x', {xmlns:Strophe.NS.MUC})
+        .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
+        .up().up()
+    );
   },
 
   /**
@@ -377,6 +383,9 @@ var xmpp = {
             name = room;
           rooms[room] = {id: room, title: name, members: null};
         });
+        // Preserve the current room in the list of available rooms.
+        if (this.room.current && !rooms[this.room.current])
+          rooms[this.room.current] = this.room.available[this.room.current]
         this.room.available = rooms;
         ui.refreshRooms(this.room.available);
         if (callback) callback(rooms);
