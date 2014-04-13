@@ -179,6 +179,18 @@ var chat = {
     },
 
     /**
+     * create <room>
+     *   Join a new room and set it up.
+     */
+    create: function(arg) {
+      var name = arg.trim();
+      var room = chat.getRoomFromTitle(arg.trim());
+      if (room)
+        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+      xmpp.joinNewRoom(name);
+    },
+
+    /**
      * join <room>
      *   Ask XMPP to join <room>. If successful, XMPP
      *   will automatically leave the current room.

@@ -110,6 +110,10 @@ var xmpp = {
     return 'cadence/' + (new Date()).getTime();
   },
 
+  jidFromRoomNick: function(room, nick) {
+    return Strophe.escapeNode(room) + '@' + config.xmpp.mucService + (nick ? '/' + nick : '');
+  },
+
   /**
    * Attempt to create a different nick by first appending, then incrementing
    * a numerical suffix.
@@ -238,6 +242,40 @@ var xmpp = {
   },
 
   /**
+   * Attempt to create a new room.
+   *
+   * @param {string} The room name.
+   */
+  joinNewRoom: function(title) {
+    var room = title.toLowerCase();
+    this.room.target = room;
+    ui.messageAddInfo(strings.info.creating, {
+      room: {id: room, title: title},
+      user: {
+        nick: this.nick.target,
+        jid: this.connection.jid
+      }
+    }, 'verbose');
+    // After creating a room, we must configure it. cadence does not support
+    // custom configuration, but it will set the natural-language title.
+    this.connection.addHandler(function(stanza) {
+      var codes = $.makeArray($('status', stanza).map(function() {
+        return parseInt($(this).attr('code'));
+      }));
+      if (codes.indexOf(201) >= 0) {
+        ui.messageAddInfo(strings.code[201], {name: title}, 'verbose');
+        this.configureRoom(room, {roomname: title}, function() {
+          // Only update the menu after the room has been titled.
+          ui.updateRoom(room, this.roster[room]);
+          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
+        }.bind(this));
+      }
+    }.bind(this), null, 'presence', null, null, this.jidFromRoomNick(room, this.nick.target));
+    this.joinRoom(room);
+  },
+
+
+  /**
    * Join a room, regardless of whether it exists.
    *
    * @param {string} The room name.
@@ -265,6 +303,35 @@ var xmpp = {
         to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + (nick ? '/' + nick : '')
       })
       .attrs(attrs);
+  },
+
+  /**
+   * Request a room configuration form and fill it out with the
+   * variables provided.
+   *
+   * @param {string} room The room name.
+   * @param {Object} vars The field values to set.
+   * @param {function} success The callback to execute afterward.
+   */
+  configureRoom: function(room, vars, success) {
+    this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}),
+      function(stanza) {
+        var values = {};
+        for (var i in vars) values['muc#roomconfig_' + i] = vars[i];
+        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'})
+        .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+
+        $('field', $('query x', stanza)).each(function() {
+          var name = $(this).attr('var');
+          var value = values[name] || $('value', this).html() || '';
+          form.c('field', {var: name}).c('value', {}, value).up();
+        });
+        this.connection.sendIQ(form, function() {
+          // Need to refresh the room list now.
+          this.discoverRooms(success);
+        }.bind(this));
+      }.bind(this)
+    );
   },
 
   /**
@@ -546,10 +613,6 @@ var xmpp = {
       if (codes.indexOf(210) >= 0) {
         ui.messageAddInfo(strings.code[210], 'verbose')
       }
-      // A 201 code indicates we created this room by joining it.
-      if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {room: this.room.available[room]}, 'verbose');
-      }
 
       if (room != this.room.current) {
         var oldRoom = this.room.current;
@@ -560,15 +623,12 @@ var xmpp = {
           this.leaveRoom(oldRoom);
         }
         this.status = 'online';
-        ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
-        // If this room is not on the room list, add it.
-        if (!this.room.available[room]) {
-          this.room.available[room] = {id: room, title: room, members: 1};
-          ui.refreshRooms(this.room.available);
+
+        // If this room already existed, then update the menu and roster now:
+        if (this.room.available[room]) {
+          ui.updateRoom(room, this.roster[room]);
+          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
         }
-        // The room roster has been received by now. Refresh it.
-        ui.updateRoom(room, this.roster[room]);
-        // Delete the old room's roster, if one exists.
       }
       this.nick.current = nick;
     }

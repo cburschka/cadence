@@ -51,13 +51,14 @@ var strings = {
   },
 
   code: {
-    201: 'The room {room} has been newly created.',
+    201: 'The room {name} has been newly created.',
     210: 'Your nick has been modified by the server.',
   },
 
   info: {
     joined: 'Now talking in {room}.',
     joining: 'Joining {room} as {user} ...',
+    creating: 'Creating {room} as {user} ...',
     leave: 'Leaving {room} ...',
     nickRegistered: 'Switching to registered nick {nick}.',
     rejoinNick: 'Rejoining as {nick} ...',
@@ -145,6 +146,7 @@ var strings = {
     joinSame: 'You are already in {room}.',
     nickConflict: 'Username {nick} already in use.',
     noNick: 'You must set a nickname.',
+    roomExists: 'Could not create {room}; it already exists.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
