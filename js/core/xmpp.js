@@ -75,7 +75,7 @@ var xmpp = {
   msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   Strophe.escapeNode(this.room.current) + '@' + config.xmpp.mucService + (nick ? '/' + nick : ''),
+      to:   jidFromRoomNick(this.room.current, nick),
       type: (nick ? 'chat' : 'groupchat')
     });
   },
@@ -300,7 +300,7 @@ var xmpp = {
   presence: function(room, nick, attrs) {
     return this.pres()
       .attrs({
-        to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + (nick ? '/' + nick : '')
+        to:this.jidFromRoomNick(room, nick)
       })
       .attrs(attrs);
   },
@@ -429,9 +429,6 @@ var xmpp = {
 
   /**
    * Query the server for rooms and execute a callback.
-   *
-   * This function is actually a callback-wrapper (see xmpp.initialize() ),
-   * which is replaced with its own return value on initialization.
    *
    * @param {function} callback The function to execute after the server responds.
    */
