@@ -214,7 +214,6 @@ var xmpp = {
    * @param {string} The room to join.
    */
   joinExistingRoom: function(room) {
-    this.room.target = room;
     var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
@@ -248,7 +247,6 @@ var xmpp = {
    */
   joinNewRoom: function(title) {
     var room = title.toLowerCase();
-    this.room.target = room;
     ui.messageAddInfo(strings.info.creating, {
       room: {id: room, title: title},
       user: {
@@ -281,11 +279,11 @@ var xmpp = {
    * @param {string} The room name.
    */
   joinRoom: function(room) {
+    this.room.target = room;
     this.connection.send(
       this.presence(room, this.nick.target)
         .c('x', {xmlns:Strophe.NS.MUC})
         .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
-        .up().up()
     );
   },
 
@@ -298,11 +296,7 @@ var xmpp = {
    * @param {Object} attrs The attributes of the <presence/> element.
    */
   presence: function(room, nick, attrs) {
-    return this.pres()
-      .attrs({
-        to:this.jidFromRoomNick(room, nick)
-      })
-      .attrs(attrs);
+    return this.pres().attrs({to:this.jidFromRoomNick(room, nick)}).attrs(attrs);
   },
 
   /**
