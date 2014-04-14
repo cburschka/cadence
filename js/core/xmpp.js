@@ -319,7 +319,7 @@ var xmpp = {
           var name = $(this).attr('var');
           var value = values[name] || $('value', this).html() || '';
           delete values[name];
-          form.c('field', {var: name}).c('value', {}, value).up();
+          form.c('field', {'var': name}).c('value', {}, value).up();
         });
         var fields = [];
         for (var i in vars) if (values['muc#roomconfig_' + i]) fields.push(i);
