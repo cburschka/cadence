@@ -324,8 +324,14 @@ var xmpp = {
         $('field', $('query x', stanza)).each(function() {
           var name = $(this).attr('var');
           var value = values[name] || $('value', this).html() || '';
+          delete values[name];
           form.c('field', {var: name}).c('value', {}, value).up();
         });
+        var fields = [];
+        for (var i in vars) if (values['muc#roomconfig_' + i]) fields.push(i);
+        if (fields.length)
+          ui.messageAddInfo(strings.error.roomConf, {name: room, fields: fields.join(', ')}, 'error');
+
         this.connection.sendIQ(form, function() {
           // Need to refresh the room list now.
           this.discoverRooms(success);
@@ -521,8 +527,11 @@ var xmpp = {
         this.joinRoom(this.room.target, this.nick.target);
       }
     }
-    else if ($('forbidden', stanza).length) {
-      ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+    else {
+      if ($('forbidden', stanza).length)
+        ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+      else if ($('not-allowed', stanza).length)
+        ui.messageAddInfo(strings.error.noCreate, 'error');
       // Cancel join attempt:
       xmpp.room.target = xmpp.room.current;
       ui.updateRoom(xmpp.room.current);
