@@ -65,6 +65,7 @@ var strings = {
     userIn: '{user} logs into the Chat.',
     userNick: '{user.from} is now known as {user.to}.',
     userOut: '{user} has logged out of the Chat.',
+    motd: 'Announcement from {domain}: {raw.text}',
     noUsers: 'No users are online in {room}.',
     roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {raw.users}.',

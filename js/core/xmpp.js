@@ -671,12 +671,19 @@ var xmpp = {
     if (stanza) {
       var from = $(stanza).attr('from');
       var type = $(stanza).attr('type');
+      var domain = Strophe.getDomainFromJid(from);
+      var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var nick = Strophe.getResourceFromJid(from);
-      var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
       var time = $('delay', stanza).attr('stamp');
+      var body = $('html body p', stanza).html() || $($('body', stanza)[0]).text();
+
+      // Message of the Day.
+      if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !room && !nick)
+        return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
       // Only accept messages in the current room.
-      if (Strophe.getDomainFromJid(from) != config.xmpp.mucService || room != this.room.current)
+      else if (domain != config.xmpp.mucService || room != this.room.current)
         return true;
+
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
           ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
@@ -689,9 +696,6 @@ var xmpp = {
       // This *should* only happen for backlog messages.
 
       var user = this.roster[room][nick] || {nick: nick};
-      var body = null;
-      var html = $('html body p', stanza).html();
-      var body = html || $($('body', stanza)[0]).text();
 
       if (time) ui.messageDelayed(
         {user: user, body: body, time: time, room: this.room.available[room], type: type}
