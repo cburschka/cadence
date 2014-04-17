@@ -780,6 +780,7 @@ var xmpp = {
     if (this.connection) {
       this.connection.send(this.pres().attrs({type: 'unavailable'}));
       this.connection.disconnect();
+      this.connection = null;
     }
   }
 }
