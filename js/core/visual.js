@@ -56,9 +56,10 @@ visual = {
    * @return {jQuery} the rendered node. It has events attached and must not be
    *                  copied or transformed back into markup before insertion.
    */
-  formatMessage: function(message) {
+  formatMessage: function(message, internal) {
     message.time = message.time ? new Date(message.time) : new Date();
-    var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
+    var body = message.body;
+    if (internal) body = this.lengthLimit(body, config.ui.maxMessageLength);
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 

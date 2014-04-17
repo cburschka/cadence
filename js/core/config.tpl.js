@@ -349,7 +349,7 @@ var config = {
   ui: {
     chatBotName: '@@@CHATBOT@@@',
     maxNickLength: 32,
-    maxMessageLength: 1024,
+    maxMessageLength: 2048,
   },
 
   poniconVersion: "v1.13",
