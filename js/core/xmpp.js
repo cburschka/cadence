@@ -514,6 +514,7 @@ var xmpp = {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
         ui.messageAddInfo(strings.error.nickConflict, {nick: nick}, 'error');
+        this.nick.target = this.nick.current;
       }
       else {
         ui.messageAddInfo(strings.error.joinConflict, {nick: nick}, 'error');
@@ -527,9 +528,13 @@ var xmpp = {
         ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
       else if ($('not-allowed', stanza).length)
         ui.messageAddInfo(strings.error.noCreate, 'error');
-      // Cancel join attempt:
-      xmpp.room.target = xmpp.room.current;
-      ui.updateRoom(xmpp.room.current);
+      else if ($('jid-malformed', stanza).length) {
+        ui.messageAddInfo(strings.error.badNick, {nick: nick}, 'error');
+        this.nick.target = this.nick.current;
+      }
+      // Cancel any join attempt:
+      this.room.target = this.room.current;
+      ui.updateRoom(this.room.current);
     }
   },
 

@@ -121,6 +121,7 @@ var strings = {
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
+    badNick: 'The nickname {nick} is invalid.',
     ban: {
       anon: 'You can\'t even see {user}\'s JID, and probably can\'t ban anybody.',
       'default': 'Unknown error while attempting to ban {user} from {room}.',
