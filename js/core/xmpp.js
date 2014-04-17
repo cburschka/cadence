@@ -308,7 +308,7 @@ var xmpp = {
    * @param {function} success The callback to execute afterward.
    */
   configureRoom: function(room, vars, success) {
-    this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}),
+    this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
         var values = {};
         for (var i in vars) values['muc#roomconfig_' + i] = vars[i];
