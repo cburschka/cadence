@@ -89,8 +89,7 @@ var xmpp = {
       from: this.connection.jid,
       to: (domain ? 
         config.xmpp.domain : 
-        (room !== null ? (Strophe.escapeNode(room || this.room.current) + '@') : '')
-        + config.xmpp.mucService
+        this.jidFromRoomNick(room !== undefined ? room : this.room.current, null)
       ),
       type: type
     }).c('query', query);
@@ -112,7 +111,7 @@ var xmpp = {
   },
 
   jidFromRoomNick: function(room, nick) {
-    return Strophe.escapeNode(room) + '@' + config.xmpp.mucService + (nick ? '/' + nick : '');
+    return (room ? Strophe.escapeNode(room) + '@' : '') + config.xmpp.mucService + (nick ? '/' + nick : '');
   },
 
   /**
