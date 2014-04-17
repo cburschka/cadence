@@ -54,6 +54,7 @@ var xmpp = {
    * Open the connection and authenticate.
    */
   newConnection: function(user, pass) {
+    this.disconnect();
     this.session = {};
     this.user = user;
     this.nick.target = user;
