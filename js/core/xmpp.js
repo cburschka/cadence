@@ -76,7 +76,7 @@ var xmpp = {
   msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   jidFromRoomNick(this.room.current, nick),
+      to:   this.jidFromRoomNick(this.room.current, nick),
       type: (nick ? 'chat' : 'groupchat')
     });
   },
