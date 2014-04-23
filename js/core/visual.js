@@ -80,7 +80,7 @@ visual = {
     }
     else $('span.author', node).append(':');
 
-    if (message.type == 'chat') {
+    if (message.type != 'groupchat') {
       $('span.' + (me ? 'body' : 'author'), node).after(
         ' <span class="privmsg">' + (message.to ?
           this.formatText(strings.info.whisperTo, {nick:message.to})
