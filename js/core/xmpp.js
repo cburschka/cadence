@@ -677,38 +677,38 @@ var xmpp = {
       var from = $(stanza).attr('from');
       var type = $(stanza).attr('type');
       var domain = Strophe.getDomainFromJid(from);
-      var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
-      var nick = Strophe.getResourceFromJid(from);
+      var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
+      var resource = Strophe.getResourceFromJid(from);
       var time = $('delay', stanza).attr('stamp');
       var body = $('html body p', stanza).html() || $($('body', stanza)[0]).text();
 
       // Message of the Day.
-      if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !room && !nick)
+      if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
         return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
       // Only accept messages in the current room.
-      else if (domain != config.xmpp.mucService || room != this.room.current)
+      else if (domain != config.xmpp.mucService || node != this.room.current)
         return true;
 
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
           return true
         }
       }
-      this.historyEnd[room] = time || (new Date()).toISOString();
+      this.historyEnd[node] = time || (new Date()).toISOString();
 
       // If the sender is not in the room, just show the nick.
       // This *should* only happen for backlog messages.
 
-      var user = this.roster[room][nick] || {nick: nick};
+      var user = this.roster[node][resource] || {nick: resource};
 
       if (time) ui.messageDelayed(
-        {user: user, body: body, time: time, room: this.room.available[room], type: type}
+        {user: user, body: body, time: time, room: this.room.available[node], type: type}
       );
       else {
         var message = {user: user, body: body, type: type};
         ui.messageAppend(visual.formatMessage(message));
-        if (nick != this.nick.current) ui.playSoundMessage(message);
+        if (resource != this.nick.current) ui.playSoundMessage(message);
       }
     }
     return true;
