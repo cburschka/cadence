@@ -329,6 +329,16 @@ var config = {
         codes: {
           ':wingboner:': 'rdsitting.png',
           ':capitalism:': 'sybeam.png',
+          ':maud:': 'maud.png',
+          ':maudhappy:': 'maud.png',
+          ':maudsad:': 'maud.png',
+          ':maudbeam:': 'maud.png',
+          ':maudgasm:': 'maud.png',
+          ':maudwtf:': 'maud.png',
+          ':maudcastic:': 'maud.png',
+          ':maudcrazy:': 'maud.png',
+          ':maudponder:': 'maud.png',
+          ':maudrape:': 'maud.png',
           ':rapidash:': 'twirage.png'
         }
       }
