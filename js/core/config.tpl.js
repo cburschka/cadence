@@ -324,7 +324,7 @@ var config = {
           ':ponywarn:': 'ponywarn.png'
         }
       },
-      ponyHidden: { 
+      ponyHidden: {
         baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
           ':wingboner:': 'rdsitting.png',

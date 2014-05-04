@@ -5,8 +5,8 @@
  * @copyright Christoph Burschka (2014)
  * @license GPLv3+
  */
-#content { 
-  background: linear-gradient(135deg, 
+#content {
+  background: linear-gradient(135deg,
     #363b6c 20%,
     #2f55c3 51%,
     #363b6c 80%
@@ -14,7 +14,7 @@
 }
 a { color: #adfcf3 }
 #content, button, input, select, textarea { color: #29caac }
-.box, button, input, select { 
+.box, button, input, select {
   border-radius: 4px;
   border: none;
 }

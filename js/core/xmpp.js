@@ -87,8 +87,8 @@ var xmpp = {
   iq: function(type, query, room, domain) {
     return $iq({
       from: this.connection.jid,
-      to: (domain ? 
-        config.xmpp.domain : 
+      to: (domain ?
+        config.xmpp.domain :
         this.jidFromRoomNick(room !== undefined ? room : this.room.current, null)
       ),
       type: type
