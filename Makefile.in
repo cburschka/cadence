@@ -61,7 +61,7 @@ endif
 else
 install: all
 endif
-	touch -a "${PREFIX}/config.custom.js"
+	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
 install-cdn: install-init install-js install-css-global
 
