@@ -63,7 +63,7 @@ visual = {
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
-    var node =  $('<div class="row messageContainer">'
+    var node =  $('<div class="row message">'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
