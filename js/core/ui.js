@@ -408,7 +408,11 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row">' + visual.format.user(user) + '</div>');
+    var userLink = $('<div class="row"><span class="user-roster">'
+                    + visual.format.user(user) + '</span></div>');
+
+    if (user.jid)
+      $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
     if (!this.userLinks[user.nick]) {
       userLink.appendTo(this.dom.onlineList);

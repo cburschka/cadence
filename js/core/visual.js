@@ -69,6 +69,9 @@ visual = {
                   + '<span class="author"></span> '
                   + '<span class="body"></span></span></div>');
 
+    if (message.user.jid)
+      node.addClass(this.jidClass(message.user.jid));
+
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
@@ -368,5 +371,39 @@ visual = {
       x.push(jQ.text());
     });
     return x.join("\n");
+  },
+
+  /**
+   * Turn a JID into three valid, distinct, single class names:
+   *
+   * - jid-node-<user>
+   * - jid-domain-<domain>
+   * - jid-resource-<resource>
+   *
+   * for <user@domain/resource>.
+   *
+   * Whitespace characters, NUL and "\" will be replaced with "\DEC", where DEC
+   * is the decimal representation of the character value, eg. \32.
+   * This needs to be further escaped in CSS selectors, eg. \\32.
+   *
+   * All others characters will be left alone. Some of these may need
+   * to be escaped in CSS selectors with \ or as "\DEC" (see above).
+   *
+   * Note: The jid-resource-* class is only useful for selecting particular
+   * prefixes such as [class*=jid-resource-cadence\/] since the full value
+   * is effectively random and unique.
+   *
+   * @param {string} jid The JID to convert.
+   * @return {string} The space-separated class names.
+   */
+  jidClass: function(jid) {
+    var escape = function(str) {
+      return str.replace(/[\s\0\\]/g, function(x) {
+        return '\\' + x.charCodeAt(0);
+      });
+    };
+    return 'jid-node-' + escape(Strophe.getNodeFromJid(jid)) + ' '
+         + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
+         + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }
 };
