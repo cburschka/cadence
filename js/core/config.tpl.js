@@ -364,6 +364,6 @@ var config = {
   },
 
   poniconVersion: "v1.13",
-  sessionName: "cadence",
+  clientName: "cadence",
   version: '@@@VERSION@@@',
 };
