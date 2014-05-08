@@ -330,7 +330,7 @@ var ui = {
 
     text = visual.formatText(text, variables);
     var message = visual.formatMessage({
-      body: text,
+      body: text, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     }, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
