@@ -107,7 +107,11 @@ var xmpp = {
    * Create a unique client identifier from the current millisecond timestamp.
    */
   createResourceName: function() {
-    return 'cadence/' + (new Date()).getTime();
+    return visual.formatText(config.settings.xmpp.resource, {
+      client: config.clientName,
+      version: config.version,
+      timestamp: (new Date()).getTime().toString()
+    });
   },
 
   jidFromRoomNick: function(room, nick) {

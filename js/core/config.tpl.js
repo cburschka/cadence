@@ -58,6 +58,7 @@ var config = {
       room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
+      resource: '{client}/{version}/{timestamp}',
     },
 
     macros: {},
