@@ -290,9 +290,9 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^(((\\\s)?\S)+)/.exec(arg.trim());
+      var m = /^\s*(((\\\s)?\S)+\s*)/.exec(arg);
       var nick = m[1].replace(/\\(\s)/g, '$1');
-      var msg = arg.substring(m[0].length + 1);
+      var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
       var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
