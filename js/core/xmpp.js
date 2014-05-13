@@ -16,6 +16,7 @@ var xmpp = {
     target: null,
     current: null,
   },
+  user: null,
   resource: null,
   status: 'offline',
   roster: {},
@@ -53,7 +54,9 @@ var xmpp = {
    * Open the connection and authenticate.
    */
   newConnection: function(user, pass) {
+    this.disconnect();
     this.session = {};
+    this.user = user;
     this.nick.target = user;
     var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
@@ -73,7 +76,7 @@ var xmpp = {
   msg: function(nick) {
     return $msg({
       from: this.connection.jid,
-      to:   this.room.current + '@' + config.xmpp.mucService + (nick ? '/' + nick : ''),
+      to:   this.jidFromRoomNick(this.room.current, nick),
       type: (nick ? 'chat' : 'groupchat')
     });
   },
@@ -82,15 +85,16 @@ var xmpp = {
    * Generate an IQ.
    */
   iq: function(type, query, room, domain) {
-    return $iq({
+    var iq = $iq({
       from: this.connection.jid,
-      to: (domain ? 
-        config.xmpp.domain : 
-        (room !== null ? (Strophe.escapeNode(room || this.room.current) + '@') : '')
-        + config.xmpp.mucService
+      to: (domain ?
+        config.xmpp.domain :
+        this.jidFromRoomNick(room !== undefined ? room : this.room.current, null)
       ),
       type: type
-    }).c('query', query);
+    });
+    if (query) iq.c('query', query);
+    return iq;
   },
 
   /**
@@ -105,7 +109,15 @@ var xmpp = {
    * Create a unique client identifier from the current millisecond timestamp.
    */
   createResourceName: function() {
-    return 'cadence/' + (new Date()).getTime();
+    return visual.formatText(config.settings.xmpp.resource, {
+      client: config.clientName,
+      version: config.version,
+      timestamp: (new Date()).getTime().toString()
+    });
+  },
+
+  jidFromRoomNick: function(room, nick) {
+    return (room ? Strophe.escapeNode(room) + '@' : '') + config.xmpp.mucService + (nick ? '/' + nick : '');
   },
 
   /**
@@ -145,11 +157,12 @@ var xmpp = {
    */
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
-    this.connection.send(this.presence(room, nick, {type: 'unavailable'}));
+    this.connection.send(this.presence(room, this.nick.current, {type: 'unavailable'}));
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
     if (room == this.room.current) this.prejoin();
+    else this.discoverRooms();
   },
 
   prejoin: function() {
@@ -202,40 +215,82 @@ var xmpp = {
   },
 
   /**
-   * Attempt to join a room.
+   * Attempt to join a room after checking it exists.
    *
    * @param {string} The room to join.
    */
-  joinRoom: function(room) {
-    this.room.target = room;
-
-    var joinRoom = function() {
-      ui.messageAddInfo(strings.info.joining, {
-        room: this.room.available[room],
-        user: {
-          nick: this.nick.target,
-          jid: this.connection.jid
-        }
-      }, 'verbose');
-      this.connection.send(this.presence(room, this.nick.target));
-    }.bind(this);
-
+  joinExistingRoom: function(room) {
     var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
           ui.messageAddInfo(strings.info.nickRegistered, {nick: nick}, 'verbose');
         }
-        joinRoom();
+        this.joinRoom(room);
       });
     }.bind(this);
 
     this.getRoomInfo(room, function(roomInfo) {
-      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {room: room}, 'error');
+      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
       this.room.available[room] = roomInfo;
+      ui.refreshRooms(this.room.available);
+      ui.messageAddInfo(strings.info.joining, {
+      room: this.room.available[room],
+        user: {
+          nick: this.nick.target,
+          jid: this.connection.jid
+        }
+      }, 'verbose');
       if (config.settings.xmpp.registerNick) joinWithReservedNick();
-      else joinRoom();
+      else this.joinRoom(room);
     }.bind(this));
+  },
+
+  /**
+   * Attempt to create a new room.
+   *
+   * @param {string} The room name.
+   */
+  joinNewRoom: function(title) {
+    var room = title.toLowerCase();
+    ui.messageAddInfo(strings.info.creating, {
+      room: {id: room, title: title},
+      user: {
+        nick: this.nick.target,
+        jid: this.connection.jid
+      }
+    }, 'verbose');
+    // After creating a room, we must configure it. cadence does not support
+    // custom configuration, but it will set the natural-language title.
+    this.connection.addHandler(function(stanza) {
+      var codes = $.makeArray($('status', stanza).map(function() {
+        return parseInt($(this).attr('code'));
+      }));
+      if (codes.indexOf(201) >= 0) {
+        ui.messageAddInfo(strings.code[201], {name: title}, 'verbose');
+        this.configureRoom(room, {roomname: title}, function() {
+          // Only update the menu after the room has been titled.
+          ui.updateRoom(room, this.roster[room]);
+          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
+        }.bind(this));
+      }
+    }.bind(this), null, 'presence', null, null, this.jidFromRoomNick(room, this.nick.target));
+    this.joinRoom(room);
+  },
+
+
+  /**
+   * Join a room, regardless of whether it exists.
+   *
+   * @param {string} The room name.
+   */
+  joinRoom: function(room) {
+    this.room.target = room;
+    this.connection.send(
+      this.presence(room, this.nick.target)
+        .c('x', {xmlns:Strophe.NS.MUC})
+        .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
+    );
   },
 
   /**
@@ -247,14 +302,76 @@ var xmpp = {
    * @param {Object} attrs The attributes of the <presence/> element.
    */
   presence: function(room, nick, attrs) {
-    return this.pres()
-      .attrs({
-        to:Strophe.escapeNode(room) + '@' + config.xmpp.mucService + '/' + nick
-      })
-      .attrs(attrs)
-      .c('x', {xmlns:Strophe.NS.MUC})
-      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
-      .up().up();
+    return this.pres().attrs({to:this.jidFromRoomNick(room, nick)}).attrs(attrs);
+  },
+
+  /**
+   * Request a room configuration form and fill it out with the
+   * variables provided.
+   *
+   * @param {string} room The room name.
+   * @param {Object} vars The field values to set.
+   * @param {function} success The callback to execute afterward.
+   */
+  configureRoom: function(room, vars, success) {
+    this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
+      function(stanza) {
+        var values = {};
+        for (var i in vars) values['muc#roomconfig_' + i] = vars[i];
+        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'})
+        .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+
+        $('field', $('query x', stanza)).each(function() {
+          var name = $(this).attr('var');
+          var value = values[name] || $('value', this).html() || '';
+          delete values[name];
+          form.c('field', {'var': name}).c('value', {}, value).up();
+        });
+        var fields = [];
+        for (var i in vars) if (values['muc#roomconfig_' + i]) fields.push(i);
+        if (fields.length)
+          ui.messageAddInfo(strings.error.roomConf, {name: room, fields: fields.join(', ')}, 'error');
+
+        this.connection.sendIQ(form, function() {
+          // Need to refresh the room list now.
+          this.discoverRooms(success);
+        }.bind(this));
+      }.bind(this)
+    );
+  },
+
+  /**
+   * Request a command form and fill it out with the variables provided.
+   */
+  submitCommand: function(node, vars, callback) {
+    this.connection.sendIQ(this.iq('set', null, null, true)
+      .c('command', {
+        xmlns: 'http://jabber.org/protocol/commands',
+        action: 'execute',
+        node: 'http://jabber.org/protocol/admin#' + node
+      }),
+      function (stanza) {
+        var values = {};
+        var sessionid = $('command', stanza).attr('sessionid');
+        var form = this.iq('set', null, null, true).c('command', {
+          xmlns: 'http://jabber.org/protocol/commands',
+          node: 'http://jabber.org/protocol/admin#' + node,
+          sessionid: sessionid
+        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+        $('field', $('x', stanza)).each(function() {
+          var name = $(this).attr('var');
+          var value = vars[name] || $('value', this).html() || '';
+          form.c('field', {'var': name});
+          if (value) form.c('value', {}, value);
+          form.up();
+        });
+        this.connection.sendIQ(form,
+          function (stanza) { callback(stanza, 2); },
+          function (stanza) { callback(stanza, 1); }
+        );
+      }.bind(this),
+      function (stanza) { callback(stanza, 0); }
+    );
   },
 
   /**
@@ -353,9 +470,6 @@ var xmpp = {
   /**
    * Query the server for rooms and execute a callback.
    *
-   * This function is actually a callback-wrapper (see xmpp.initialize() ),
-   * which is replaced with its own return value on initialization.
-   *
    * @param {function} callback The function to execute after the server responds.
    */
   discoverRooms: function(callback) {
@@ -373,6 +487,9 @@ var xmpp = {
             name = room;
           rooms[room] = {id: room, title: name, members: null};
         });
+        // Preserve the current room in the list of available rooms.
+        if (this.room.current && !rooms[this.room.current])
+          rooms[this.room.current] = this.room.available[this.room.current]
         this.room.available = rooms;
         ui.refreshRooms(this.room.available);
         if (callback) callback(rooms);
@@ -436,6 +553,7 @@ var xmpp = {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
         ui.messageAddInfo(strings.error.nickConflict, {nick: nick}, 'error');
+        this.nick.target = this.nick.current;
       }
       else {
         ui.messageAddInfo(strings.error.joinConflict, {nick: nick}, 'error');
@@ -444,11 +562,18 @@ var xmpp = {
         this.joinRoom(this.room.target, this.nick.target);
       }
     }
-    else if ($('forbidden', stanza).length) {
-      ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
-      // Cancel join attempt:
-      xmpp.room.target = xmpp.room.current;
-      ui.updateRoom(xmpp.room.current);
+    else {
+      if ($('forbidden', stanza).length)
+        ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+      else if ($('not-allowed', stanza).length)
+        ui.messageAddInfo(strings.error.noCreate, 'error');
+      else if ($('jid-malformed', stanza).length) {
+        ui.messageAddInfo(strings.error.badNick, {nick: nick}, 'error');
+        this.nick.target = this.nick.current;
+      }
+      // Cancel any join attempt:
+      this.room.target = this.room.current;
+      ui.updateRoom(this.room.current);
     }
   },
 
@@ -533,10 +658,6 @@ var xmpp = {
       if (codes.indexOf(210) >= 0) {
         ui.messageAddInfo(strings.code[210], 'verbose')
       }
-      // A 201 code indicates we created this room by joining it.
-      if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {room: this.room.available[room]}, 'verbose');
-      }
 
       if (room != this.room.current) {
         var oldRoom = this.room.current;
@@ -547,15 +668,12 @@ var xmpp = {
           this.leaveRoom(oldRoom);
         }
         this.status = 'online';
-        ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
-        // If this room is not on the room list, add it.
-        if (!this.room.available[room]) {
-          this.room.available[room] = {id: room, title: room, members: 1};
-          ui.refreshRooms(this.room.available);
+
+        // If this room already existed, then update the menu and roster now:
+        if (this.room.available[room]) {
+          ui.updateRoom(room, this.roster[room]);
+          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
         }
-        // The room roster has been received by now. Refresh it.
-        ui.updateRoom(room, this.roster[room]);
-        // Delete the old room's roster, if one exists.
       }
       this.nick.current = nick;
     }
@@ -598,39 +716,39 @@ var xmpp = {
     if (stanza) {
       var from = $(stanza).attr('from');
       var type = $(stanza).attr('type');
-      var nick = Strophe.getResourceFromJid(from);
-      var room = Strophe.unescapeNode(Strophe.getNodeFromJid(from));
+      var domain = Strophe.getDomainFromJid(from);
+      var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
+      var resource = Strophe.getResourceFromJid(from);
       var time = $('delay', stanza).attr('stamp');
+      var body = $('html body p', stanza).html() || $($('body', stanza)[0]).text();
+
+      // Message of the Day.
+      if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
+        return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
       // Only accept messages in the current room.
-      if (Strophe.getDomainFromJid(from) != config.xmpp.mucService || room != this.room.current)
+      else if (domain != config.xmpp.mucService || node != this.room.current)
         return true;
+
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
           return true
         }
       }
-      this.historyEnd[room] = time || (new Date()).toISOString();
+      this.historyEnd[node] = time || (new Date()).toISOString();
 
-      // Only accept messages from nicks we know are in the room.
-      var user = this.roster[room][nick];
-      // But accept delayed messages from users who have since left.
-      if (time && !user) user = {nick: nick};
-      if (user) {
-        var body = null;
-        var html = $('html body p', stanza).html();
-        if (html) {
-          body = html;
-        } else {
-          body = $($('body', stanza)[0]).text();
-        }
-        if (time) message = ui.messageDelayed(
-          {user: user, body: body, time: time, room: this.room.available[room], type: type}
-        );
-        else {
-          ui.messageAppend(visual.formatMessage({user: user, body: body, type: type}));
-          if (nick != this.nick.current) ui.playSound('receive');
-        }
+      // If the sender is not in the room, just show the nick.
+      // This *should* only happen for backlog messages.
+
+      var user = this.roster[node][resource] || {nick: resource};
+
+      if (time) ui.messageDelayed(
+        {user: user, body: body, time: time, room: this.room.available[node], type: type}
+      );
+      else {
+        var message = {user: user, body: body, type: type};
+        ui.messageAppend(visual.formatMessage(message));
+        if (resource != this.nick.current) ui.playSoundMessage(message);
       }
     }
     return true;
@@ -702,6 +820,7 @@ var xmpp = {
     if (this.connection) {
       this.connection.send(this.pres().attrs({type: 'unavailable'}));
       this.connection.disconnect();
+      this.connection = null;
     }
   }
 }

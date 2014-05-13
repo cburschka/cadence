@@ -51,19 +51,21 @@ var strings = {
   },
 
   code: {
-    201: 'The room {room} has been newly created.',
+    201: 'The room {name} has been newly created.',
     210: 'Your nick has been modified by the server.',
   },
 
   info: {
     joined: 'Now talking in {room}.',
     joining: 'Joining {room} as {user} ...',
+    creating: 'Creating {room} as {user} ...',
     leave: 'Leaving {room} ...',
     nickRegistered: 'Switching to registered nick {nick}.',
     rejoinNick: 'Rejoining as {nick} ...',
     userIn: '{user} logs into the Chat.',
     userNick: '{user.from} is now known as {user.to}.',
     userOut: '{user} has logged out of the Chat.',
+    motd: 'Announcement from {domain}: {raw.text}',
     noUsers: 'No users are online in {room}.',
     roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {raw.users}.',
@@ -115,10 +117,16 @@ var strings = {
   },
 
   error: {
+    admin: {
+      forbidden: 'You are not authorized to execute "{command}" on this server.',
+      badCommand: 'Unrecognized server command "{command}".',
+      generic: 'Error while executing "{command}": {text}',
+    },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
+    badNick: 'The nickname {nick} is invalid.',
     ban: {
       anon: 'You can\'t even see {user}\'s JID, and probably can\'t ban anybody.',
       'default': 'Unknown error while attempting to ban {user} from {room}.',
@@ -144,7 +152,10 @@ var strings = {
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',
     nickConflict: 'Username {nick} already in use.',
+    noCreate: 'You are not allowed to create rooms.',
     noNick: 'You must set a nickname.',
+    roomConf: 'The following fields could not be set on {name}: {fields}',
+    roomExists: 'Could not create {room}; it already exists.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',

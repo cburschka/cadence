@@ -70,14 +70,43 @@ var chat = {
     },
 
     /**
+     * admin <cmd> <msg>:
+     *   Execute a server admin command.
+     */
+    admin: function(arg) {
+      arg = arg.trim();
+      var m = arg.match(/^(\S+)/);
+      if (!m) return;
+      var command = m[1];
+      arg = arg.substring(m[0].length).trim();
+      var error = function(stanza, status) {
+        if (status < 2 && stanza) {
+          if ($('forbidden', stanza).length) {
+            ui.messageAddInfo(strings.error.admin.forbidden, {command: command}, 'error');
+          }
+          else {
+            var message = $('text', stanza).text();
+            console.log(message);
+            ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
+          }
+        }
+      };
+      var commands = {
+        announce: function() { xmpp.submitCommand('announce', {body: arg}, error); },
+        motd: function() { xmpp.submitCommand('set-motd', {body: arg}, error); }
+      };
+
+      if (commands[command]) commands[command]();
+      else ui.messageAddInfo(strings.error.admin.badCommand, {command: command}, 'error');
+    },
+
+    /**
      * away <msg>:
      *   Send a room presence with <show/> set to "away" and
      *   <status/> to "msg".
      */
     away: function(arg) {
-      // strip all parentheses and spaces:
-      arg = arg.trim().replace(/(^[\(\s]*|[\)\s]*$)/g, '');
-      xmpp.sendStatus('away', arg);
+      xmpp.sendStatus('away', arg.trim());
     },
 
     /**
@@ -108,7 +137,7 @@ var chat = {
       }
       else {
         arg = Strophe.getBareJidFromJid(arg);
-        for (nick in roster)
+        for (var nick in roster)
           if (roster[nick].jid && arg == Strophe.getBareJidFromJid(roster[nick].jid))
             user = roster[nick];
         if (!user) {
@@ -181,19 +210,37 @@ var chat = {
     },
 
     /**
+     * create <room>
+     *   Join a new room and set it up.
+     */
+    create: function(arg) {
+      var name = arg.trim();
+      var room = chat.getRoomFromTitle(arg.trim());
+      if (room)
+        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+      xmpp.joinNewRoom(name);
+    },
+
+    /**
      * join <room>
      *   Ask XMPP to join <room>. If successful, XMPP
      *   will automatically leave the current room.
      */
     join: function(arg) {
-      var room = chat.getRoomFromTitle(arg.trim());
-      if (!room)
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.trim()}, 'error');
-      if (xmpp.room.current == room.id) {
-        return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
-      }
-      xmpp.joinRoom(room.id);
-      chat.setSetting('xmpp.room', room.id);
+      var name = arg.trim();
+      var room = chat.getRoomFromTitle(name);
+      var join = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room && xmpp.room.current == room.id) {
+          return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
+        }
+        room = room ? room.id : name;
+        xmpp.joinExistingRoom(room);
+        chat.setSetting('xmpp.room', room);
+      };
+      // If the room is known, join it now. Otherwise, refresh before joining.
+      if (room) join();
+      else xmpp.discoverRooms(join);
     },
 
     /**
@@ -243,8 +290,8 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^(\S+)/.exec(arg.trim());
-      var nick = m[1];
+      var m = /^(((\\\s)?\S)+)/.exec(arg.trim());
+      var nick = m[1].replace(/\\(\s)/g, '$1');
       var msg = arg.substring(m[0].length + 1);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
@@ -263,7 +310,7 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = arg.trim().replace(/\s+/g, '_');
+      var nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
       else ui.messageAddInfo(strings.error.noNick, 'error');
     },
@@ -416,9 +463,11 @@ var chat = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput: function(text) {
-    this.history.push(text);
-    this.historyIndex = this.history.length;
+  executeInput: function(text, macro) {
+    if (!macro) {
+      this.history.push(text);
+      this.historyIndex = this.history.length;
+    }
     text = text.replace(/\s\s*$/, '');
     if (!text) return;
 
@@ -452,7 +501,7 @@ var chat = {
    */
   executeMacro: function(macro, text) {
     for (var i in macro) {
-      this.executeInput(macro[i].replace(/\$/g, text.trim()));
+      this.executeInput(macro[i].replace(/\$/g, text.trim()), true);
     }
   },
 
@@ -610,6 +659,6 @@ var chat = {
    * Serialize the settings object and save it in the cookie.
    */
   saveSettings: function() {
-    $.cookie(config.sessionName + '_settings', config.settings);
+    $.cookie(config.clientName + '_settings', config.settings);
   }
 }

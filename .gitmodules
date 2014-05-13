@@ -19,3 +19,6 @@
 [submodule "js/lib/FileSaver.js"]
 	path = js/lib/filesaver
 	url = https://github.com/eligrey/FileSaver.js
+[submodule "js/lib/jquery"]
+	path = js/lib/jquery
+	url = https://github.com/joscha/jquery-release.git

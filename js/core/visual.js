@@ -56,17 +56,21 @@ visual = {
    * @return {jQuery} the rendered node. It has events attached and must not be
    *                  copied or transformed back into markup before insertion.
    */
-  formatMessage: function(message) {
+  formatMessage: function(message, internal) {
     message.time = message.time ? new Date(message.time) : new Date();
-    var body = this.lengthLimit(message.body, config.ui.maxMessageLength);
+    var body = message.body;
+    if (internal) body = this.lengthLimit(body, config.ui.maxMessageLength);
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
-    var node =  $('<div class="row messageContainer">'
+    var node =  $('<div class="row message">'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
                   + '<span class="body"></span></span></div>');
+
+    if (message.user.jid)
+      node.addClass(this.jidClass(message.user.jid));
 
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
@@ -79,7 +83,7 @@ visual = {
     }
     else $('span.author', node).append(':');
 
-    if (message.type == 'chat') {
+    if (message.type != 'groupchat' && message.type != 'local') {
       $('span.' + (me ? 'body' : 'author'), node).after(
         ' <span class="privmsg">' + (message.to ?
           this.formatText(strings.info.whisperTo, {nick:message.to})
@@ -130,8 +134,10 @@ visual = {
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
             + (jid ? (' title="' + jid + '"') : '')
-            + ' onclick="chat.prefixMsg(\'' + encodeURIComponent(user.nick).replace('\'', "\\\'", 'g') + '\')"'
-            + '>' + nick + '</span>';
+            + ' onclick="chat.prefixMsg(\''
+            + encodeURIComponent(user.nick.replace(/\s/g, '\\$&'))
+              .replace(/\'/g, "\\\'")
+            + '\')"' + '>' + nick + '</span>';
     },
 
     /**
@@ -365,5 +371,39 @@ visual = {
       x.push(jQ.text());
     });
     return x.join("\n");
+  },
+
+  /**
+   * Turn a JID into three valid, distinct, single class names:
+   *
+   * - jid-node-<user>
+   * - jid-domain-<domain>
+   * - jid-resource-<resource>
+   *
+   * for <user@domain/resource>.
+   *
+   * Whitespace characters, NUL and "\" will be replaced with "\DEC", where DEC
+   * is the decimal representation of the character value, eg. \32.
+   * This needs to be further escaped in CSS selectors, eg. \\32.
+   *
+   * All others characters will be left alone. Some of these may need
+   * to be escaped in CSS selectors with \ or as "\DEC" (see above).
+   *
+   * Note: The jid-resource-* class is only useful for selecting particular
+   * prefixes such as [class*=jid-resource-cadence\/] since the full value
+   * is effectively random and unique.
+   *
+   * @param {string} jid The JID to convert.
+   * @return {string} The space-separated class names.
+   */
+  jidClass: function(jid) {
+    var escape = function(str) {
+      return str.replace(/[\s\0\\]/g, function(x) {
+        return '\\' + x.charCodeAt(0);
+      });
+    };
+    return 'jid-node-' + escape(Strophe.getNodeFromJid(jid)) + ' '
+         + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
+         + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }
 };

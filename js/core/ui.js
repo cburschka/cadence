@@ -96,6 +96,7 @@ var ui = {
     $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
+    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     // Open the last active sidebar.
     this.toggleMenu(config.settings.activeMenu, true);
@@ -138,14 +139,10 @@ var ui = {
     });
 
     // Log in with the button or pressing enter.
-    var loginCallback = function() {
-      chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
-    };
     $('#fakeLoginForm').submit(function(e) {
-      loginCallback();
+      chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
-    $('#loginPass, #loginUser').keypress(this.onKeyMap({13:loginCallback}));
     $('#trayContainer button.toggleMenu').click(function() {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
@@ -200,6 +197,10 @@ var ui = {
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
       var value = this.type == 'checkbox' ? this.checked : this.value;
+      chat.setSetting(this.id.substring('settings-'.length), value);
+    });
+    $('#settings-notifications\\.triggers').change(function() {
+      var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
 
@@ -329,9 +330,9 @@ var ui = {
 
     text = visual.formatText(text, variables);
     var message = visual.formatMessage({
-      body: text,
+      body: text, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
-    });
+    }, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
     return message;
@@ -397,7 +398,7 @@ var ui = {
     var room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
     var options = [new Option('---', '')];
-    for (id in rooms) {
+    for (var id in rooms) {
       options.push(new Option(rooms[id].title, id));
     }
     this.dom.roomSelection.html(options).val(room);
@@ -407,7 +408,11 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row">' + visual.format.user(user) + '</div>');
+    var userLink = $('<div class="row"><span class="user-roster">'
+                    + visual.format.user(user) + '</span></div>');
+
+    if (user.jid)
+      $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
     if (!this.userLinks[user.nick]) {
       userLink.appendTo(this.dom.onlineList);
@@ -440,7 +445,7 @@ var ui = {
       $(this).html('');
       self.userLinks = {};
       self.userStatus = {};
-      for (nick in roster) {
+      for (var nick in roster) {
         self.userAdd(roster[nick], false);
       }
       $(this).slideDown();
@@ -517,7 +522,26 @@ var ui = {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
     var sound = config.settings.notifications.sounds[event];
-    if (sound && this.sounds[sound]) this.sounds[sound].play();
+    return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
+  },
+
+  /**
+   * Trigger the correct message sound event.
+   * Only one sound is played, in order:
+   * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
+   */
+  playSoundMessage: function(message) {
+    var mention = (message.body.indexOf(xmpp.nick.current) >= 0
+                || message.body.indexOf(xmpp.user) >= 0);
+    var sender = false;
+    for (var i in config.settings.notifications.triggers) {
+      mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
+      sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
+    }
+    if (mention && this.playSound('mention')) return;
+    if (message.type == 'chat' && this.playSound('msg')) return;
+    if (sender && this.playSound('mention')) return;
+    this.playSound('receive');
   },
 
   /**

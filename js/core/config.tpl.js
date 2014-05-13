@@ -38,12 +38,17 @@ var config = {
         leave: 'sound_4',
         info: 'sound_5',
         error: 'sound_6',
+        mention: '',
+        privmsg: '',
       },
       soundVolume: 100,
       soundEnabled: true,
 
       // Warn before leaving the page.
       leavePage: true,
+
+      // Triggers for a "mention" sound.
+      triggers: [],
     },
 
     // Persistent font color that is displayed to other cadence users.
@@ -53,6 +58,7 @@ var config = {
       room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
+      resource: '{client}/{version}/{timestamp}',
     },
 
     macros: {},
@@ -138,6 +144,7 @@ var config = {
           ':applederp:': 'applederp.png',
           ':aran:': 'aran.png',
           ':bonbon:': 'bonbon.png',
+          ':braeburn:': 'braeburn.png',
           ':punchdrunk:': 'punchdrunk.png',
           ':thehorror:': 'thehorror.png',
           ':eeyup:': 'eeyup.png',
@@ -210,7 +217,6 @@ var config = {
           ':louder:': 'louder.png',
           ':rdhuh:': 'rdhuh.png',
           ':gross:': 'gross.png',
-          ':wingboner:': 'rdsitting.png',
           ':awwyeah:': 'awwyeah.png',
           ':rdsad:': 'rdsad.png',
           ':rdscared:': 'rdscared.png',
@@ -288,7 +294,6 @@ var config = {
           ':twismug:': 'twismug.png',
           ':twisquint:': 'twisquint.png',
           ':twistare:': 'twistare.png',
-          ':rapidash:': 'twirage.png',
           ':dj:': 'dj.png',
           ':vsbass:': 'vsbass.png',
           ':vscurious:': 'vscurious.png',
@@ -319,6 +324,24 @@ var config = {
           ':no:': 'noberry.png',
           ':ponywarn:': 'ponywarn.png'
         }
+      },
+      ponyHidden: {
+        baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
+        codes: {
+          ':wingboner:': 'rdsitting.png',
+          ':capitalism:': 'sybeam.png',
+          ':maud:': 'maud.png',
+          ':maudhappy:': 'maud.png',
+          ':maudsad:': 'maud.png',
+          ':maudbeam:': 'maud.png',
+          ':maudgasm:': 'maud.png',
+          ':maudwtf:': 'maud.png',
+          ':maudcastic:': 'maud.png',
+          ':maudcrazy:': 'maud.png',
+          ':maudponder:': 'maud.png',
+          ':maudrape:': 'maud.png',
+          ':rapidash:': 'twirage.png'
+        }
       }
     }
   },
@@ -338,10 +361,10 @@ var config = {
   ui: {
     chatBotName: '@@@CHATBOT@@@',
     maxNickLength: 32,
-    maxMessageLength: 1024,
+    maxMessageLength: 2048,
   },
 
   poniconVersion: "v1.13",
-  sessionName: "cadence",
+  clientName: "cadence",
   version: '@@@VERSION@@@',
 };

@@ -20,7 +20,7 @@ $(document).ready(function() {
 
 init = {
   loadSettings: function() {
-    var cookie = $.cookie(config.sessionName + '_settings');
+    var cookie = $.cookie(config.clientName + '_settings');
     config.settings = config.defaultSettings;
     if (cookie) {
       if (cookie.version == config.version) config.settings = cookie;
