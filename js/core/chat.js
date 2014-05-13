@@ -463,9 +463,11 @@ var chat = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput: function(text) {
-    this.history.push(text);
-    this.historyIndex = this.history.length;
+  executeInput: function(text, macro) {
+    if (!macro) {
+      this.history.push(text);
+      this.historyIndex = this.history.length;
+    }
     text = text.replace(/\s\s*$/, '');
     if (!text) return;
 
@@ -499,7 +501,7 @@ var chat = {
    */
   executeMacro: function(macro, text) {
     for (var i in macro) {
-      this.executeInput(macro[i].replace(/\$/g, text.trim()));
+      this.executeInput(macro[i].replace(/\$/g, text.trim()), true);
     }
   },
 
