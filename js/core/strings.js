@@ -117,6 +117,11 @@ var strings = {
   },
 
   error: {
+    admin: {
+      forbidden: 'You are not authorized to execute "{command}" on this server.',
+      badCommand: 'Unrecognized server command "{command}".',
+      generic: 'Error while executing "{command}": {text}',
+    },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',

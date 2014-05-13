@@ -85,14 +85,16 @@ var xmpp = {
    * Generate an IQ.
    */
   iq: function(type, query, room, domain) {
-    return $iq({
+    var iq = $iq({
       from: this.connection.jid,
       to: (domain ?
         config.xmpp.domain :
         this.jidFromRoomNick(room !== undefined ? room : this.room.current, null)
       ),
       type: type
-    }).c('query', query);
+    });
+    if (query) iq.c('query', query);
+    return iq;
   },
 
   /**
@@ -335,6 +337,40 @@ var xmpp = {
           this.discoverRooms(success);
         }.bind(this));
       }.bind(this)
+    );
+  },
+
+  /**
+   * Request a command form and fill it out with the variables provided.
+   */
+  submitCommand: function(node, vars, callback) {
+    this.connection.sendIQ(this.iq('set', null, null, true)
+      .c('command', {
+        xmlns: 'http://jabber.org/protocol/commands',
+        action: 'execute',
+        node: 'http://jabber.org/protocol/admin#' + node
+      }),
+      function (stanza) {
+        var values = {};
+        var sessionid = $('command', stanza).attr('sessionid');
+        var form = this.iq('set', null, null, true).c('command', {
+          xmlns: 'http://jabber.org/protocol/commands',
+          node: 'http://jabber.org/protocol/admin#' + node,
+          sessionid: sessionid
+        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+        $('field', $('x', stanza)).each(function() {
+          var name = $(this).attr('var');
+          var value = vars[name] || $('value', this).html() || '';
+          form.c('field', {'var': name});
+          if (value) form.c('value', {}, value);
+          form.up();
+        });
+        this.connection.sendIQ(form,
+          function (stanza) { callback(stanza, 2); },
+          function (stanza) { callback(stanza, 1); }
+        );
+      }.bind(this),
+      function (stanza) { callback(stanza, 0); }
     );
   },
 
