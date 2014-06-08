@@ -274,6 +274,7 @@ var config = {
           ':syrape:': 'syrape.png',
           ':sydrunk:': 'sydrunk.png',
           ':sysad:': 'sysad.png',
+          ':symad:': 'symad.png',
           ':sywtf:': 'sywtf.png',
           ':sywut:': 'sywut.png',
           ':sycastic:': 'sycastic.png',
