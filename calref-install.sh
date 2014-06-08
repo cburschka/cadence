@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "Purging CDN"
-rm -rf /tmp/cadence-cdn
-rm -rf /var/www/cloudfiles/calamityrefuge/chat
+rm -rfv /tmp/cadence-cdn
+rm -rfv /var/www/cloudfiles/calamityrefuge/chat
 # TODO: Rackspace Cloudfiles API edge purge
 
 echo "Configuring cadence"
@@ -28,4 +28,4 @@ make install > /dev/null
 
 echo "Deploying CDN"
 
-cp -r /tmp/cadence-cdn /var/www/cloudfiles/calamityrefuge/chat
+cp -rv /tmp/cadence-cdn /var/www/cloudfiles/calamityrefuge/chat
