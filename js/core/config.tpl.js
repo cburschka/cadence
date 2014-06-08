@@ -251,7 +251,6 @@ var config = {
           ':silverspoon:': 'silverspoon.png',
           ':snails:': 'snails.png',
           ':snowflake:': 'snowflake.png',
-          ':yeah:': 'snowflake.png',
           ':manspike:': 'manspike.png',
           ':spikenervous:': 'spikenervous.png',
           ':allmybits:': 'allmybits.png',
@@ -342,6 +341,7 @@ var config = {
           ':maudponder:': 'maud.png',
           ':maudrape:': 'maud.png',
           ':rapidash:': 'twirage.png'
+          ':yeah:': 'snowflake.png',
         }
       }
     }
