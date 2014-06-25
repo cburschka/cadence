@@ -341,7 +341,7 @@ var config = {
           ':maudponder:': 'maud.png',
           ':maudrape:': 'maud.png',
           ':rapidash:': 'twirage.png'
-          ':yeah:': 'snowflake.png',
+          ':yeah:': 'snowflake.png'
         }
       }
     }
