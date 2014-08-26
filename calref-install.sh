@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# make sure we're where we need to be if called from outside
+cd "$( dirname "$0" )"
+
+echo "Updating repository"
+git pull
+
 echo "Purging CDN"
 rm -rfv /tmp/cadence-cdn
 rm -rfv /var/www/cloudfiles/calamityrefuge/chat
