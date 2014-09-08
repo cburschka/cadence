@@ -6,3 +6,7 @@
   background: url('img/flair/jid-node-Nalyd.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
+.jid-node-Tyran .user:not(.user-show-away)  {
+  background: url('img/flair/jid-node-Tyran.png') no-repeat scroll left center transparent;
+  padding-left: 20px;
+}
