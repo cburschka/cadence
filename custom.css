@@ -1,8 +1,8 @@
-.jid-node-sylae .user  {
+.jid-node-sylae .user:not(.user-show-away)  {
   background: url('img/flair/jid-node-sylae.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-Nalyd .user  {
+.jid-node-Nalyd .user:not(.user-show-away)  {
   background: url('img/flair/jid-node-Nalyd.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
