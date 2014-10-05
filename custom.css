@@ -18,3 +18,7 @@
   background: url('img/flair/jid-node-ligrev.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
+.jid-node-Actaeon .user:not(.user-show-away)  {
+  background: url('img/flair/jid-node-Actaeon.png') no-repeat scroll left center transparent;
+  padding-left: 20px;
+}
