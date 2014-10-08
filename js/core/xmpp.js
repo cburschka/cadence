@@ -782,6 +782,7 @@ var xmpp = {
     }
     else if (status == 'offline') {
       // The connection is closed and cannot be reused.
+      this.connection = null;
       this.nick.current = null;
       this.room.current = null;
       this.roster = {};
@@ -820,7 +821,6 @@ var xmpp = {
     if (this.connection) {
       this.connection.send(this.pres().attrs({type: 'unavailable'}));
       this.connection.disconnect();
-      this.connection = null;
     }
   }
 }
