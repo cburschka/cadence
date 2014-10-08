@@ -111,11 +111,17 @@ var ui = {
    * Initialize the event listeners.
    */
   initializeEvents: function() {
+    // Inserting BBCode tags.
+    var insertBBCode = function(tag, arg) {
+      arg = arg ? '=' + arg : '';
+      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
+      chat.insertText(v);
+    };
 
-    // The input field listens for three keystrokes.
+    // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        // 13: <enter> (unless shift is down)
+        // 13: <return> (unless shift is down)
         13: function(e,x) {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
@@ -126,7 +132,13 @@ var ui = {
         // 38: <arrow-up> (if the field is empty, or ctrl is down)
         38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
         // 40: <arrow-down> (if ctrl is down)
-        40: function(e) { return e.ctrlKey && chat.historyDown(); }
+        40: function(e) { return e.ctrlKey && chat.historyDown(); },
+
+        // 66, 73, 83, 85: B,I,S,U
+        66: function(e) { return e.ctrlKey && insertBBCode('b'); },
+        73: function(e) { return e.ctrlKey && insertBBCode('i'); },
+        83: function(e) { return e.ctrlKey && insertBBCode('s'); },
+        85: function(e) { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: function() { ui.updateMessageLengthCounter(); }
@@ -147,12 +159,7 @@ var ui = {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
-    // Inserting BBCode tags.
-    var insertBBCode = function(tag, arg) {
-      arg = arg ? '=' + arg : '';
-      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
-      chat.insertText(v);
-    };
+    // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg'))
