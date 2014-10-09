@@ -248,7 +248,7 @@ visual = {
             + config.markup.emoticons[set].codes[code]
             + '" title="' + code + '" alt="' + code + '" />';
     }
-    jq.add('*', jq).replaceText(this.emoticonRegex, function() {
+    jq.add('*', jq).not('code, code *').replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
         if (arguments[i]) {
           return emoticonImg(emoticonSets[i-1], arguments[i]);
