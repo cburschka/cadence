@@ -422,6 +422,11 @@ var ui = {
     if (user.jid)
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
+    if (user.nick == xmpp.nick.current) {
+      $('span.user-roster', userLink).addClass('user-self');
+      this.dom.onlineList.find('span.user-self').removeClass('user-self');
+    }
+
     if (!this.userLinks[user.nick]) {
       for (var i = 0; i < this.sortedNicks.length; i++)
         if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
