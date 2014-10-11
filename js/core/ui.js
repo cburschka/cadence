@@ -7,6 +7,7 @@
  */
 var ui = {
   userLinks: {},
+  sortedNicks: [],
   dom: null,
   userStatus: {},
   messages: [],
@@ -422,7 +423,14 @@ var ui = {
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
     if (!this.userLinks[user.nick]) {
-      userLink.appendTo(this.dom.onlineList);
+      for (var i = 0; i < this.sortedNicks.length; i++)
+        if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
+          break;
+      if (i < this.sortedNicks.length)
+        userLink.insertBefore(this.userLinks[this.sortedNicks[i]]);
+      else
+        userLink.appendTo(this.dom.onlineList);
+      this.sortedNicks.splice(i, 0, user.nick);
       if (animate) userLink.slideDown(1000);
     }
     else userLink.replaceAll(this.userLinks[user.nick])
@@ -436,6 +444,12 @@ var ui = {
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
       this.userLinks[user.nick].slideUp(1000).remove();
+      for (var i = 0; i < this.sortedNicks.length; i++) {
+        if (this.sortedNicks[i] == user.nick) {
+          this.sortedNicks.splice(i, i);
+          break;
+        }
+      }
       delete this.userLinks[user.nick];
     }
   },
@@ -452,6 +466,7 @@ var ui = {
       $(this).html('');
       self.userLinks = {};
       self.userStatus = {};
+      self.sortedNicks = [];
       for (var nick in roster) {
         self.userAdd(roster[nick], false);
       }
