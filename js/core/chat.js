@@ -585,7 +585,7 @@ var chat = {
    */
   prefixMsg: function(nick) {
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+(\S+)/);
+    var m = text.match(/\/msg\s+((\\\s|\S)+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
     if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
     ui.dom.inputField.val(text);
