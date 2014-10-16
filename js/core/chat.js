@@ -125,14 +125,14 @@ var chat = {
      */
     ban: function(arg) {
       arg = arg.trim();
-      var room = xmpp.room.available[xmpp.room.current]
+      var room = xmpp.room.available[xmpp.room.current];
       var roster = xmpp.roster[xmpp.room.current];
       var absent = false;
 
       if (arg.indexOf('@') < 0) {
         var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error')
-        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error')
+        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error');
         arg = Strophe.getBareJidFromJid(user.jid);
       }
       else {
