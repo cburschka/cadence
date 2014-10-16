@@ -167,7 +167,7 @@ var chat = {
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         var users = [];
         $('item', stanza).each(function() { users.push($(this).attr('jid')); });
-        ui.messageAddInfo(strings.info.banList, {users: users.join('\n')});
+        ui.messageAddInfo(users.length ? strings.info.banList : strings.info.banListEmpty, {users: users.join('\n')});
       }, function(stanza) {
         if ($('forbidden', iq).length)
           ui.messageAddInfo(strings.error.banList.forbidden);

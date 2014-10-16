@@ -112,6 +112,7 @@ var strings = {
     versionClient: 'Cadence version: {raw.version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     banList: 'Banned users in this room:\n{users}',
+    banListEmpty: 'No users are banned from this room.',
     banSuccess: 'You have banned {user} from {room}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
   },
