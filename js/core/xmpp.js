@@ -694,7 +694,13 @@ var xmpp = {
       }
       if (!this.roster[room][nick]) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
-        ui.playSound('enter');
+
+        // Play the alert sound if a watched user enters.
+        var watched = false;
+        for (var i in config.settings.notifications.triggers) {
+          watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
+        }
+        watched && ui.playSound('mention') || ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
         ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
