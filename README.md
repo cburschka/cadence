@@ -1,7 +1,7 @@
 cadence
 =======
 
-cadence is a strophe.js-powered XMPP multi-user chat client that 
+cadence is a strophe.js-powered XMPP multi-user chat client that
 runs entirely in the browser without a server backend.
 
 Requirements
@@ -44,7 +44,7 @@ These arguments are supported:
 * Only `--domain` is strictly required. `--muc` and `--bosh` are required if
   they differ from the default values.
 
-* `--session-auth` is required if you would like to hook into an existing site's login 
+* `--session-auth` is required if you would like to hook into an existing site's login
   system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
   the public URL of the `rpc.php` script in that software's session authentication plugin.
 
@@ -101,7 +101,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Basis
 -----
 
-The visual style and static markup is based in part on 
+The visual style and static markup is based in part on
 AJAX-Chat (blueimp.net): https://github.com/Frug/AJAX-Chat
 (MIT)
 
@@ -120,10 +120,10 @@ during the build process.
      (MIT)
 
    * momentjs: http://momentjs.com/ (MIT)
-   
+
    * jquery-replacetext (Ben Alman): https://github.com/cowboy/jquery-replacetext
      (GPL / MIT, used under MIT terms)
-  
+
    * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
      (MIT)
 

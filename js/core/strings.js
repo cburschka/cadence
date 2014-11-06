@@ -112,11 +112,17 @@ var strings = {
     versionClient: 'Cadence version: {raw.version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     banList: 'Banned users in this room:\n{users}',
+    banListEmpty: 'No users are banned from this room.',
     banSuccess: 'You have banned {user} from {room}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
   },
 
   error: {
+    admin: {
+      forbidden: 'You are not authorized to execute "{command}" on this server.',
+      badCommand: 'Unrecognized server command "{command}".',
+      generic: 'Error while executing "{command}": {text}',
+    },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',

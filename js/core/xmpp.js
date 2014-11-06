@@ -85,14 +85,16 @@ var xmpp = {
    * Generate an IQ.
    */
   iq: function(type, query, room, domain) {
-    return $iq({
+    var iq = $iq({
       from: this.connection.jid,
-      to: (domain ? 
-        config.xmpp.domain : 
+      to: (domain ?
+        config.xmpp.domain :
         this.jidFromRoomNick(room !== undefined ? room : this.room.current, null)
       ),
       type: type
-    }).c('query', query);
+    });
+    if (query) iq.c('query', query);
+    return iq;
   },
 
   /**
@@ -107,7 +109,11 @@ var xmpp = {
    * Create a unique client identifier from the current millisecond timestamp.
    */
   createResourceName: function() {
-    return 'cadence/' + (new Date()).getTime();
+    return visual.formatText(config.settings.xmpp.resource, {
+      client: config.clientName,
+      version: config.version,
+      timestamp: (new Date()).getTime().toString()
+    });
   },
 
   jidFromRoomNick: function(room, nick) {
@@ -331,6 +337,40 @@ var xmpp = {
           this.discoverRooms(success);
         }.bind(this));
       }.bind(this)
+    );
+  },
+
+  /**
+   * Request a command form and fill it out with the variables provided.
+   */
+  submitCommand: function(node, vars, callback) {
+    this.connection.sendIQ(this.iq('set', null, null, true)
+      .c('command', {
+        xmlns: 'http://jabber.org/protocol/commands',
+        action: 'execute',
+        node: 'http://jabber.org/protocol/admin#' + node
+      }),
+      function (stanza) {
+        var values = {};
+        var sessionid = $('command', stanza).attr('sessionid');
+        var form = this.iq('set', null, null, true).c('command', {
+          xmlns: 'http://jabber.org/protocol/commands',
+          node: 'http://jabber.org/protocol/admin#' + node,
+          sessionid: sessionid
+        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+        $('field', $('x', stanza)).each(function() {
+          var name = $(this).attr('var');
+          var value = vars[name] || $('value', this).html() || '';
+          form.c('field', {'var': name});
+          if (value) form.c('value', {}, value);
+          form.up();
+        });
+        this.connection.sendIQ(form,
+          function (stanza) { callback(stanza, 2); },
+          function (stanza) { callback(stanza, 1); }
+        );
+      }.bind(this),
+      function (stanza) { callback(stanza, 0); }
     );
   },
 
@@ -654,7 +694,13 @@ var xmpp = {
       }
       if (!this.roster[room][nick]) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
-        ui.playSound('enter');
+
+        // Play the alert sound if a watched user enters.
+        var watched = false;
+        for (var i in config.settings.notifications.triggers) {
+          watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
+        }
+        watched && ui.playSound('mention') || ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
         ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
@@ -742,6 +788,7 @@ var xmpp = {
     }
     else if (status == 'offline') {
       // The connection is closed and cannot be reused.
+      this.connection = null;
       this.nick.current = null;
       this.room.current = null;
       this.roster = {};
@@ -780,7 +827,6 @@ var xmpp = {
     if (this.connection) {
       this.connection.send(this.pres().attrs({type: 'unavailable'}));
       this.connection.disconnect();
-      this.connection = null;
     }
   }
 }

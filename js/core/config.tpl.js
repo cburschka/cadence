@@ -58,6 +58,7 @@ var config = {
       room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
+      resource: '{client}/{version}/{timestamp}',
     },
 
     macros: {},
@@ -250,7 +251,6 @@ var config = {
           ':silverspoon:': 'silverspoon.png',
           ':snails:': 'snails.png',
           ':snowflake:': 'snowflake.png',
-          ':yeah:': 'snowflake.png',
           ':manspike:': 'manspike.png',
           ':spikenervous:': 'spikenervous.png',
           ':allmybits:': 'allmybits.png',
@@ -273,6 +273,7 @@ var config = {
           ':syrape:': 'syrape.png',
           ':sydrunk:': 'sydrunk.png',
           ':sysad:': 'sysad.png',
+          ':symad:': 'symad.png',
           ':sywtf:': 'sywtf.png',
           ':sywut:': 'sywut.png',
           ':sycastic:': 'sycastic.png',
@@ -324,7 +325,7 @@ var config = {
           ':ponywarn:': 'ponywarn.png'
         }
       },
-      ponyHidden: { 
+      ponyHidden: {
         baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
           ':wingboner:': 'rdsitting.png',
@@ -339,7 +340,8 @@ var config = {
           ':maudcrazy:': 'maud.png',
           ':maudponder:': 'maud.png',
           ':maudrape:': 'maud.png',
-          ':rapidash:': 'twirage.png'
+          ':rapidash:': 'twirage.png',
+          ':yeah:': 'snowflake.png'
         }
       }
     }
@@ -364,6 +366,6 @@ var config = {
   },
 
   poniconVersion: "v1.13",
-  sessionName: "cadence",
+  clientName: "cadence",
   version: '@@@VERSION@@@',
 };

@@ -6,6 +6,7 @@ h3 { font-size:1.3em }
 a { text-decoration:none }
 a:hover { text-decoration:underline }
 .author { font-weight:bold }
+#onlineList .user-self { font-weight:bold }
 .action, .user-role-bot, .message-bot, .privmsg, #helpList td.code { font-style:italic }
 q { font-variant:small-caps }
 code {

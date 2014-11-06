@@ -70,6 +70,37 @@ var chat = {
     },
 
     /**
+     * admin <cmd> <msg>:
+     *   Execute a server admin command.
+     */
+    admin: function(arg) {
+      arg = arg.trim();
+      var m = arg.match(/^(\S+)/);
+      if (!m) return;
+      var command = m[1];
+      arg = arg.substring(m[0].length).trim();
+      var error = function(stanza, status) {
+        if (status < 2 && stanza) {
+          if ($('forbidden', stanza).length) {
+            ui.messageAddInfo(strings.error.admin.forbidden, {command: command}, 'error');
+          }
+          else {
+            var message = $('text', stanza).text();
+            console.log(message);
+            ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
+          }
+        }
+      };
+      var commands = {
+        announce: function() { xmpp.submitCommand('announce', {body: arg}, error); },
+        motd: function() { xmpp.submitCommand('set-motd', {body: arg}, error); }
+      };
+
+      if (commands[command]) commands[command]();
+      else ui.messageAddInfo(strings.error.admin.badCommand, {command: command}, 'error');
+    },
+
+    /**
      * away <msg>:
      *   Send a room presence with <show/> set to "away" and
      *   <status/> to "msg".
@@ -94,14 +125,14 @@ var chat = {
      */
     ban: function(arg) {
       arg = arg.trim();
-      var room = xmpp.room.available[xmpp.room.current]
+      var room = xmpp.room.available[xmpp.room.current];
       var roster = xmpp.roster[xmpp.room.current];
       var absent = false;
 
       if (arg.indexOf('@') < 0) {
         var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error')
-        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error')
+        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error');
         arg = Strophe.getBareJidFromJid(user.jid);
       }
       else {
@@ -136,7 +167,7 @@ var chat = {
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         var users = [];
         $('item', stanza).each(function() { users.push($(this).attr('jid')); });
-        ui.messageAddInfo(strings.info.banList, {users: users.join('\n')});
+        ui.messageAddInfo(users.length ? strings.info.banList : strings.info.banListEmpty, {users: users.join('\n')});
       }, function(stanza) {
         if ($('forbidden', iq).length)
           ui.messageAddInfo(strings.error.banList.forbidden);
@@ -259,9 +290,9 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^(((\\\s)?\S)+)/.exec(arg.trim());
+      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
       var nick = m[1].replace(/\\(\s)/g, '$1');
-      var msg = arg.substring(m[0].length + 1);
+      var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
       var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
@@ -432,9 +463,11 @@ var chat = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput: function(text) {
-    this.history.push(text);
-    this.historyIndex = this.history.length;
+  executeInput: function(text, macro) {
+    if (!macro) {
+      this.history.push(text);
+      this.historyIndex = this.history.length;
+    }
     text = text.replace(/\s\s*$/, '');
     if (!text) return;
 
@@ -468,7 +501,7 @@ var chat = {
    */
   executeMacro: function(macro, text) {
     for (var i in macro) {
-      this.executeInput(macro[i].replace(/\$/g, text.trim()));
+      this.executeInput(macro[i].replace(/\$/g, text.trim()), true);
     }
   },
 
@@ -552,7 +585,7 @@ var chat = {
    */
   prefixMsg: function(nick) {
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+(\S+)/);
+    var m = text.match(/\/msg\s+((\\\s|\S)+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
     if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
     ui.dom.inputField.val(text);
@@ -626,6 +659,6 @@ var chat = {
    * Serialize the settings object and save it in the cookie.
    */
   saveSettings: function() {
-    $.cookie(config.sessionName + '_settings', config.settings);
+    $.cookie(config.clientName + '_settings', config.settings);
   }
 }

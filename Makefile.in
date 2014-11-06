@@ -61,7 +61,7 @@ endif
 else
 install: all
 endif
-	touch -a "${PREFIX}/config.custom.js"
+	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
 install-cdn: install-init install-js install-css-global
 
@@ -105,7 +105,7 @@ js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 
 js/lib/jquery.js: js/lib/jquery/jquery.js
 	$(CP) $^ $@
-  
+
 js/lib/jquery.cookie.js: js/lib/jquery-cookie/jquery.cookie.js
 	$(CP) $^ $@
 

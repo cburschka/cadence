@@ -7,6 +7,7 @@
  */
 var ui = {
   userLinks: {},
+  sortedNicks: [],
   dom: null,
   userStatus: {},
   messages: [],
@@ -111,11 +112,17 @@ var ui = {
    * Initialize the event listeners.
    */
   initializeEvents: function() {
+    // Inserting BBCode tags.
+    var insertBBCode = function(tag, arg) {
+      arg = arg ? '=' + arg : '';
+      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
+      chat.insertText(v);
+    };
 
-    // The input field listens for three keystrokes.
+    // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        // 13: <enter> (unless shift is down)
+        // 13: <return> (unless shift is down)
         13: function(e,x) {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
@@ -126,7 +133,13 @@ var ui = {
         // 38: <arrow-up> (if the field is empty, or ctrl is down)
         38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
         // 40: <arrow-down> (if ctrl is down)
-        40: function(e) { return e.ctrlKey && chat.historyDown(); }
+        40: function(e) { return e.ctrlKey && chat.historyDown(); },
+
+        // 66, 73, 83, 85: B,I,S,U
+        66: function(e) { return e.ctrlKey && insertBBCode('b'); },
+        73: function(e) { return e.ctrlKey && insertBBCode('i'); },
+        83: function(e) { return e.ctrlKey && insertBBCode('s'); },
+        85: function(e) { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: function() { ui.updateMessageLengthCounter(); }
@@ -147,12 +160,7 @@ var ui = {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
-    // Inserting BBCode tags.
-    var insertBBCode = function(tag, arg) {
-      arg = arg ? '=' + arg : '';
-      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
-      chat.insertText(v);
-    };
+    // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg'))
@@ -330,7 +338,7 @@ var ui = {
 
     text = visual.formatText(text, variables);
     var message = visual.formatMessage({
-      body: text,
+      body: text, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     }, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
@@ -408,10 +416,26 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row">' + visual.format.user(user) + '</div>');
+    var userLink = $('<div class="row"><span class="user-roster">'
+                    + visual.format.user(user) + '</span></div>');
+
+    if (user.jid)
+      $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
+
+    if (user.nick == xmpp.nick.current) {
+      $('span.user-roster', userLink).addClass('user-self');
+      this.dom.onlineList.find('span.user-self').removeClass('user-self');
+    }
 
     if (!this.userLinks[user.nick]) {
-      userLink.appendTo(this.dom.onlineList);
+      for (var i = 0; i < this.sortedNicks.length; i++)
+        if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
+          break;
+      if (i < this.sortedNicks.length)
+        userLink.insertBefore(this.userLinks[this.sortedNicks[i]]);
+      else
+        userLink.appendTo(this.dom.onlineList);
+      this.sortedNicks.splice(i, 0, user.nick);
       if (animate) userLink.slideDown(1000);
     }
     else userLink.replaceAll(this.userLinks[user.nick])
@@ -425,6 +449,12 @@ var ui = {
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
       this.userLinks[user.nick].slideUp(1000).remove();
+      for (var i = 0; i < this.sortedNicks.length; i++) {
+        if (this.sortedNicks[i] == user.nick) {
+          this.sortedNicks.splice(i, i);
+          break;
+        }
+      }
       delete this.userLinks[user.nick];
     }
   },
@@ -441,6 +471,7 @@ var ui = {
       $(this).html('');
       self.userLinks = {};
       self.userStatus = {};
+      self.sortedNicks = [];
       for (var nick in roster) {
         self.userAdd(roster[nick], false);
       }
