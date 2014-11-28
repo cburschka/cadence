@@ -361,7 +361,8 @@ var config = {
     'pidgin_login',
     'pidgin_logout',
     'pidgin_receive',
-    'pidgin_send'
+    'pidgin_send',
+    'lucia'
   ],
   soundURL: '@@@CDN_URL@@@sounds/',
 
