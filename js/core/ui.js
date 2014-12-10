@@ -122,6 +122,8 @@ var ui = {
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
+        //  9: <tab>
+         9: function() { return ui.autocomplete(); },
         // 13: <return> (unless shift is down)
         13: function(e,x) {
           if (!e.shiftKey) {
@@ -591,5 +593,56 @@ var ui = {
       state = !state;
       number--;
     }, delay);
+  },
+
+  /**
+   * Autocomplete partial nicknames or commands with Tab.
+   */
+  autocomplete: function() {
+    // Search algorithm for the longest common prefix of all matching strings.
+    var prefixSearch = function(prefix, words) {
+      var results = [];
+      for (var i in words) {
+        if (words[i].substring(0, prefix.length) == prefix) {
+          results.push(words[i]);
+        }
+      }
+      if (results.length > 1) {
+        var result = results[0];
+        // For each match, cut down to the longest common prefix.
+        for (var i in results) {
+          for (var j in results[i]) {
+            if (result[j] != results[i][j]) break;
+          }
+          result = result.substring(0, j);
+        }
+        results = result ? [result] : [];
+      }
+      if (results.length == 1) {
+        return results[0];
+      }
+    };
+
+    var inputField = this.dom.inputField;
+    inputField.focus();
+    var start = inputField[0].selectionStart;
+    var end = inputField[0].selectionEnd;
+    if (start != end) return false;
+    var old = inputField.val();
+    var prefix = old.substring(0, start).match(/(^|\s)(([^\s]+\\\s)*[^\s]+)$/)[2];
+
+    // Look for commands or nicknames.
+    if (prefix[0] == '/') {
+      var result = '/' + prefixSearch(prefix.substring(1), Object.keys(chat.commands).concat(Object.keys(config.settings.macros)));
+    }
+    else {
+      var result = prefixSearch(prefix, Object.keys(this.userLinks));
+    }
+    if (result) {
+      inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
+      inputField[0].selectionStart = start - prefix.length + result.length;
+      inputField[0].selectionEnd = inputField[0].selectionStart;
+    }
+    return true;
   }
 };
