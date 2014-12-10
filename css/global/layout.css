@@ -171,3 +171,13 @@ h3 {
   padding-right: 20px;
 }
 img.emoticon { vertical-align: middle }
+
+span.hide-message {
+  float: right;
+  margin-top: 3px;
+}
+span.hidden {
+  display: none;
+  font-style: italic;
+  font-size: 90%;
+}

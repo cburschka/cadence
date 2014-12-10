@@ -67,11 +67,16 @@ visual = {
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
-                  + '<span class="body"></span></span></div>');
+                  + '<span class="body"></span>'
+                  + '<span class="hidden">[hidden]</span></span>'
+                  + '<span class="hide-message"></span></div>');
 
     if (message.user.jid)
       node.addClass(this.jidClass(message.user.jid));
 
+    $('span.hide-message, span.hidden', node).click(function() {
+      $('span.body, span.hidden', node).toggle('slow');
+    });
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
