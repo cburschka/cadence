@@ -306,7 +306,7 @@ visual = {
    * Make links open in a new tab.
    */
   linkOnClick: function(jq) {
-    $('a[href]', jq).click(function(event) {
+    $('a[href]:not([href^=#])', jq).click(function(event) {
       event.preventDefault();
       window.open(this.href);
     });

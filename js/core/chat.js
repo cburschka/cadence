@@ -218,6 +218,8 @@ var chat = {
       var room = chat.getRoomFromTitle(arg.trim());
       if (room)
         return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+      ui.urlFragment = '#' + name;
+      window.location.hash = '#' + name;
       xmpp.joinNewRoom(name);
     },
 
@@ -236,6 +238,8 @@ var chat = {
         }
         room = room ? room.id : name;
         xmpp.joinExistingRoom(room);
+        ui.urlFragment = '#' + arg;
+        window.location.hash = '#' + arg;
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -265,8 +269,7 @@ var chat = {
         var links = [];
         for (var room in rooms) {
           links.push(
-               '<a href="javascript:void()" onclick="chat.commands.join(\''
-             + room + '\');"'
+               '<a href="#' + room + '"'
              + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
              + '>' + visual.format.room(rooms[room]) + '</a>'
           );
@@ -321,6 +324,8 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+      ui.urlFragment = '';
+      window.location.hash = '';
     },
 
     /**

@@ -774,8 +774,8 @@ var xmpp = {
 
     if (status == 'prejoin') {
       this.announce();
-      var room = this.room.target || config.settings.xmpp.room;
-      if (config.settings.xmpp.autoJoin) {
+      var room = this.room.target || ui.urlFragment.substring(1) || config.settings.xmpp.room;
+      if (config.settings.xmpp.autoJoin || ui.urlFragment) {
         this.discoverRooms(function (rooms) {
           if (rooms[room]) chat.commands.join(room);
           else {

@@ -14,6 +14,7 @@ var ui = {
   colorPicker: null,
   autoScroll: true,
   sounds: {},
+  urlFragment: window.location.hash,
 
   /**
    * Initialize the module:
@@ -151,6 +152,13 @@ var ui = {
     this.dom.roomSelection.change(function() {
       if (this.value) chat.commands.join(this.value);
       else chat.commands.part();
+    });
+    $(window).on('hashchange', function() {
+      if (ui.urlFragment != window.location.hash) {
+        ui.urlFragment = window.location.hash;
+        if (ui.urlFragment) chat.commands.join(ui.urlFragment.substring(1));
+        else chat.commands.part();
+      }
     });
 
     // Log in with the button or pressing enter.
