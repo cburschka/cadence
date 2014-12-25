@@ -12,5 +12,3 @@ a { color: white }
 button, input, select, #inputFieldContainer { background: #222 }
 button:hover { background: #444 }
 button:active { background: #666 }
-#content { display: block }
-#nocontent { display: none }

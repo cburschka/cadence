@@ -24,5 +24,3 @@
 button:hover { background-color: #555 }
 input[type=image], button { border: 0 }
 a, .user-role-bot { color: #f6b620 }
-#content { display: block }
-#nocontent { display: none }
