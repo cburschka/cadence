@@ -107,6 +107,10 @@ h3 {
   right: 20px;
 }
 #footerContainer div { display: inline-block }
+
+#bbCodeContainer button { line-height: 1.4em }
+#bbCodeContainer button[value=b] { vertical-align: bottom }
+
 #footerContainer #colorCodesContainer {
   bottom: 48px;
   left: 20px;
