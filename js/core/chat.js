@@ -664,6 +664,11 @@ var chat = {
    * Serialize the settings object and save it in the cookie.
    */
   saveSettings: function() {
-    $.cookie(config.clientName + '_settings', config.settings);
+    if (window.localStorage) {
+      localStorage.settings = JSON.stringify(config.settings);
+    }
+    else {
+      $.cookie(config.clientName + '_settings', config.settings);
+    }
   }
 }
