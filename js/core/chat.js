@@ -15,6 +15,52 @@ var chat = {
    */
   commands: {
     /**
+     * affiliate owner|admin|member|none <nick>|<jid>
+     */
+    affiliate: function(arg) {
+      if (typeof arg == 'string') {
+        var m = arg.trim().match(/^\s*(owner|admin|member|outcast|none)\s+((\S|(\\\s))+)\s*$/);
+        if (!m) return ui.messageAddInfo(strings.error.affiliate.syntax, 'error');
+        if (m[1] == 'outcast') return ui.messageAddInfo(strings.error.affiliate.outcast, 'error');
+        arg = {type: m[1], target: m[2]};
+      }
+
+      var room = xmpp.room.available[xmpp.room.current]
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      // Identify online user by nickname.
+      if (arg.target.indexOf('@') < 0) {
+        var user = roster[arg.target];
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg.target, room: room}, 'error')
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error')
+        arg.target = Strophe.getBareJidFromJid(user.jid);
+      }
+
+      // Get nickname from JID (if the user is online).
+      else {
+        arg.target = Strophe.getBareJidFromJid(arg.target);
+        for (var nick in roster)
+          if (roster[nick].jid && arg.target == Strophe.getBareJidFromJid(roster[nick].jid))
+            user = roster[nick];
+        if (!user) {
+          user = {jid: arg.target, nick: arg.target};
+          var absent = true;
+        }
+      }
+
+      xmpp.setUser({jid: arg.target, affiliation: arg.type}, function(iq) {
+        if ($(iq).attr('type') == 'result' && absent)
+          ui.messageAddInfo(strings.info.affiliateSuccess, {user: user, room: room, type: arg.type});
+      }, function(code, iq) {
+        var error = 'default';
+        if ($('not-allowed', iq).length)
+          error = 'notAllowed';
+        ui.messageAddInfo(strings.error.affiliate[error], {user: user, room: room, type: arg.type}, 'error');
+      });
+    },
+
+    /**
      * alias <cmd> <commands>
      *   Create a macro.
      */
@@ -130,8 +176,8 @@ var chat = {
 
       if (arg.indexOf('@') < 0) {
         var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error');
-        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error');
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg, room: room}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
         arg = Strophe.getBareJidFromJid(user.jid);
       }
       else {
