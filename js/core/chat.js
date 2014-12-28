@@ -86,7 +86,6 @@ var chat = {
           }
           else {
             var message = $('text', stanza).text();
-            console.log(message);
             ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
           }
         }
