@@ -118,6 +118,7 @@ var ui = {
       arg = arg ? '=' + arg : '';
       var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
       chat.insertText(v);
+      return true;
     };
 
     // The input field listens for <return>, <up>, <down> and BBCodes.
@@ -138,11 +139,11 @@ var ui = {
         // 40: <arrow-down> (if ctrl is down)
         40: function(e) { return e.ctrlKey && chat.historyDown(); },
 
-        // 66, 73, 83, 85: B,I,S,U
-        66: function(e) { return e.ctrlKey && insertBBCode('b'); },
-        73: function(e) { return e.ctrlKey && insertBBCode('i'); },
-        83: function(e) { return e.ctrlKey && insertBBCode('s'); },
-        85: function(e) { return e.ctrlKey && insertBBCode('u'); },
+        // 98, 105, 117, 117: b,i,s,u
+        98: function(e) { return e.ctrlKey && insertBBCode('b'); },
+        105: function(e) { return e.ctrlKey && insertBBCode('i'); },
+        115: function(e) { return e.ctrlKey && insertBBCode('s'); },
+        117: function(e) { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: function() { ui.updateMessageLengthCounter(); }
@@ -498,7 +499,7 @@ var ui = {
    */
   onKeyMap: function(callbacks) {
     return function(e) {
-      if (callbacks[e.keyCode] && callbacks[e.keyCode](e, this)) {
+      if (callbacks[e.which] && callbacks[e.which](e, this)) {
         try {
           e.preventDefault();
         } catch(ex) {
