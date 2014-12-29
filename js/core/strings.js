@@ -112,8 +112,10 @@ var strings = {
     versionClient: 'Cadence version: {raw.version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     banList: 'Banned users in this room:\n{users}',
+    banListEmpty: 'No users are banned from this room.',
     banSuccess: 'You have banned {user} from {room}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
+    affiliateSuccess: 'Affiliation of {user} in {room} set to {type}.',
   },
 
   error: {
@@ -122,17 +124,23 @@ var strings = {
       badCommand: 'Unrecognized server command "{command}".',
       generic: 'Error while executing "{command}": {text}',
     },
+    affiliate: {
+      anon: 'You cannot see {user}\'s JID.',
+      'default': 'Unknown error while attempting to change {user}\'s affiliation in {room}.',
+      notAllowed: 'You lack the authority to do this.',
+      outcast: 'Use the /ban command to do this.',
+      syntax: 'Syntax: /affiliate owner|admin|member|none &lt;nick|JID&gt;',
+      unknown: 'Nobody in {room} is named {nick}. Enter the JID.',
+    },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
     badNick: 'The nickname {nick} is invalid.',
     ban: {
-      anon: 'You can\'t even see {user}\'s JID, and probably can\'t ban anybody.',
       'default': 'Unknown error while attempting to ban {user} from {room}.',
       notAllowed: 'You lack the authority to ban {user} from {room}.',
-      self: 'You can\'t ban yourself!',
-      unknown: 'Nobody in {room} is named {nick}. Enter the JID.',
+      self: 'You can\'t ban yourself!'
     },
     banList: {
       'default': 'Unknown error while getting the ban list.',

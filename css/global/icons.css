@@ -57,3 +57,10 @@
   -webkit-transition-duration: 0.5s;
   -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
+
+span.hide-message {
+  display:inline-block;
+  height:10px;
+  width:10px;
+  background-image:url('../../img/delete.png');
+}

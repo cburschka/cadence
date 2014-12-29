@@ -7,12 +7,14 @@
  */
 var ui = {
   userLinks: {},
+  sortedNicks: [],
   dom: null,
   userStatus: {},
   messages: [],
   colorPicker: null,
   autoScroll: true,
   sounds: {},
+  urlFragment: window.location.hash,
 
   /**
    * Initialize the module:
@@ -111,11 +113,20 @@ var ui = {
    * Initialize the event listeners.
    */
   initializeEvents: function() {
+    // Inserting BBCode tags.
+    var insertBBCode = function(tag, arg) {
+      arg = arg ? '=' + arg : '';
+      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
+      chat.insertText(v);
+      return true;
+    };
 
-    // The input field listens for three keystrokes.
+    // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        // 13: <enter> (unless shift is down)
+        //  9: <tab>
+         9: function() { return ui.autocomplete(); },
+        // 13: <return> (unless shift is down)
         13: function(e,x) {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
@@ -126,7 +137,13 @@ var ui = {
         // 38: <arrow-up> (if the field is empty, or ctrl is down)
         38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
         // 40: <arrow-down> (if ctrl is down)
-        40: function(e) { return e.ctrlKey && chat.historyDown(); }
+        40: function(e) { return e.ctrlKey && chat.historyDown(); },
+
+        // 98, 105, 117, 117: b,i,s,u
+        98: function(e) { return e.ctrlKey && insertBBCode('b'); },
+        105: function(e) { return e.ctrlKey && insertBBCode('i'); },
+        115: function(e) { return e.ctrlKey && insertBBCode('s'); },
+        117: function(e) { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: function() { ui.updateMessageLengthCounter(); }
@@ -136,6 +153,13 @@ var ui = {
     this.dom.roomSelection.change(function() {
       if (this.value) chat.commands.join(this.value);
       else chat.commands.part();
+    });
+    $(window).on('hashchange', function() {
+      if (ui.urlFragment != window.location.hash) {
+        ui.urlFragment = window.location.hash;
+        if (ui.urlFragment) chat.commands.join(ui.urlFragment.substring(1));
+        else chat.commands.part();
+      }
     });
 
     // Log in with the button or pressing enter.
@@ -147,12 +171,7 @@ var ui = {
       ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
     });
 
-    // Inserting BBCode tags.
-    var insertBBCode = function(tag, arg) {
-      arg = arg ? '=' + arg : '';
-      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
-      chat.insertText(v);
-    };
+    // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg'))
@@ -414,8 +433,20 @@ var ui = {
     if (user.jid)
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
+    if (user.nick == xmpp.nick.current) {
+      $('span.user-roster', userLink).addClass('user-self');
+      this.dom.onlineList.find('span.user-self').removeClass('user-self');
+    }
+
     if (!this.userLinks[user.nick]) {
-      userLink.appendTo(this.dom.onlineList);
+      for (var i = 0; i < this.sortedNicks.length; i++)
+        if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
+          break;
+      if (i < this.sortedNicks.length)
+        userLink.insertBefore(this.userLinks[this.sortedNicks[i]]);
+      else
+        userLink.appendTo(this.dom.onlineList);
+      this.sortedNicks.splice(i, 0, user.nick);
       if (animate) userLink.slideDown(1000);
     }
     else userLink.replaceAll(this.userLinks[user.nick])
@@ -429,6 +460,12 @@ var ui = {
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
       this.userLinks[user.nick].slideUp(1000).remove();
+      for (var i = 0; i < this.sortedNicks.length; i++) {
+        if (this.sortedNicks[i] == user.nick) {
+          this.sortedNicks.splice(i, i);
+          break;
+        }
+      }
       delete this.userLinks[user.nick];
     }
   },
@@ -445,6 +482,7 @@ var ui = {
       $(this).html('');
       self.userLinks = {};
       self.userStatus = {};
+      self.sortedNicks = [];
       for (var nick in roster) {
         self.userAdd(roster[nick], false);
       }
@@ -461,7 +499,8 @@ var ui = {
    */
   onKeyMap: function(callbacks) {
     return function(e) {
-      if (callbacks[e.keyCode] && callbacks[e.keyCode](e, this)) {
+      var c = e.which || e.keyCode;
+      if (callbacks[c] && callbacks[c](e, this)) {
         try {
           e.preventDefault();
         } catch(ex) {
@@ -564,5 +603,57 @@ var ui = {
       state = !state;
       number--;
     }, delay);
+  },
+
+  /**
+   * Autocomplete partial nicknames or commands with Tab.
+   */
+  autocomplete: function() {
+    // Search algorithm for the longest common prefix of all matching strings.
+    var prefixSearch = function(prefix, words) {
+      var results = [];
+      for (var i in words) {
+        if (words[i].substring(0, prefix.length) == prefix) {
+          results.push(words[i]);
+        }
+      }
+      if (results.length > 1) {
+        var result = results[0];
+        // For each match, cut down to the longest common prefix.
+        for (var i in results) {
+          for (var j in results[i]) {
+            if (result[j] != results[i][j]) break;
+          }
+          result = result.substring(0, j);
+        }
+        results = result ? [result] : [];
+      }
+      if (results.length == 1) {
+        return results[0];
+      }
+      else return '';
+    };
+
+    var inputField = this.dom.inputField;
+    inputField.focus();
+    var start = inputField[0].selectionStart;
+    var end = inputField[0].selectionEnd;
+    if (start != end) return false;
+    var old = inputField.val();
+    var prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
+
+    // Look for commands or nicknames.
+    if (prefix[0] == '/') {
+      var result = '/' + prefixSearch(prefix.substring(1), Object.keys(chat.commands).concat(Object.keys(config.settings.macros)));
+    }
+    else {
+      var result = prefixSearch(prefix, Object.keys(this.userLinks));
+    }
+    if (result) {
+      inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
+      inputField[0].selectionStart = start - prefix.length + result.length;
+      inputField[0].selectionEnd = inputField[0].selectionStart;
+    }
+    return true;
   }
 };

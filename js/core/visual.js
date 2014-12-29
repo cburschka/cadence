@@ -67,11 +67,16 @@ visual = {
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
-                  + '<span class="body"></span></span></div>');
+                  + '<span class="body"></span>'
+                  + '<span class="hidden">[hidden]</span></span>'
+                  + '<span class="hide-message"></span></div>');
 
     if (message.user.jid)
       node.addClass(this.jidClass(message.user.jid));
 
+    $('span.hide-message, span.hidden', node).click(function() {
+      $('span.body, span.hidden', node).toggle('slow');
+    });
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
@@ -248,7 +253,7 @@ visual = {
             + config.markup.emoticons[set].codes[code]
             + '" title="' + code + '" alt="' + code + '" />';
     }
-    jq.add('*', jq).replaceText(this.emoticonRegex, function() {
+    jq.add('*', jq).not('code, code *').replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
         if (arguments[i]) {
           return emoticonImg(emoticonSets[i-1], arguments[i]);
@@ -301,7 +306,7 @@ visual = {
    * Make links open in a new tab.
    */
   linkOnClick: function(jq) {
-    $('a[href]', jq).click(function(event) {
+    $('a[href]:not([href^=#])', jq).click(function(event) {
       event.preventDefault();
       window.open(this.href);
     });

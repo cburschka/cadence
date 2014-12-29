@@ -6,9 +6,11 @@ h3 { font-size:1.3em }
 a { text-decoration:none }
 a:hover { text-decoration:underline }
 .author { font-weight:bold }
-.action, .user-role-bot, .message-bot, .privmsg, #helpList td.code { font-style:italic }
+#onlineList .user-self { font-weight:bold }
+.action, .user-role-bot, .message-bot, .privmsg { font-style:italic }
 q { font-variant:small-caps }
 code {
   font-size:1.2em;
   white-space:pre-wrap;
 }
+#helpList td.code { font-family:monospace; white-space:pre }

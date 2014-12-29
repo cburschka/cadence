@@ -3,21 +3,6 @@
 <head>
   <meta charset="utf8" />
   <title>@@@TITLE@@@</title>
-  <style type="text/css">
-    html, body { height:100%; }
-    #content { display: none; }
-    #nocontent {
-      background:black;
-      color:white;
-      height:100%;
-    }
-    #splash {
-      position:relative;
-      top:40%;
-      text-align:center;
-      font-family:sans;
-    }
-  </style>
   @@@CSS_LINKS@@@
   <link rel="stylesheet" type="text/css" href="custom.css" charset="UTF-8" />
 
@@ -96,29 +81,34 @@
       <h3>Help</h3>
       <div id="helpList">
         <table>
+          <caption><h4>Chat commands</h3></caption>
           <tr class="row">
-            <td class="desc">Set away status.</td>
+            <td class="desc">Create a macro:</td>
+            <td class="code">/alias &lt;cmd&gt; /a; /b</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Set away status:</td>
             <td class="code">/away &lt;message&gt;</td>
           </tr>
           <tr class="row">
-            <td class="desc">Remove away status.</td>
+            <td class="desc">Remove away status:</td>
             <td class="code">/back</td>
           </tr>
           <tr class="row">
-            <td class="desc">Clear all messages.</td>
+            <td class="desc">Clear all messages:</td>
             <td class="code">/clear</td>
           </tr>
           <tr class="row">
-            <td class="desc">Connect and join chat:</td>
-            <td class="code">/connect &lt;user&gt; &lt;password&gt;</td>
+            <td class="desc">Connect:</td>
+            <td class="code">/connect &lt;user&gt; &lt;pass&gt;</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Create a new room:</td>
+            <td class="code">/create &lt;title&gt;</td>
           </tr>
           <tr class="row">
             <td class="desc">Join a room:</td>
             <td class="code">/join &lt;room&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Kick a user:</td>
-            <td class="code">/kick &lt;nickname&gt; [&lt;reason&gt;]</td>
           </tr>
           <tr class="row">
             <td class="desc">List available rooms:</td>
@@ -130,15 +120,19 @@
           </tr>
           <tr class="row">
             <td class="desc">Private message:</td>
-            <td class="code">/msg &lt;nickname&gt; &lt;text&gt;</td>
+            <td class="code">/msg &lt;nick&gt; ...</td>
           </tr>
           <tr class="row">
             <td class="desc">Describe action in private message:</td>
-            <td class="code">/msg &lt;nickname&gt; /me &lt;text&gt;</td>
+            <td class="code">/msg &lt;nick&gt; /me ...</td>
           </tr>
           <tr class="row">
             <td class="desc">Change nickname:</td>
             <td class="code">/nick &lt;nickname&gt;</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Leave the room:</td>
+            <td class="code">/part</td>
           </tr>
           <tr class="row">
             <td class="desc">Disconnect:</td>
@@ -149,8 +143,43 @@
             <td class="code">/save [html]</td>
           </tr>
           <tr class="row">
+            <td class="desc">Say something:</td>
+            <td class="code">[/say] ...</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Print version:</td>
+            <td class="code">/version</td>
+          </tr>
+          <tr class="row">
             <td class="desc">List users in the current room:</td>
             <td class="code">/who</td>
+          </tr>
+        </table>
+        <table>
+          <caption><h4>Administration commands</h4></caption>
+          <tr class="row">
+            <td class="desc">Server command:</td>
+            <td class="code">/admin announce|motd ...</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Change privileges:</td>
+            <td class="code">/affiliate &lt;type&gt; &lt;user&gt;</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Ban a user:</td>
+            <td class="code">/ban &lt;user&gt;</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">List active bans:</td>
+            <td class="code">/bans</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Kick a user:</td>
+            <td class="code">/kick &lt;nickname&gt; [&lt;reason&gt;]</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Unban a user:</td>
+            <td class="code">/unban &lt;JID&gt;</td>
           </tr>
         </table>
       </div>
@@ -265,14 +294,6 @@
       <!-- / settingsList -->
     </div>
     <!-- / settingsContainer-->
-  </div>
-  <div id="nocontent">
-    <div id="splash">
-      <span id="javascriptOff">This is a client-side web application. Please open this page with a browser that runs JavaScript.</span>
-    </div>
-    <script type="text/javascript">
-    document.getElementById('javascriptOff').style.display='none';
-    </script>
   </div>
 </body>
 </html>

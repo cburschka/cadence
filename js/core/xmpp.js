@@ -694,7 +694,13 @@ var xmpp = {
       }
       if (!this.roster[room][nick]) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
-        ui.playSound('enter');
+
+        // Play the alert sound if a watched user enters.
+        var watched = false;
+        for (var i in config.settings.notifications.triggers) {
+          watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
+        }
+        watched && ui.playSound('mention') || ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
         ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
@@ -768,8 +774,8 @@ var xmpp = {
 
     if (status == 'prejoin') {
       this.announce();
-      var room = this.room.target || config.settings.xmpp.room;
-      if (config.settings.xmpp.autoJoin) {
+      var room = this.room.target || ui.urlFragment.substring(1) || config.settings.xmpp.room;
+      if (config.settings.xmpp.autoJoin || ui.urlFragment) {
         this.discoverRooms(function (rooms) {
           if (rooms[room]) chat.commands.join(room);
           else {
@@ -782,6 +788,7 @@ var xmpp = {
     }
     else if (status == 'offline') {
       // The connection is closed and cannot be reused.
+      this.connection = null;
       this.nick.current = null;
       this.room.current = null;
       this.roster = {};
@@ -820,7 +827,6 @@ var xmpp = {
     if (this.connection) {
       this.connection.send(this.pres().attrs({type: 'unavailable'}));
       this.connection.disconnect();
-      this.connection = null;
     }
   }
 }

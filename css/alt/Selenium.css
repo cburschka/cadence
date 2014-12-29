@@ -28,5 +28,3 @@ select { background: #101040 }
 button:hover { background: rgba(0,0,0,0.3) }
 button:active { background: rgba(256,256,256,0.1) }
 input[type=text], input[type=password] { padding-left: 5px }
-#content { display: block }
-#nocontent { display: none }

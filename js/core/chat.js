@@ -15,6 +15,52 @@ var chat = {
    */
   commands: {
     /**
+     * affiliate owner|admin|member|none <nick>|<jid>
+     */
+    affiliate: function(arg) {
+      if (typeof arg == 'string') {
+        var m = arg.trim().match(/^\s*(owner|admin|member|outcast|none)\s+((\S|(\\\s))+)\s*$/);
+        if (!m) return ui.messageAddInfo(strings.error.affiliate.syntax, 'error');
+        if (m[1] == 'outcast') return ui.messageAddInfo(strings.error.affiliate.outcast, 'error');
+        arg = {type: m[1], target: m[2]};
+      }
+
+      var room = xmpp.room.available[xmpp.room.current]
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      // Identify online user by nickname.
+      if (arg.target.indexOf('@') < 0) {
+        var user = roster[arg.target];
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg.target, room: room}, 'error')
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error')
+        arg.target = Strophe.getBareJidFromJid(user.jid);
+      }
+
+      // Get nickname from JID (if the user is online).
+      else {
+        arg.target = Strophe.getBareJidFromJid(arg.target);
+        for (var nick in roster)
+          if (roster[nick].jid && arg.target == Strophe.getBareJidFromJid(roster[nick].jid))
+            user = roster[nick];
+        if (!user) {
+          user = {jid: arg.target, nick: arg.target};
+          var absent = true;
+        }
+      }
+
+      xmpp.setUser({jid: arg.target, affiliation: arg.type}, function(iq) {
+        if ($(iq).attr('type') == 'result' && absent)
+          ui.messageAddInfo(strings.info.affiliateSuccess, {user: user, room: room, type: arg.type});
+      }, function(code, iq) {
+        var error = 'default';
+        if ($('not-allowed', iq).length)
+          error = 'notAllowed';
+        ui.messageAddInfo(strings.error.affiliate[error], {user: user, room: room, type: arg.type}, 'error');
+      });
+    },
+
+    /**
      * alias <cmd> <commands>
      *   Create a macro.
      */
@@ -86,7 +132,6 @@ var chat = {
           }
           else {
             var message = $('text', stanza).text();
-            console.log(message);
             ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
           }
         }
@@ -125,14 +170,14 @@ var chat = {
      */
     ban: function(arg) {
       arg = arg.trim();
-      var room = xmpp.room.available[xmpp.room.current]
+      var room = xmpp.room.available[xmpp.room.current];
       var roster = xmpp.roster[xmpp.room.current];
       var absent = false;
 
       if (arg.indexOf('@') < 0) {
         var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error')
-        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error')
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg, room: room}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
         arg = Strophe.getBareJidFromJid(user.jid);
       }
       else {
@@ -167,7 +212,7 @@ var chat = {
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         var users = [];
         $('item', stanza).each(function() { users.push($(this).attr('jid')); });
-        ui.messageAddInfo(strings.info.banList, {users: users.join('\n')});
+        ui.messageAddInfo(users.length ? strings.info.banList : strings.info.banListEmpty, {users: users.join('\n')});
       }, function(stanza) {
         if ($('forbidden', iq).length)
           ui.messageAddInfo(strings.error.banList.forbidden);
@@ -218,6 +263,8 @@ var chat = {
       var room = chat.getRoomFromTitle(arg.trim());
       if (room)
         return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+      ui.urlFragment = '#' + name;
+      window.location.hash = '#' + name;
       xmpp.joinNewRoom(name);
     },
 
@@ -236,6 +283,8 @@ var chat = {
         }
         room = room ? room.id : name;
         xmpp.joinExistingRoom(room);
+        ui.urlFragment = '#' + arg;
+        window.location.hash = '#' + arg;
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -265,8 +314,7 @@ var chat = {
         var links = [];
         for (var room in rooms) {
           links.push(
-               '<a href="javascript:void()" onclick="chat.commands.join(\''
-             + room + '\');"'
+               '<a href="#' + room + '"'
              + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
              + '>' + visual.format.room(rooms[room]) + '</a>'
           );
@@ -321,6 +369,8 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+      ui.urlFragment = '';
+      window.location.hash = '';
     },
 
     /**
@@ -585,7 +635,7 @@ var chat = {
    */
   prefixMsg: function(nick) {
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+(\S+)/);
+    var m = text.match(/\/msg\s+((\\\s|\S)+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
     if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
     ui.dom.inputField.val(text);
@@ -659,6 +709,11 @@ var chat = {
    * Serialize the settings object and save it in the cookie.
    */
   saveSettings: function() {
-    $.cookie(config.clientName + '_settings', config.settings);
+    if (window.localStorage) {
+      localStorage.settings = JSON.stringify(config.settings);
+    }
+    else {
+      $.cookie(config.clientName + '_settings', config.settings);
+    }
   }
 }
