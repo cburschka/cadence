@@ -631,6 +631,7 @@ var ui = {
       if (results.length == 1) {
         return results[0];
       }
+      else return '';
     };
 
     var inputField = this.dom.inputField;
@@ -639,7 +640,7 @@ var ui = {
     var end = inputField[0].selectionEnd;
     if (start != end) return false;
     var old = inputField.val();
-    var prefix = old.substring(0, start).match(/(^|\s)(([^\s]+\\\s)*[^\s]+)$/)[2];
+    var prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
 
     // Look for commands or nicknames.
     if (prefix[0] == '/') {
