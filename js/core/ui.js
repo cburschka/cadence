@@ -499,7 +499,8 @@ var ui = {
    */
   onKeyMap: function(callbacks) {
     return function(e) {
-      if (callbacks[e.which] && callbacks[e.which](e, this)) {
+      var c = e.which || e.keyCode;
+      if (callbacks[c] && callbacks[c](e, this)) {
         try {
           e.preventDefault();
         } catch(ex) {
