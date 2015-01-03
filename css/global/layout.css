@@ -174,7 +174,7 @@ h3 {
   background: url(../../img/away.png) center right no-repeat;
   padding-right: 20px;
 }
-img.emoticon { vertical-align: middle }
+img.emoticon, img.rescale { vertical-align: middle }
 
 span.hide-message {
   float: right;

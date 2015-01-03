@@ -294,7 +294,7 @@ visual = {
     if (config.settings.markup.images)
       jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
         visual.rescale($(this), maxWidth, maxHeight);
-        $(this).css({display:'block'});
+        $(this).css({display:''});
       });
     else
       jq.find('img').replaceWith(function() {
