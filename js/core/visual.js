@@ -68,7 +68,7 @@ visual = {
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
                   + '<span class="body"></span>'
-                  + '<span class="hidden">[hidden]</span></span>'
+                  + '<span class="hidden"></span></span>'
                   + '<span class="hide-message"></span></div>');
 
     if (message.user.jid)

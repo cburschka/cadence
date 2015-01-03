@@ -185,3 +185,4 @@ span.hidden {
   font-style: italic;
   font-size: 90%;
 }
+span.hidden:after { content: "[hidden]" }
