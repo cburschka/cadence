@@ -175,6 +175,7 @@ h3 {
   padding-right: 20px;
 }
 img.emoticon, img.rescale { vertical-align: middle }
+span.emote-alt, span.image-alt { display: none }
 
 span.hide-message {
   float: right;

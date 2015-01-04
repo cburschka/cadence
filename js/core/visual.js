@@ -198,8 +198,7 @@ visual = {
       this.addLinks(jq);
     // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
-    if (config.settings.markup.emoticons)
-      this.addEmoticons(jq);
+    this.addEmoticons(jq);
     // Make links open in new tabs.
     this.linkOnClick(jq);
     return jq;
@@ -255,7 +254,7 @@ visual = {
     var emoticonImg = function(set, code) {
       return  '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL
             + config.markup.emoticons[set].codes[code]
-            + '" title="' + code + '" alt="' + code + '" />';
+            + '" title="' + code + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>';
     }
     jq.add('*', jq).not('code, code *').replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
@@ -264,6 +263,9 @@ visual = {
         }
       }
     });
+    if (!config.settings.markup.emoticons) {
+      jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
+    }
     return jq;
   },
 
@@ -293,17 +295,16 @@ visual = {
 
     jq.find('img').wrap(function() {
       return '<a href="' + this.src + '"></a>';
+    }).after(function() {
+      return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
     });
-
-    if (config.settings.markup.images)
-      jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
-        visual.rescale($(this), maxWidth, maxHeight);
-        $(this).css({display:''});
-      });
-    else
-      jq.find('img').replaceWith(function() {
-        return '[image:' + visual.ellipsis(this.src, 64) + ']'
-      });
+    jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
+      visual.rescale($(this), maxWidth, maxHeight);
+      $(this).css({display:''});
+    });
+    if (!config.settings.markup.images) {
+      jq.css({display:'none'}).next().css({display:'inline'});
+    }
   },
 
   /**

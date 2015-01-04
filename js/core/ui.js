@@ -239,6 +239,12 @@ var ui = {
       var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
+    $('#settings-markup\\.images').change(function() {
+      $('img.rescale, span.image-alt').toggle();
+    });
+    $('#settings-markup\\.emoticons').change(function() {
+      $('img.emoticon, span.emote-alt').toggle();
+    });
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
       else visual.removeColor(ui.dom.chatList);
