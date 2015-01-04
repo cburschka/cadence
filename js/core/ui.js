@@ -222,6 +222,10 @@ var ui = {
       var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
+    $('#settings-markup\\.colors').change(function() {
+      if (this.checked) visual.addColor(ui.dom.chatList);
+      else visual.removeColor(ui.dom.chatList);
+    });
 
     // Instantly apply sound volume.
     $('.soundVolume').change(function() {

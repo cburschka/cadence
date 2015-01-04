@@ -243,6 +243,10 @@ visual = {
     });
   },
 
+  removeColor: function(jq) {
+    jq.find('span.color').css('color', '');
+  },
+
   /**
    * Find emoticon codes in the node's text and replace them with images.
    */
