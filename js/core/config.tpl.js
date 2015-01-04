@@ -369,6 +369,7 @@ var config = {
 
   ui: {
     chatBotName: '@@@CHATBOT@@@',
+    title: '@@@TITLE@@@',
     maxNickLength: 48,
     maxMessageLength: 2048,
   },
