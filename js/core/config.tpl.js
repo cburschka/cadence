@@ -53,6 +53,7 @@ var config = {
 
     // Persistent font color that is displayed to other cadence users.
     textColor: '',
+    fullColor: false,
 
     xmpp: {
       room: 'lounge',

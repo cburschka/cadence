@@ -14,7 +14,7 @@ h3 { white-space: nowrap }
 .menuContainer,
 #chatList .row,
 #onlineList .row,
-#settingsList #settings-textColorClear { display: none }
+#settings-textColor, #textColorClear { display: none }
 
 #chatList { word-wrap: break-word }
 .menuContainer { overflow-x: hidden }

@@ -187,10 +187,21 @@ var ui = {
       ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
       ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    $('#settings-textColor').click(function() {
-      ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-      ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
-    });
+    this.mouseHold($('#textColor'), 500,
+      function() {
+        config.settings.fullColor = true;
+        $('#settings-textColor').click();
+      },
+      function() {
+        if (config.settings.fullColor && config.settings.textColor != '') {
+          $('#settings-textColor').click();
+        }
+        else {
+          ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
+          ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+        }
+      }
+    );
 
     // The color tray has two modes (setting and bbcode).
     $('.colorCode').click(function() {
@@ -199,16 +210,19 @@ var ui = {
         $('#colorBBCode').click();
       }
       else if (ui.colorPicker == 'setting') {
-        $('#settings-textColor').click();
-        ui.setTextColorPicker(this.title);
-        chat.setSetting('textColor', this.title);
+        $('#textColor').mouseup();
+        $('#settings-textColor').val(this.title).change();
       }
     });
 
     // Clear the text color setting.
-    $('#settings-textColorClear').click(function() {
+    $('#textColorClear').click(function() {
+      config.settings.fullColor = false;
       chat.setSetting('textColor', '');
       ui.setTextColorPicker('');
+    });
+    $('#settings-textColor').change(function() {
+      ui.setTextColorPicker($(this).val())
     });
 
     // Listen for changes in the style menu.
@@ -293,12 +307,13 @@ var ui = {
    * This changes the value and appearance of the persistent color button.
    */
   setTextColorPicker: function(color) {
-    $('#settings-textColor')
+    $('#textColor')
       .css('color', color || '')
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', color || '');
-    $('#settings-textColorClear').css('display', color ? 'inline-block' : 'none');
+    if (color) $('#settings-textColor').val(color);
+    $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
 
   /**
@@ -666,5 +681,33 @@ var ui = {
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
+  },
+
+  /**
+   * Attach variable events for clicking or holding an element.
+   */
+  mouseHold: function(element, duration, fnHold, fnClick) {
+    var timeout = 0;
+    var held = false;
+    fnHold = fnHold.bind(element);
+    fnClick = fnClick.bind(element);
+
+    element.on({
+      mousedown: function() {
+        timeout = setTimeout(function() {
+          held = true;
+          fnHold();
+        }, duration);
+      },
+      mouseup: function() {
+        clearTimeout(timeout);
+        if (!held) fnClick();
+        held = false;
+      },
+      mouseleave: function() {
+        clearTimeout(timeout);
+        held = false;
+      }
+    });
   }
 };
