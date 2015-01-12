@@ -243,7 +243,6 @@ var config = {
           ':raritywut:': 'raritywut.png',
           ':rarityyell:': 'rarityyell.png',
           ':rarishock:': 'rarishock.png',
-          ':aaaaa:': 'rarishock.png',
           ':scootacheer:': 'scootacheer.png',
           ':scootaloo:': 'scootaloo.png',
           ':cutealoo:': 'cutealoo.png',
@@ -336,6 +335,7 @@ var config = {
       ponyHidden: {
         baseURL: '@@@CDN_URL@@@img/emoticons/mlp/',
         codes: {
+          ':aaaaa:': 'rarishock.png',
           ':wingboner:': 'rdsitting.png',
           ':capitalism:': 'sybeam.png',
           ':maud:': 'maud.png',
