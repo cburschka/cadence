@@ -101,6 +101,9 @@ var ui = {
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     // Open the last active sidebar.
+    if (!this.dom.menu[config.settings.activeMenu]) {
+      config.settings.activeMenu = 'onlineList';
+    }
     this.toggleMenu(config.settings.activeMenu, true);
 
     // Set the volume.
