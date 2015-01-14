@@ -41,7 +41,7 @@ var strings = {
       '{user} is away.',
       '{user} is away ({status}).',
     ],
-    busy: [
+    dnd: [
       '{user} is busy.',
       '{user} is busy ({status}).',
     ],
