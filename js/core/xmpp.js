@@ -378,17 +378,14 @@ var xmpp = {
    * Create and send a presence stanza to the current room, with optional
    * <show/> and <status/> elements.
    * Note: To return from away-mode, a presence without <show/> is sent.
-   * The <status/> element is only present in stanzas with <show/>.
    *
-   * @param {string} show This must be one of "away", "xa", "chat".
-   * @param {string} status This is an arbitrary away-message to send.
+   * @param {string} show This must be one of "away", "xa", "chat" or null.
+   * @param {string} status This is an arbitrary status message.
    */
   sendStatus: function(show, status) {
     var p = this.presence(this.room.current, this.nick.current);
-    if (show) {
-      p.c('show', {}, show);
-      if (status) p.c('status', {}, status);
-    }
+    if (show) p.c('show', {}, show);
+    if (status) p.c('status', {}, status);
     this.connection.send(p);
   },
 

@@ -158,8 +158,8 @@ var chat = {
      * back <msg>:
      *   Send an empty room presence that unsets <show/> and <status/>.
      */
-    back: function() {
-      xmpp.sendStatus();
+    back: function(arg) {
+      xmpp.sendStatus(null, arg.trim() || null);
     },
 
     /**

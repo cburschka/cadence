@@ -47,6 +47,7 @@ var strings = {
     ],
     'default': [
       '{user} has returned.',
+      '{user} has returned ({status}).',
     ],
   },
 
