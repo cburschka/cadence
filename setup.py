@@ -30,6 +30,7 @@ def generate_links(cdn_url, mode, css_alt, style):
     else:
         css = 'css/global/import.css'
         lib = [
+            'js/lib/jquery.js',
             'js/lib/jquery.replacetext.js',
             'js/lib/jquery.cookie.js',
             'js/lib/strophe.js',
