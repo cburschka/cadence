@@ -30,6 +30,7 @@ var xmpp = {
     this.eventConnectCallback = this.eventConnectCallback.bind(this);
     this.eventPresenceCallback = this.eventPresenceCallback.bind(this);
     this.eventMessageCallback = this.eventMessageCallback.bind(this);
+    this.eventIQCallback = this.eventIQCallback.bind(this);
     this.disconnect = this.disconnect.bind(this);
   },
 
@@ -40,6 +41,7 @@ var xmpp = {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
+    this.connection.addHandler(this.eventIQCallback, null, 'iq');
     this.connection.addTimedHandler(30, this.discoverRooms);
     // DEBUG: print connection stream to console:
     this.connection.rawInput = function(data) {
@@ -766,6 +768,22 @@ var xmpp = {
         var message = {user: user, body: body, type: type};
         ui.messageAppend(visual.formatMessage(message));
         if (resource != this.nick.current) ui.playSoundMessage(message);
+      }
+    }
+    return true;
+  },
+
+  /**
+   * This function handles any <iq> stanzas.
+   */
+  eventIQCallback: function(stanza) {
+    if (stanza) {
+      // Respond to ping.
+      if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
+        this.connection.send(this.iq('result').attrs({
+          to: $(stanza).attr('from'),
+          id: $(stanza).attr('id')
+        }));
       }
     }
     return true;
