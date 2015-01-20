@@ -21,4 +21,4 @@
 	url = https://github.com/eligrey/FileSaver.js
 [submodule "js/lib/jquery"]
 	path = js/lib/jquery
-	url = https://github.com/joscha/jquery-release.git
+	url = https://github.com/cburschka/jquery-release.git
