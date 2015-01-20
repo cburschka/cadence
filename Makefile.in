@@ -37,7 +37,7 @@ ifeq (${MODE},debug)
 endif
 
 
-all: submodules init index.html strophe ${JS_FILES} ${CSS_FILES}
+all: submodules init index.html ${JS_FILES} ${CSS_FILES}
 
 init:
 	mkdir -p js/lib/ js/core/ css/global/
@@ -106,7 +106,7 @@ js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 js/lib/jquery.js: js/lib/jquery/jquery.js
 	$(CP) $^ $@
 
-js/lib/jquery.cookie.js: js/lib/jquery-cookie/jquery.cookie.js
+js/lib/jquery.cookie.js: js/lib/jquery-cookie/src/jquery.cookie.js
 	$(CP) $^ $@
 
 js/lib/jquery.replacetext.js: js/lib/jquery-replacetext/jquery.ba-replacetext.js
@@ -117,9 +117,6 @@ js/lib/moment.js: js/lib/moment/moment.js
 
 js/lib/strophe.js: js/lib/strophe/strophe.js
 	$(CP) $^ $@
-
-strophe: js/lib/strophe/
-	$(MAKE) -C $^ strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
@@ -144,4 +141,4 @@ submodules:
 	cd "${SRC_PATH}"; \
 	git submodule update --init
 
-.PHONY: all js strophe init submodules
+.PHONY: all js init submodules
