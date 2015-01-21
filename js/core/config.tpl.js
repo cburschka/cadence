@@ -271,6 +271,7 @@ var config = {
           ':dumbfabric:': 'dumbfabric.png',
           ':ohcomeon:': 'ohcomeon.png',
           ':sneakybelle:': 'sneakybelle.png',
+          ':sombra:': 'sombra.png',
           ':sunsetshimmer:': 'sunsetshimmer.png',
           ':sunsetsneaky:': 'sunsetsneaky.png',
           ':sybeam:': 'sybeam.png',
