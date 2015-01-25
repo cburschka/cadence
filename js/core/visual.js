@@ -76,6 +76,7 @@ visual = {
 
     $('span.hide-message, span.hidden', node).click(function() {
       $('span.body, span.hidden', node).toggle('slow');
+      ui.updateHeights();
     });
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));

@@ -239,11 +239,24 @@ var ui = {
       var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
+
+    // Attempt to maintain the scroll position when changing message heights.
+    var toggler = function(selector) {
+      // Find the message at the top of the viewport...
+      var i = ui.getMessageAt(ui.dom.chatList.prop('scrollTop'));
+      $(selector).toggle();
+      ui.updateHeights();
+      if (i) {
+        // ... and scroll to it again (snap to bottom if appropriate).
+        ui.dom.chatList.prop('scrollTop', ui.messages[i].offset);
+        ui.scrollDown();
+      }
+    }
     $('#settings-markup\\.images').change(function() {
-      $('img.rescale, span.image-alt').toggle();
+      toggler('img.rescale, span.image-alt');
     });
     $('#settings-markup\\.emoticons').change(function() {
-      $('img.emoticon, span.emote-alt').toggle();
+      toggler('img.emoticon, span.emote-alt');
     });
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
@@ -409,11 +422,13 @@ var ui = {
   messageInsert: function(message) {
     var c = this.messages.length;
     if (message.timestamp < this.messages[0].timestamp) {
+      message.offset = 0;
       this.messages[0].html.before(message.html);
       this.messages = [message].concat(this.messages);
     }
     else for (var i = 1; i <= c; i++) {
       if (i == this.messages.length || message.timestamp < this.messages[i].timestamp) {
+        message.offset = this.messages[i].offset;
         this.messages[i-1].html.after(message.html);
         this.messages.splice(i, 0, message);
         break;
@@ -421,6 +436,7 @@ var ui = {
     }
 
     $(message.html).css({display:'block'});
+    this.updateHeights(i);
     this.scrollDown();
   },
 
@@ -428,6 +444,7 @@ var ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend: function(message) {
+    message.offset = ui.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(function() {
@@ -520,6 +537,36 @@ var ui = {
       }
       $(this).slideDown();
     });
+  },
+
+  /**
+   * Recalculate the vertical positions of all messages.
+   *
+   * @start (optional) the first offset to recalculate.
+   */
+  updateHeights: function(start) {
+    var offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
+    for (var i = start || 1; i < ui.messages.length; i++) {
+      offset += ui.messages[i].html.height();
+      ui.messages[i].offset = offset;
+    }
+  },
+
+  /**
+   * Find the message at a given offset in the history via binary search.
+   *
+   * @return the index of the first message starting after the offset.
+   */
+  getMessageAt: function(offset) {
+    var a = 0;
+    var b = ui.messages.length - 1;
+    if (b < 0) return null;
+    while (a + 1 < b) {
+      var c = (a + b) / 2 | 0;
+      if (ui.messages[c].offset < offset) a = c;
+      else b = c;
+    }
+    return b;
   },
 
   /**
