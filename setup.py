@@ -66,7 +66,6 @@ def generate_emoticons(cdn_url, packs, src_path):
     try:
         for pack in packs:
             datafile = src_path + '/emoticon-packs/' + pack + '/emoticons.conf'
-            print(datafile)
             baseURL = cdn_url + imagepath + '/' + pack + '/'
             data = json.load(open(datafile, 'r'), object_pairs_hook=collections.OrderedDict)
             if 'codes' in data:
@@ -85,7 +84,6 @@ def generate_emoticons(cdn_url, packs, src_path):
                     'baseURL': baseURL,
                     'codes': data['aliases']
                 }
-        print(output)
         open('js/core/emoticons.js', 'w+').write('var emoticons = ' + json.dumps(output) + ';')
     except ValueError as e:
         print("Error parsing emoticon pack {}".format(pack))
