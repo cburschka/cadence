@@ -38,9 +38,10 @@ var ui = {
       menu: {
         help: $('#helpContainer'),
         onlineList: $('#onlineListContainer'),
-        ponicon: $('#poniconContainer'),
         settings: $('#settingsContainer'),
       },
+      emoticonSidebarContainer: $('#emoticonSidebarContainer'),
+      emoticonTrayContainer: $('#emoticonTrayContainer'),
       styleSheets: $('link.alternate-style'),
     };
     this.title = $(document).attr('title');
@@ -64,7 +65,19 @@ var ui = {
    */
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
-    // Build the emoticon containers.
+    // Build and fill the emoticon containers.
+    var bars = config.ui.emoticonSidebars
+    for (var set in bars) {
+      this.dom.menu['emoticon-' + set] = $(
+         '<div id="emoticon-' + set + '" class="menuContainer emoticon-sidebar box">'
+       + '<h3>' + bars[set].title + '</h3>'
+       + '<div id="emoticonsList-' + set + '" class="emoticon-list-sidebar" dir="ltr"></div></div>'
+       ).appendTo(this.dom.emoticonSidebarContainer);
+      $(
+        '<button class="tray toggleMenu" id="emoticon-' + set + 'Button" title="' + bars[set].title + '">' + bars[set].title + '</button>'
+      ).css('background-image', 'url("' + config.markup.emoticons[set].baseURL + bars[set].icon + '")')
+      .appendTo(ui.dom.emoticonTrayContainer);
+    }
     for (var set in config.markup.emoticons) {
       var html = '';
       for (var code in config.markup.emoticons[set].codes) {
