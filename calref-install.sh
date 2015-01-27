@@ -18,7 +18,7 @@ echo "Configuring cadence"
   --domain="calref.net" \
   --session-auth="https://calref.net/xmpp-auth.php" \
   --chatbot="Ligrev" \
-  --title="Ligrev's Lounge" \
+  --title="Calamity Refuge" \
   --mode=debug \
   --cdn-url="https://c312441.ssl.cf1.rackcdn.com/chat" \
   --cdn-prefix="/tmp/cadence-cdn" \
