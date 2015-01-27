@@ -94,7 +94,7 @@ h3 {
   padding-bottom: 2px;
 }
 .emoticon-list-sidebar { width: 280px }
-#onlineListContainer,
+#onlineListContainer { width: 200px }
 .emoticon-sidebar { width: 340px }
 #helpContainer,
 #settingsContainer { width: 360px }
