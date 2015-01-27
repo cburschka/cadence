@@ -2,6 +2,7 @@ $(document).ready(function() {
   $.cookie.json = true;
   $.cookie.defaults.expires = 365;
   init.loadSettings();
+  init.loadEmoticons();
   strings.init();
   ui.init();
   visual.init();
@@ -32,6 +33,17 @@ init = {
       else config.settings = objMerge(config.settings, stored);
       // After merging, update the version.
       config.settings.version = config.defaultSettings.version;
+    }
+  },
+
+  loadEmoticons: function() {
+    console.log(emoticons.packages);
+    for (pack in emoticons.packages) {
+      config.markup.emoticons[pack] = emoticons.packages[pack];
+    }
+    config.ui.emoticonSidebars = {};
+    for (pack in emoticons.sidebars) {
+      config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
   },
 

@@ -41,12 +41,13 @@ var strings = {
       '{user} is away.',
       '{user} is away ({status}).',
     ],
-    busy: [
+    dnd: [
       '{user} is busy.',
       '{user} is busy ({status}).',
     ],
     'default': [
       '{user} has returned.',
+      '{user} has returned ({status}).',
     ],
   },
 
@@ -67,6 +68,8 @@ var strings = {
     userOut: '{user} has logged out of the Chat.',
     motd: 'Announcement from {domain}: {raw.text}',
     noUsers: 'No users are online in {room}.',
+    pong: 'Ping to {target}: Pong ({delay} ms).',
+    pongError: 'Ping to {target}: Target does not support ping ({delay} ms).',
     roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {raw.users}.',
     usersInThisRoom: 'Users in this room: {raw.users}.',
@@ -162,11 +165,13 @@ var strings = {
     nickConflict: 'Username {nick} already in use.',
     noCreate: 'You are not allowed to create rooms.',
     noNick: 'You must set a nickname.',
+    pingTimeout: 'Ping to {target} timed out ({delay}).',
     roomConf: 'The following fields could not be set on {name}: {fields}',
     roomExists: 'Could not create {room}; it already exists.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
+    unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',

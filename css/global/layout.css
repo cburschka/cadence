@@ -14,7 +14,7 @@ h3 { white-space: nowrap }
 .menuContainer,
 #chatList .row,
 #onlineList .row,
-#settingsList #settings-textColorClear { display: none }
+#settings-textColor, #textColorClear { display: none }
 
 #chatList { word-wrap: break-word }
 .menuContainer { overflow-x: hidden }
@@ -88,14 +88,14 @@ h3 {
   margin: auto;
   bottom: 0;
 }
-#onlineList div, #emoticonList-pony {
+#onlineList div, .emoticon-list-sidebar {
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 2px;
 }
-#emoticonsList-pony { width: 140px }
+.emoticon-list-sidebar { width: 280px }
 #onlineListContainer,
-#poniconContainer { width: 200px }
+.emoticon-sidebar { width: 340px }
 #helpContainer,
 #settingsContainer { width: 360px }
 
@@ -174,7 +174,8 @@ h3 {
   background: url(../../img/away.png) center right no-repeat;
   padding-right: 20px;
 }
-img.emoticon { vertical-align: middle }
+img.emoticon, img.rescale { vertical-align: middle }
+span.emote-alt, span.image-alt { display: none }
 
 span.hide-message {
   float: right;
@@ -185,3 +186,4 @@ span.hidden {
   font-style: italic;
   font-size: 90%;
 }
+span.hidden:after { content: "[hidden]" }

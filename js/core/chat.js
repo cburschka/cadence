@@ -158,8 +158,8 @@ var chat = {
      * back <msg>:
      *   Send an empty room presence that unsets <show/> and <status/>.
      */
-    back: function() {
-      xmpp.sendStatus();
+    back: function(arg) {
+      xmpp.sendStatus(null, arg.trim() || null);
     },
 
     /**
@@ -371,6 +371,37 @@ var chat = {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
       ui.urlFragment = '';
       window.location.hash = '';
+    },
+
+    /**
+     * ping <nick>|<jid>
+     *   Send a ping and display the response time.
+     */
+    ping: function(arg) {
+      arg = arg.trim();
+      var room = xmpp.room.available[xmpp.room.current];
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      if (!arg) arg = config.xmpp.domain;
+      else if (arg.indexOf('@') < 0) {
+        var user = roster[arg];
+        if (!user) return ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.unknownJid, {user: user}, 'error');
+        arg = user.jid;
+      }
+
+      var time = (new Date()).getTime();
+
+      xmpp.ping(arg, function(stanza) {
+          var elapsed = ((new Date()).getTime() - time).toString();
+          ui.messageAddInfo(strings.info.pong, {target: arg, delay: elapsed});
+        }, function(error) {
+          var elapsed = ((new Date()).getTime() - time).toString();
+          if (error) ui.messageAddInfo(strings.info.pongError, {target: arg, delay: elapsed});
+          else ui.messageAddInfo(strings.error.pingTimeout, {target: arg, delay: elapsed}, 'error');
+        }
+      );
     },
 
     /**

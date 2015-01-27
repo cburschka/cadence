@@ -19,6 +19,10 @@ def main():
     args.src_path = os.path.dirname(__file__) or '.'
     shutil.copy(os.path.realpath(args.src_path) + '/Makefile.in', os.getcwd() + '/Makefile')
 
+    args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
+        if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
+
+
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
     if args.mode == 'minify' and subprocess.call(['which', 'yui-compressor'], stdout=open(os.devnull, 'w')):
@@ -40,6 +44,7 @@ MODE={mode}
 SRC_PATH={src_path}
 CSS_ALT={css_alt}
 STYLE={style}
+PACKS={packs}
 '''.format(**vars(args)))
 
 

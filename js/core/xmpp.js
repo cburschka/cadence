@@ -30,6 +30,7 @@ var xmpp = {
     this.eventConnectCallback = this.eventConnectCallback.bind(this);
     this.eventPresenceCallback = this.eventPresenceCallback.bind(this);
     this.eventMessageCallback = this.eventMessageCallback.bind(this);
+    this.eventIQCallback = this.eventIQCallback.bind(this);
     this.disconnect = this.disconnect.bind(this);
   },
 
@@ -40,13 +41,14 @@ var xmpp = {
     this.connection = new Strophe.Connection(config.xmpp.boshURL);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
+    this.connection.addHandler(this.eventIQCallback, null, 'iq');
     this.connection.addTimedHandler(30, this.discoverRooms);
     // DEBUG: print connection stream to console:
     this.connection.rawInput = function(data) {
-    	if (config.settings.debug) console.log("RECV " + data);
+      if (config.settings.debug) console.log("RECV " + data);
     };
     this.connection.rawOutput = function(data) {
-    	if (config.settings.debug) console.log("SEND " + data);
+      if (config.settings.debug) console.log("SEND " + data);
     };
   },
 
@@ -294,6 +296,20 @@ var xmpp = {
   },
 
   /**
+   * Send a ping.
+   *
+   * @param {string} to The ping target.
+   * @param {function} success The success callback.
+   * @param {function} error The error callback. This will receive an error stanza
+   *                         if the server responded, or null if the ping timed out.
+   */
+  ping: function(to, success, error) {
+    this.connection.sendIQ(
+      this.iq('get').attrs({'to': to}).c('ping', {xmlns:'urn:xmpp:ping'}),
+      success, error, 15000);
+  },
+
+  /**
    * Create a directed presence to a specific room/nick, with specific attributes.
    * The stanza is not yet sent, but returned to the caller for additional data.
    *
@@ -378,17 +394,14 @@ var xmpp = {
    * Create and send a presence stanza to the current room, with optional
    * <show/> and <status/> elements.
    * Note: To return from away-mode, a presence without <show/> is sent.
-   * The <status/> element is only present in stanzas with <show/>.
    *
-   * @param {string} show This must be one of "away", "xa", "chat".
-   * @param {string} status This is an arbitrary away-message to send.
+   * @param {string} show This must be one of "away", "xa", "chat" or null.
+   * @param {string} status This is an arbitrary status message.
    */
   sendStatus: function(show, status) {
     var p = this.presence(this.room.current, this.nick.current);
-    if (show) {
-      p.c('show', {}, show);
-      if (status) p.c('status', {}, status);
-    }
+    if (show) p.c('show', {}, show);
+    if (status) p.c('status', {}, status);
     this.connection.send(p);
   },
 
@@ -755,6 +768,22 @@ var xmpp = {
         var message = {user: user, body: body, type: type};
         ui.messageAppend(visual.formatMessage(message));
         if (resource != this.nick.current) ui.playSoundMessage(message);
+      }
+    }
+    return true;
+  },
+
+  /**
+   * This function handles any <iq> stanzas.
+   */
+  eventIQCallback: function(stanza) {
+    if (stanza) {
+      // Respond to ping.
+      if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
+        this.connection.send(this.iq('result').attrs({
+          to: $(stanza).attr('from'),
+          id: $(stanza).attr('id')
+        }));
       }
     }
     return true;
