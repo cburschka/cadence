@@ -62,7 +62,7 @@ var config = {
       resource: '{client}/{version}/{timestamp}',
     },
 
-    macros: {},
+    macros: {action: ['/me $'], online: ['/back $']},
     version: '@@@VERSION@@@',
   },
 
