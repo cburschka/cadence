@@ -304,7 +304,7 @@ visual = {
       $(this).css({display:''});
     });
     if (!config.settings.markup.images) {
-      jq.css({display:'none'}).next().css({display:'inline'});
+      jq.find('img').css({display:'none'}).next().css({display:'inline'});
     }
   },
 
