@@ -252,11 +252,14 @@ var xmpp = {
    * Attempt to create a new room.
    *
    * @param {string} The room name.
+   * @param {object} Room configuration, passed on to xmpp.configureRoom().
    */
-  joinNewRoom: function(title) {
-    var room = title.toLowerCase();
+  joinNewRoom: function(name, config) {
+    var room = name.toLowerCase();
+    config = config || {};
+    config.roomname = config.roomname || name;
     ui.messageAddInfo(strings.info.creating, {
-      room: {id: room, title: title},
+      room: {id: room, title: config.roomname},
       user: {
         nick: this.nick.target,
         jid: this.connection.jid
@@ -270,7 +273,7 @@ var xmpp = {
       }));
       if (codes.indexOf(201) >= 0) {
         ui.messageAddInfo(strings.code[201], {name: title}, 'verbose');
-        this.configureRoom(room, {roomname: title}, function() {
+        this.configureRoom(room, config, function() {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
           ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
@@ -322,11 +325,14 @@ var xmpp = {
   },
 
   /**
-   * Request a room configuration form and fill it out with the
-   * variables provided.
+   * Request a room configuration form and fill it out with the values provided.
+   *
+   * See http://xmpp.org/registrar/formtypes.html#http:--jabber.org-protocol-mucroomconfig
+   * for a reference on supported room configuration fields.
    *
    * @param {string} room The room name.
-   * @param {Object} vars The field values to set.
+   * @param {Object} vars The field values to set, indexed by field name
+   *                 (without the prefix "muc#roomconfig_").
    * @param {function} success The callback to execute afterward.
    */
   configureRoom: function(room, vars, success) {

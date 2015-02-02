@@ -119,6 +119,7 @@ var strings = {
     banSuccess: 'You have banned {user} from {room}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
     affiliateSuccess: 'Affiliation of {user} in {room} set to {type}.',
+    roomConf: 'Room configuration of {room} has been altered.',
   },
 
   error: {

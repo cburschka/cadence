@@ -231,6 +231,21 @@ var chat = {
     },
 
     /**
+     * configure [room] <args>
+     *   Alter a room configuration.
+     */
+    configure: function(arg) {
+      arg = chat.parseArgs(arg.trim());
+      var config = chat.roomConfig(arg);
+      var name = arg.name || xmpp.room.current;
+      if (!xmpp.room.available[name])
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
+      xmpp.configureRoom(name, config, function() {
+        return ui.messageAddInfo(strings.info.roomConf, {room: xmpp.room.available[name]});
+      });
+    },
+
+    /**
      * connect <user> <pass>
      * connect {user:<user>, pass:<pass>}
      *   Open a connection and authenticate.
@@ -255,17 +270,19 @@ var chat = {
     },
 
     /**
-     * create <room>
+     * create <room> [<args>]
      *   Join a new room and set it up.
      */
     create: function(arg) {
-      var name = arg.trim();
-      var room = chat.getRoomFromTitle(arg.trim());
+      arg = chat.parseArgs(arg.trim());
+      var config = chat.roomConfig(arg);
+      var name = arg.name;
+      var room = chat.getRoomFromTitle(name);
       if (room)
         return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
       ui.urlFragment = '#' + name;
       window.location.hash = '#' + name;
-      xmpp.joinNewRoom(name);
+      xmpp.joinNewRoom(name, config);
     },
 
     /**
@@ -682,6 +699,29 @@ var chat = {
       if (xmpp.room.available[room].title == title)
           return xmpp.room.available[room];
     }
+  },
+
+  /**
+   * Parse a commandline-style argument string.
+   */
+  parseArgs: function(text) {
+    var key = /(?:--([a-z-]+))/;
+    // Values can be single- or double-quoted. Quoted values can contain spaces.
+    // All spaces and conflicting quotes can be escaped with backslashes.
+    var value = /(?:"((?:\\"|[^"])+)"|'((?:\\'|[^'])+)'|([^"'\s](?:\\\s|[^\s])*))/;
+    var keyvalue = RegExp(key.source + /(?:=|\s+)/.source + value.source);
+    var tokens = text.match(RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g'));
+    var arguments = {0:[]};
+    for (var i in tokens) {
+      var token = tokens[i].match(keyvalue) || tokens[i].match(key);
+      if (token)
+        arguments[token[1]] = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
+      else {
+        var token = tokens[i].match(value);
+        arguments[0].push((token[1] || token[2] || token[3]).replace(/\\([\\\s"'])/, '$1'));
+      }
+    }
+    return arguments;
   },
 
   /**
