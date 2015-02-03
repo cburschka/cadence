@@ -725,6 +725,41 @@ var chat = {
   },
 
   /**
+   * Convert arguments to room configuration form.
+   */
+  roomConf: function(args) {
+    var conf = {};
+    if (args.title) conf.roomname = args.title;
+    if (args.desc) conf.roomdesc = args.desc;
+    if (args.persistent !== undefined) conf.persistentroom = args.persistent ? 1 : 0;
+    if (args['public'] !== undefined) conf.publicroom = args['public'] ? 1 : 0;
+    if (args.password) {
+      conf.passwordprotectedroom = 1;
+      conf.roomsecret = args.password;
+    }
+    if (args.maxusers) conf.maxusers = args.maxusers;
+    if (args.anonymous !== undefined) conf.whois = args.anonymous ? 'moderators' : 'anyone';
+
+    if (args.membersonly !== undefined) conf.membersonly = args.membersonly ? 1 : 0;
+    if (args.moderation !== undefined) {
+      if (args.moderation == 'closed') {
+        conf.moderatedroom = 1;
+        conf.members_by_default = 0;
+      }
+      else if (!args.moderation || args.moderation == 'none') conf.moderatedroom = 0;
+      else {
+        conf.moderatedroom = 1;
+        conf.members_by_default = 1;
+      }
+    }
+    if (args.changesubject !== undefined) conf.changesubject = args.changesubject;
+
+    // TODO: Unfinished. Also, ejabberd has non-standard fields.
+
+    return conf;
+  }
+
+  /**
    * Attempt to authenticate using an existing web session.
    */
   sessionAuth: function(url, callback) {
