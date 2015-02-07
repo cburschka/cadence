@@ -37,7 +37,6 @@ init = {
   },
 
   loadEmoticons: function() {
-    console.log(emoticons.packages);
     for (pack in emoticons.packages) {
       config.markup.emoticons[pack] = emoticons.packages[pack];
     }
