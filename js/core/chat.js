@@ -417,6 +417,8 @@ var chat = {
      *   Create a text file (by data: URI) from the chat history.
      */
     save: function(arg) {
+      if (ui.messages.length == 0)
+        return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
       type = type == 'html' ? 'html' : 'plain';
       var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
