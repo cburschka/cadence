@@ -75,7 +75,11 @@ visual = {
       node.addClass(this.jidClass(message.user.jid));
 
     $('span.hide-message, span.hidden', node).click(function() {
-      $('span.body, span.hidden', node).toggle('slow');
+      $('span.body, span.hidden', node).toggle('slow', function() {
+        if ($(this).css('display') == 'inline-block') {
+          $(this).css('display', 'inline');
+        }
+      });
       ui.updateHeights();
     });
     $('span.dateTime', node).append(this.format.time(message.time));
