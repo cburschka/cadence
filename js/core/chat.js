@@ -260,12 +260,16 @@ var chat = {
      */
     create: function(arg) {
       var name = arg.trim();
-      var room = chat.getRoomFromTitle(arg.trim());
-      if (room)
-        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-      ui.urlFragment = '#' + name;
-      window.location.hash = '#' + name;
-      xmpp.joinNewRoom(name);
+      var create = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room)
+          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+        ui.urlFragment = '#' + name;
+        window.location.hash = '#' + name;
+        xmpp.joinNewRoom(name);
+      };
+      if (!chat.getRoomFromTitle(name)) create();
+      else xmpp.discoverRooms(create);
     },
 
     /**
