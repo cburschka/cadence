@@ -520,7 +520,7 @@ var ui = {
       this.userLinks[user.nick].slideUp(1000).remove();
       for (var i = 0; i < this.sortedNicks.length; i++) {
         if (this.sortedNicks[i] == user.nick) {
-          this.sortedNicks.splice(i, i);
+          this.sortedNicks.splice(i, 1);
           break;
         }
       }
