@@ -274,6 +274,7 @@ var ui = {
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
       else visual.removeColor(ui.dom.chatList);
+      ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
 
     // Instantly apply sound volume.
@@ -343,7 +344,7 @@ var ui = {
       .css('color', color || '')
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
-    this.dom.inputField.css('color', color || '');
+    this.dom.inputField.css('color', config.settings.markup.colors && color || '');
     if (color) $('#settings-textColor').val(color);
     $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
