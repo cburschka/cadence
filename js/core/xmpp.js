@@ -160,6 +160,7 @@ var xmpp = {
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
     this.connection.send(this.presence(room, this.nick.current, {type: 'unavailable'}));
+    delete this.roster[room];
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
@@ -677,7 +678,6 @@ var xmpp = {
         this.room.current = room;
         // We are in a different room now. Leave the old one.
         if (oldRoom) {
-          delete this.roster[oldRoom];
           this.leaveRoom(oldRoom);
         }
         this.status = 'online';
