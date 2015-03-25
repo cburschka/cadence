@@ -63,13 +63,13 @@ visual = {
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
-    var node =  $('<div class="row message">'
+    var node =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
                   + '<span class="body"></span>'
                   + '<span class="hidden"></span></span>'
-                  + '<span class="hide-message"></span></div>');
+                  + '</div>');
 
     if (message.user.jid)
       node.addClass(this.jidClass(message.user.jid));
