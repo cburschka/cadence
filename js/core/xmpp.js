@@ -60,7 +60,7 @@ var xmpp = {
     this.session = {};
     this.user = user;
     this.nick.target = user;
-    var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    var jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
