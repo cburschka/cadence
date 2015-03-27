@@ -595,7 +595,7 @@ var xmpp = {
    * Handle presence stanzas of type `unavailable`.
    */
   eventPresenceUnavailable: function(room, nick, codes, item) {
-    if (room == this.room.current) {
+    if (room == this.room.current && this.roster[room][nick]) {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
         var newNick = item.attr('nick');
