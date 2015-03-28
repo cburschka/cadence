@@ -530,6 +530,14 @@ var ui = {
   },
 
   /**
+   * Update the current URL fragment.
+   */
+  updateFragment: function(room) {
+    ui.urlFragment = '#' + (room || '');
+    window.location.hash = ui.urlFragment;
+  },
+
+  /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
   updateRoom: function(room, roster) {

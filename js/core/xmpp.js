@@ -170,6 +170,7 @@ var xmpp = {
 
   prejoin: function() {
     this.room.current = null;
+    ui.updateFragment(null);
     this.status = 'prejoin';
     ui.setStatus(this.status);
     chat.commands.list();
@@ -234,7 +235,11 @@ var xmpp = {
     }.bind(this);
 
     this.getRoomInfo(room, function(roomInfo) {
-      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
+      if (!roomInfo) {
+        console.log("Room does not exist");
+        ui.updateFragment(xmpp.room.current);
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
+      }
       this.room.available[room] = roomInfo;
       ui.refreshRooms(this.room.available);
       ui.messageAddInfo(strings.info.joining, {
@@ -588,6 +593,7 @@ var xmpp = {
       // Cancel any join attempt:
       this.room.target = this.room.current;
       ui.updateRoom(this.room.current);
+      ui.updateFragment(this.room.current);
     }
   },
 
