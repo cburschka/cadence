@@ -138,7 +138,7 @@ visual = {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
       if (user.role == 'visitor' || (user.jid &&
-        user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
+        user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
@@ -417,7 +417,7 @@ visual = {
         return '\\' + x.charCodeAt(0);
       });
     };
-    return 'jid-node-' + escape(Strophe.getNodeFromJid(jid)) + ' '
+    return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
          + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
          + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }
