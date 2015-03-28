@@ -541,10 +541,9 @@ var ui = {
    * Remove the online list with a new roster, and set the room selection menu.
    */
   updateRoom: function(room, roster) {
-    if (room != '') {
-      this.title = xmpp.room.available[room].title + ' - ' + config.ui.title;
-      $(document).attr('title', this.title);
-    }
+    this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
+    $(document).attr('title', this.title);
+
     var self = this;
     this.dom.roomSelection.val(room);
     // If no roster is given, only update the menu.
