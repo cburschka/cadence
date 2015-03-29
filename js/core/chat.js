@@ -260,12 +260,16 @@ var chat = {
      */
     create: function(arg) {
       var name = arg.trim();
-      var room = chat.getRoomFromTitle(arg.trim());
-      if (room)
-        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-      ui.urlFragment = '#' + name;
-      window.location.hash = '#' + name;
-      xmpp.joinNewRoom(name);
+      var create = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room)
+          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+        xmpp.joinNewRoom(name);
+        ui.updateFragment(name);
+        chat.setSetting('xmpp.room', room);
+      };
+      if (!chat.getRoomFromTitle(name)) create();
+      else xmpp.discoverRooms(create);
     },
 
     /**
@@ -283,8 +287,7 @@ var chat = {
         }
         room = room ? room.id : name;
         xmpp.joinExistingRoom(room);
-        ui.urlFragment = '#' + arg;
-        window.location.hash = '#' + arg;
+        ui.updateFragment(room);
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -369,8 +372,7 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
-      ui.urlFragment = '';
-      window.location.hash = '';
+      ui.updateFragment(null);
     },
 
     /**
@@ -417,6 +419,8 @@ var chat = {
      *   Create a text file (by data: URI) from the chat history.
      */
     save: function(arg) {
+      if (ui.messages.length == 0)
+        return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
       type = type == 'html' ? 'html' : 'plain';
       var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
