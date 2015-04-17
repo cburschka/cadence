@@ -2,6 +2,7 @@ $(document).ready(function() {
   $.cookie.json = true;
   $.cookie.defaults.expires = 365;
   init.loadSettings();
+  init.loadEmoticons();
   strings.init();
   ui.init();
   visual.init();
@@ -20,13 +21,28 @@ $(document).ready(function() {
 
 init = {
   loadSettings: function() {
-    var cookie = $.cookie(config.clientName + '_settings');
     config.settings = config.defaultSettings;
-    if (cookie) {
-      if (cookie.version == config.version) config.settings = cookie;
-      else config.settings = objMerge(config.settings, cookie);
+
+    var stored;
+    if (window.localStorage && localStorage.settings) {
+      stored = JSON.parse(localStorage.settings);
+    }
+    else stored = $.cookie(config.clientName + '_settings');
+    if (stored) {
+      if (stored.version == config.version) config.settings = stored;
+      else config.settings = objMerge(config.settings, stored);
       // After merging, update the version.
       config.settings.version = config.defaultSettings.version;
+    }
+  },
+
+  loadEmoticons: function() {
+    for (pack in emoticons.packages) {
+      config.markup.emoticons[pack] = emoticons.packages[pack];
+    }
+    config.ui.emoticonSidebars = {};
+    for (pack in emoticons.sidebars) {
+      config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
   },
 

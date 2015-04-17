@@ -12,7 +12,7 @@ VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
               js/core/ui.js js/core/visual.js js/core/config.js \
-              js/core/init.js
+              js/core/emoticons.js js/core/init.js
 
 LIB_FILES = js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.js js/lib/jquery.cookie.js \
             js/lib/jquery.replacetext.js js/lib/moment.js js/lib/strophe.js \
@@ -37,13 +37,13 @@ ifeq (${MODE},debug)
 endif
 
 
-all: submodules init index.html strophe ${JS_FILES} ${CSS_FILES}
+all: submodules init index.html ${JS_FILES} ${CSS_FILES}
 
 init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/core/config.js js/*.js js/lib/*.js css/global/all.*
+	rm -f index.html js/core/config.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
 	rmdir -p --ignore-fail-on-non-empty js/core/ js/lib/ css/global/
 
 distclean: clean
@@ -58,6 +58,7 @@ ifneq (.,${PREFIX})
 endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
+	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 else
 install: all
 endif
@@ -95,7 +96,8 @@ templates:
 index.html: index.tpl.html js/core/config.tpl.js .config.vars
 	make templates
 
-js/core/config.js: index.html
+js/core/config.js: index.html .config.vars
+js/core/emoticons.js: index.html .config.vars
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@
@@ -106,7 +108,7 @@ js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 js/lib/jquery.js: js/lib/jquery/jquery.js
 	$(CP) $^ $@
 
-js/lib/jquery.cookie.js: js/lib/jquery-cookie/jquery.cookie.js
+js/lib/jquery.cookie.js: js/lib/jquery-cookie/src/jquery.cookie.js
 	$(CP) $^ $@
 
 js/lib/jquery.replacetext.js: js/lib/jquery-replacetext/jquery.ba-replacetext.js
@@ -117,9 +119,6 @@ js/lib/moment.js: js/lib/moment/moment.js
 
 js/lib/strophe.js: js/lib/strophe/strophe.js
 	$(CP) $^ $@
-
-strophe: js/lib/strophe/
-	$(MAKE) -C $^ strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
@@ -144,4 +143,4 @@ submodules:
 	cd "${SRC_PATH}"; \
 	git submodule update --init
 
-.PHONY: all js strophe init submodules
+.PHONY: all js init submodules

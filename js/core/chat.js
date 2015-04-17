@@ -15,6 +15,52 @@ var chat = {
    */
   commands: {
     /**
+     * affiliate owner|admin|member|none <nick>|<jid>
+     */
+    affiliate: function(arg) {
+      if (typeof arg == 'string') {
+        var m = arg.trim().match(/^\s*(owner|admin|member|outcast|none)\s+((\S|(\\\s))+)\s*$/);
+        if (!m) return ui.messageAddInfo(strings.error.affiliate.syntax, 'error');
+        if (m[1] == 'outcast') return ui.messageAddInfo(strings.error.affiliate.outcast, 'error');
+        arg = {type: m[1], target: m[2]};
+      }
+
+      var room = xmpp.room.available[xmpp.room.current]
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      // Identify online user by nickname.
+      if (arg.target.indexOf('@') < 0) {
+        var user = roster[arg.target];
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg.target, room: room}, 'error')
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error')
+        arg.target = Strophe.getBareJidFromJid(user.jid);
+      }
+
+      // Get nickname from JID (if the user is online).
+      else {
+        arg.target = Strophe.getBareJidFromJid(arg.target);
+        for (var nick in roster)
+          if (roster[nick].jid && arg.target == Strophe.getBareJidFromJid(roster[nick].jid))
+            user = roster[nick];
+        if (!user) {
+          user = {jid: arg.target, nick: arg.target};
+          var absent = true;
+        }
+      }
+
+      xmpp.setUser({jid: arg.target, affiliation: arg.type}, function(iq) {
+        if ($(iq).attr('type') == 'result' && absent)
+          ui.messageAddInfo(strings.info.affiliateSuccess, {user: user, room: room, type: arg.type});
+      }, function(code, iq) {
+        var error = 'default';
+        if ($('not-allowed', iq).length)
+          error = 'notAllowed';
+        ui.messageAddInfo(strings.error.affiliate[error], {user: user, room: room, type: arg.type}, 'error');
+      });
+    },
+
+    /**
      * alias <cmd> <commands>
      *   Create a macro.
      */
@@ -86,7 +132,6 @@ var chat = {
           }
           else {
             var message = $('text', stanza).text();
-            console.log(message);
             ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
           }
         }
@@ -113,8 +158,8 @@ var chat = {
      * back <msg>:
      *   Send an empty room presence that unsets <show/> and <status/>.
      */
-    back: function() {
-      xmpp.sendStatus();
+    back: function(arg) {
+      xmpp.sendStatus(null, arg.trim() || null);
     },
 
     /**
@@ -131,8 +176,8 @@ var chat = {
 
       if (arg.indexOf('@') < 0) {
         var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.ban.unknown, {nick: arg, room: room}, 'error');
-        if (!user.jid) return ui.messageAddInfo(strings.error.ban.anon, {user: user}, 'error');
+        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg, room: room}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
         arg = Strophe.getBareJidFromJid(user.jid);
       }
       else {
@@ -215,10 +260,16 @@ var chat = {
      */
     create: function(arg) {
       var name = arg.trim();
-      var room = chat.getRoomFromTitle(arg.trim());
-      if (room)
-        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-      xmpp.joinNewRoom(name);
+      var create = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room)
+          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+        xmpp.joinNewRoom(name);
+        ui.updateFragment(name);
+        chat.setSetting('xmpp.room', room);
+      };
+      if (!chat.getRoomFromTitle(name)) create();
+      else xmpp.discoverRooms(create);
     },
 
     /**
@@ -236,6 +287,7 @@ var chat = {
         }
         room = room ? room.id : name;
         xmpp.joinExistingRoom(room);
+        ui.updateFragment(room);
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -265,8 +317,7 @@ var chat = {
         var links = [];
         for (var room in rooms) {
           links.push(
-               '<a href="javascript:void()" onclick="chat.commands.join(\''
-             + room + '\');"'
+               '<a href="#' + room + '"'
              + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
              + '>' + visual.format.room(rooms[room]) + '</a>'
           );
@@ -321,6 +372,38 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+      ui.updateFragment(null);
+    },
+
+    /**
+     * ping <nick>|<jid>
+     *   Send a ping and display the response time.
+     */
+    ping: function(arg) {
+      arg = arg.trim();
+      var room = xmpp.room.available[xmpp.room.current];
+      var roster = xmpp.roster[xmpp.room.current];
+      var absent = false;
+
+      if (!arg) arg = config.xmpp.domain;
+      else if (arg.indexOf('@') < 0) {
+        var user = roster[arg];
+        if (!user) return ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        if (!user.jid) return ui.messageAddInfo(strings.error.unknownJid, {user: user}, 'error');
+        arg = user.jid;
+      }
+
+      var time = (new Date()).getTime();
+
+      xmpp.ping(arg, function(stanza) {
+          var elapsed = ((new Date()).getTime() - time).toString();
+          ui.messageAddInfo(strings.info.pong, {target: arg, delay: elapsed});
+        }, function(error) {
+          var elapsed = ((new Date()).getTime() - time).toString();
+          if (error) ui.messageAddInfo(strings.info.pongError, {target: arg, delay: elapsed});
+          else ui.messageAddInfo(strings.error.pingTimeout, {target: arg, delay: elapsed}, 'error');
+        }
+      );
     },
 
     /**
@@ -336,6 +419,8 @@ var chat = {
      *   Create a text file (by data: URI) from the chat history.
      */
     save: function(arg) {
+      if (ui.messages.length == 0)
+        return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
       type = type == 'html' ? 'html' : 'plain';
       var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
@@ -659,6 +744,11 @@ var chat = {
    * Serialize the settings object and save it in the cookie.
    */
   saveSettings: function() {
-    $.cookie(config.clientName + '_settings', config.settings);
+    if (window.localStorage) {
+      localStorage.settings = JSON.stringify(config.settings);
+    }
+    else {
+      $.cookie(config.clientName + '_settings', config.settings);
+    }
   }
 }

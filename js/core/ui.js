@@ -14,6 +14,7 @@ var ui = {
   colorPicker: null,
   autoScroll: true,
   sounds: {},
+  urlFragment: window.location.hash,
 
   /**
    * Initialize the module:
@@ -37,9 +38,10 @@ var ui = {
       menu: {
         help: $('#helpContainer'),
         onlineList: $('#onlineListContainer'),
-        ponicon: $('#poniconContainer'),
         settings: $('#settingsContainer'),
       },
+      emoticonSidebarContainer: $('#emoticonSidebarContainer'),
+      emoticonTrayContainer: $('#emoticonTrayContainer'),
       styleSheets: $('link.alternate-style'),
     };
     this.title = $(document).attr('title');
@@ -63,7 +65,19 @@ var ui = {
    */
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
-    // Build the emoticon containers.
+    // Build and fill the emoticon containers.
+    var bars = config.ui.emoticonSidebars
+    for (var set in bars) {
+      this.dom.menu['emoticon-' + set] = $(
+         '<div id="emoticon-' + set + '" class="menuContainer emoticon-sidebar box">'
+       + '<h3>' + bars[set].title + '</h3>'
+       + '<div id="emoticonsList-' + set + '" class="emoticon-list-sidebar" dir="ltr"></div></div>'
+       ).appendTo(this.dom.emoticonSidebarContainer);
+      $(
+        '<button class="tray toggleMenu" id="emoticon-' + set + 'Button" title="' + bars[set].title + '">' + bars[set].title + '</button>'
+      ).css('background-image', 'url("' + config.markup.emoticons[set].baseURL + bars[set].icon + '")')
+      .appendTo(ui.dom.emoticonTrayContainer);
+    }
     for (var set in config.markup.emoticons) {
       var html = '';
       for (var code in config.markup.emoticons[set].codes) {
@@ -100,6 +114,9 @@ var ui = {
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     // Open the last active sidebar.
+    if (!this.dom.menu[config.settings.activeMenu]) {
+      config.settings.activeMenu = 'onlineList';
+    }
     this.toggleMenu(config.settings.activeMenu, true);
 
     // Set the volume.
@@ -117,11 +134,14 @@ var ui = {
       arg = arg ? '=' + arg : '';
       var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
       chat.insertText(v);
+      return true;
     };
 
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
+        //  9: <tab>
+         9: function() { return ui.autocomplete(); },
         // 13: <return> (unless shift is down)
         13: function(e,x) {
           if (!e.shiftKey) {
@@ -135,11 +155,11 @@ var ui = {
         // 40: <arrow-down> (if ctrl is down)
         40: function(e) { return e.ctrlKey && chat.historyDown(); },
 
-        // 66, 73, 83, 85: B,I,S,U
-        66: function(e) { return e.ctrlKey && insertBBCode('b'); },
-        73: function(e) { return e.ctrlKey && insertBBCode('i'); },
-        83: function(e) { return e.ctrlKey && insertBBCode('s'); },
-        85: function(e) { return e.ctrlKey && insertBBCode('u'); },
+        // 98, 105, 117, 117: b,i,s,u
+        98: function(e) { return e.ctrlKey && insertBBCode('b'); },
+        105: function(e) { return e.ctrlKey && insertBBCode('i'); },
+        115: function(e) { return e.ctrlKey && insertBBCode('s'); },
+        117: function(e) { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: function() { ui.updateMessageLengthCounter(); }
@@ -149,6 +169,13 @@ var ui = {
     this.dom.roomSelection.change(function() {
       if (this.value) chat.commands.join(this.value);
       else chat.commands.part();
+    });
+    $(window).on('hashchange', function() {
+      if (ui.urlFragment != window.location.hash) {
+        ui.urlFragment = window.location.hash;
+        if (ui.urlFragment) chat.commands.join(ui.urlFragment.substring(1));
+        else chat.commands.part();
+      }
     });
 
     // Log in with the button or pressing enter.
@@ -173,10 +200,21 @@ var ui = {
       ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
       ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    $('#settings-textColor').click(function() {
-      ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-      ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
-    });
+    this.mouseHold($('#textColor'), 500,
+      function() {
+        config.settings.fullColor = true;
+        $('#settings-textColor').click();
+      },
+      function() {
+        if (config.settings.fullColor && config.settings.textColor != '') {
+          $('#settings-textColor').click();
+        }
+        else {
+          ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
+          ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+        }
+      }
+    );
 
     // The color tray has two modes (setting and bbcode).
     $('.colorCode').click(function() {
@@ -185,16 +223,19 @@ var ui = {
         $('#colorBBCode').click();
       }
       else if (ui.colorPicker == 'setting') {
-        $('#settings-textColor').click();
-        ui.setTextColorPicker(this.title);
-        chat.setSetting('textColor', this.title);
+        $('#textColor').mouseup();
+        $('#settings-textColor').val(this.title).change();
       }
     });
 
     // Clear the text color setting.
-    $('#settings-textColorClear').click(function() {
+    $('#textColorClear').click(function() {
+      config.settings.fullColor = false;
       chat.setSetting('textColor', '');
       ui.setTextColorPicker('');
+    });
+    $('#settings-textColor').change(function() {
+      ui.setTextColorPicker($(this).val())
     });
 
     // Listen for changes in the style menu.
@@ -210,6 +251,30 @@ var ui = {
     $('#settings-notifications\\.triggers').change(function() {
       var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
+    });
+
+    // Attempt to maintain the scroll position when changing message heights.
+    var toggler = function(selector) {
+      // Find the message at the top of the viewport...
+      var i = ui.getMessageAt(ui.dom.chatList.prop('scrollTop'));
+      $(selector).toggle();
+      ui.updateHeights();
+      if (i) {
+        // ... and scroll to it again (snap to bottom if appropriate).
+        ui.dom.chatList.prop('scrollTop', ui.messages[i].offset);
+        ui.scrollDown();
+      }
+    }
+    $('#settings-markup\\.images').change(function() {
+      toggler('img.rescale, span.image-alt');
+    });
+    $('#settings-markup\\.emoticons').change(function() {
+      toggler('img.emoticon, span.emote-alt');
+    });
+    $('#settings-markup\\.colors').change(function() {
+      if (this.checked) visual.addColor(ui.dom.chatList);
+      else visual.removeColor(ui.dom.chatList);
+      ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
 
     // Instantly apply sound volume.
@@ -275,12 +340,13 @@ var ui = {
    * This changes the value and appearance of the persistent color button.
    */
   setTextColorPicker: function(color) {
-    $('#settings-textColor')
+    $('#textColor')
       .css('color', color || '')
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
-    this.dom.inputField.css('color', color || '');
-    $('#settings-textColorClear').css('display', color ? 'inline-block' : 'none');
+    this.dom.inputField.css('color', config.settings.markup.colors && color || '');
+    if (color) $('#settings-textColor').val(color);
+    $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
 
   /**
@@ -370,11 +436,13 @@ var ui = {
   messageInsert: function(message) {
     var c = this.messages.length;
     if (message.timestamp < this.messages[0].timestamp) {
+      message.offset = 0;
       this.messages[0].html.before(message.html);
       this.messages = [message].concat(this.messages);
     }
     else for (var i = 1; i <= c; i++) {
       if (i == this.messages.length || message.timestamp < this.messages[i].timestamp) {
+        message.offset = this.messages[i].offset;
         this.messages[i-1].html.after(message.html);
         this.messages.splice(i, 0, message);
         break;
@@ -382,6 +450,7 @@ var ui = {
     }
 
     $(message.html).css({display:'block'});
+    this.updateHeights(i);
     this.scrollDown();
   },
 
@@ -389,6 +458,7 @@ var ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend: function(message) {
+    message.offset = ui.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(function() {
@@ -396,7 +466,7 @@ var ui = {
     });
     this.scrollDown();
     if (message.message.user.nick != xmpp.nick.current)
-    	this.blinkTitle(message.message.user.nick);
+      this.blinkTitle(message.message.user.nick);
   },
 
   /**
@@ -451,7 +521,7 @@ var ui = {
       this.userLinks[user.nick].slideUp(1000).remove();
       for (var i = 0; i < this.sortedNicks.length; i++) {
         if (this.sortedNicks[i] == user.nick) {
-          this.sortedNicks.splice(i, i);
+          this.sortedNicks.splice(i, 1);
           break;
         }
       }
@@ -460,9 +530,20 @@ var ui = {
   },
 
   /**
+   * Update the current URL fragment.
+   */
+  updateFragment: function(room) {
+    ui.urlFragment = '#' + (room || '');
+    window.location.hash = ui.urlFragment;
+  },
+
+  /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
   updateRoom: function(room, roster) {
+    this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
+    $(document).attr('title', this.title);
+
     var self = this;
     this.dom.roomSelection.val(room);
     // If no roster is given, only update the menu.
@@ -480,6 +561,36 @@ var ui = {
   },
 
   /**
+   * Recalculate the vertical positions of all messages.
+   *
+   * @start (optional) the first offset to recalculate.
+   */
+  updateHeights: function(start) {
+    var offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
+    for (var i = start || 1; i < ui.messages.length; i++) {
+      offset += ui.messages[i].html.height();
+      ui.messages[i].offset = offset;
+    }
+  },
+
+  /**
+   * Find the message at a given offset in the history via binary search.
+   *
+   * @return the index of the first message starting after the offset.
+   */
+  getMessageAt: function(offset) {
+    var a = 0;
+    var b = ui.messages.length - 1;
+    if (b < 0) return null;
+    while (a + 1 < b) {
+      var c = (a + b) / 2 | 0;
+      if (ui.messages[c].offset < offset) a = c;
+      else b = c;
+    }
+    return b;
+  },
+
+  /**
    * Helper function: Route a keystroke to a callback function.
    *
    * @param {Object} callbacks. Functions for each keycode to listen for.
@@ -488,7 +599,8 @@ var ui = {
    */
   onKeyMap: function(callbacks) {
     return function(e) {
-      if (callbacks[e.keyCode] && callbacks[e.keyCode](e, this)) {
+      var c = e.which || e.keyCode;
+      if (callbacks[c] && callbacks[c](e, this)) {
         try {
           e.preventDefault();
         } catch(ex) {
@@ -591,5 +703,85 @@ var ui = {
       state = !state;
       number--;
     }, delay);
+  },
+
+  /**
+   * Autocomplete partial nicknames or commands with Tab.
+   */
+  autocomplete: function() {
+    // Search algorithm for the longest common prefix of all matching strings.
+    var prefixSearch = function(prefix, words) {
+      var results = [];
+      for (var i in words) {
+        if (words[i].substring(0, prefix.length) == prefix) {
+          results.push(words[i]);
+        }
+      }
+      if (results.length > 1) {
+        var result = results[0];
+        // For each match, cut down to the longest common prefix.
+        for (var i in results) {
+          for (var j in results[i]) {
+            if (result[j] != results[i][j]) break;
+          }
+          result = result.substring(0, j);
+        }
+        results = result ? [result] : [];
+      }
+      if (results.length == 1) {
+        return results[0];
+      }
+      else return '';
+    };
+
+    var inputField = this.dom.inputField;
+    inputField.focus();
+    var start = inputField[0].selectionStart;
+    var end = inputField[0].selectionEnd;
+    if (start != end) return false;
+    var old = inputField.val();
+    var prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
+
+    // Look for commands or nicknames.
+    if (prefix[0] == '/') {
+      var result = '/' + prefixSearch(prefix.substring(1), Object.keys(chat.commands).concat(Object.keys(config.settings.macros)));
+    }
+    else {
+      var result = prefixSearch(prefix, Object.keys(this.userLinks));
+    }
+    if (result) {
+      inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
+      inputField[0].selectionStart = start - prefix.length + result.length;
+      inputField[0].selectionEnd = inputField[0].selectionStart;
+    }
+    return true;
+  },
+
+  /**
+   * Attach variable events for clicking or holding an element.
+   */
+  mouseHold: function(element, duration, fnHold, fnClick) {
+    var timeout = 0;
+    var held = false;
+    fnHold = fnHold.bind(element);
+    fnClick = fnClick.bind(element);
+
+    element.on({
+      mousedown: function() {
+        timeout = setTimeout(function() {
+          held = true;
+          fnHold();
+        }, duration);
+      },
+      mouseup: function() {
+        clearTimeout(timeout);
+        if (!held) fnClick();
+        held = false;
+      },
+      mouseleave: function() {
+        clearTimeout(timeout);
+        held = false;
+      }
+    });
   }
 };

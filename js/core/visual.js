@@ -63,15 +63,25 @@ visual = {
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
-    var node =  $('<div class="row message">'
+    var node =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
-                  + '<span class="body"></span></span></div>');
+                  + '<span class="body"></span>'
+                  + '<span class="hidden"></span></span>'
+                  + '</div>');
 
     if (message.user.jid)
       node.addClass(this.jidClass(message.user.jid));
 
+    $('span.hide-message, span.hidden', node).click(function() {
+      $('span.body, span.hidden', node).toggle('slow', function() {
+        if ($(this).css('display') == 'inline-block') {
+          $(this).css('display', 'inline');
+        }
+      });
+      ui.updateHeights();
+    });
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
@@ -128,7 +138,7 @@ visual = {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
       if (user.role == 'visitor' || (user.jid &&
-        user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
+        user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
@@ -193,8 +203,7 @@ visual = {
       this.addLinks(jq);
     // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
-    if (config.settings.markup.emoticons)
-      this.addEmoticons(jq);
+    this.addEmoticons(jq);
     // Make links open in new tabs.
     this.linkOnClick(jq);
     return jq;
@@ -238,6 +247,10 @@ visual = {
     });
   },
 
+  removeColor: function(jq) {
+    jq.find('span.color').css('color', '');
+  },
+
   /**
    * Find emoticon codes in the node's text and replace them with images.
    */
@@ -246,7 +259,7 @@ visual = {
     var emoticonImg = function(set, code) {
       return  '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL
             + config.markup.emoticons[set].codes[code]
-            + '" title="' + code + '" alt="' + code + '" />';
+            + '" title="' + code + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>';
     }
     jq.add('*', jq).not('code, code *').replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
@@ -255,6 +268,9 @@ visual = {
         }
       }
     });
+    if (!config.settings.markup.emoticons) {
+      jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
+    }
     return jq;
   },
 
@@ -284,24 +300,23 @@ visual = {
 
     jq.find('img').wrap(function() {
       return '<a href="' + this.src + '"></a>';
+    }).after(function() {
+      return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
     });
-
-    if (config.settings.markup.images)
-      jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
-        visual.rescale($(this), maxWidth, maxHeight);
-        $(this).css({display:'block'});
-      });
-    else
-      jq.find('img').replaceWith(function() {
-        return '[image:' + visual.ellipsis(this.src, 64) + ']'
-      });
+    jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
+      visual.rescale($(this), maxWidth, maxHeight);
+      $(this).css({display:''});
+    });
+    if (!config.settings.markup.images) {
+      jq.find('img').css({display:'none'}).next().css({display:'inline'});
+    }
   },
 
   /**
    * Make links open in a new tab.
    */
   linkOnClick: function(jq) {
-    $('a[href]', jq).click(function(event) {
+    $('a[href]:not([href^=#])', jq).click(function(event) {
       event.preventDefault();
       window.open(this.href);
     });
@@ -402,7 +417,7 @@ visual = {
         return '\\' + x.charCodeAt(0);
       });
     };
-    return 'jid-node-' + escape(Strophe.getNodeFromJid(jid)) + ' '
+    return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
          + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
          + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }

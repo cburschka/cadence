@@ -36,5 +36,3 @@ button {
 button:hover { background-color: #591e33 }
 h3, .author { color: #cda6d2 }
 .row.delayed .log-room, .row.delayed .dateTime { color: #673570 }
-#content { display: block }
-#nocontent { display: none }
