@@ -273,6 +273,15 @@ var chat = {
     },
 
     /**
+     * dnd <msg>:
+     *   Send a room presence with <show/> set to "dnd" and
+     *   <status/> to "msg".
+     */
+    dnd: function(arg) {
+      xmpp.sendStatus('dnd', arg.trim());
+    },
+
+    /**
      * join <room>
      *   Ask XMPP to join <room>. If successful, XMPP
      *   will automatically leave the current room.
