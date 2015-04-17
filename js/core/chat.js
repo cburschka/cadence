@@ -271,6 +271,15 @@ var chat = {
       if (!chat.getRoomFromTitle(name)) create();
       else xmpp.discoverRooms(create);
     },
+    
+    /**
+     * dnd <msg>:
+     *   Send a room presence with <show/> set to "dnd" and
+     *   <status/> to "msg".
+     */
+    dnd: function(arg) {
+      xmpp.sendStatus('dnd', arg.trim());
+    },
 
     /**
      * join <room>
