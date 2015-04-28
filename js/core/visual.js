@@ -303,9 +303,8 @@ visual = {
     }).after(function() {
       return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
     });
-    jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
+    jq.find('img').addClass('rescale').load(function() {
       visual.rescale($(this), maxWidth, maxHeight);
-      $(this).css({display:''});
     });
     if (!config.settings.markup.images) {
       jq.find('img').css({display:'none'}).next().css({display:'inline'});
