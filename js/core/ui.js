@@ -100,6 +100,11 @@ var ui = {
     html += '<button class="button" id="textColorFull">Advanced</button>';
     $('#colorCodesContainer').html(html);
 
+    // Add the access key labels to the BBCode buttons.
+    $('#bbCodeContainer button').each(function() {
+      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
+    });
+
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').html(sounds);
