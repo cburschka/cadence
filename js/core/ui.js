@@ -224,6 +224,7 @@ var ui = {
       }
       else if (ui.colorPicker == 'setting') {
         $('#textColor').mouseup();
+        config.settings.fullColor = false;
         $('#settings-textColor').val(this.title).change();
       }
     });
