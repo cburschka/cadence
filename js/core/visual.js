@@ -63,19 +63,23 @@ visual = {
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
-    var node =  $('<div class="row message">'
+    var node =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span> '
                   + '<span class="body"></span>'
                   + '<span class="hidden"></span></span>'
-                  + '<span class="hide-message"></span></div>');
+                  + '</div>');
 
     if (message.user.jid)
       node.addClass(this.jidClass(message.user.jid));
 
     $('span.hide-message, span.hidden', node).click(function() {
-      $('span.body, span.hidden', node).toggle('slow');
+      $('span.body, span.hidden', node).toggle('slow', function() {
+        if ($(this).css('display') == 'inline-block') {
+          $(this).css('display', 'inline');
+        }
+      });
       ui.updateHeights();
     });
     $('span.dateTime', node).append(this.format.time(message.time));
@@ -134,7 +138,7 @@ visual = {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
       if (user.role == 'visitor' || (user.jid &&
-        user.nick.toLowerCase() != Strophe.getNodeFromJid(user.jid).toLowerCase()))
+        user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
@@ -299,9 +303,8 @@ visual = {
     }).after(function() {
       return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
     });
-    jq.find('img').addClass('rescale').css({display:'none'}).load(function() {
+    jq.find('img').addClass('rescale').load(function() {
       visual.rescale($(this), maxWidth, maxHeight);
-      $(this).css({display:''});
     });
     if (!config.settings.markup.images) {
       jq.find('img').css({display:'none'}).next().css({display:'inline'});
@@ -413,7 +416,7 @@ visual = {
         return '\\' + x.charCodeAt(0);
       });
     };
-    return 'jid-node-' + escape(Strophe.getNodeFromJid(jid)) + ' '
+    return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
          + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
          + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }

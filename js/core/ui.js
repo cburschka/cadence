@@ -274,6 +274,7 @@ var ui = {
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
       else visual.removeColor(ui.dom.chatList);
+      ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
 
     // Instantly apply sound volume.
@@ -343,7 +344,7 @@ var ui = {
       .css('color', color || '')
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
-    this.dom.inputField.css('color', color || '');
+    this.dom.inputField.css('color', config.settings.markup.colors && color || '');
     if (color) $('#settings-textColor').val(color);
     $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
@@ -520,7 +521,7 @@ var ui = {
       this.userLinks[user.nick].slideUp(1000).remove();
       for (var i = 0; i < this.sortedNicks.length; i++) {
         if (this.sortedNicks[i] == user.nick) {
-          this.sortedNicks.splice(i, i);
+          this.sortedNicks.splice(i, 1);
           break;
         }
       }
@@ -529,13 +530,20 @@ var ui = {
   },
 
   /**
+   * Update the current URL fragment.
+   */
+  updateFragment: function(room) {
+    ui.urlFragment = '#' + (room || '');
+    window.location.hash = ui.urlFragment;
+  },
+
+  /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
   updateRoom: function(room, roster) {
-    if (room != '') {
-      this.title = xmpp.room.available[room].title + ' - ' + config.ui.title;
-      $(document).attr('title', this.title);
-    }
+    this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
+    $(document).attr('title', this.title);
+
     var self = this;
     this.dom.roomSelection.val(room);
     // If no roster is given, only update the menu.

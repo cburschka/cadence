@@ -60,7 +60,7 @@ var xmpp = {
     this.session = {};
     this.user = user;
     this.nick.target = user;
-    var jid = user + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    var jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
     this.connection.connect(jid, pass, this.eventConnectCallback);
   },
@@ -160,6 +160,7 @@ var xmpp = {
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
     this.connection.send(this.presence(room, this.nick.current, {type: 'unavailable'}));
+    delete this.roster[room];
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
     // prejoin status and list the rooms again.
@@ -169,6 +170,7 @@ var xmpp = {
 
   prejoin: function() {
     this.room.current = null;
+    ui.updateFragment(null);
     this.status = 'prejoin';
     ui.setStatus(this.status);
     chat.commands.list();
@@ -233,7 +235,11 @@ var xmpp = {
     }.bind(this);
 
     this.getRoomInfo(room, function(roomInfo) {
-      if (!roomInfo) return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
+      if (!roomInfo) {
+        console.log("Room does not exist");
+        ui.updateFragment(xmpp.room.current);
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
+      }
       this.room.available[room] = roomInfo;
       ui.refreshRooms(this.room.available);
       ui.messageAddInfo(strings.info.joining, {
@@ -593,6 +599,7 @@ var xmpp = {
       // Cancel any join attempt:
       this.room.target = this.room.current;
       ui.updateRoom(this.room.current);
+      ui.updateFragment(this.room.current);
     }
   },
 
@@ -600,7 +607,7 @@ var xmpp = {
    * Handle presence stanzas of type `unavailable`.
    */
   eventPresenceUnavailable: function(room, nick, codes, item) {
-    if (room == this.room.current) {
+    if (room == this.room.current && this.roster[room][nick]) {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
         var newNick = item.attr('nick');
@@ -683,7 +690,6 @@ var xmpp = {
         this.room.current = room;
         // We are in a different room now. Leave the old one.
         if (oldRoom) {
-          delete this.roster[oldRoom];
           this.leaveRoom(oldRoom);
         }
         this.status = 'online';
@@ -716,10 +722,12 @@ var xmpp = {
 
         // Play the alert sound if a watched user enters.
         var watched = false;
-        for (var i in config.settings.notifications.triggers) {
-          watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
+        if (this.nick.current != nick) {
+          for (var i in config.settings.notifications.triggers) {
+            watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
+          }
         }
-        watched && ui.playSound('mention') || ui.playSound('enter');
+        watched ? ui.playSound('mention') : ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
         ui.messageAddInfo(strings.show[show][status ? 1 : 0], {

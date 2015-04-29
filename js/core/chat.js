@@ -275,14 +275,27 @@ var chat = {
      */
     create: function(arg) {
       arg = chat.parseArgs(arg.trim());
-      var config = chat.roomConfig(arg);
       var name = arg.name;
-      var room = chat.getRoomFromTitle(name);
-      if (room)
-        return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-      ui.urlFragment = '#' + name;
-      window.location.hash = '#' + name;
-      xmpp.joinNewRoom(name, config);
+      var config = chat.roomConfig(arg);
+      var create = function() {
+        var room = chat.getRoomFromTitle(name);
+        if (room)
+          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+        xmpp.joinNewRoom(name, config);
+        ui.updateFragment(name);
+        chat.setSetting('xmpp.room', room);
+      };
+      if (!chat.getRoomFromTitle(name)) create();
+      else xmpp.discoverRooms(create);
+    },
+
+    /**
+     * dnd <msg>:
+     *   Send a room presence with <show/> set to "dnd" and
+     *   <status/> to "msg".
+     */
+    dnd: function(arg) {
+      xmpp.sendStatus('dnd', arg.trim());
     },
 
     /**
@@ -300,8 +313,7 @@ var chat = {
         }
         room = room ? room.id : name;
         xmpp.joinExistingRoom(room);
-        ui.urlFragment = '#' + arg;
-        window.location.hash = '#' + arg;
+        ui.updateFragment(room);
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -386,8 +398,7 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
-      ui.urlFragment = '';
-      window.location.hash = '';
+      ui.updateFragment(null);
     },
 
     /**
@@ -434,6 +445,8 @@ var chat = {
      *   Create a text file (by data: URI) from the chat history.
      */
     save: function(arg) {
+      if (ui.messages.length == 0)
+        return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
       type = type == 'html' ? 'html' : 'plain';
       var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
