@@ -97,6 +97,7 @@ var ui = {
       html += '<a href="javascript:void(\'' + code + '\');" title="' + code
            +  '" class="colorCode" style="background-color:' + code + '"></a>';
     }
+    html += '<button class="button" id="textColorFull">Advanced</button>';
     $('#colorCodesContainer').html(html);
 
     var sounds = [new Option('---', '')];
@@ -200,21 +201,15 @@ var ui = {
       ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
       ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    this.mouseHold($('#textColor'), 500,
-      function() {
-        config.settings.fullColor = true;
+    $('#textColor').click(function() {
+      if (config.settings.fullColor && config.settings.textColor != '') {
         $('#settings-textColor').click();
-      },
-      function() {
-        if (config.settings.fullColor && config.settings.textColor != '') {
-          $('#settings-textColor').click();
-        }
-        else {
-          ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-          ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
-        }
       }
-    );
+      else {
+        ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
+        ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+      }
+    });
 
     // The color tray has two modes (setting and bbcode).
     $('.colorCode').click(function() {
@@ -223,12 +218,18 @@ var ui = {
         $('#colorBBCode').click();
       }
       else if (ui.colorPicker == 'setting') {
-        $('#textColor').mouseup();
         config.settings.fullColor = false;
+        $('#textColor').click();
         $('#settings-textColor').val(this.title).change();
       }
     });
 
+    // Toggle the full RGB color setting.
+    $('#textColorFull').click(function() {
+      $('#textColor').click();
+      config.settings.fullColor = true;
+      $('#settings-textColor').click();
+    });
     // Clear the text color setting.
     $('#textColorClear').click(function() {
       config.settings.fullColor = false;
@@ -346,7 +347,7 @@ var ui = {
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', config.settings.markup.colors && color || '');
-    if (color) $('#settings-textColor').val(color);
+    $('#settings-textColor').val(color);
     $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
 
@@ -756,33 +757,5 @@ var ui = {
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
-  },
-
-  /**
-   * Attach variable events for clicking or holding an element.
-   */
-  mouseHold: function(element, duration, fnHold, fnClick) {
-    var timeout = 0;
-    var held = false;
-    fnHold = fnHold.bind(element);
-    fnClick = fnClick.bind(element);
-
-    element.on({
-      mousedown: function() {
-        timeout = setTimeout(function() {
-          held = true;
-          fnHold();
-        }, duration);
-      },
-      mouseup: function() {
-        clearTimeout(timeout);
-        if (!held) fnClick();
-        held = false;
-      },
-      mouseleave: function() {
-        clearTimeout(timeout);
-        held = false;
-      }
-    });
   }
 };
