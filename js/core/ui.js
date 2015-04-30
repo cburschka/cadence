@@ -65,6 +65,12 @@ var ui = {
    */
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
+
+    // Build the navigation menu.
+    for (link in config.ui.navigation)
+      $('#navigation ul').append('<li><a href="' + config.ui.navigation[link] + '">' + link + '</a></li>');
+    if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
+
     // Build and fill the emoticon containers.
     var bars = config.ui.emoticonSidebars
     for (var set in bars) {
