@@ -503,19 +503,25 @@ var chat = {
         return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {name: arg}, 'error');
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, function(users) {
-          var out = [];
-          for (var nick in users) out.push(visual.format.nick(nick))
-          if (out.length) ui.messageAddInfo(strings.info.usersInRoom, {
+          var links = [];
+          var nicks = Object.keys(users);
+          nicks.sort();
+          for (var i in nicks) links.push(visual.format.nick(nicks[i]));
+          if (links.length) ui.messageAddInfo(strings.info.usersInRoom, {
             room: room,
-            'raw.users': out.join(', ')
+            'raw.users': links.join(', ')
           });
           else ui.messageAddInfo(strings.info.noUsers, {room: room});
         })
       }
       else {
-        var links = []
-        for (var user in xmpp.roster[xmpp.room.current])
-          links.push(visual.format.user(xmpp.roster[xmpp.room.current][user]));
+        var links = [];
+        var nicks = Object.keys(xmpp.roster[xmpp.room.current]);
+        nicks.sort();
+        for (var i in nicks) {
+          var user = xmpp.roster[xmpp.room.current][nicks[i]];
+          links.push(visual.format.user(user));
+        }
         ui.messageAddInfo(strings.info.usersInThisRoom, {'raw.users': links.join(', ')});
       }
     }
