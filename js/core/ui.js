@@ -141,6 +141,9 @@ var ui = {
    * Initialize the event listeners.
    */
   initializeEvents: function() {
+    // Make all links on the static page open in new tabs.
+    visual.linkOnClick(document);
+
     // Inserting BBCode tags.
     var insertBBCode = function(tag, arg) {
       arg = arg ? '=' + arg : '';
