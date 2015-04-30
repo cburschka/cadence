@@ -126,6 +126,11 @@ h3 {
   height: 20px;
   border-color: black;
 }
+#colorCodesContainer button {
+  height: 22px;
+  float: left;
+  display: block;
+}
 #emoticonsContainer {
   padding: 3px;
   vertical-align:middle;
