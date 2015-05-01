@@ -775,7 +775,7 @@ var xmpp = {
       else {
         var message = {user: user, body: body, type: type};
         ui.messageAppend(visual.formatMessage(message));
-        if (resource != this.nick.current) ui.playSoundMessage(message);
+        if (resource != this.nick.current) ui.notify(message);
       }
     }
     return true;

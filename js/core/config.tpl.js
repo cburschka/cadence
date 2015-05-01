@@ -44,6 +44,10 @@ var config = {
       soundVolume: 100,
       soundEnabled: true,
 
+      // Whether to show desktop notifications:
+      // 0 - None, 1 - Alerts, 2 - All messages, 3 - All notifications.
+      desktop: 0,
+
       // Warn before leaving the page.
       leavePage: true,
 
