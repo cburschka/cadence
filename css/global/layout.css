@@ -31,6 +31,19 @@ h3 { white-space: nowrap }
   right: 20px;
 }
 #fakeLoginForm { display: inline }
+#navigation {
+  display: none;
+  float: right;
+  margin-right: 2em;
+}
+#navigation ul {
+  display: inline-block;
+  margin: 0;
+  padding-left: 1em;
+}
+#navigation li { display: inline }
+#navigation li:before { content: " | " }
+#navigation li:first-child:before { content: none }
 
 #chatList {
   position: absolute;
@@ -166,7 +179,8 @@ h3 {
   width: 140px;
   white-space: nowrap;
 }
-#settingsList input[type=text] { width:100px }
+#settingsList input[type=text],
+#settingsList input[type=range] { width:9em }
 #settingsList #settings-textColor {
   width: 75px;
 }
