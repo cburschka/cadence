@@ -137,7 +137,8 @@ visual = {
     user: function(user) {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
-      if (user.role == 'visitor' || (user.jid &&
+      var recipient = user.role == 'external' ? user.jid : user.nick;
+      if (user.role == 'visitor' || (user.role != 'external' && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       return  '<span class="user user-role-' + user.role
@@ -145,9 +146,9 @@ visual = {
             + ' user-show-' + (user.show || 'default') + '"'
             + (jid ? (' title="' + jid + '"') : '')
             + ' onclick="chat.prefixMsg(\''
-            + encodeURIComponent(user.nick.replace(/\s/g, '\\$&'))
+            + encodeURIComponent(recipient.replace(/\s/g, '\\$&'))
               .replace(/\'/g, "\\\'")
-            + '\')"' + '>' + nick + '</span>';
+            + '\', ' + (user.role == 'external') + ')"' + '>' + nick + '</span>';
     },
 
     /**

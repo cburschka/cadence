@@ -273,6 +273,14 @@ var chat = {
     },
 
     /**
+     * dmsg <jid>
+     *   Send a direct message to a user outside the chatroom.
+     */
+    dmsg: function(arg) {
+      chat.commands.msg(arg, true);
+    },
+
+    /**
      * dnd <msg>:
      *   Send a room presence with <show/> set to "dnd" and
      *   <status/> to "msg".
@@ -349,18 +357,20 @@ var chat = {
      * msg <nick> <msg>
      *   Send a private message to another occupant.
      */
-    msg: function(arg) {
+    msg: function(arg, direct) {
       var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
       var nick = m[1].replace(/\\(\s)/g, '$1');
       var msg = arg.substring(m[0].length);
-      if (!xmpp.roster[xmpp.room.current][nick])
+      if (!direct && !xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
       var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
-      chat.sendMessage(msg, nick);
+      chat.sendMessage(msg, nick, direct);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: nick,
-        user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
+        user: (!direct ?
+          xmpp.roster[xmpp.room.current][xmpp.nick.current] :
+          {nick: xmpp.user + '@' + config.xmpp.domain}
+        ),
         body: chat.formatOutgoing(msg)
       }));
     },
@@ -611,9 +621,9 @@ var chat = {
    * @param {string} text: The message to send (already escaped, but pre-BBCode).
    * @param {string} nick: The recipient, or undefined.
    */
-  sendMessage: function(text, nick) {
+  sendMessage: function(text, nick, direct) {
     html = this.formatOutgoing(text);
-    xmpp.sendMessage(html, nick);
+    xmpp.sendMessage(html, nick, direct);
   },
 
   /**
@@ -683,11 +693,11 @@ var chat = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function(nick) {
+  prefixMsg: function(nick, direct) {
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+((\\\s|\S)+)/);
+    var m = text.match(/\/d?msg\s+((\\\s|\S)+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
+    if (nick) text = '/' + (direct ? 'd' : '')  + 'msg ' + decodeURIComponent(nick) + ' ' + text;
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
