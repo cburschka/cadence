@@ -13,4 +13,5 @@ code {
   font-size:1.2em;
   white-space:pre-wrap;
 }
+#textColor { font-family:monospace }
 #helpList td.code { font-family:monospace; white-space:pre }

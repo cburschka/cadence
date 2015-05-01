@@ -179,7 +179,8 @@ h3 {
   width: 140px;
   white-space: nowrap;
 }
-#settingsList input[type=text] { width:100px }
+#settingsList input[type=text],
+#settingsList input[type=range] { width:9em }
 #settingsList #settings-textColor {
   width: 75px;
 }
