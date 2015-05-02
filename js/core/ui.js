@@ -271,6 +271,18 @@ var ui = {
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
 
+    // If notifications are activated, ensure they can be sent.
+    $('#settings-notifications\\.desktop').change(function() {
+      if (this.value == 0) return;
+      if (Notification.permission == 'default')
+        Notification.requestPermission(function(permission) {
+          // If denied, revert the setting.
+          if (permission != 'granted') $(this).val(0).change();
+        }.bind(this));
+      else if (Notification.permission == 'denied')
+        $(this).val(0).change();
+    }).change();
+
     // Attempt to maintain the scroll position when changing message heights.
     var toggler = function(selector) {
       // Find the message at the top of the viewport...
@@ -421,10 +433,12 @@ var ui = {
     }
 
     text = visual.formatText(text, variables);
-    var message = visual.formatMessage({
+    var message = {
       body: text, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
-    }, true);
+    };
+    this.notifyDesktop(3, message);
+    message = visual.formatMessage(message, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
     return message;
@@ -683,11 +697,11 @@ var ui = {
   },
 
   /**
-   * Trigger the correct message sound event.
+   * Trigger the correct message sound and desktop notification.
    * Only one sound is played, in order:
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
    */
-  playSoundMessage: function(message) {
+  notify: function(message) {
     var mention = (message.body.indexOf(xmpp.nick.current) >= 0
                 || message.body.indexOf(xmpp.user) >= 0);
     var sender = false;
@@ -695,10 +709,34 @@ var ui = {
       mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
       sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
     }
+
+    // Any kind of alert is level 1, everything else is 2.
+    this.notifyDesktop(((mention || message.type == 'chat' || sender) ? 1 : 2), message);
+
     if (mention && this.playSound('mention')) return;
     if (message.type == 'chat' && this.playSound('msg')) return;
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
+  },
+
+  /**
+   * Generate a desktop notification.
+   *
+   * @param {int} level: The verbosity level of the notification:
+   *                     - 1: Private messages & mentions
+   *                     - 2: Other messages
+   *                     - 3: Join/part notifications
+   * @param {Object} message: The message object.
+   */
+  notifyDesktop: function(level, message) {
+    if (level <= config.settings.notifications.desktop && document.hidden) {
+      var title = xmpp.room.available[xmpp.room.current].title;
+      var text = $('<span>' + message.body + '</span>').text();
+      if (message.type != 'groupchat' && message.type != 'local')
+        text = strings.info.whisper + ' ' + text;
+      if (message.type != 'local') text = '<b>' + message.user.nick + ':</b> ' + text;
+      new Notification(title, {body: text, tag: xmpp.room.current});
+    }
   },
 
   /**
