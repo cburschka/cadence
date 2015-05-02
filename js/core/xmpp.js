@@ -19,6 +19,7 @@ var xmpp = {
   user: null,
   resource: null,
   status: 'offline',
+  userStatus: null,
   roster: {},
   historyEnd: {},
 
@@ -401,13 +402,14 @@ var xmpp = {
    * <show/> and <status/> elements.
    * Note: To return from away-mode, a presence without <show/> is sent.
    *
-   * @param {string} show This must be one of "away", "xa", "chat" or null.
+   * @param {string} show This must be one of "away", "chat", "dnd", "xa" or null.
    * @param {string} status This is an arbitrary status message.
    */
   sendStatus: function(show, status) {
     var p = this.presence(this.room.current, this.nick.current);
     if (show) p.c('show', {}, show);
     if (status) p.c('status', {}, status);
+    this.userStatus = show;
     this.connection.send(p);
   },
 
