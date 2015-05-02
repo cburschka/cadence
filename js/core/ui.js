@@ -692,6 +692,7 @@ var ui = {
   playSound: function(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
+    if (xmpp.userStatus == 'dnd') return;
     var sound = config.settings.notifications.sounds[event];
     return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
   },
@@ -729,6 +730,7 @@ var ui = {
    * @param {Object} message: The message object.
    */
   notifyDesktop: function(level, message) {
+    if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
       var title = xmpp.room.available[xmpp.room.current].title;
       var text = $('<span>' + message.body + '</span>').text();
