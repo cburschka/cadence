@@ -274,7 +274,7 @@ var chat = {
      *   Join a new room and set it up.
      */
     create: function(arg) {
-      arg = chat.parseArgs(arg.trim());
+      arg = chat.parseArgs(arg);
       var name = arg.name;
       var config = chat.roomConf(arg);
       var create = function() {
