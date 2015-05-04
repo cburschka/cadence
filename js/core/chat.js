@@ -236,7 +236,7 @@ var chat = {
      */
     configure: function(arg) {
       arg = chat.parseArgs(arg.trim());
-      var config = chat.roomConfig(arg);
+      var config = chat.roomConf(arg);
       var name = arg.name || xmpp.room.current;
       if (!xmpp.room.available[name])
         return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
@@ -276,7 +276,7 @@ var chat = {
     create: function(arg) {
       arg = chat.parseArgs(arg.trim());
       var name = arg.name;
-      var config = chat.roomConfig(arg);
+      var config = chat.roomConf(arg);
       var create = function() {
         var room = chat.getRoomFromTitle(name);
         if (room)
@@ -776,7 +776,7 @@ var chat = {
     // TODO: Unfinished. Also, ejabberd has non-standard fields.
 
     return conf;
-  }
+  },
 
   /**
    * Attempt to authenticate using an existing web session.
