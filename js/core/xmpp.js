@@ -279,7 +279,7 @@ var xmpp = {
         return parseInt($(this).attr('code'));
       }));
       if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {name: title}, 'verbose');
+        ui.messageAddInfo(strings.code[201], {name: config.roomname}, 'verbose');
         this.configureRoom(room, config, function() {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);

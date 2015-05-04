@@ -275,8 +275,11 @@ var chat = {
      */
     create: function(arg) {
       arg = chat.parseArgs(arg);
-      var name = arg.name;
+      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
+      if (!arg.name)
+        return ui.messageAddInfo(strings.error.roomUnnamed, 'error');
       var config = chat.roomConf(arg);
+      var name = arg.name.toLowerCase();
       var create = function() {
         var room = chat.getRoomFromTitle(name);
         if (room)
@@ -748,7 +751,7 @@ var chat = {
    */
   roomConf: function(args) {
     var conf = {};
-    if (args.title) conf.roomname = args.title;
+    conf.roomname = args.title || args.name;
     if (args.desc) conf.roomdesc = args.desc;
     if (args.persistent !== undefined) conf.persistentroom = args.persistent ? 1 : 0;
     if (args['public'] !== undefined) conf.publicroom = args['public'] ? 1 : 0;

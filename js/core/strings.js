@@ -169,6 +169,7 @@ var strings = {
     pingTimeout: 'Ping to {target} timed out ({delay}).',
     roomConf: 'The following fields could not be set on {name}: {fields}',
     roomExists: 'Could not create {room}; it already exists.',
+    roomUnnamed: 'Could not create a room without a name.',
     saveEmpty: 'There are no messages to save.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
