@@ -81,16 +81,16 @@ var ui = {
        ).appendTo(this.dom.emoticonSidebarContainer);
       $(
         '<button class="tray toggleMenu" id="emoticon-' + set + 'Button" title="' + bars[set].title + '">' + bars[set].title + '</button>'
-      ).css('background-image', 'url("' + config.markup.emoticons[set].baseURL + bars[set].icon + '")')
+      ).css('background-image', 'url("' + config.markup.emoticonSets[set].baseURL + bars[set].icon + '")')
       .appendTo(ui.dom.emoticonTrayContainer);
     }
-    for (var set in config.markup.emoticons) {
+    for (var set in config.markup.emoticonSets) {
       var html = '';
-      for (var code in config.markup.emoticons[set].codes) {
+      for (var code in config.markup.emoticonSets[set].codes) {
         html += '<a href="javascript:void(\'' + code.replace('\'', '\\\'', 'g')
              +  '\');" class="insert-text" title="'
-             + code + '">' + '<img src="' + config.markup.emoticons[set].baseURL
-             + config.markup.emoticons[set].codes[code] + '" alt="'
+             + code + '">' + '<img src="' + config.markup.emoticonSets[set].baseURL
+             + config.markup.emoticonSets[set].codes[code] + '" alt="'
              + code + '" /></a>';
       }
       $('#emoticonsList-' + set).html(html);

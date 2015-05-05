@@ -106,7 +106,7 @@ var config = {
       '#A9A9A9', '#808080', '#696969', '#778899', '#708090', '#305050', '#000000'
     ],
 
-    emoticons: {
+    emoticonSets: {
       general: {
         baseURL: '@@@CDN_URL@@@img/emoticons/general/',
         codes: {
@@ -126,7 +126,8 @@ var config = {
           ':favorite:': 'favorite.png'
         }
       }
-    }
+    },
+    emoticons: {}
   },
 
   // Defines the available sounds loaded on chat start:

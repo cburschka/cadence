@@ -15,8 +15,7 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
               js/core/emoticons.js js/core/init.js
 
 LIB_FILES = js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.js js/lib/jquery.cookie.js \
-            js/lib/jquery.replacetext.js js/lib/moment.js js/lib/strophe.js \
-            js/lib/xbbcode.js
+            js/lib/moment.js js/lib/strophe.js js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
@@ -111,9 +110,6 @@ js/lib/jquery.js: js/lib/jquery/jquery.js
 js/lib/jquery.cookie.js: js/lib/jquery-cookie/src/jquery.cookie.js
 	$(CP) $^ $@
 
-js/lib/jquery.replacetext.js: js/lib/jquery-replacetext/jquery.ba-replacetext.js
-	$(CP) $^ $@
-
 js/lib/moment.js: js/lib/moment/moment.js
 	$(CP) $^ $@
 
@@ -124,8 +120,7 @@ js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
 js/lib.js: js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.js js/lib/jquery.cookie.js \
-               js/lib/jquery.replacetext.js js/lib/moment.js \
-               js/lib/strophe.js js/lib/xbbcode.js
+               js/lib/moment.js js/lib/strophe.js js/lib/xbbcode.js
 	cat $^ > $@
 
 js/core.js: ${CORE_FILES}

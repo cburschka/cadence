@@ -11,21 +11,12 @@ visual = {
    * Initialize the emoticon regular expression.
    */
   init: function() {
-    var i = 1;
-    this.emoticonSets = [];
-    var emoticonRegs = []
-    for (var set in config.markup.emoticons) {
-      var keys = []
-      for (var code in config.markup.emoticons[set].codes) {
-        // Escape all meta-characters for regular expressions: ^$*+?.|()[]{}.
-        keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
-      }
-      // The sub-expression for the set matches any single emoticon in it.
-      emoticonRegs.push('(' + keys.join('|') + ')'),
-      this.emoticonSets.push(set);
+    var keys = [];
+    for (var code in config.markup.emoticons) {
+      // Escape all meta-characters for regular expressions: ^$*+?.|()[]{}.
+      keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
     }
-    // The complete expression matches any single emoticon from any set.
-    this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
+    this.emoticonRegex = keys && new RegExp('(' + keys.join('|') + ')', 'g');
   },
 
   /**
@@ -255,21 +246,35 @@ visual = {
    * Find emoticon codes in the node's text and replace them with images.
    */
   addEmoticons: function(jq) {
-    var emoticonSets = this.emoticonSets;
-    var emoticonImg = function(set, code) {
-      return  '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL
-            + config.markup.emoticons[set].codes[code]
-            + '" title="' + code + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>';
-    }
-    jq.add('*', jq).not('code, code *, a, a *')
-      .replaceText(/[<&]/g, function(a) { return {'&': '&amp;', '<':'&lt;'}[a]; })
-      .replaceText(this.emoticonRegex, function() {
-      for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
-        if (arguments[i]) {
-          return emoticonImg(emoticonSets[i-1], arguments[i]);
+    var codes = config.markup.emoticons;
+    var regex = this.emoticonRegex;
+    if (!regex) return;
+    var image = function(code) {
+      return  $('<img class="emoticon" src="' + codes[code] + '" title="' + code
+       + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>');
+    };
+
+    var processTextNode = function(node) {
+      var tokens = node.nodeValue.split(regex);
+      if (tokens.length < 2) return false;
+      for (i in tokens) {
+        // The odd-numbered tokens are the emoticon codes.
+        var nodes = i % 2 ? image(tokens[i]) : $(document.createTextNode(tokens[i]));
+        $(node).before(nodes);
+      }
+      return true;
+    };
+
+    var remove = [];
+    jq.add('*', jq).not('code, code *, a, a *').each(function() {
+      for (var node = this.firstChild; node; node = node.nextSibling) {
+        if (node.nodeType == document.TEXT_NODE && processTextNode(node)) {
+          remove.push(node);
         }
       }
-    }).replaceText(/&(lt|amp);/g, function(a) { return {'&amp;': '&', '&lt;':'<'}[a]; }, true);
+    });
+    $(remove).remove();
+
     if (!config.settings.markup.emoticons) {
       jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
     }
