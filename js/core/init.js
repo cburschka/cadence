@@ -38,17 +38,8 @@ init = {
 
   loadEmoticons: function() {
     for (pack in emoticons.packages) {
-      config.markup.emoticonSets[pack] = emoticons.packages[pack];
+      config.markup.emoticons[pack] = emoticons.packages[pack];
     }
-
-    // Merge the packs into a single object:
-    for (set in config.markup.emoticonSets) {
-      var base = config.markup.emoticonSets[set].baseURL;
-      for (code in config.markup.emoticonSets[set].codes) {
-        config.markup.emoticons[code] = base + config.markup.emoticonSets[set].codes[code];
-      }
-    }
-
     config.ui.emoticonSidebars = {};
     for (pack in emoticons.sidebars) {
       config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
