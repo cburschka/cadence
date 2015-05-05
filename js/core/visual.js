@@ -22,7 +22,7 @@ visual = {
       }
       // The sub-expression for the set matches any single emoticon in it.
       emoticonRegs.push('(' + keys.join('|') + ')'),
-      this.emoticonSets.push(set);
+      this.emoticonSets.push(config.markup.emoticons[set]);
     }
     // The complete expression matches any single emoticon from any set.
     this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
@@ -256,19 +256,21 @@ visual = {
    * Find emoticon codes in the node's text and replace them with images.
    */
   addEmoticons: function(jq) {
-    var emoticonSets = this.emoticonSets;
-    var emoticonImg = function(set, code) {
-      return  '<img class="emoticon" src="' + config.markup.emoticons[set].baseURL
-            + config.markup.emoticons[set].codes[code]
-            + '" title="' + code + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>';
-    }
-    jq.add('*', jq).not('code, code *, a, a *').replaceText(this.emoticonRegex, function() {
-      for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
-        if (arguments[i]) {
-          return emoticonImg(emoticonSets[i-1], arguments[i]);
+    var codes = this.emoticonSets;
+    var regex = this.emoticonRegex;
+    if (!regex) return;
+    var image = function(groups) {
+      for (var i in groups) {
+        if (groups[i]) {
+          return  $('<img class="emoticon" src="' + codes[i].baseURL
+           + codes[i].codes[groups[i]] + '" title="' + groups[i] + '" alt="'
+           + groups[i] + '" /><span class="emote-alt">' + groups[i] + '</span>');
         }
       }
-    });
+    };
+
+    jq.add('*', jq).not('code, code *, a, a *').replaceText(regex, image, codes.length);
+
     if (!config.settings.markup.emoticons) {
       jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
     }
@@ -285,9 +287,9 @@ visual = {
     jq.not('a').add(':not(a)', jq).filter(function() {
       return $(this).parents('a').length < 1;
     }).replaceText(
-      /(^|[^"'])((https?|s?ftp|mailto):\/\/[^\s"']+[_\-=\wd\/])/g,
-      function(all, pre, url) {
-        return  pre + '<a href="' + url + '">' + url + '</a>';
+      /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])/g,
+      function(groups) {
+        return $('<a></a>').attr('href', groups[0]).text(groups[0]);
       }
     );
   },
@@ -422,3 +424,37 @@ visual = {
          + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }
 };
+
+(function($){
+  var textNode = function(node, search, replace, capturing) {
+    var tokens = node.nodeValue.split(search);
+    if (tokens.length < 2) return false;
+    for (var i = 0; i+capturing < tokens.length; i += capturing+1) {
+      $(node).before(document.createTextNode(tokens[i]));
+      $(node).before(replace(tokens.slice(i+1, i+1+capturing)));
+    }
+    $(node).before(document.createTextNode(tokens[tokens.length-1]));
+    return true;
+  };
+
+  /**
+   * Replace substrings with HTML.
+   *
+   * @param node A text node.
+   * @param search A RegExp object that must have at least one capturing subgroup.
+   * @param replace A function that generates the replacement jQuery content.
+   * @param groups (optional) The number of capturing subgroups in the RegExp.
+   */
+  $.fn.replaceText = function(search, replace, capturing) {
+    capturing = capturing || 1;
+    return this.each(function() {
+      var remove = [];
+      for (var node = this.firstChild; node; node = node.nextSibling) {
+        if (node.nodeType == document.TEXT_NODE && textNode(node, search, replace, capturing)) {
+          remove.push(node);
+        }
+      }
+      $(remove).remove();
+    });
+  }
+})(jQuery);
