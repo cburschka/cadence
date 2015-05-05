@@ -261,13 +261,15 @@ visual = {
             + config.markup.emoticons[set].codes[code]
             + '" title="' + code + '" alt="' + code + '" /><span class="emote-alt">' + code + '</span>';
     }
-    jq.add('*', jq).not('code, code *, a, a *').replaceText(this.emoticonRegex, function() {
+    jq.add('*', jq).not('code, code *, a, a *')
+      .replaceText(/[<&]/g, function(a) { return {'&': '&amp;', '<':'&lt;'}[a]; })
+      .replaceText(this.emoticonRegex, function() {
       for (var i = 1; i < Math.min(arguments.length-2, emoticonSets.length+1); i++) {
         if (arguments[i]) {
           return emoticonImg(emoticonSets[i-1], arguments[i]);
         }
       }
-    });
+    }).replaceText(/&(lt|amp);/g, function(a) { return {'&amp;': '&', '&lt;':'<'}[a]; }, true);
     if (!config.settings.markup.emoticons) {
       jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
     }
