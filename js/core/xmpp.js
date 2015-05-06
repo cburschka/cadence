@@ -520,7 +520,7 @@ var xmpp = {
           // Strip off the parenthesized number of participants in the name:
           var name = $(t).attr('name');
           if (name)
-            name = Strophe.unescapeNode(name.replace(/\((\d+)\)$/, '').trim());
+            name = name.replace(/\((\d+)\)$/, '').trim();
           else
             name = room;
           rooms[room] = {id: room, title: name, members: null};
