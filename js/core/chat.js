@@ -719,7 +719,7 @@ var chat = {
     if (xmpp.room.available[title]) return xmpp.room.available[title];
     for (var room in xmpp.room.available) {
       if (xmpp.room.available[room].title == title)
-          return xmpp.room.available[room];
+        return xmpp.room.available[room];
     }
   },
 
