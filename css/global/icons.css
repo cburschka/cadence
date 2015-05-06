@@ -27,7 +27,7 @@
 
 /* Status Icon */
 #statusIcon {
-  background-image: url('../../img/loading-sprite.png');
+  background-image: url('../../img/loading-sprite.gif');
   background-position: 0px -44px;
 }
 #statusIcon.online {
