@@ -235,7 +235,8 @@ var chat = {
      *   Alter a room configuration.
      */
     configure: function(arg) {
-      arg = chat.parseArgs(arg.trim());
+      arg = chat.parseArgs(arg);
+      if (arg.help) return ui.messageAddInfo(strings.help.configure);
       var config = chat.roomConf(arg);
       var name = arg.name || xmpp.room.current;
       if (!xmpp.room.available[name])
@@ -275,6 +276,7 @@ var chat = {
      */
     create: function(arg) {
       arg = chat.parseArgs(arg);
+      if (arg.help) return ui.messageAddInfo(strings.help.configure);
       if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       if (!arg.name)
         return ui.messageAddInfo(strings.error.roomUnnamed, 'error');
@@ -731,13 +733,18 @@ var chat = {
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
     var value = /(?:"((?:\\"|[^"])+)"|'((?:\\'|[^'])+)'|([^"'\s](?:\\\s|[^\s])*))/;
-    var keyvalue = RegExp(key.source + '(?:=|\\s+)' + value.source);
+    // A keyvalue assignment can be separated by spaces or an =.
+    // When separated by spaces, the value must not begin with an unquoted --.
+    var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
     var tokens = text.match(RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g'));
     var arguments = {0:[]};
     for (var i in tokens) {
       var token = tokens[i].match(keyvalue) || tokens[i].match(key);
-      if (token)
-        arguments[token[1]] = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
+      if (token) {
+        var v = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
+        if (v in ['0', 'no', 'off', 'false']) value = false;
+        arguments[token[1]] = v;
+      }
       else {
         var token = tokens[i].match(value);
         arguments[0].push((token[1] || token[2] || token[3]).replace(/\\([\\\s"'])/, '$1'));
@@ -752,32 +759,37 @@ var chat = {
   roomConf: function(args) {
     var conf = {};
     conf.roomname = args.title || args.name;
+
     if (args.desc) conf.roomdesc = args.desc;
+    if (args.log !== undefined) conf.enablelogging = args.log;
     if (args.persistent !== undefined) conf.persistentroom = args.persistent ? 1 : 0;
     if (args['public'] !== undefined) conf.publicroom = args['public'] ? 1 : 0;
-    if (args.password) {
-      conf.passwordprotectedroom = 1;
+    if (args.anonymous !== undefined) conf.whois = args.anonymous ? 'moderators' : 'anyone';
+    if (args.password !== undefined) {
+      conf.passwordprotectedroom = args.password ? 1 : 0;
       conf.roomsecret = args.password;
     }
-    if (args.maxusers) conf.maxusers = args.maxusers;
-    if (args.anonymous !== undefined) conf.whois = args.anonymous ? 'moderators' : 'anyone';
+    if (args['max-users']) conf.maxusers = args.maxusers;
+    if (args['members-only'] !== undefined) conf.membersonly = args.membersonly ? 1 : 0;
 
-    if (args.membersonly !== undefined) conf.membersonly = args.membersonly ? 1 : 0;
+    // --moderation=closed|open|none:
     if (args.moderation !== undefined) {
+      // closed: People must be voiced by moderators.
       if (args.moderation == 'closed') {
         conf.moderatedroom = 1;
         conf.members_by_default = 0;
       }
+      // none: There is no moderation.
       else if (!args.moderation || args.moderation == 'none') conf.moderatedroom = 0;
+      // open: People can be muted by moderators.
       else {
         conf.moderatedroom = 1;
         conf.members_by_default = 1;
       }
     }
-    if (args.changesubject !== undefined) conf.changesubject = args.changesubject;
-
-    // TODO: Unfinished. Also, ejabberd has non-standard fields.
-
+    if (args.msg !== undefined) conf.allow_private_messages = args.msg ? 1 : 0;
+    if (args['msg-visitors'] in ['anyone', 'moderators', 'nobody'])
+      conf.allow_private_messages_from_visitors = args['msg-visitors'];
     return conf;
   },
 
