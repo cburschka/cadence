@@ -731,7 +731,7 @@ var chat = {
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
     var value = /(?:"((?:\\"|[^"])+)"|'((?:\\'|[^'])+)'|([^"'\s](?:\\\s|[^\s])*))/;
-    var keyvalue = RegExp(key.source + /(?:=|\s+)/.source + value.source);
+    var keyvalue = RegExp(key.source + '(?:=|\\s+)' + value.source);
     var tokens = text.match(RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g'));
     var arguments = {0:[]};
     for (var i in tokens) {
