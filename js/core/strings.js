@@ -168,6 +168,7 @@ var strings = {
     noNick: 'You must set a nickname.',
     pingTimeout: 'Ping to {target} timed out ({delay}).',
     roomConf: 'The following fields could not be set on {name}: {fields}',
+    roomConfOptions: 'The allowed values for {field} are: {options}',
     roomExists: 'Could not create {room}; it already exists.',
     roomUnnamed: 'Could not create a room without a name.',
     saveEmpty: 'There are no messages to save.',
@@ -179,5 +180,21 @@ var strings = {
     unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',
     noRoomsAvailable: 'There are no rooms available.',
+  },
+
+  help: {
+    configure: 'Configuration arguments:\
+  <dl><dt><code>--title &lt;...&gt;</code></dt><dd>Set human-readable room title.</dd>\
+  <dt><code>--desc &lt;...&gt;</code></dt><dd>Set the room description.</dd>\
+  <dt><code>--log, --log 0</code></dt><dd>Toggle logging.</dd>\
+  <dt><code>--persistent, --persistent 0</code></dt><dd>Toggle room persistence.</dd>\
+  <dt><code>--public, --public 0</code></dt><dd>Make the room public or private (unlisted).</dd>\
+  <dt><code>--anonymous, --anonymous 0</code></dt><dd>Toggle anonymity. This determines whether non-moderators can see participants\' full JID.</dd>\
+  <dt><code>--password &lt;...&gt;, --password 0</code></dt><dd>Set or remove a room password.</dd>\
+  <dt><code>--max-users &lt;...&gt;</code></dt><dd>Set the user limit.</dd>\
+  <dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd>\
+  <dt><code>--moderation [closed|open|none]</code></dt><dd>An open or closed room allows participants to be muted; in a closed room participants are muted by default.</dd>\
+  <dt><code>--msg, --msg 0</code></dt><dd>Toggle private messaging.</dd>\
+  <dt><code>--msg-visitors anyone|moderators|nobody</code></dt><dd>Allow visitors to send private messages.<dd></dl>'
   }
 };

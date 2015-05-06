@@ -351,9 +351,20 @@ var xmpp = {
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
         $('field', $('query x', stanza)).each(function() {
+          var type = $(this).attr('type');
           var name = $(this).attr('var');
-          var value = values[name] || $('value', this).html() || '';
+          var pname = 'muc#roomconfig_' + i;
+          var value = values[name] || values[pname] || $('value', this).html() || '';
+          if (value && type == 'list-single') {
+            var options = [];
+            $('option value', this).each(function() { options.push(this.innerHTML); });
+            if (!(value in options))
+              return ui.messageAddInfo(strings.error.roomConfOptions,
+                {options: options.join(', '), field: name}, 'error'
+              );
+          }
           delete values[name];
+          delete values[pname];
           form.c('field', {'var': name}).c('value', {}, value).up();
         });
         var fields = [];
