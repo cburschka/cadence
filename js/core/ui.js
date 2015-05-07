@@ -205,8 +205,10 @@ var ui = {
     // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
-      if ($(this).hasClass('insert-bbcode-arg'))
+      if ($(this).hasClass('insert-bbcode-arg')) {
         var arg = prompt('This BBCode tag requires an argument:', '');
+        if (!arg) return;
+      }
       insertBBCode(this.value.toLowerCase(), arg || '');
     });
 
@@ -520,6 +522,7 @@ var ui = {
   userAdd: function(user, animate) {
     var userLink = $('<div class="row"><span class="user-roster">'
                     + visual.format.user(user) + '</span></div>');
+    visual.msgOnClick(userLink);
 
     if (user.jid)
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));

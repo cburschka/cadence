@@ -102,6 +102,9 @@ visual = {
       );
     }
 
+    // Make users clickable.
+    this.msgOnClick(node);
+
     return {
       timestamp: message.time.getTime(),
       html: node,
@@ -144,11 +147,9 @@ visual = {
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
-            + (jid ? (' title="' + jid + '"') : '')
-            + ' onclick="chat.prefixMsg(\''
-            + encodeURIComponent(recipient.replace(/\s/g, '\\$&'))
-              .replace(/\'/g, "\\\'")
-            + '\', ' + (user.role == 'external') + ')"' + '>' + nick + '</span>';
+            + ' data-recipient="' + visual.format.plain(recipient) + '"'
+            + (user.role == 'external' ? ' data-external="1"' : '')
+            + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
     /**
@@ -174,8 +175,8 @@ visual = {
      * Only use it when working on strings.
      */
     plain: function(text) {
-      var replacers = {'<': '&lt;', '>': '&gt;', '&':'&amp;'};
-      return text.replace(/[<>&]/g, function(x) { return replacers[x]; });
+      var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
+      return text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
     },
 
     raw: function(text) {
@@ -321,6 +322,12 @@ visual = {
     $('a[href]:not([href^=#]):not([href^=javascript\\:])', jq).click(function(event) {
       event.preventDefault();
       window.open(this.href);
+    });
+  },
+
+  msgOnClick: function(jq) {
+    $('span.user', jq).click(function() {
+      chat.prefixMsg($(this).attr('data-recipient'), $(this).attr('data-external'));
     });
   },
 

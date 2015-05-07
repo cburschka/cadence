@@ -383,9 +383,9 @@ var chat = {
      * msg <nick> <msg>
      *   Send a private message to another occupant.
      */
-    msg: function(arg, direct) {
-      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
-      var nick = m[1].replace(/\\(\s)/g, '$1');
+    msg: function(arg) {
+      var m = /^\s*((\\[\\\s]|[^\\\s])+)/.exec(arg);
+      var nick = m[1].replace(/\\([\\\s])/g, '$1');
       var msg = arg.substring(m[0].length);
       if (!direct && !xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
@@ -720,10 +720,11 @@ var chat = {
    * This will replace any existing /msg <nick> prefix.
    */
   prefixMsg: function(nick, direct) {
+    nick = nick.replace(/[\\\s]/g, '\\$&');
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/d?msg\s+((\\\s|\S)+)/);
+    var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = '/' + (direct ? 'd' : '')  + 'msg ' + decodeURIComponent(nick) + ' ' + text;
+    if (nick) text = '/' + (direct ? 'd' : '')  + 'msg ' + nick + ' ' + text;
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
@@ -746,7 +747,8 @@ var chat = {
     var key = /(?:--([a-z-]+))/;
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
-    var value = /(?:"((?:\\"|[^"])+)"|'((?:\\'|[^'])+)'|([^"'\s](?:\\\s|[^\s])*))/;
+    // All literal backslashes must also be escaped.
+    var value = /(?:"((?:\\[\\"]|[^\\"])+)"|'((?:\\[\\']|[^\\'])+)'|([^"'\s](?:\\[\\\s]|[^\\\s])*))/;
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
     var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
