@@ -96,7 +96,7 @@ visual = {
     if (message.type != 'groupchat' && message.type != 'local') {
       $('span.' + (me ? 'body' : 'author'), node).after(
         ' <span class="privmsg">' + (message.to ?
-          this.formatText(strings.info.whisperTo, {nick:message.to})
+          this.formatText(strings.info.whisperTo, {user:message.to})
         : strings.info.whisper)
         + '</span>'
       );

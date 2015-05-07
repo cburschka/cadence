@@ -16,6 +16,7 @@ var xmpp = {
     target: null,
     current: null,
   },
+  jid: null,
   user: null,
   resource: null,
   status: 'offline',
@@ -61,9 +62,9 @@ var xmpp = {
     this.session = {};
     this.user = user;
     this.nick.target = user;
-    var jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    this.jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
-    this.connection.connect(jid, pass, this.eventConnectCallback);
+    this.connection.connect(this.jid, pass, this.eventConnectCallback);
   },
 
   /**
@@ -782,7 +783,7 @@ var xmpp = {
       else var user = {nick: node + '@' + domain, jid: from, role: 'external'};
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
           return true
         }
       }

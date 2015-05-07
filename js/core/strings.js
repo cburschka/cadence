@@ -73,7 +73,7 @@ var strings = {
     roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {raw.users}.',
     usersInThisRoom: 'Users in this room: {raw.users}.',
-    whisperTo: '(whispers to {nick})',
+    whisperTo: '(whispers to {user})',
     whisper: '(whispers)',
     evicted: {
       kick: {
@@ -160,6 +160,7 @@ var strings = {
       406: 'You can\'t kick {nick} because they\'re not in the room.',
     },
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
+    jidInvalid: '{jid} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',

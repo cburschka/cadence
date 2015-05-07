@@ -303,7 +303,21 @@ var chat = {
      *   Send a direct message to a user outside the chatroom.
      */
     dmsg: function(arg) {
-      chat.commands.msg(arg, true);
+      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
+      var jid = m[1].replace(/\\(\s)/g, '$1');
+      var msg = arg.substring(m[0].length);
+      if (!Strophe.getNodeFromJid(jid))
+        return ui.messageAddInfo(strings.error.jidInvalid, {jid: jid});
+
+      var html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, jid, true);
+
+      ui.messageAppend(visual.formatMessage({
+        type: 'chat',
+        to: {nick: Strophe.getBareJidFromJid(jid), jid: jid, role: 'external'},
+        user: {nick: Strophe.getBareJidFromJid(xmpp.jid), jid: xmpp.jid, role: 'external'},
+        body: html
+      }));
     },
 
     /**
@@ -387,17 +401,15 @@ var chat = {
       var m = /^\s*((\\[\\\s]|[^\\\s])+)/.exec(arg);
       var nick = m[1].replace(/\\([\\\s])/g, '$1');
       var msg = arg.substring(m[0].length);
-      if (!direct && !xmpp.roster[xmpp.room.current][nick])
+      if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
-      chat.sendMessage(msg, nick, direct);
+      html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        user: (!direct ?
-          xmpp.roster[xmpp.room.current][xmpp.nick.current] :
-          {nick: xmpp.user + '@' + config.xmpp.domain}
-        ),
-        body: chat.formatOutgoing(msg)
+        to: xmpp.roster[xmpp.room.current][nick],
+        user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
+        body: html
       }));
     },
 
@@ -480,8 +492,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      arg = visual.lengthLimit(visual.format.plain(arg.trim()), config.ui.maxMessageLength);
-      chat.sendMessage(arg);
+      var html = chat.formatOutgoing(arg);
+      xmpp.sendMessage(html);
     },
 
     /**
@@ -642,23 +654,14 @@ var chat = {
   },
 
   /**
-   * Ask XMPP to send a message to the current room, or one of its occupants.
-   *
-   * @param {string} text: The message to send (already escaped, but pre-BBCode).
-   * @param {string} nick: The recipient, or undefined.
-   */
-  sendMessage: function(text, nick, direct) {
-    html = this.formatOutgoing(text);
-    xmpp.sendMessage(html, nick, direct);
-  },
-
-  /**
    * Format an outgoing message.
    *
    * @param {string} text The message to send.
    * @return {string} The HTML output.
    */
   formatOutgoing: function(text) {
+    text = visual.format.plain(text);
+    text = visual.lengthLimit(text, config.ui.maxMessageLength);
     html = bbcode.render(text);
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
