@@ -237,7 +237,6 @@ var xmpp = {
 
     this.getRoomInfo(room, function(roomInfo) {
       if (!roomInfo) {
-        console.log("Room does not exist");
         ui.updateFragment(xmpp.room.current);
         return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
       }
@@ -264,9 +263,9 @@ var xmpp = {
   joinNewRoom: function(name, config) {
     var room = name.toLowerCase();
     config = config || {};
-    config.roomname = config.roomname || name;
+    config['muc#roomconfig_roomname'] = config['muc#roomconfig_roomname'] || name;
     ui.messageAddInfo(strings.info.creating, {
-      room: {id: room, title: config.roomname},
+      room: {id: room, title: config['muc#roomconfig_roomname']},
       user: {
         nick: this.nick.target,
         jid: this.connection.jid
@@ -279,7 +278,7 @@ var xmpp = {
         return parseInt($(this).attr('code'));
       }));
       if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {name: config.roomname}, 'verbose');
+        ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname']}, 'verbose');
         this.configureRoom(room, config, function() {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
@@ -339,36 +338,31 @@ var xmpp = {
    *
    * @param {string} room The room name.
    * @param {Object} vars The field values to set, indexed by field name
-   *                 (without the prefix "muc#roomconfig_").
+   *                 (including the prefix "muc#roomconfig_" if applicable)
    * @param {function} success The callback to execute afterward.
    */
-  configureRoom: function(room, vars, success) {
+  configureRoom: function(room, values, success) {
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
-        var values = {};
-        for (var i in vars) values['muc#roomconfig_' + i] = vars[i];
         var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'})
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
         $('field', $('query x', stanza)).each(function() {
           var type = $(this).attr('type');
           var name = $(this).attr('var');
-          var pname = 'muc#roomconfig_' + i;
-          var value = values[name] || values[pname] || $('value', this).html() || '';
+          var value = values[name] || $('value', this).html() || '';
           if (value && type == 'list-single') {
             var options = [];
-            $('option value', this).each(function() { options.push(this.innerHTML); });
-            if (!(value in options))
+            $('option value', this).each(function() { options.push(this.innerHTML)});
+            if (options.indexOf(value) < 0)
               return ui.messageAddInfo(strings.error.roomConfOptions,
                 {options: options.join(', '), field: name}, 'error'
               );
           }
           delete values[name];
-          delete values[pname];
           form.c('field', {'var': name}).c('value', {}, value).up();
         });
-        var fields = [];
-        for (var i in vars) if (values['muc#roomconfig_' + i]) fields.push(i);
+        var fields = Object.keys(values);
         if (fields.length)
           ui.messageAddInfo(strings.error.roomConf, {name: room, fields: fields.join(', ')}, 'error');
 

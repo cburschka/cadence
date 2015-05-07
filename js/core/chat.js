@@ -758,32 +758,38 @@ var chat = {
    */
   roomConf: function(args) {
     var conf = {};
-    conf.roomname = args.title || args.name;
+    conf['muc#roomconfig_roomname'] = args.title || args.name;
 
-    if (args.desc) conf.roomdesc = args.desc;
-    if (args.log !== undefined) conf.enablelogging = args.log;
-    if (args.persistent !== undefined) conf.persistentroom = args.persistent ? 1 : 0;
-    if (args['public'] !== undefined) conf.publicroom = args['public'] ? 1 : 0;
-    if (args.anonymous !== undefined) conf.whois = args.anonymous ? 'moderators' : 'anyone';
+    if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
+    if (args.log !== undefined) conf['muc#roomconfig_enablelogging'] = args.log;
+    if (args.persistent !== undefined)
+      conf['muc#roomconfig_persistentroom'] = args.persistent ? 1 : 0;
+    if (args['public'] !== undefined)
+      conf['muc#roomconfig_publicroom'] = args['public'] ? 1 : 0;
+    if (args.anonymous !== undefined)
+      conf['muc#roomconfig_whois'] = args.anonymous ? 'moderators' : 'anyone';
     if (args.password !== undefined) {
-      conf.passwordprotectedroom = args.password ? 1 : 0;
-      conf.roomsecret = args.password;
+      conf['muc#roomconfig_passwordprotectedroom'] = args.password ? 1 : 0;
+      conf['muc#roomconfig_roomsecret'] = args.password;
     }
-    if (args['max-users']) conf.maxusers = args.maxusers;
-    if (args['members-only'] !== undefined) conf.membersonly = args.membersonly ? 1 : 0;
+    if (args['max-users']) conf['muc#roomconfig_maxusers'] = args['max-users'];
+    if (args['members-only'] !== undefined)
+      conf['muc#roomconfig_membersonly'] = args.membersonly ? 1 : 0;
 
     // --moderation=closed|open|none:
     if (args.moderation !== undefined) {
       // closed: People must be voiced by moderators.
       if (args.moderation == 'closed') {
-        conf.moderatedroom = 1;
+        conf['muc#roomconfig_moderatedroom'] = 1;
         conf.members_by_default = 0;
       }
       // none: There is no moderation.
-      else if (!args.moderation || args.moderation == 'none') conf.moderatedroom = 0;
+      else if (!args.moderation || args.moderation == 'none') {
+        conf['muc#roomconfig_moderatedroom'] = 0;
+      }
       // open: People can be muted by moderators.
       else {
-        conf.moderatedroom = 1;
+        conf['muc#roomconfig_moderatedroom'] = 1;
         conf.members_by_default = 1;
       }
     }
