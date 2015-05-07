@@ -385,7 +385,7 @@ var chat = {
       chat.sendMessage(msg, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: nick,
+        to: xmpp.roster[xmpp.room.current][nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
         body: chat.formatOutgoing(msg)
       }));

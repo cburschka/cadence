@@ -73,7 +73,7 @@ var strings = {
     roomsAvailable: 'Available rooms: {raw.rooms}',
     usersInRoom: 'Users in {room}: {raw.users}.',
     usersInThisRoom: 'Users in this room: {raw.users}.',
-    whisperTo: '(whispers to {nick})',
+    whisperTo: '(whispers to {user})',
     whisper: '(whispers)',
     evicted: {
       kick: {
