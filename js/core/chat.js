@@ -727,7 +727,7 @@ var chat = {
     var text = ui.dom.inputField.val();
     var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = '/' + (direct ? 'd' : '')  + 'msg ' + nick + ' ' + text;
+    if (nick) text = (direct ? '/dmsg ' : '/msg ') + nick + ' ' + text;
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
