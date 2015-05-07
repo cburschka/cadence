@@ -344,7 +344,7 @@ var xmpp = {
   configureRoom: function(room, values, success) {
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
-        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'})
+        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
         $('field', $('query x', stanza)).each(function() {

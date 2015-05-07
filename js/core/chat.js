@@ -237,10 +237,14 @@ var chat = {
     configure: function(arg) {
       arg = chat.parseArgs(arg);
       if (arg.help) return ui.messageAddInfo(strings.help.configure);
-      var config = chat.roomConf(arg);
+      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       var name = arg.name || xmpp.room.current;
+      if (!name)
+        return ui.messageAddInfo(strings.error.roomConfName, 'error');
       if (!xmpp.room.available[name])
         return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
+
+      var config = chat.roomConf(arg);
       xmpp.configureRoom(name, config, function() {
         return ui.messageAddInfo(strings.info.roomConf, {room: xmpp.room.available[name]});
       });
@@ -279,7 +283,7 @@ var chat = {
       if (arg.help) return ui.messageAddInfo(strings.help.configure);
       if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       if (!arg.name)
-        return ui.messageAddInfo(strings.error.roomUnnamed, 'error');
+        return ui.messageAddInfo(strings.error.roomCreateName, 'error');
       var config = chat.roomConf(arg);
       var name = arg.name.toLowerCase();
       var create = function() {
