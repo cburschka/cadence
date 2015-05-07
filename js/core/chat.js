@@ -299,6 +299,28 @@ var chat = {
     },
 
     /**
+     * dmsg <jid>
+     *   Send a direct message to a user outside the chatroom.
+     */
+    dmsg: function(arg) {
+      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
+      var jid = m[1].replace(/\\(\s)/g, '$1');
+      var msg = arg.substring(m[0].length);
+      if (!Strophe.getNodeFromJid(jid))
+        return ui.messageAddInfo(strings.error.jidInvalid, {jid: jid});
+
+      var html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, jid, true);
+
+      ui.messageAppend(visual.formatMessage({
+        type: 'chat',
+        to: {nick: Strophe.getBareJidFromJid(jid), jid: jid, role: 'external'},
+        user: {nick: Strophe.getBareJidFromJid(xmpp.jid), jid: xmpp.jid, role: 'external'},
+        body: html
+      }));
+    },
+
+    /**
      * dnd <msg>:
      *   Send a room presence with <show/> set to "dnd" and
      *   <status/> to "msg".
@@ -700,12 +722,12 @@ var chat = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function(nick) {
+  prefixMsg: function(nick, direct) {
     nick = nick.replace(/[\\\s]/g, '\\$&');
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+((\\[\\\s]|[^\\\s])+)/);
+    var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = '/msg ' + nick + ' ' + text;
+    if (nick) text = (direct ? '/dmsg ' : '/msg ') + nick + ' ' + text;
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },

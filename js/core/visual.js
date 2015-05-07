@@ -140,13 +140,14 @@ visual = {
     user: function(user) {
       var nick = visual.format.nick(user.nick);
       var jid = visual.format.plain(user.jid || '');
-      if (user.role == 'visitor' || (user.jid &&
+      var recipient = user.role == 'external' ? user.jid : user.nick;
+      if (user.role == 'visitor' || (user.role != 'external' && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
-            + ' data-recipient="' + visual.format.plain(user.nick) + '"'
+            + ' data-recipient="' + visual.format.plain(recipient) + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -325,7 +326,7 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
-      chat.prefixMsg($(this).attr('data-recipient'));
+      chat.prefixMsg($(this).attr('data-recipient'), $(this).hasClass('user-role-external'));
     });
   },
 

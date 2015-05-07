@@ -16,6 +16,7 @@ var xmpp = {
     target: null,
     current: null,
   },
+  jid: null,
   user: null,
   resource: null,
   status: 'offline',
@@ -61,9 +62,9 @@ var xmpp = {
     this.session = {};
     this.user = user;
     this.nick.target = user;
-    var jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
+    this.jid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
     this.buildConnection();
-    this.connection.connect(jid, pass, this.eventConnectCallback);
+    this.connection.connect(this.jid, pass, this.eventConnectCallback);
   },
 
   /**
@@ -76,10 +77,10 @@ var xmpp = {
   /**
    * Wrapper for $msg() that fills in the sender JID and the room/nick JID.
    */
-  msg: function(nick) {
+  msg: function(nick, direct) {
     return $msg({
       from: this.connection.jid,
-      to:   this.jidFromRoomNick(this.room.current, nick),
+      to:   !direct ? this.jidFromRoomNick(this.room.current, nick) : nick,
       type: (nick ? 'chat' : 'groupchat')
     });
   },
@@ -431,9 +432,9 @@ var xmpp = {
    *
    * @param {jQuery} html The HTML node to send.
    */
-  sendMessage: function(html, nick) {
+  sendMessage: function(html, nick, direct) {
     html = $('<p>' + html + '</p>');
-    this.connection.send(this.msg(nick)
+    this.connection.send(this.msg(nick, direct)
       .c('body', html.text()).up()
       .c('html', {xmlns:Strophe.NS.XHTML_IM})
       .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
@@ -767,22 +768,27 @@ var xmpp = {
       // Message of the Day.
       if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
         return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
-      // Only accept messages in the current room.
-      else if (domain != config.xmpp.mucService || node != this.room.current)
-        return true;
 
+      else if (domain == config.xmpp.mucService) {
+        // Only accept MUC messages in the current room.
+        if (node != this.room.current)
+          return true;
+
+        // If the sender is not in the room, just show the nick.
+        // This *should* only happen for backlog messages.
+        var user = this.roster[node][resource] || {nick: resource};
+      }
+
+      // Accept direct messages from other domains.
+      else var user = {nick: node + '@' + domain, jid: from, role: 'external'};
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
+          ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
           return true
         }
       }
       this.historyEnd[node] = time || (new Date()).toISOString();
 
-      // If the sender is not in the room, just show the nick.
-      // This *should* only happen for backlog messages.
-
-      var user = this.roster[node][resource] || {nick: resource};
 
       if (time) ui.messageDelayed(
         {user: user, body: body, time: time, room: this.room.available[node], type: type}
