@@ -148,7 +148,6 @@ visual = {
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
             + ' data-recipient="' + visual.format.plain(recipient) + '"'
-            + (user.role == 'external' ? ' data-external="1"' : '')
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -327,7 +326,7 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
-      chat.prefixMsg($(this).attr('data-recipient'), $(this).attr('data-external'));
+      chat.prefixMsg($(this).attr('data-recipient'), $(this).hasClass('user-role-external'));
     });
   },
 
