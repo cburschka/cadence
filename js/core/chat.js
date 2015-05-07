@@ -381,13 +381,13 @@ var chat = {
       var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
-      chat.sendMessage(msg, nick);
+      html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: xmpp.roster[xmpp.room.current][nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
-        body: chat.formatOutgoing(msg)
+        body: html
       }));
     },
 
@@ -470,8 +470,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      arg = visual.lengthLimit(visual.format.plain(arg.trim()), config.ui.maxMessageLength);
-      chat.sendMessage(arg);
+      var html = chat.formatOutgoing(arg);
+      xmpp.sendMessage(html);
     },
 
     /**
@@ -632,23 +632,14 @@ var chat = {
   },
 
   /**
-   * Ask XMPP to send a message to the current room, or one of its occupants.
-   *
-   * @param {string} text: The message to send (already escaped, but pre-BBCode).
-   * @param {string} nick: The recipient, or undefined.
-   */
-  sendMessage: function(text, nick) {
-    html = this.formatOutgoing(text);
-    xmpp.sendMessage(html, nick);
-  },
-
-  /**
    * Format an outgoing message.
    *
    * @param {string} text The message to send.
    * @return {string} The HTML output.
    */
   formatOutgoing: function(text) {
+    text = visual.format.plain(text);
+    text = visual.lengthLimit(text, config.ui.maxMessageLength);
     html = bbcode.render(text);
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
