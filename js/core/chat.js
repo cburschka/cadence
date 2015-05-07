@@ -742,7 +742,7 @@ var chat = {
       var token = tokens[i].match(keyvalue) || tokens[i].match(key);
       if (token) {
         var v = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
-        if (v in ['0', 'no', 'off', 'false']) value = false;
+        if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
         arguments[token[1]] = v;
       }
       else {
@@ -761,39 +761,40 @@ var chat = {
     conf['muc#roomconfig_roomname'] = args.title || args.name;
 
     if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
-    if (args.log !== undefined) conf['muc#roomconfig_enablelogging'] = args.log;
+    if (args.log !== undefined)
+      conf['muc#roomconfig_enablelogging'] = args.log ? '1' : '0';
     if (args.persistent !== undefined)
-      conf['muc#roomconfig_persistentroom'] = args.persistent ? 1 : 0;
+      conf['muc#roomconfig_persistentroom'] = args.persistent ? '1' : '0';
     if (args['public'] !== undefined)
-      conf['muc#roomconfig_publicroom'] = args['public'] ? 1 : 0;
+      conf['muc#roomconfig_publicroom'] = args['public'] ? '1' : '0';
     if (args.anonymous !== undefined)
       conf['muc#roomconfig_whois'] = args.anonymous ? 'moderators' : 'anyone';
     if (args.password !== undefined) {
-      conf['muc#roomconfig_passwordprotectedroom'] = args.password ? 1 : 0;
+      conf['muc#roomconfig_passwordprotectedroom'] = args.password ? '1' : '0';
       conf['muc#roomconfig_roomsecret'] = args.password;
     }
     if (args['max-users']) conf['muc#roomconfig_maxusers'] = args['max-users'];
     if (args['members-only'] !== undefined)
-      conf['muc#roomconfig_membersonly'] = args.membersonly ? 1 : 0;
+      conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
 
     // --moderation=closed|open|none:
     if (args.moderation !== undefined) {
       // closed: People must be voiced by moderators.
       if (args.moderation == 'closed') {
-        conf['muc#roomconfig_moderatedroom'] = 1;
-        conf.members_by_default = 0;
+        conf['muc#roomconfig_moderatedroom'] = '1';
+        conf.members_by_default = '0';
       }
       // none: There is no moderation.
       else if (!args.moderation || args.moderation == 'none') {
-        conf['muc#roomconfig_moderatedroom'] = 0;
+        conf['muc#roomconfig_moderatedroom'] = '0';
       }
       // open: People can be muted by moderators.
       else {
-        conf['muc#roomconfig_moderatedroom'] = 1;
-        conf.members_by_default = 1;
+        conf['muc#roomconfig_moderatedroom'] = '1';
+        conf.members_by_default = '1';
       }
     }
-    if (args.msg !== undefined) conf.allow_private_messages = args.msg ? 1 : 0;
+    if (args.msg !== undefined) conf.allow_private_messages = args.msg ? '1' : '0';
     if (args['msg-visitors'] in ['anyone', 'moderators', 'nobody'])
       conf.allow_private_messages_from_visitors = args['msg-visitors'];
     return conf;

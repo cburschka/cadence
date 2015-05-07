@@ -350,7 +350,8 @@ var xmpp = {
         $('field', $('query x', stanza)).each(function() {
           var type = $(this).attr('type');
           var name = $(this).attr('var');
-          var value = values[name] || $('value', this).html() || '';
+          var value = $('value', this).html();
+          if (values[name] !== undefined) value = values[name];
           if (value && type == 'list-single') {
             var options = [];
             $('option value', this).each(function() { options.push(this.innerHTML)});
@@ -361,6 +362,7 @@ var xmpp = {
           }
           delete values[name];
           form.c('field', {'var': name}).c('value', {}, value).up();
+          if (!value) form.up();
         });
         var fields = Object.keys(values);
         if (fields.length)
