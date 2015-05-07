@@ -520,6 +520,7 @@ var ui = {
   userAdd: function(user, animate) {
     var userLink = $('<div class="row"><span class="user-roster">'
                     + visual.format.user(user) + '</span></div>');
+    visual.msgOnClick(userLink);
 
     if (user.jid)
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
