@@ -237,7 +237,6 @@ var xmpp = {
 
     this.getRoomInfo(room, function(roomInfo) {
       if (!roomInfo) {
-        console.log("Room does not exist");
         ui.updateFragment(xmpp.room.current);
         return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
       }
@@ -259,11 +258,14 @@ var xmpp = {
    * Attempt to create a new room.
    *
    * @param {string} The room name.
+   * @param {object} Room configuration, passed on to xmpp.configureRoom().
    */
-  joinNewRoom: function(title) {
-    var room = title.toLowerCase();
+  joinNewRoom: function(name, config) {
+    var room = name.toLowerCase();
+    config = config || {};
+    config['muc#roomconfig_roomname'] = config['muc#roomconfig_roomname'] || name;
     ui.messageAddInfo(strings.info.creating, {
-      room: {id: room, title: title},
+      room: {id: room, title: config['muc#roomconfig_roomname']},
       user: {
         nick: this.nick.target,
         jid: this.connection.jid
@@ -276,8 +278,8 @@ var xmpp = {
         return parseInt($(this).attr('code'));
       }));
       if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {name: title}, 'verbose');
-        this.configureRoom(room, {roomname: title}, function() {
+        ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname']}, 'verbose');
+        this.configureRoom(room, config, function() {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
           ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
@@ -329,29 +331,40 @@ var xmpp = {
   },
 
   /**
-   * Request a room configuration form and fill it out with the
-   * variables provided.
+   * Request a room configuration form and fill it out with the values provided.
+   *
+   * See http://xmpp.org/registrar/formtypes.html#http:--jabber.org-protocol-mucroomconfig
+   * for a reference on supported room configuration fields.
    *
    * @param {string} room The room name.
-   * @param {Object} vars The field values to set.
+   * @param {Object} vars The field values to set, indexed by field name
+   *                 (including the prefix "muc#roomconfig_" if applicable)
    * @param {function} success The callback to execute afterward.
    */
-  configureRoom: function(room, vars, success) {
+  configureRoom: function(room, values, success) {
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
-        var values = {};
-        for (var i in vars) values['muc#roomconfig_' + i] = vars[i];
-        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'})
+        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
         $('field', $('query x', stanza)).each(function() {
+          var type = $(this).attr('type');
           var name = $(this).attr('var');
-          var value = values[name] || $('value', this).html() || '';
+          var value = $('value', this).html();
+          if (values[name] !== undefined) value = values[name];
+          if (value && type == 'list-single') {
+            var options = [];
+            $('option value', this).each(function() { options.push(this.innerHTML)});
+            if (options.indexOf(value) < 0)
+              return ui.messageAddInfo(strings.error.roomConfOptions,
+                {options: options.join(', '), field: name}, 'error'
+              );
+          }
           delete values[name];
           form.c('field', {'var': name}).c('value', {}, value).up();
+          if (!value) form.up();
         });
-        var fields = [];
-        for (var i in vars) if (values['muc#roomconfig_' + i]) fields.push(i);
+        var fields = Object.keys(values);
         if (fields.length)
           ui.messageAddInfo(strings.error.roomConf, {name: room, fields: fields.join(', ')}, 'error');
 
@@ -503,7 +516,7 @@ var xmpp = {
           // Strip off the parenthesized number of participants in the name:
           var name = $(t).attr('name');
           if (name)
-            name = Strophe.unescapeNode(name.replace(/\((\d+)\)$/, '').trim());
+            name = name.replace(/\((\d+)\)$/, '').trim();
           else
             name = room;
           rooms[room] = {id: room, title: name, members: null};
