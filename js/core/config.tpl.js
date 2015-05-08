@@ -140,6 +140,9 @@ var config = {
     'pidgin_logout',
     'pidgin_receive',
     'pidgin_send',
+    'whip',
+    'slap',
+    'meow',
     'lucia'
   ],
   soundURL: '@@@CDN_URL@@@sounds/',
