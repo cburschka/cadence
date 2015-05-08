@@ -65,6 +65,12 @@ var ui = {
    */
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
+
+    // Build the navigation menu.
+    for (link in config.ui.navigation)
+      $('#navigation ul').append('<li><a href="' + config.ui.navigation[link] + '">' + link + '</a></li>');
+    if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
+
     // Build and fill the emoticon containers.
     var bars = config.ui.emoticonSidebars
     for (var set in bars) {
@@ -97,7 +103,13 @@ var ui = {
       html += '<a href="javascript:void(\'' + code + '\');" title="' + code
            +  '" class="colorCode" style="background-color:' + code + '"></a>';
     }
+    html += '<button class="button" id="textColorFull">Advanced</button>';
     $('#colorCodesContainer').html(html);
+
+    // Add the access key labels to the BBCode buttons.
+    $('#bbCodeContainer button').each(function() {
+      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
+    });
 
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
@@ -129,6 +141,9 @@ var ui = {
    * Initialize the event listeners.
    */
   initializeEvents: function() {
+    // Make all links on the static page open in new tabs.
+    visual.linkOnClick(document);
+
     // Inserting BBCode tags.
     var insertBBCode = function(tag, arg) {
       arg = arg ? '=' + arg : '';
@@ -190,31 +205,29 @@ var ui = {
     // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
-      if ($(this).hasClass('insert-bbcode-arg'))
+      if ($(this).hasClass('insert-bbcode-arg')) {
         var arg = prompt('This BBCode tag requires an argument:', '');
+        if (!arg) return;
+      }
       insertBBCode(this.value.toLowerCase(), arg || '');
     });
 
     // Open the color tray.
     $('#colorBBCode').click(function() {
       ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
+      $('#textColorFull').css('display', 'none');
       ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    this.mouseHold($('#textColor'), 500,
-      function() {
-        config.settings.fullColor = true;
+    $('#textColor').click(function() {
+      $('#textColorFull').css('display', 'block');
+      if (config.settings.fullColor && config.settings.textColor != '') {
         $('#settings-textColor').click();
-      },
-      function() {
-        if (config.settings.fullColor && config.settings.textColor != '') {
-          $('#settings-textColor').click();
-        }
-        else {
-          ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-          ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
-        }
       }
-    );
+      else {
+        ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
+        ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+      }
+    });
 
     // The color tray has two modes (setting and bbcode).
     $('.colorCode').click(function() {
@@ -223,11 +236,18 @@ var ui = {
         $('#colorBBCode').click();
       }
       else if (ui.colorPicker == 'setting') {
-        $('#textColor').mouseup();
+        config.settings.fullColor = false;
+        $('#textColor').click();
         $('#settings-textColor').val(this.title).change();
       }
     });
 
+    // Toggle the full RGB color setting.
+    $('#textColorFull').click(function() {
+      $('#textColor').click();
+      config.settings.fullColor = true;
+      $('#settings-textColor').click();
+    });
     // Clear the text color setting.
     $('#textColorClear').click(function() {
       config.settings.fullColor = false;
@@ -252,6 +272,18 @@ var ui = {
       var value = this.value.split(/[\s,;]+/);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
+
+    // If notifications are activated, ensure they can be sent.
+    $('#settings-notifications\\.desktop').change(function() {
+      if (this.value == 0) return;
+      if (Notification.permission == 'default')
+        Notification.requestPermission(function(permission) {
+          // If denied, revert the setting.
+          if (permission != 'granted') $(this).val(0).change();
+        }.bind(this));
+      else if (Notification.permission == 'denied')
+        $(this).val(0).change();
+    }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
     var toggler = function(selector) {
@@ -345,7 +377,7 @@ var ui = {
       .text(color || 'None')
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', config.settings.markup.colors && color || '');
-    if (color) $('#settings-textColor').val(color);
+    $('#settings-textColor').val(color);
     $('#textColorClear').css('display', color ? 'inline-block' : 'none');
   },
 
@@ -403,10 +435,12 @@ var ui = {
     }
 
     text = visual.formatText(text, variables);
-    var message = visual.formatMessage({
+    var message = {
       body: text, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
-    }, true);
+    };
+    this.notifyDesktop(3, message);
+    message = visual.formatMessage(message, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
     return message;
@@ -488,6 +522,7 @@ var ui = {
   userAdd: function(user, animate) {
     var userLink = $('<div class="row"><span class="user-roster">'
                     + visual.format.user(user) + '</span></div>');
+    visual.msgOnClick(userLink);
 
     if (user.jid)
       $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
@@ -660,16 +695,17 @@ var ui = {
   playSound: function(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
+    if (xmpp.userStatus == 'dnd') return;
     var sound = config.settings.notifications.sounds[event];
     return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
   },
 
   /**
-   * Trigger the correct message sound event.
+   * Trigger the correct message sound and desktop notification.
    * Only one sound is played, in order:
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
    */
-  playSoundMessage: function(message) {
+  notify: function(message) {
     var mention = (message.body.indexOf(xmpp.nick.current) >= 0
                 || message.body.indexOf(xmpp.user) >= 0);
     var sender = false;
@@ -677,10 +713,35 @@ var ui = {
       mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
       sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
     }
+
+    // Any kind of alert is level 1, everything else is 2.
+    this.notifyDesktop(((mention || message.type == 'chat' || sender) ? 1 : 2), message);
+
     if (mention && this.playSound('mention')) return;
     if (message.type == 'chat' && this.playSound('msg')) return;
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
+  },
+
+  /**
+   * Generate a desktop notification.
+   *
+   * @param {int} level: The verbosity level of the notification:
+   *                     - 1: Private messages & mentions
+   *                     - 2: Other messages
+   *                     - 3: Join/part notifications
+   * @param {Object} message: The message object.
+   */
+  notifyDesktop: function(level, message) {
+    if (xmpp.userStatus == 'dnd') return;
+    if (level <= config.settings.notifications.desktop && document.hidden) {
+      var title = xmpp.room.available[xmpp.room.current].title;
+      var text = $('<span>' + message.body + '</span>').text();
+      if (message.type != 'groupchat' && message.type != 'local')
+        text = strings.info.whisper + ' ' + text;
+      if (message.type != 'local') text = '<b>' + message.user.nick + ':</b> ' + text;
+      new Notification(title, {body: text, tag: xmpp.room.current});
+    }
   },
 
   /**
@@ -755,33 +816,5 @@ var ui = {
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
-  },
-
-  /**
-   * Attach variable events for clicking or holding an element.
-   */
-  mouseHold: function(element, duration, fnHold, fnClick) {
-    var timeout = 0;
-    var held = false;
-    fnHold = fnHold.bind(element);
-    fnClick = fnClick.bind(element);
-
-    element.on({
-      mousedown: function() {
-        timeout = setTimeout(function() {
-          held = true;
-          fnHold();
-        }, duration);
-      },
-      mouseup: function() {
-        clearTimeout(timeout);
-        if (!held) fnClick();
-        held = false;
-      },
-      mouseleave: function() {
-        clearTimeout(timeout);
-        held = false;
-      }
-    });
   }
 };

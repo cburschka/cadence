@@ -33,6 +33,9 @@
         </form>
       </span>
       <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" />cadence</a></span>
+      <div id="navigation">
+        <label for="navigation">Navigation:</label><ul></ul>
+      </div>
     </div>
     <!-- / headlineContainer -->
     <div id="chatList" class="box"></div>
@@ -44,15 +47,15 @@
     </div>
     <div id="footerContainer">
       <div id="bbCodeContainer" class="container">
-        <button class="button insert-bbcode" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;">b</button>
-        <button class="button insert-bbcode" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;">i</button>
-        <button class="button insert-bbcode" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;">u</button>
-        <button class="button insert-bbcode" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;">s</button>
-        <button class="button insert-bbcode" value="quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]">Quote</button>
-        <button class="button insert-bbcode" value="code" title="Code display: [code]code[/code]">Code</button>
-        <button class="button insert-bbcode insert-bbcode-arg" value="url" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]">URL</button>
-        <button class="button insert-bbcode" value="img" title="Insert image: [img]http://example.org/image.jpg[/img]">IMG</button>
-        <button class="button" id="colorBBCode" value="color" title="Text color: [color=red]text[/color]">Color</button>
+        <button class="button insert-bbcode" accesskey="b" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;">b</button>
+        <button class="button insert-bbcode" accesskey="i" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;">i</button>
+        <button class="button insert-bbcode" accesskey="u" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;">u</button>
+        <button class="button insert-bbcode" accesskey="s" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;">s</button>
+        <button class="button insert-bbcode" accesskey="q" value="quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]">Quote</button>
+        <button class="button insert-bbcode" accesskey="c" value="code" title="Code display: [code]code[/code]">Code</button>
+        <button class="button insert-bbcode insert-bbcode-arg" accesskey="l" value="url" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]">URL</button>
+        <button class="button insert-bbcode" accesskey="g" value="img" title="Insert image: [img]http://example.org/image.jpg[/img]">IMG</button>
+        <button class="button" id="colorBBCode" accesskey="o" value="color" title="Text color: [color=red]text[/color]">Color</button>
       </div>
       <!-- / bbCodeContainer -->
       <div id="emoticonsContainer" class="container">
@@ -98,12 +101,16 @@
             <td class="code">/clear</td>
           </tr>
           <tr class="row">
+            <td class="desc">Configure an existing room:</td>
+            <td class="code">/configure [--help] [&lt;options&gt;]</td>
+          </tr>
+          <tr class="row">
             <td class="desc">Connect:</td>
             <td class="code">/connect &lt;user&gt; &lt;pass&gt;</td>
           </tr>
           <tr class="row">
             <td class="desc">Create a new room:</td>
-            <td class="code">/create &lt;title&gt;</td>
+            <td class="code">/create [--help] &lt;name&gt; [&lt;options&gt;]</td>
           </tr>
           <tr class="row">
             <td class="desc">Join a room:</td>
@@ -204,11 +211,11 @@
             <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/" onclick="window.open(this.href); return false;">help</a>):</label></td>
+            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
             <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-textColor"><a title="Press and hold for full color range.">Text color</a>:</label></td>
+            <td><label for="textColor">Text color:</label></td>
             <td class="setting">
               <button class="button" id="textColor">None</button>
               <button class="button" id="textColorClear">Clear</button>
@@ -238,6 +245,17 @@
           <tr class="row">
             <td><label for="settings-verbose">Display verbose messages:</label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.desktop">Desktop notifications:</label></td>
+            <td class="setting">
+              <select class="settings" id="settings-notifications.desktop">
+                <option value="0">None</option>
+                <option value="1">Alerts</option>
+                <option value="2">All messages</option>
+                <option value="3">Everything</option>
+              </select>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.triggers">Alert keywords:</label></td>
@@ -272,11 +290,11 @@
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.error">Mention sound:</label></td>
+            <td><label for="settings-notifications.sounds.mention">Mention sound:</label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.mention"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.error">Private message sound:</label></td>
+            <td><label for="settings-notifications.sounds.msg">Private message sound:</label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.msg"></select></td>
           </tr>
           <tr class="row">

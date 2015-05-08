@@ -25,7 +25,9 @@ def main():
 
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
-    if args.mode == 'minify' and subprocess.call(['which', 'yui-compressor'], stdout=open(os.devnull, 'w')):
+    #TODO [Python3+] subprocess.DEVNULL
+    DEVNULL = open(os.devnull, 'w')
+    if args.mode == 'minify' and subprocess.call(['which', 'yui-compressor'], stdout=DEVNULL, stderr=DEVNULL):
         print('yui-compressor is not installed. The code will not be compressed.')
         args.mode = 'aggregate'
 

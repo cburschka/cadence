@@ -231,6 +231,26 @@ var chat = {
     },
 
     /**
+     * configure [room] <args>
+     *   Alter a room configuration.
+     */
+    configure: function(arg) {
+      arg = chat.parseArgs(arg);
+      if (arg.help) return ui.messageAddInfo(strings.help.configure);
+      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
+      var name = arg.name || xmpp.room.current;
+      if (!name)
+        return ui.messageAddInfo(strings.error.roomConfName, 'error');
+      if (!xmpp.room.available[name])
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
+
+      var config = chat.roomConf(arg);
+      xmpp.configureRoom(name, config, function() {
+        return ui.messageAddInfo(strings.info.roomConf, {room: xmpp.room.available[name]});
+      });
+    },
+
+    /**
      * connect <user> <pass>
      * connect {user:<user>, pass:<pass>}
      *   Open a connection and authenticate.
@@ -255,21 +275,58 @@ var chat = {
     },
 
     /**
-     * create <room>
+     * create <room> [<args>]
      *   Join a new room and set it up.
      */
     create: function(arg) {
-      var name = arg.trim();
+      arg = chat.parseArgs(arg);
+      if (arg.help) return ui.messageAddInfo(strings.help.configure);
+      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
+      if (!arg.name)
+        return ui.messageAddInfo(strings.error.roomCreateName, 'error');
+      var config = chat.roomConf(arg);
+      var name = arg.name.toLowerCase();
       var create = function() {
         var room = chat.getRoomFromTitle(name);
         if (room)
           return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-        xmpp.joinNewRoom(name);
+        xmpp.joinNewRoom(name, config);
         ui.updateFragment(name);
         chat.setSetting('xmpp.room', room);
       };
       if (!chat.getRoomFromTitle(name)) create();
       else xmpp.discoverRooms(create);
+    },
+
+    /**
+     * dmsg <jid>
+     *   Send a direct message to a user outside the chatroom.
+     */
+    dmsg: function(arg) {
+      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
+      var jid = m[1].replace(/\\(\s)/g, '$1');
+      var msg = arg.substring(m[0].length);
+      if (!Strophe.getNodeFromJid(jid))
+        return ui.messageAddInfo(strings.error.jidInvalid, {jid: jid});
+
+      var html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, jid, true);
+
+      ui.messageAppend(visual.formatMessage({
+        type: 'chat',
+        to: {nick: Strophe.getBareJidFromJid(jid), jid: jid, role: 'external'},
+        user: {nick: Strophe.getBareJidFromJid(xmpp.jid), jid: xmpp.jid, role: 'external'},
+        body: html
+      }));
+    },
+
+    /**
+     * dnd <msg>:
+     *   Send a room presence with <show/> set to "dnd" and
+     *   <status/> to "msg".
+     */
+    dnd: function(arg) {
+      xmpp.sendStatus('dnd', arg.trim());
     },
 
     /**
@@ -341,18 +398,18 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
-      var nick = m[1].replace(/\\(\s)/g, '$1');
+      var m = /^\s*((\\[\\\s]|[^\\\s])+)\s*/.exec(arg);
+      var nick = m[1].replace(/\\([\\\s])/g, '$1');
       var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
         return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      var msg = visual.lengthLimit(visual.format.plain(msg), config.ui.maxMessageLength);
-      chat.sendMessage(msg, nick);
+      html = chat.formatOutgoing(msg);
+      xmpp.sendMessage(html, nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: nick,
+        to: xmpp.roster[xmpp.room.current][nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
-        body: chat.formatOutgoing(msg)
+        body: html
       }));
     },
 
@@ -435,8 +492,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      arg = visual.lengthLimit(visual.format.plain(arg.trim()), config.ui.maxMessageLength);
-      chat.sendMessage(arg);
+      var html = chat.formatOutgoing(arg);
+      xmpp.sendMessage(html);
     },
 
     /**
@@ -494,19 +551,25 @@ var chat = {
         return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {name: arg}, 'error');
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, function(users) {
-          var out = [];
-          for (var nick in users) out.push(visual.format.nick(nick))
-          if (out.length) ui.messageAddInfo(strings.info.usersInRoom, {
+          var links = [];
+          var nicks = Object.keys(users);
+          nicks.sort();
+          for (var i in nicks) links.push(visual.format.nick(nicks[i]));
+          if (links.length) ui.messageAddInfo(strings.info.usersInRoom, {
             room: room,
-            'raw.users': out.join(', ')
+            'raw.users': links.join(', ')
           });
           else ui.messageAddInfo(strings.info.noUsers, {room: room});
         })
       }
       else {
-        var links = []
-        for (var user in xmpp.roster[xmpp.room.current])
-          links.push(visual.format.user(xmpp.roster[xmpp.room.current][user]));
+        var links = [];
+        var nicks = Object.keys(xmpp.roster[xmpp.room.current]);
+        nicks.sort();
+        for (var i in nicks) {
+          var user = xmpp.roster[xmpp.room.current][nicks[i]];
+          links.push(visual.format.user(user));
+        }
         ui.messageAddInfo(strings.info.usersInThisRoom, {'raw.users': links.join(', ')});
       }
     }
@@ -591,23 +654,14 @@ var chat = {
   },
 
   /**
-   * Ask XMPP to send a message to the current room, or one of its occupants.
-   *
-   * @param {string} text: The message to send (already escaped, but pre-BBCode).
-   * @param {string} nick: The recipient, or undefined.
-   */
-  sendMessage: function(text, nick) {
-    html = this.formatOutgoing(text);
-    xmpp.sendMessage(html, nick);
-  },
-
-  /**
    * Format an outgoing message.
    *
    * @param {string} text The message to send.
    * @return {string} The HTML output.
    */
   formatOutgoing: function(text) {
+    text = visual.format.plain(text);
+    text = visual.lengthLimit(text, config.ui.maxMessageLength);
     html = bbcode.render(text);
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
@@ -668,11 +722,12 @@ var chat = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function(nick) {
+  prefixMsg: function(nick, direct) {
+    nick = nick.replace(/[\\\s]/g, '\\$&');
     var text = ui.dom.inputField.val();
-    var m = text.match(/\/msg\s+((\\\s|\S)+)/);
+    var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = '/msg ' + decodeURIComponent(nick) + ' ' + text;
+    if (nick) text = (direct ? '/dmsg ' : '/msg ') + nick + ' ' + text;
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
@@ -684,8 +739,84 @@ var chat = {
     if (xmpp.room.available[title]) return xmpp.room.available[title];
     for (var room in xmpp.room.available) {
       if (xmpp.room.available[room].title == title)
-          return xmpp.room.available[room];
+        return xmpp.room.available[room];
     }
+  },
+
+  /**
+   * Parse a commandline-style argument string.
+   */
+  parseArgs: function(text) {
+    var key = /(?:--([a-z-]+))/;
+    // Values can be single- or double-quoted. Quoted values can contain spaces.
+    // All spaces and conflicting quotes can be escaped with backslashes.
+    // All literal backslashes must also be escaped.
+    var value = /(?:"((?:\\[\\"]|[^\\"])+)"|'((?:\\[\\']|[^\\'])+)'|([^"'\s](?:\\[\\\s]|[^\\\s])*))/;
+    // A keyvalue assignment can be separated by spaces or an =.
+    // When separated by spaces, the value must not begin with an unquoted --.
+    var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
+    var tokens = text.match(RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g'));
+    var arguments = {0:[]};
+    for (var i in tokens) {
+      var token = tokens[i].match(keyvalue) || tokens[i].match(key);
+      if (token) {
+        var v = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
+        if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
+        arguments[token[1]] = v;
+      }
+      else {
+        var token = tokens[i].match(value);
+        arguments[0].push((token[1] || token[2] || token[3]).replace(/\\([\\\s"'])/, '$1'));
+      }
+    }
+    return arguments;
+  },
+
+  /**
+   * Convert arguments to room configuration form.
+   */
+  roomConf: function(args) {
+    var conf = {};
+    conf['muc#roomconfig_roomname'] = args.title || args.name;
+
+    if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
+    if (args.log !== undefined)
+      conf['muc#roomconfig_enablelogging'] = args.log ? '1' : '0';
+    if (args.persistent !== undefined)
+      conf['muc#roomconfig_persistentroom'] = args.persistent ? '1' : '0';
+    if (args['public'] !== undefined)
+      conf['muc#roomconfig_publicroom'] = args['public'] ? '1' : '0';
+    if (args.anonymous !== undefined)
+      conf['muc#roomconfig_whois'] = args.anonymous ? 'moderators' : 'anyone';
+    if (args.password !== undefined) {
+      conf['muc#roomconfig_passwordprotectedroom'] = args.password ? '1' : '0';
+      conf['muc#roomconfig_roomsecret'] = args.password;
+    }
+    if (args['max-users']) conf['muc#roomconfig_maxusers'] = args['max-users'];
+    if (args['members-only'] !== undefined)
+      conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
+
+    // --moderation=closed|open|none:
+    if (args.moderation !== undefined) {
+      // closed: People must be voiced by moderators.
+      if (args.moderation == 'closed') {
+        conf['muc#roomconfig_moderatedroom'] = '1';
+        conf.members_by_default = '0';
+      }
+      // none: There is no moderation.
+      else if (!args.moderation || args.moderation == 'none') {
+        conf['muc#roomconfig_moderatedroom'] = '0';
+      }
+      // open: People can be muted by moderators.
+      else {
+        conf['muc#roomconfig_moderatedroom'] = '1';
+        conf.members_by_default = '1';
+      }
+    }
+    if (args.msg !== undefined) conf.allow_private_messages = args.msg ? '1' : '0';
+    if (args['msg-visitors'] in ['anyone', 'moderators', 'nobody'])
+      conf.allow_private_messages_from_visitors = args['msg-visitors'];
+    return conf;
   },
 
   /**
