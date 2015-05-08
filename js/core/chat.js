@@ -398,7 +398,7 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^\s*((\\[\\\s]|[^\\\s])+)/.exec(arg);
+      var m = /^\s*((\\[\\\s]|[^\\\s])+)\s*/.exec(arg);
       var nick = m[1].replace(/\\([\\\s])/g, '$1');
       var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
