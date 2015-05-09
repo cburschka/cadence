@@ -121,9 +121,6 @@ during the build process.
 
    * momentjs: http://momentjs.com/ (MIT)
 
-   * jquery-replacetext (Ben Alman): https://github.com/cowboy/jquery-replacetext
-     (GPL / MIT, used under MIT terms)
-
    * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
      (MIT)
 
