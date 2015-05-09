@@ -5,6 +5,7 @@ cd "$( dirname "$0" )"
 
 echo "Updating repository"
 git pull
+git submodule sync
 
 echo "Purging CDN"
 rm -rfv /tmp/cadence-cdn
