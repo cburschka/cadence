@@ -160,6 +160,10 @@ var config = {
     title: '@@@TITLE@@@',
     maxNickLength: 48,
     maxMessageLength: 2048,
+    navigation: {
+      'Forum': 'https://calref.net/',
+      'Logs': 'https://calref.net/xmpp/log/'
+    },
   },
 
   clientName: "cadence",
