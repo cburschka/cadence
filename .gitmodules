@@ -1,9 +1,9 @@
 [submodule "js/lib/xbbcode"]
 	path = js/lib/xbbcode
 	url = git://github.com/cburschka/xbbcode.js/
-[submodule "js/lib/jquery-cookie"]
-	path = js/lib/jquery-cookie
-	url = git://github.com/carhartl/jquery-cookie.git
+[submodule "js/lib/js-cookie"]
+	path = js/lib/js-cookie
+	url = git://github.com/js-cookie/js-cookie.git
 [submodule "js/lib/moment"]
 	path = js/lib/moment
 	url = git://github.com/moment/moment.git

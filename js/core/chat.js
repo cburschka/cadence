@@ -879,7 +879,7 @@ var chat = {
       localStorage.settings = JSON.stringify(config.settings);
     }
     else {
-      $.cookie(config.clientName + '_settings', config.settings);
+      Cookies.set(config.clientName + '_settings', config.settings);
     }
   }
 }

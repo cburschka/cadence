@@ -121,7 +121,7 @@ during the build process.
 
    * momentjs: http://momentjs.com/ (MIT)
 
-   * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
+   * js-cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
      (MIT)
 
    * buzz (Jay Salvat): https://github.com/jaysalvat/buzz
