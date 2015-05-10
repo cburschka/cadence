@@ -747,7 +747,7 @@ var ui = {
       var text = $('<span>' + message.body + '</span>').text();
       if (message.type != 'groupchat' && message.type != 'local')
         text = strings.info.whisper + ' ' + text;
-      if (message.type != 'local') text = '<b>' + message.user.nick + ':</b> ' + text;
+      if (message.type != 'local') text = message.user.nick + ': ' + text;
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },
