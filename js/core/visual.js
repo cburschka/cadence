@@ -156,7 +156,9 @@ visual = {
      * Currently only returns the room title.
      */
     room: function(room) {
-      return room.title;
+      return '<a href="#' + this.plain(room.id) + '" class="xmpp-room'
+             + (room.id == xmpp.room.current ? ' xmpp-room-current' : '')
+             + '">' + this.plain(room.title) + '</a>'
     },
 
     /**

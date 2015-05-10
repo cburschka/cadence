@@ -372,13 +372,7 @@ var chat = {
     list: function() {
       xmpp.discoverRooms(function(rooms) {
         var links = [];
-        for (var room in rooms) {
-          links.push(
-               '<a href="#' + room + '"'
-             + (room == xmpp.room.current ? ' style="font-weight: bold"' : '')
-             + '>' + visual.format.room(rooms[room]) + '</a>'
-          );
-        }
+        for (var room in rooms) links.push(visual.format.room(rooms[room]));
         if (links.length)
           ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
         else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');

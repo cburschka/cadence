@@ -7,6 +7,7 @@ a { text-decoration:none }
 a:hover { text-decoration:underline }
 .author { font-weight:bold }
 #onlineList .user-self { font-weight:bold }
+.xmpp-room-current { font-weight:bold }
 .action, .user-role-bot, .message-bot, .privmsg { font-style:italic }
 q { font-variant:small-caps }
 code {
