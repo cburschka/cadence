@@ -68,43 +68,52 @@ var ui = {
 
     // Build the navigation menu.
     for (link in config.ui.navigation)
-      $('#navigation ul').append('<li><a href="' + config.ui.navigation[link] + '">' + link + '</a></li>');
+      $('#navigation ul').append($('<li></li>').append($('<a></a>').attr('href', config.ui.navigation[link])));
     if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
 
     // Build and fill the emoticon containers.
     var bars = config.ui.emoticonSidebars
     for (var set in bars) {
-      this.dom.menu['emoticon-' + set] = $(
-         '<div id="emoticon-' + set + '" class="menuContainer emoticon-sidebar box">'
-       + '<h3>' + bars[set].title + '</h3>'
-       + '<div id="emoticonsList-' + set + '" class="emoticon-list-sidebar" dir="ltr"></div></div>'
-       ).appendTo(this.dom.emoticonSidebarContainer);
-      $(
-        '<button class="tray toggleMenu" id="emoticon-' + set + 'Button" title="' + bars[set].title + '">' + bars[set].title + '</button>'
-      ).css('background-image', 'url("' + config.markup.emoticons[set].baseURL + bars[set].icon + '")')
-      .appendTo(ui.dom.emoticonTrayContainer);
+      this.dom.menu['emoticon-' + set] = $('<div class="menuContainer emoticon-sidebar box"></div>')
+        .attr('id', 'emoticon-' + set)
+        .append($('<h3></h3>').text(bars[set].title))
+        .append($('<div class="emoticon-list-sidebar" dir="ltr"></div>')
+          .attr('id', 'emoticonsList-' + set)
+        )
+        .appendTo(this.dom.emoticonSidebarContainer);
+
+      $('<button class="tray toggleMenu"></button>')
+        .attr('id', 'emoticon-' + set + 'Button')
+        .attr('title', bars[set].title)
+        .text(bars[set].title)
+        .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
+        .appendTo(ui.dom.emoticonTrayContainer);
     }
     for (var set in config.markup.emoticons) {
-      var html = '';
+      var list = $('#emoticonsList-' + set);
       for (var code in config.markup.emoticons[set].codes) {
-        html += '<a href="javascript:void(\'' + code.replace('\'', '\\\'', 'g')
-             +  '\');" class="insert-text" title="'
-             + code + '">' + '<img src="' + config.markup.emoticons[set].baseURL
-             + config.markup.emoticons[set].codes[code] + '" alt="'
-             + code + '" /></a>';
+        list.append($('<a class="insert-text"></a>')
+          .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
+          .attr('title', code)
+          .append($('<img />')
+            .attr('src', config.markup.emoticons[set].baseURL + config.markup.emoticons[set].codes[code])
+            .attr('alt', code)
+          )
+        );
       }
-      $('#emoticonsList-' + set).html(html);
     }
 
     // Build the color palette picker.
-    var html = '';
+    var palette = $('#colorCodesContainer');
     for (var color in config.markup.colorCodes) {
       var code = config.markup.colorCodes[color]
-      html += '<a href="javascript:void(\'' + code + '\');" title="' + code
-           +  '" class="colorCode" style="background-color:' + code + '"></a>';
+      palette.append($('<a class="colorCode"></a>')
+        .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
+        .attr('title', code)
+        .css('background-color', code)
+      );
     }
-    html += '<button class="button" id="textColorFull">Advanced</button>';
-    $('#colorCodesContainer').html(html);
+    palette.append('<button class="button" id="textColorFull">Advanced</button>');
 
     // Add the access key labels to the BBCode buttons.
     $('#bbCodeContainer button').each(function() {
@@ -453,12 +462,11 @@ var ui = {
    */
   messageDelayed: function(message) {
     var entry = visual.formatMessage(message);
-    entry.html.addClass('delayed');
-    entry.html.find('.dateTime').after(
-        ' <span class="log-room log-room-' + message.room.id + '">['
-      + visual.format.room(message.room)
-      + ']</span>'
-    );
+    entry.html.addClass('delayed')
+      .find('.dateTime').after(' ', $('<span class="log-room"></span>')
+        .addClass('log-room-' + message.room.id)
+        .text('[' + message.room.title + ']')
+      );
     this.messageInsert(entry);
   },
 

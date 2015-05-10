@@ -138,16 +138,17 @@ visual = {
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var nick = visual.format.nick(user.nick);
-      var jid = visual.format.plain(user.jid || '');
+      var nick = this.nick(user.nick);
+      var jid = this.plain(user.jid || '');
       var recipient = user.role == 'external' ? user.jid : user.nick;
       if (user.role == 'visitor' || (user.role != 'external' && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
+      // role, affiliation and show are all trusted values.
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
             + ' user-show-' + (user.show || 'default') + '"'
-            + ' data-recipient="' + visual.format.plain(recipient) + '"'
+            + ' data-recipient="' + recipient + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -165,7 +166,7 @@ visual = {
      * Format a nick.
      */
     nick: function(nick) {
-      return visual.lengthLimit(visual.format.plain(nick), config.ui.maxNickLength);
+      return this.plain(visual.lengthLimit(nick, config.ui.maxNickLength));
     },
 
     /**
@@ -195,7 +196,7 @@ visual = {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
-      function() { return $('<span></span>').text(this.outerHTML) }
+      function() { return document.createTextNode(this.outerHTML); }
     );
     // If markup is disabled, replace the entire node with its text content.
     if (!config.settings.markup.html)
@@ -264,9 +265,11 @@ visual = {
     var image = function(groups) {
       for (var i in groups) {
         if (groups[i]) {
-          return  $('<img class="emoticon" src="' + codes[i].baseURL
-           + codes[i].codes[groups[i]] + '" title="' + groups[i] + '" alt="'
-           + groups[i] + '" /><span class="emote-alt">' + groups[i] + '</span>');
+          return  [$('<img class="emoticon" />').attr({
+            src: codes[i].baseURL + codes[i].codes[groups[i]],
+            title: groups[i],
+            alt: groups[i]
+          }), $('<span class="emote-alt"></span>').text(groups[i])]
         }
       }
     };
@@ -274,7 +277,7 @@ visual = {
     jq.add('*', jq).not('code, code *, a, a *').replaceText(regex, image, codes.length);
 
     if (!config.settings.markup.emoticons) {
-      jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
+      jq.find('img.emoticon').css('display', 'none').next().css('display', 'inline');
     }
     return jq;
   },
@@ -304,15 +307,15 @@ visual = {
     var maxHeight = ui.dom.chatList.height() - 20;
 
     jq.find('img').wrap(function() {
-      return '<a href="' + this.src + '"></a>';
+      return $('<a></a>').attr('href', this.src);
     }).after(function() {
-      return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
+      return $('<span class="image-alt"></span>').text('[image:' + visual.ellipsis(this.src, 64) + ']');
     });
     jq.find('img').addClass('rescale').load(function() {
       visual.rescale($(this), maxWidth, maxHeight);
     });
     if (!config.settings.markup.images) {
-      jq.find('img').css({display:'none'}).next().css({display:'inline'});
+      jq.find('img').css('display', 'none').next().css('display', 'inline');
     }
   },
 
