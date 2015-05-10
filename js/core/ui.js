@@ -317,6 +317,13 @@ var ui = {
       else visual.removeColor(ui.dom.chatList);
       ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
+    $('#settings-markup\\.links').change(function() {
+      $('.url-link').replaceWith(this.checked ? function() {
+        return $('<a class="url-link"></a>').attr('href', $(this).text()).text($(this).text());
+      } : function() {
+        return $('<span class="url-link"></span>').text($(this).text());
+      });
+    });
 
     // Instantly apply sound volume.
     $('.soundVolume').change(function() {

@@ -203,8 +203,7 @@ visual = {
       jq.text(jq.text());
     if (config.settings.markup.colors)
       this.addColor(jq);
-    if (config.settings.markup.links)
-      this.addLinks(jq);
+    this.addLinks(jq);
     // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
     this.addEmoticons(jq);
@@ -293,8 +292,12 @@ visual = {
       return $(this).parents('a').length < 1;
     }).replaceText(
       /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])/g,
+      config.settings.markup.links ?
       function(groups) {
-        return $('<a></a>').attr('href', groups[0]).text(groups[0]);
+        return $('<a class="url-link"></a>').attr('href', groups[0]).text(groups[0]);
+      } :
+      function(groups) {
+        return $('<span class="url-link"></span>').text(groups[0]);
       }
     );
   },
