@@ -207,7 +207,7 @@ var ui = {
     });
 
     // Log in with the button or pressing enter.
-    $('#fakeLoginForm').submit(function(e) {
+    this.dom.loginContainer.submit(function(e) {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });

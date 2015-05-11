@@ -30,7 +30,7 @@ h3 { white-space: nowrap }
   top: 15px;
   right: 20px;
 }
-#fakeLoginForm { display: inline }
+#loginContainer { display: inline }
 #navigation {
   display: none;
   float: right;

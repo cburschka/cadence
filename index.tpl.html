@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf8" />
+  <meta charset="utf-8" />
   <title>@@@TITLE@@@</title>
   @@@CSS_LINKS@@@
-  <link rel="stylesheet" type="text/css" href="custom.css" charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="custom.css" />
 
   <!-- libraries -->
   @@@JS_LINKS_LIB@@@
 
   <!-- core -->
   @@@JS_LINKS_CORE@@@
-  <script src="config.custom.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="config.custom.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
@@ -23,18 +23,16 @@
         <label for="roomSelection">Room:</label>
         <select id="roomSelection"></select>
       </span>
-      <span id="loginContainer">
-        <form id="fakeLoginForm" action="javascript:void();">
-          <label for="loginUser">User:</label>
-          <input type="text" id="loginUser" />
-          <label for="loginPass">Password:</label>
-          <input type="password" id="loginPass" />
-          <button class="button" type="submit" id="loginButton">Log in</button>
-        </form>
-      </span>
-      <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" />cadence</a></span>
+      <form id="loginContainer">
+        <label for="loginUser">User:</label>
+        <input type="text" id="loginUser" />
+        <label for="loginPass">Password:</label>
+        <input type="password" id="loginPass" />
+        <button class="button" type="submit" id="loginButton">Log in</button>
+      </form>
+      <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" alt="Cadence logo" />cadence</a></span>
       <div id="navigation">
-        <label for="navigation">Navigation:</label><ul></ul>
+        Navigation: <ul></ul>
       </div>
     </div>
     <!-- / headlineContainer -->
@@ -61,7 +59,7 @@
       <div id="emoticonsContainer" class="container">
         <span id="emoticonsList-general" dir="ltr"></span>
       </div>
-      <div id="colorCodesContainer" class="box" dir="ltr" class="container"></div>
+      <div id="colorCodesContainer" class="box container" dir="ltr"></div>
       <div id="trayContainer" class="container">
         <button class="tray" id="logoutButton" title="Logout">Logout</button>
         <button class="tray toggleMenu" id="helpButton" title="Show/hide help">Help</button>
@@ -83,7 +81,7 @@
       <h3>Help</h3>
       <div id="helpList">
         <table>
-          <caption><h4>Chat commands</h3></caption>
+          <caption><h4>Chat commands</h4></caption>
           <tr class="row">
             <td class="desc">Create a macro:</td>
             <td class="code">/alias &lt;cmd&gt; /a; /b</td>

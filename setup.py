@@ -54,7 +54,7 @@ def generate_links(cdn_url, mode, css_alt, style):
         )
         for name in css_alt
     )
-    js_template = '<script type="text/javascript" src="{src}" charset="UTF-8"></script>'
+    js_template = '<script type="text/javascript" src="{src}" charset="utf-8"></script>'
     lib_links = ''.join(js_template.format(src=cdn_url + filename) for filename in lib)
     core_links = ''.join(js_template.format(src=cdn_url + filename) for filename in core)
     return css_links, lib_links, core_links
