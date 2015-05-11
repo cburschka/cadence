@@ -76,6 +76,7 @@ visual = {
 
     $('span.hide-message, span.hidden', node).click(function() {
       $('span.body, span.hidden', node).toggle('slow', function() {
+        // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
         if ($(this).css('display') == 'inline-block') {
           $(this).css('display', 'inline');
         }
