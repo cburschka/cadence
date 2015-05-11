@@ -61,3 +61,14 @@ span.hide-message {
   width:10px;
   background-image:url('../../img/delete.png');
 }
+
+#settingsContainer button.soundTest {
+  display: inline-block;
+  border: none;
+  padding: 0;
+  height: 22px;
+  width: 22px;
+  margin-left: 5px;
+  background: url('../../img/playback.png');
+  background-color: none;
+}

@@ -214,3 +214,4 @@ span.hidden {
   font-size: 90%;
 }
 span.hidden:after { content: "[hidden]" }
+button.soundTest, select.soundSelect { vertical-align:middle; }

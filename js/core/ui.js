@@ -122,7 +122,11 @@ var ui = {
 
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
-    $('#settingsContainer select.soundSelect').html(sounds);
+    $('#settingsContainer select.soundSelect').html(sounds).after(function() {
+      var event = this.id.substring('settings-notifications.sounds.'.length);
+      return $('<button class="soundTest"></button>')
+        .click(function() { ui.playSound(event); });
+    });
 
     // Set the form values.
     $('#settingsContainer .settings').val(function() {
