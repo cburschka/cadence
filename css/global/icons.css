@@ -25,7 +25,7 @@
   background-image:url('../../img/playback.png');
 }
 
-/* Status Icon */
+/* Status icon */
 #statusIcon {
   background-image: url('../../img/loading-sprite.gif');
   background-position: 0px -44px;
@@ -37,7 +37,7 @@
   background-position: 0px -22px;
 }
 
-/* Scroll Icon */
+/* Scroll icon */
 #autoScrollIcon {
   background-image:url('../../img/autoscroll.png');
   background-position: 0px 0px
@@ -53,6 +53,20 @@
   -moz-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
   -webkit-transition-duration: 0.5s;
   -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
+}
+
+/* User status icons */
+#onlineList .user-show-away {
+  background: url(../../img/away.png) center right no-repeat;
+  padding-right: 20px;
+}
+#onlineList .user-show-dnd {
+  background: url(../../img/dnd.png) center right no-repeat;
+  padding-right: 20px;
+}
+#onlineList .user-show-xa {
+  background: url(../../img/xa.png) center right no-repeat;
+  padding-right: 20px;
 }
 
 span.hide-message {
