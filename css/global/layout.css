@@ -189,18 +189,6 @@ h3 {
 #footerContainer #trayContainer button {
   background-color: transparent;
 }
-#onlineList .user-show-away {
-  background: url(../../img/away.png) center right no-repeat;
-  padding-right: 20px;
-}
-#onlineList .user-show-dnd {
-  background: url(../../img/dnd.png) center right no-repeat;
-  padding-right: 20px;
-}
-#onlineList .user-show-xa {
-  background: url(../../img/xa.png) center right no-repeat;
-  padding-right: 20px;
-}
 img.emoticon, img.rescale { vertical-align: middle }
 span.emote-alt, span.image-alt { display: none }
 
