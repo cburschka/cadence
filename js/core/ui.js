@@ -543,9 +543,6 @@ var ui = {
                     + visual.format.user(user) + '</span></div>');
     visual.msgOnClick(userLink);
 
-    if (user.jid)
-      $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
-
     if (user.nick == xmpp.nick.current) {
       $('span.user-roster', userLink).addClass('user-self');
       this.dom.onlineList.find('span.user-self').removeClass('user-self');

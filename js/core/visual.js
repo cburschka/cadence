@@ -148,6 +148,7 @@ visual = {
       // role, affiliation and show are all trusted values.
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
+            + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
             + ' data-recipient="' + recipient + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
