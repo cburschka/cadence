@@ -567,6 +567,24 @@ var chat = {
         }
         ui.messageAddInfo(strings.info.usersInThisRoom, {'raw.users': links.join(', ')});
       }
+    },
+
+    /**
+     * whois <nick>
+     *   Print out information on a participant in the current room.
+     */
+    whois: function(arg) {
+      arg = arg.trim();
+      var user = xmpp.roster[xmpp.room.current][arg];
+      if (user) {
+        ui.messageAddInfo(strings.info.whois, {
+          user: user,
+          jid: user.jid,
+          privilege: user.role + '/' + user.affiliation,
+          status: user.show + (user.status ? ' (' + user.status + ')' : '')
+        });
+      }
+      else ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
     }
   },
 
@@ -575,7 +593,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['away', 'back', 'ban', 'bans', 'kick', 'me', 'msg', 'part', 'say', 'unban'];
+    var chat = ['away', 'back', 'ban', 'bans', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     var offline = ['connect'];
     var waiting = ['quit'];
 

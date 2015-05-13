@@ -120,6 +120,7 @@ var strings = {
     unbanSuccess: 'Unbanned {jid} from this room.',
     affiliateSuccess: 'Affiliation of {user} in {room} set to {type}.',
     roomConf: 'Room configuration of {room} has been altered.',
+    whois: 'Information for {user}: {jid}, Role: {privilege}, Status: {status}'
   },
 
   error: {
