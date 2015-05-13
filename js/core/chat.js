@@ -437,7 +437,7 @@ var chat = {
       var absent = false;
 
       if (!arg) arg = config.xmpp.domain;
-      else if (arg.indexOf('@') < 0) {
+      else if (arg.indexOf('@') < 0 && roster) {
         var user = roster[arg];
         if (!user) return ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
         if (!user.jid) return ui.messageAddInfo(strings.error.unknownJid, {user: user}, 'error');
@@ -593,7 +593,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['away', 'back', 'ban', 'bans', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
+    var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     var offline = ['connect'];
     var waiting = ['quit'];
 
