@@ -1,24 +1,24 @@
-.jid-node-sylae .user:not(.user-show-away)  {
+.jid-node-sylae.user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-sylae.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-Nalyd .user:not(.user-show-away)  {
+.jid-node-Nalyd.user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-Nalyd.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-Tyran .user:not(.user-show-away)  {
+.jid-node-Tyran.user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-Tyran.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-Trenton\. .user:not(.user-show-away)  {
+.jid-node-Trenton\..user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-Trenton..png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-ligrev .user:not(.user-show-away)  {
+.jid-node-ligrev.user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-ligrev.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
-.jid-node-Actaeon .user:not(.user-show-away)  {
+.jid-node-Actaeon.user-show-default {
   background: url('https://c312441.ssl.cf1.rackcdn.com/chat/img/flair/jid-node-Actaeon.png') no-repeat scroll left center transparent;
   padding-left: 20px;
 }
