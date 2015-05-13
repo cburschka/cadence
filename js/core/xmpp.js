@@ -340,9 +340,12 @@ var xmpp = {
    * @param {string} room The room name.
    * @param {Object} vars The field values to set, indexed by field name
    *                 (including the prefix "muc#roomconfig_" if applicable)
-   * @param {function} success The callback to execute afterward.
+   * @param {function} callback The callback to execute afterward.
    */
-  configureRoom: function(room, values, success) {
+  configureRoom: function(room, values, callback) {
+    var error = function(stanza) {
+      callback(stanza ? $('error', stanza).attr('code') : true);
+    }
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
         var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
@@ -367,14 +370,13 @@ var xmpp = {
         });
         var fields = Object.keys(values);
         if (fields.length)
-          ui.messageAddInfo(strings.error.roomConf, {name: room, fields: fields.join(', ')}, 'error');
+          ui.messageAddInfo(strings.error.roomConfFields, {name: room, fields: fields.join(', ')}, 'error');
 
         this.connection.sendIQ(form, function() {
           // Need to refresh the room list now.
-          this.discoverRooms(success);
-        }.bind(this));
-      }.bind(this)
-    );
+          this.discoverRooms(callback);
+        }.bind(this), error);
+      }.bind(this), error);
   },
 
   /**

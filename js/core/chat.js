@@ -241,13 +241,18 @@ var chat = {
       if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       var name = arg.name || xmpp.room.current;
       if (!name)
-        return ui.messageAddInfo(strings.error.roomConfName, 'error');
+        return ui.messageAddInfo(strings.error.noRoom, 'error');
       if (!xmpp.room.available[name])
         return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
 
       var config = chat.roomConf(arg);
-      xmpp.configureRoom(name, config, function() {
-        return ui.messageAddInfo(strings.info.roomConf, {room: xmpp.room.available[name]});
+      var room = xmpp.room.available[name];
+
+      xmpp.configureRoom(name, config, function(error) {
+        console.log(error);
+        if (!error) ui.messageAddInfo(strings.info.roomConf, {room: room});
+        else if (error == '403') ui.messageAddInfo(strings.error.roomConfDenied, {room: room}, 'error');
+        else ui.messageAddInfo(strings.error.roomConf, {room: room}, 'error');
       });
     },
 
