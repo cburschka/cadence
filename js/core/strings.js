@@ -168,6 +168,7 @@ var strings = {
     nickConflict: 'Username {nick} already in use.',
     noCreate: 'You are not allowed to create rooms.',
     noNick: 'You must set a nickname.',
+    noRoom: 'You are not in a room.',
     pingTimeout: 'Ping to {target} timed out ({delay}).',
     roomConf: 'The following fields could not be set on {name}: {fields}',
     roomConfOptions: 'The allowed values for {field} are: {options}',

@@ -543,7 +543,7 @@ var chat = {
       arg = arg.trim();
       var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
       if (!room)
-        return ui.messageAddInfo(arg ? strings.error.unknownRoom : 'You are not in a room.', {name: arg}, 'error');
+        return ui.messageAddInfo(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg}, 'error');
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, function(users) {
           var links = [];
