@@ -76,6 +76,7 @@ visual = {
 
     $('span.hide-message, span.hidden', node).click(function() {
       $('span.body, span.hidden', node).toggle('slow', function() {
+        // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
         if ($(this).css('display') == 'inline-block') {
           $(this).css('display', 'inline');
         }
@@ -147,6 +148,7 @@ visual = {
       // role, affiliation and show are all trusted values.
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
+            + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
             + ' data-recipient="' + recipient + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
