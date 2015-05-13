@@ -122,7 +122,7 @@ var chat = {
     admin: function(arg) {
       arg = arg.trim();
       var m = arg.match(/^(\S+)/);
-      if (!m) return;
+      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var command = m[1];
       arg = arg.substring(m[0].length).trim();
       var error = function(stanza, status) {
@@ -170,6 +170,7 @@ var chat = {
      */
     ban: function(arg) {
       arg = arg.trim();
+      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var room = xmpp.room.available[xmpp.room.current];
       var roster = xmpp.roster[xmpp.room.current];
       var absent = false;
@@ -304,6 +305,7 @@ var chat = {
      */
     dmsg: function(arg) {
       var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
+      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var jid = m[1].replace(/\\(\s)/g, '$1');
       var msg = arg.substring(m[0].length);
       if (!Strophe.getNodeFromJid(jid))
@@ -336,6 +338,7 @@ var chat = {
      */
     join: function(arg) {
       var name = arg.trim();
+      if (!name) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var room = chat.getRoomFromTitle(name);
       var join = function() {
         var room = chat.getRoomFromTitle(name);
@@ -393,6 +396,7 @@ var chat = {
      */
     msg: function(arg) {
       var m = /^\s*((\\[\\\s]|[^\\\s])+)\s*/.exec(arg);
+      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var nick = m[1].replace(/\\([\\\s])/g, '$1');
       var msg = arg.substring(m[0].length);
       if (!xmpp.roster[xmpp.room.current][nick])
@@ -414,7 +418,7 @@ var chat = {
     nick: function(arg) {
       var nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
-      else ui.messageAddInfo(strings.error.noNick, 'error');
+      else ui.messageAddInfo(strings.error.noArgument, 'error');
     },
 
     /**
@@ -432,6 +436,7 @@ var chat = {
      */
     ping: function(arg) {
       arg = arg.trim();
+      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var room = xmpp.room.available[xmpp.room.current];
       var roster = xmpp.roster[xmpp.room.current];
       var absent = false;
@@ -495,7 +500,8 @@ var chat = {
      *   Unban a user from the current room.
      */
     unban: function(arg) {
-      arg = arg.trim()
+      arg = arg.trim();
+      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (arg.indexOf('@') < 0) arg += '@';
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         var user = null;
@@ -575,6 +581,7 @@ var chat = {
      */
     whois: function(arg) {
       arg = arg.trim();
+      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var user = xmpp.roster[xmpp.room.current][arg];
       if (user) {
         ui.messageAddInfo(strings.info.whois, {
