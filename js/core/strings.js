@@ -114,9 +114,13 @@ var strings = {
     aliasDelete: 'Alias /{cmd} deleted.',
     versionClient: 'Cadence version: {raw.version}',
     versionServer: 'Server version: {name} {version} running on {os}',
-    banList: 'Banned users in this room:\n{users}',
-    banListEmpty: 'No users are banned from this room.',
-    banSuccess: 'You have banned {user} from {room}.',
+    affiliations: {
+      'outcast': 'Banned users in this room:\n{raw.users}',
+      'member': 'Members of this room:\n{raw.users}',
+      'admin': 'Administrators of this room:\n{raw.users}',
+      'owner': 'Owners of this room:\n{raw.users}',
+    },
+    affiliationsEmpty: 'No users have the affiliation "{type}" in this room.',
     unbanSuccess: 'Unbanned {jid} from this room.',
     affiliate: [
       'Affiliation of {jid} in {room} set to {type}.',
@@ -134,25 +138,21 @@ var strings = {
     },
     affiliate: {
       anon: 'You cannot access the JID of {user} in this room.',
+      conflict: 'You cannot change your own affiliation in this way.',
       'default': 'Unknown error while attempting to set affiliation.',
       notAllowed: 'You lack the authority to do this.',
-      type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none".',
+      type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".',
       unknown: 'There is no user named {nick} in this room.',
+    },
+    affiliations: {
+      'default': 'Unknown error while getting the list of {type} affiliations.',
+      forbidden: 'You are not authorized to get the {type} list for this room.',
     },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
     badNick: 'The nickname {nick} is invalid.',
-    ban: {
-      'default': 'Unknown error while attempting to ban {user} from {room}.',
-      notAllowed: 'You lack the authority to ban {user} from {room}.',
-      self: 'You can\'t ban yourself!'
-    },
-    banList: {
-      'default': 'Unknown error while getting the ban list.',
-      forbidden: 'You are not authorized to get the ban list for this room.',
-    },
     cmdStatus: {
       online: '/{cmd}: You are already online.',
       offline: '/{cmd}: You are offline.',
@@ -168,7 +168,7 @@ var strings = {
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinSame: 'You are already in {room}.',
     nickConflict: 'Username {nick} already in use.',
-    noArgument: 'This command requires an argument.',
+    noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
     noRoom: 'You are not in a room and did not specify one.',
     pingTimeout: 'Ping to {target} timed out ({delay}).',
