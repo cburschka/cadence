@@ -18,45 +18,44 @@ var chat = {
      * affiliate owner|admin|member|none <nick>|<jid>
      */
     affiliate: function(arg) {
-      if (typeof arg == 'string') {
-        var m = arg.trim().match(/^\s*(owner|admin|member|outcast|none)\s+((\S|(\\\s))+)\s*$/);
-        if (!m) return ui.messageAddInfo(strings.error.affiliate.syntax, 'error');
-        if (m[1] == 'outcast') return ui.messageAddInfo(strings.error.affiliate.outcast, 'error');
-        arg = {type: m[1], target: m[2]};
+      arg = chat.parseArgs(arg);
+      arg.type = arg.type || arg[0][0];
+      if (!arg.jid) arg.nick = arg.nick || arg[0][1];
+
+
+      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(arg.type) < 0) {
+        return ui.messageAddInfo(strings.error.affiliate.type, {type: arg.type}, 'error')
       }
 
       var room = xmpp.room.available[xmpp.room.current]
       var roster = xmpp.roster[xmpp.room.current];
-      var absent = false;
+      var user = roster[arg.nick] || {jid: Strophe.getBareJidFromJid(arg.jid || arg.nick) };
 
-      // Identify online user by nickname.
-      if (arg.target.indexOf('@') < 0) {
-        var user = roster[arg.target];
-        if (!user) return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: arg.target, room: room}, 'error')
-        if (!user.jid) return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error')
-        arg.target = Strophe.getBareJidFromJid(user.jid);
-      }
+      if (!user.jid)
+        return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
+      if (user.jid.indexOf('@') < 0)
+        return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: user.jid}, 'error');
 
-      // Get nickname from JID (if the user is online).
-      else {
-        arg.target = Strophe.getBareJidFromJid(arg.target);
+      if (!user.nick)
         for (var nick in roster)
-          if (roster[nick].jid && arg.target == Strophe.getBareJidFromJid(roster[nick].jid))
+          if (Strophe.getBareJidFromJid(roster[nick].jid) == user.jid) {
             user = roster[nick];
-        if (!user) {
-          user = {jid: arg.target, nick: arg.target};
-          var absent = true;
-        }
-      }
+            break;
+          }
 
-      xmpp.setUser({jid: arg.target, affiliation: arg.type}, function(iq) {
-        if ($(iq).attr('type') == 'result' && absent)
-          ui.messageAddInfo(strings.info.affiliateSuccess, {user: user, room: room, type: arg.type});
+      xmpp.setUser({jid: user.jid, affiliation: arg.type}, function(iq) {
+        if ($(iq).attr('type') == 'result')
+          ui.messageAddInfo(strings.info.affiliate[+!!user.nick], {
+            jid: user.jid,
+            user: user.nick && user,
+            room: room,
+            type: arg.type
+          });
       }, function(code, iq) {
         var error = 'default';
         if ($('not-allowed', iq).length)
           error = 'notAllowed';
-        ui.messageAddInfo(strings.error.affiliate[error], {user: user, room: room, type: arg.type}, 'error');
+        ui.messageAddInfo(strings.error.affiliate[error], 'error');
       });
     },
 

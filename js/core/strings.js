@@ -118,7 +118,10 @@ var strings = {
     banListEmpty: 'No users are banned from this room.',
     banSuccess: 'You have banned {user} from {room}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
-    affiliateSuccess: 'Affiliation of {user} in {room} set to {type}.',
+    affiliate: [
+      'Affiliation of {jid} in {room} set to {type}.',
+      'Affiliation of {user} in {room} set to {type}.'
+    ],
     roomConf: 'Room configuration of {room} has been altered.',
     whois: 'Information for {user}: {jid}, Role: {privilege}, Status: {status}'
   },
@@ -130,12 +133,11 @@ var strings = {
       generic: 'Error while executing "{command}": {text}',
     },
     affiliate: {
-      anon: 'You cannot see {user}\'s JID.',
-      'default': 'Unknown error while attempting to change {user}\'s affiliation in {room}.',
+      anon: 'You cannot access the JID of {user} in this room.',
+      'default': 'Unknown error while attempting to set affiliation.',
       notAllowed: 'You lack the authority to do this.',
-      outcast: 'Use the /ban command to do this.',
-      syntax: 'Syntax: /affiliate owner|admin|member|none &lt;nick|JID&gt;',
-      unknown: 'Nobody in {room} is named {nick}. Enter the JID.',
+      type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none".',
+      unknown: 'There is no user named {nick} in this room.',
     },
     aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
