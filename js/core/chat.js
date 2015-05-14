@@ -238,14 +238,10 @@ var chat = {
      */
     connect: function(arg) {
       var fail = function() { return ui.messageAddInfo(strings.error.userpass, 'error') };
-      if (typeof arg == 'string') {
-        arg = arg.trim();
-        var m = /^[^\s"&'\/:<>@]+/.exec(arg);
-        if (!m) return fail();
-        arg = {user: m[0], pass: arg.substring(m[0].length).trim()};
-        if (arg.pass[0] == '"' && arg.pass[arg.pass.length-1] == '"') {
-          arg.pass = arg.pass.substring(1, arg.pass.length-1);
-        }
+      arg = chat.parseArgs(arg);
+      if (arg[0]) {
+        arg.user = arg.user || arg[0][0];
+        arg.pass = arg.pass || arg[0][1];
       }
       if (!arg.user || !arg.pass) {
         if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL)
