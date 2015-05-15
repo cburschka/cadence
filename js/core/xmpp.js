@@ -742,8 +742,10 @@ var xmpp = {
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
       else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
-        ui.messageAddInfo(strings.show[show][status ? 1 : 0], {
+        var msg = (show in strings.show) ? strings.show[show] : strings.showOther;
+        ui.messageAddInfo(msg[+!!status], {
           user: user,
+          show: show,
           status: status
         });
         ui.playSound('info');

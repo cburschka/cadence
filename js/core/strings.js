@@ -50,6 +50,10 @@ var strings = {
       '{user} has returned ({status}).',
     ],
   },
+  showOther: [
+    '{user} changed mode to "{show}".',
+    '{user} changed mode to "{show}" ({status}).',
+  ],
 
   code: {
     201: 'The room {name} has been newly created.',
