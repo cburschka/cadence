@@ -431,9 +431,9 @@ visual = {
    */
   jidClass: function(jid) {
     var escape = function(str) {
-      return str.replace(/[\s\0\\]/g, function(x) {
+      return str ? str.replace(/[\s\0\\]/g, function(x) {
         return '\\' + x.charCodeAt(0);
-      });
+      }) : '';
     };
     return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
          + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
