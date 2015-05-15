@@ -281,10 +281,12 @@ var chat = {
      */
     dmsg: function(arg) {
       var m = chat.parseArgs(arg);
-      m.jid = m.jid || m[0][0];
-      m.msg = m.msg || arg.substring(m[1][0][0]).trim();
+      if (m[0].length) {
+        m.jid = m[0][0];
+        m.msg = arg.substring(m[1][0][0]).trim();
+      }
 
-      if (!m.jid) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (!Strophe.getNodeFromJid(m.jid))
         return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
 
@@ -373,10 +375,12 @@ var chat = {
      */
     msg: function(arg) {
       var m = chat.parseArgs(arg);
-      m.nick = m.nick || m[0][0];
-      m.msg = m.msg || arg.substring(m[1][0][0]).trim();
+      if (m[0].length) {
+        m.nick = m[0][0];
+        m.msg = arg.substring(m[1][0][0]).trim();
+      }
 
-      if (!m.nick) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (!(m.nick in xmpp.roster[xmpp.room.current]))
         return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
 
