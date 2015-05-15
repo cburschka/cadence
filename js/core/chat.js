@@ -280,19 +280,20 @@ var chat = {
      *   Send a direct message to a user outside the chatroom.
      */
     dmsg: function(arg) {
-      var m = /^\s*(((\\\s)?\S)+)\s*/.exec(arg);
-      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var jid = m[1].replace(/\\(\s)/g, '$1');
-      var msg = arg.substring(m[0].length);
-      if (!Strophe.getNodeFromJid(jid))
-        return ui.messageAddInfo(strings.error.jidInvalid, {jid: jid});
+      var m = chat.parseArgs(arg);
+      m.jid = m.jid || m[0][0];
+      m.msg = m.msg || arg.substring(m[1][0][0]).trim();
 
-      var html = chat.formatOutgoing(msg);
-      xmpp.sendMessage(html, jid, true);
+      if (!m.jid) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (!Strophe.getNodeFromJid(m.jid))
+        return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
+
+      var html = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(html, m.jid, true);
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: {nick: Strophe.getBareJidFromJid(jid), jid: jid, role: 'external'},
+        to: {nick: Strophe.getBareJidFromJid(m.jid), jid: m.jid, role: 'external'},
         user: {nick: Strophe.getBareJidFromJid(xmpp.jid), jid: xmpp.jid, role: 'external'},
         body: html
       }));
@@ -371,17 +372,19 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = /^\s*((\\[\\\s]|[^\\\s])+)\s*/.exec(arg);
-      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var nick = m[1].replace(/\\([\\\s])/g, '$1');
-      var msg = arg.substring(m[0].length);
-      if (!xmpp.roster[xmpp.room.current][nick])
-        return ui.messageAddInfo(strings.error.unknownUser, {nick: nick}, 'error');
-      html = chat.formatOutgoing(msg);
-      xmpp.sendMessage(html, nick);
+      var m = chat.parseArgs(arg);
+      m.nick = m.nick || m[0][0];
+      m.msg = m.msg || arg.substring(m[1][0][0]).trim();
+
+      if (!m.nick) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (!(m.nick in xmpp.roster[xmpp.room.current]))
+        return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
+
+      var html = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(html, m.nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: xmpp.roster[xmpp.room.current][nick],
+        to: xmpp.roster[xmpp.room.current][m.nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
         body: html
       }));
@@ -731,6 +734,12 @@ var chat = {
 
   /**
    * Parse a commandline-style argument string.
+   *
+   * @param {string} args the raw argument string.
+   *
+   * @return An object with named and positional arguments.
+   *         The array of positional arguments is stored in the 0 key.
+   *         The 1 key stores the end position of each named or positional argument.
    */
   parseArgs: function(text) {
     if (typeof text !== 'string') return text;
@@ -742,18 +751,25 @@ var chat = {
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
     var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
-    var tokens = text.match(RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g'));
-    var arguments = {0:[]};
-    for (var i in tokens) {
-      var token = tokens[i].match(keyvalue) || tokens[i].match(key);
-      if (token) {
-        var v = (token[2] || token[3] || token[4] || '').replace(/\\([\\\s"'])/, '$1') || true;
+    var re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
+    var arguments = {0:[], 1:{0:[]}};
+    for (var match; match = re.exec(text); ) {
+      // keyvalue: 1 = key, 2|3|4 = value
+      if (match[1]) {
+        var v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/, '$1');
         if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
-        arguments[token[1]] = v;
+        arguments[match[1]] = v;
+        arguments[1][match[1]] = re.lastIndex;
       }
+      // key: 5 = key
+      else if (match[5]) {
+        arguments[match[5]] = true;
+        arguments[1][match[5]] = re.lastIndex;
+      }
+      // value: 6|7|8 = value
       else {
-        var token = tokens[i].match(value);
-        arguments[0].push((token[1] || token[2] || token[3]).replace(/\\([\\\s"'])/, '$1'));
+        arguments[0].push((match[6] || match[7] || match[8]).replace(/\\([\\\s"'])/, '$1'));
+        arguments[1][0].push(re.lastIndex);
       }
     }
     return arguments;
