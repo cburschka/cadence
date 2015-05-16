@@ -61,6 +61,10 @@ var strings = {
   },
 
   info: {
+    admin: {
+      result: 'Completed command "{command}":\n{raw.result}',
+      completed: 'Completed command "{command}".'
+    },
     joined: 'Now talking in {room}.',
     joining: 'Joining {room} as {user} ...',
     creating: 'Creating {room} as {user} ...',
@@ -139,6 +143,7 @@ var strings = {
       forbidden: 'You are not authorized to execute "{command}" on this server.',
       badCommand: 'Unrecognized server command "{command}".',
       generic: 'Error while executing "{command}": {text}',
+      unknown: 'Unknown error while executing "{command}".'
     },
     affiliate: {
       anon: 'You cannot access the JID of {user} in this room.',
