@@ -136,29 +136,23 @@ var chat = {
      *   Execute a server admin command.
      */
     admin: function(arg) {
-      arg = arg.trim();
-      var m = arg.match(/^(\S+)/);
-      if (!m) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var command = m[1];
-      arg = arg.substring(m[0].length).trim();
-      var error = function(stanza, status) {
-        if (status < 2 && stanza) {
-          if ($('forbidden', stanza).length) {
-            ui.messageAddInfo(strings.error.admin.forbidden, {command: command}, 'error');
-          }
-          else {
-            var message = $('text', stanza).text();
-            ui.messageAddInfo(strings.error.admin.generic, {command: command, text: message}, 'error');
-          }
-        }
-      };
-      var commands = {
-        announce: function() { xmpp.submitCommand('announce', {body: arg}, error); },
-        motd: function() { xmpp.submitCommand('set-motd', {body: arg}, error); }
-      };
+      var m = chat.parseArgs();
+      if (m[0].length) m.cmd = m[0][0];
+      if (m[0].length > 1) m.body = arg.substring(m[1][0][0]).trim();
 
-      if (commands[command]) commands[command]();
-      else ui.messageAddInfo(strings.error.admin.badCommand, {command: command}, 'error');
+      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      xmpp.submitCommand(m.cmd, m, function(stanza, status) {
+        if (status < 2 && stanza) {
+          if ($('forbidden', stanza).length)
+            ui.messageAddInfo(strings.error.admin.forbidden, {command: command}, 'error');
+          else if ($('service-unavailable', stanza).length)
+            ui.messageAddInfo(strings.error.admin.badCommand, {command: command}, 'error');
+          else ui.messageAddInfo(strings.error.admin.generic, {
+            command: command, text: $('text', stanza).text()
+          }, 'error');
+        }
+      });
     },
 
     /**
