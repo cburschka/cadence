@@ -19,3 +19,6 @@
 [submodule "js/lib/jquery"]
 	path = js/lib/jquery
 	url = https://github.com/cburschka/jquery-release.git
+[submodule "js/lib/contextmenu"]
+	path = js/lib/contextmenu
+	url = https://github.com/medialize/jquery-contextMenu
