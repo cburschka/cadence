@@ -11,6 +11,9 @@ var config = {
     // Whether to display verbose log messages.
     verbose: true,
 
+    // Which trigger to use for the context menu (left, right, hover, none).
+    contextmenu: 'hover',
+
     markup: {
       // Render incoming HTML Markup.
       html: true,

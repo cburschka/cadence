@@ -151,6 +151,7 @@ visual = {
             + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
             + ' data-recipient="' + recipient + '"'
+            + ' data-nick="' + this.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -336,6 +337,8 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
+      // Disabled when the context menu overrides it.
+      if (config.settings.contextmenu == 'left') return;
       chat.prefixMsg($(this).attr('data-recipient'), $(this).hasClass('user-role-external'));
     });
   },

@@ -350,6 +350,54 @@ var ui = {
       ui.checkAutoScroll();
       return true;
     });
+
+    var contextmenu = {
+      selector: '.user',
+      trigger: config.settings.contextmenu,
+      delay: 1000, // only applies to hover.
+      build: function(user) {
+        var nick = user.attr('data-nick');
+        var jid = user.attr('data-jid');
+        var items = {msg: null, dmsg: null, sep1: '', kick: null, ban: null, sep2: '', whois: null, ping: null};
+        if (jid) {
+          items.ban = {
+              name: '/ban',
+              callback: function() { chat.commands.ban({0: [], jid: jid}); }
+            };
+          items.dmsg = {
+            name: '/dmsg',
+            callback: function() { chat.prefixMsg(jid, true); }
+          };
+        }
+        if (nick) {
+          items.kick = {
+            name: '/kick',
+            callback: function() { chat.commands.kick(nick); }
+          };
+          items.whois = {
+            name: '/whois',
+            callback: function() { chat.commands.whois(nick); }
+          };
+          items.ping = {
+            name: '/ping',
+            callback: function() { chat.commands.ping(nick); }
+          };
+          items.msg = {
+            name: '/msg',
+            callback: function() { chat.prefixMsg(nick); }
+          };
+        }
+        for (var cmd in items) if (!items[cmd]) delete items[cmd];
+        return { items: items, autoHide: true };
+      }
+    };
+    $.contextMenu(contextmenu);
+
+    $('#settings-contextmenu').change(function() {
+      contextmenu.trigger = this.value;
+      $.contextMenu('destroy', '.user');
+      $.contextMenu(contextmenu);
+    });
   },
 
   /**
