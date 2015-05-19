@@ -150,6 +150,7 @@ visual = {
             + ' user-affiliation-' + user.affiliation
             + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
+            + ' data-affiliation="' + user.affiliation + '"'
             + ' data-nick="' + this.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
@@ -336,6 +337,8 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
+      // Disabled when the context menu overrides it.
+      if (config.settings.contextmenu == 'left') return;
       var nick = $(this).attr('data-nick');
       var jid = $(this).attr('data-jid');
       chat.prefixMsg(nick || jid, !nick);

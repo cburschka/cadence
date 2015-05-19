@@ -350,6 +350,76 @@ var ui = {
       ui.checkAutoScroll();
       return true;
     });
+
+    var contextmenu = {
+      selector: '.user',
+      trigger: config.settings.contextmenu,
+      delay: 700, // only applies to hover.
+      build: ui.buildContextMenu
+    };
+    $.contextMenu(contextmenu);
+
+    $('#settings-contextmenu').change(function() {
+      contextmenu.trigger = this.value;
+      $.contextMenu('destroy', '.user');
+      $.contextMenu(contextmenu);
+    });
+  },
+
+  /**
+   * Build the context menu for a user.
+   * @param {jq} user The user element.
+   */
+  buildContextMenu: function(user) {
+    var labels = strings.labels.commands;
+    var userSelf = xmpp.roster[xmpp.room.current][xmpp.nick.current];
+    var nick = user.attr('data-nick');
+    var jid = user.attr('data-jid');
+
+    var mod = userSelf.role == 'moderator';
+    var ranks = {none: 0, member: 1, admin: 2, owner: 3};
+    var rank = ranks[userSelf.affiliation];
+    var outranked = rank < ranks[user.attr('data-affiliation')];
+
+    var items = {
+      msg: {
+        name: labels.msg,
+        disabled: !nick, // disabled if user is not room occupant.
+        callback: function() { chat.prefixMsg(nick); }
+      },
+      dmsg: {
+        name: labels.dmsg,
+        disabled: !jid, // disabled if user is anonymous.
+        callback: function() { chat.prefixMsg(jid, true); }
+      },
+      sep1: '---',
+      invite: {
+        name: labels.invite,
+        disabled: !jid,
+        callback: function() { chat.commands.invite({jid:jid}); }
+      },
+      kick: {
+        name: labels.kick,
+        disabled: !mod || outranked || !nick || nick == xmpp.nick.current,
+        callback: function() { chat.commands.kick(nick); }
+      },
+      ban: {
+        name: labels.ban,
+        disabled: rank < 2 || outranked || !jid || Strophe.getBareJidFromJid(jid) == Strophe.getBareJidFromJid(xmpp.jid),
+        callback: function() { chat.commands.ban({jid: jid}); }
+      },
+      sep2: '',
+      whois: {
+        name: labels.whois,
+        callback: function() { chat.commands.whois(nick || jid); }
+      },
+      ping: {
+        name: labels.ping,
+        callback: function() { chat.commands.ping(nick || jid); }
+      }
+    }
+
+    return {items: items, autoHide: true};
   },
 
   /**

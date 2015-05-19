@@ -216,5 +216,17 @@ var strings = {
   <dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd>\
   <dt><code>--moderation [closed|open|none]</code></dt><dd>An open or closed room allows participants to be muted; in a closed room participants are muted by default.</dd>\
   <dt><code>--msg, --msg 0</code></dt><dd>Toggle private messaging.</dd></dl>'
+  },
+
+  labels: {
+    commands: {
+      ban: 'Ban',
+      dmsg: 'Direct message',
+      invite: 'Invite',
+      kick: 'Kick',
+      msg: 'Private message',
+      ping: 'Ping',
+      whois: 'User info'
+    }
   }
 };

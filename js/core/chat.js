@@ -197,7 +197,7 @@ var chat = {
     ban: function(arg) {
       arg = chat.parseArgs(arg);
       arg.type = 'outcast';
-      arg[0].unshift('outcast');
+      if (arg[0]) arg[0].unshift('outcast');
       this.affiliate(arg);
     },
 
@@ -328,7 +328,7 @@ var chat = {
     invite: function(arg) {
       var m = chat.parseArgs(arg);
       if (m.room && m.nick) m.jid = xmpp.jidFromRoomNick(m.room, m.nick);
-      if (m[0].length >= 1) {
+      if (m[0] && m[0].length >= 1) {
         m.jid = m[0][0]
         m.msg = arg.substring(m[1][0][0]).trim();
       }
