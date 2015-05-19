@@ -358,7 +358,7 @@ var xmpp = {
    * @param {function} callback The callback to execute afterward.
    */
   configureRoom: function(room, values, callback) {
-    var error = function(stanza) {
+    var error = callback && function(stanza) {
       callback(stanza ? $('error', stanza).attr('code') : true);
     }
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
@@ -388,8 +388,9 @@ var xmpp = {
           ui.messageAddInfo(strings.error.roomConfFields, {name: room, fields: fields.join(', ')}, 'error');
 
         this.connection.sendIQ(form, function() {
+          callback();
           // Need to refresh the room list now.
-          this.discoverRooms(callback);
+          this.discoverRooms();
         }.bind(this), error);
       }.bind(this), error);
   },
