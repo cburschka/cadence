@@ -110,6 +110,11 @@ var strings = {
         ],
       },
     },
+    inviteReceived: [
+      '{user} has invited you to {room}.',
+      '{user} has invited you to {room} ({reason}).'
+    ],
+    inviteSent: 'Inviting {jid} to {room}.',
     joined: 'Now talking in {room}.',
     joining: 'Joining {room} as {user} ...',
     leave: 'Leaving {room} ...',

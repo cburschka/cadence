@@ -323,6 +323,24 @@ var chat = {
     },
 
     /**
+     * invite [<jid> <msg> | --room <room> --nick <nick> --msg <msg>]
+     */
+    invite: function(arg) {
+      var m = chat.parseArgs(arg);
+      if (m.room && m.nick) m.jid = xmpp.jidFromRoomNick(m.room, m.nick);
+      if (m[0].length >= 1) {
+        m.jid = m[0][0]
+        m.msg = arg.substring(m[1][0][0]).trim();
+      }
+      if (!m.jid)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
+      xmpp.invite(m.jid, m.msg);
+      ui.messageAddInfo(strings.info.inviteSent,
+        {jid: m.jid, room: xmpp.room.available[xmpp.room.current]}
+      );
+    },
+
+    /**
      * join <room>
      *   Ask XMPP to join <room>. If successful, XMPP
      *   will automatically leave the current room.

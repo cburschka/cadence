@@ -306,6 +306,21 @@ var xmpp = {
   },
 
   /**
+   * Send a mediated invitation.
+   * @param jid this may be an occupant in a different room
+   * @param text an optional text message
+   */
+  invite: function(jid, text) {
+    this.connection.send($msg({
+      from: this.connection.jid,
+      to: this.jidFromRoomNick(this.room.current)
+    })
+    .c('x', {xmlns: Strophe.NS.MUC + '#user'})
+    .c('invite', {to: jid})
+    .c('reason', text));
+  },
+
+  /**
    * Send a ping.
    *
    * @param {string} to The ping target.
@@ -774,9 +789,23 @@ var xmpp = {
         return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
 
       else if (domain == config.xmpp.mucService) {
+        // Accept invitations.
+        var invite = $('x invite', stanza);
+        if (invite.length) {
+          var room = xmpp.room.available[node];
+          if (!room) xmpp.getRoomInfo(node, function(data) {
+            room = data;
+            xmpp.room.available[node] = data;
+          });
+          var reason = $('reason', invite).text();
+          ui.messageAddInfo(strings.info.inviteReceived[+!!reason], {
+            user: {jid: invite.attr('from')},
+            room: room,
+            reason: reason
+          });
+        }
         // Only accept MUC messages in the current room.
-        if (node != this.room.current)
-          return true;
+        if (node != this.room.current || invite.length) return true;
 
         // If the sender is not in the room, just show the nick.
         // This *should* only happen for backlog messages.
