@@ -784,7 +784,7 @@ var xmpp = {
       }
 
       // Accept direct messages from other domains.
-      else var user = {nick: node + '@' + domain, jid: from, role: 'external'};
+      else var user = {jid: from};
       if (type == 'error') {
         if ($('error', stanza).attr('code') == '404') {
           ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
@@ -792,7 +792,6 @@ var xmpp = {
         }
       }
       this.historyEnd[node] = time || (new Date()).toISOString();
-
 
       if (time) ui.messageDelayed(
         {user: user, body: body, time: time, room: this.room.available[node], type: type}

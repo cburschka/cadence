@@ -519,7 +519,7 @@ var ui = {
     });
     this.scrollDown();
     if (message.message.user.nick != xmpp.nick.current)
-      this.blinkTitle(message.message.user.nick);
+      this.blinkTitle(message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid));
   },
 
   /**

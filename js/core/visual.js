@@ -128,21 +128,21 @@ visual = {
     /**
      * Render a user object for output.
      *
-     * @param {Object} user The user object to render. It must have these keys:
+     * @param {Object} user The user object to render. It must have one or more of these keys:
      *                 * nick: {string} The user's nickname.
      *                 * jid: {string} The user's jid, or null.
+     *                 It can have these keys:
      *                 * role: {string} The XEP-0045 room role of the user.
      *                 * affiliation: {string} The XEP-0045 room affiliation.
-     *                 * [show]: The <show/> (mostly away or null) of the user.
+     *                 * show: The <show/> ("away", "xa", "dnd", "chat" or null) of the user.
      * @return {string} The rendered user markup. It will have classes for role,
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var nick = this.nick(user.nick);
+      var nick = this.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
       var jid = this.plain(user.jid || '');
-      var recipient = user.role == 'external' ? user.jid : user.nick;
-      if (user.role == 'visitor' || (user.role != 'external' && user.jid &&
+      if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
       // role, affiliation and show are all trusted values.
@@ -150,7 +150,7 @@ visual = {
             + ' user-affiliation-' + user.affiliation
             + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
-            + ' data-recipient="' + recipient + '"'
+            + ' data-nick="' + this.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -180,7 +180,7 @@ visual = {
      */
     plain: function(text) {
       var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
-      return text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
+      return text ? text.replace(/[<>&"]/g, function(x) { return replacers[x]; }) : '';
     },
 
     raw: function(text) {
@@ -336,7 +336,9 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
-      chat.prefixMsg($(this).attr('data-recipient'), $(this).hasClass('user-role-external'));
+      var nick = $(this).attr('data-nick');
+      var jid = $(this).attr('data-jid');
+      chat.prefixMsg(nick || jid, !nick);
     });
   },
 

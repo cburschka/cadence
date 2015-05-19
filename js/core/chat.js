@@ -307,8 +307,8 @@ var chat = {
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: {nick: Strophe.getBareJidFromJid(m.jid), jid: m.jid, role: 'external'},
-        user: {nick: Strophe.getBareJidFromJid(xmpp.jid), jid: xmpp.jid, role: 'external'},
+        to: {jid: m.jid},
+        user: {jid: xmpp.jid},
         body: html
       }));
     },
