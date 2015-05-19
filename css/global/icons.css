@@ -68,6 +68,10 @@
   background: url(../../img/xa.png) center right no-repeat;
   padding-right: 20px;
 }
+#onlineList .user-show-chat {
+  background: url(../../img/chat.png) center right no-repeat;
+  padding-right: 20px;
+}
 
 span.hide-message {
   display:inline-block;
@@ -86,3 +90,10 @@ span.hide-message {
   background: url('../../img/playback.png');
   background-color: none;
 }
+
+.context-menu-item.icon-ban { background-image: url(../../img/ban.png); }
+.context-menu-item.icon-invite { background-image: url(../../img/invite.png); }
+.context-menu-item.icon-whois { background-image: url(../../img/whois.png); }
+.context-menu-item.icon-ping { background-image: url(../../img/ping.png); }
+.context-menu-item.icon-kick { background-image: url(../../img/kick.png); }
+.context-menu-item.icon-msg { background-image: url(../../img/chat.png); }

@@ -384,42 +384,49 @@ var ui = {
     var items = {
       msg: {
         name: labels.msg,
+        icon: 'msg',
         disabled: !nick, // disabled if user is not room occupant.
         callback: function() { chat.prefixMsg(nick); }
       },
       dmsg: {
         name: labels.dmsg,
+        icon: 'msg',
         disabled: !jid, // disabled if user is anonymous.
         callback: function() { chat.prefixMsg(jid, true); }
       },
       sep1: '---',
       invite: {
         name: labels.invite,
+        icon: 'invite',
         disabled: !jid,
         callback: function() { chat.commands.invite({jid:jid}); }
       },
       kick: {
         name: labels.kick,
+        icon: 'kick',
         disabled: !mod || outranked || !nick || nick == xmpp.nick.current,
         callback: function() { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
+        icon: 'ban',
         disabled: rank < 2 || outranked || !jid || Strophe.getBareJidFromJid(jid) == Strophe.getBareJidFromJid(xmpp.jid),
         callback: function() { chat.commands.ban({jid: jid}); }
       },
       sep2: '',
       whois: {
         name: labels.whois,
+        icon: 'whois',
         callback: function() { chat.commands.whois(nick || jid); }
       },
       ping: {
         name: labels.ping,
+        icon: 'ping',
         callback: function() { chat.commands.ping(nick || jid); }
       }
     }
 
-    return {items: items, autoHide: true};
+    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
