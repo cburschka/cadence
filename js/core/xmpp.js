@@ -280,10 +280,10 @@ var xmpp = {
       }));
       if (codes.indexOf(201) >= 0) {
         ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname']}, 'verbose');
-        this.configureRoom(room, config, function() {
+        this.configureRoom(room, config, null, function(rooms) {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
-          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
+          ui.messageAddInfo(strings.info.joined, {room: rooms[room]}, 'verbose');
         }.bind(this));
       }
     }.bind(this), null, 'presence', null, null, this.jidFromRoomNick(room, this.nick.target));
@@ -355,11 +355,12 @@ var xmpp = {
    * @param {string} room The room name.
    * @param {Object} vars The field values to set, indexed by field name
    *                 (including the prefix "muc#roomconfig_" if applicable)
-   * @param {function} callback The callback to execute afterward.
+   * @param {function} success The callback to execute after submission.
+   * @param {function} update The callback to execute after updating the room list.
    */
-  configureRoom: function(room, values, callback) {
-    var error = callback && function(stanza) {
-      callback(stanza ? $('error', stanza).attr('code') : true);
+  configureRoom: function(room, values, success, update) {
+    var error = success && function(stanza) {
+      success(stanza ? $('error', stanza).attr('code') : true);
     }
     this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
       function(stanza) {
@@ -388,9 +389,9 @@ var xmpp = {
           ui.messageAddInfo(strings.error.roomConfFields, {name: room, fields: fields.join(', ')}, 'error');
 
         this.connection.sendIQ(form, function() {
-          callback();
+          success && success();
           // Need to refresh the room list now.
-          this.discoverRooms();
+          this.discoverRooms(update);
         }.bind(this), error);
       }.bind(this), error);
   },
