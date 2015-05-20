@@ -121,6 +121,7 @@ var strings = {
     leavePage: 'Leaving this page will delete the chat history.',
     macros: 'Macros:<br /><code>{macros}</code>',
     motd: 'Announcement from {domain}: {raw.text}',
+    nickConflictResolve: 'This nickname is in user; enter another one.',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
     noUsers: 'No users are online in {room}.',

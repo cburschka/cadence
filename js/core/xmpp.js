@@ -125,18 +125,11 @@ var xmpp = {
   },
 
   /**
-   * Attempt to create a different nick by first appending, then incrementing
-   * a numerical suffix.
+   * Prompt the user to enter a different nickname.
    */
   nickConflictResolve: function() {
-    var nick = this.nick.target;
-    var m = /[\d]+$/.exec(nick);
-    if (m) {
-      i = parseInt(m[0]) + 1;
-      nick = nick.substring(0, nick.length - m[0].length);
-    }
-    else var i = 1;
-    this.nick.target = nick + i;
+    var nick = prompt(strings.info.nickConflictResolve, this.nick.target);
+    if (nick && nick != this.nick.target) return this.nick.target = nick;
   },
 
   /**
@@ -607,13 +600,14 @@ var xmpp = {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
         ui.messageAddInfo(strings.error.nickConflict, {nick: nick}, 'error');
-        this.nick.target = this.nick.current;
+        return this.nick.target = this.nick.current;
       }
       else {
         ui.messageAddInfo(strings.error.joinConflict, {nick: nick}, 'error');
-        this.nickConflictResolve();
-        ui.messageAddInfo(strings.info.rejoinNick, {nick: this.nick.target});
-        this.joinRoom(this.room.target, this.nick.target);
+        if (this.nickConflictResolve()) {
+          ui.messageAddInfo(strings.info.rejoinNick, {nick: this.nick.target});
+          return this.joinRoom(this.room.target, this.nick.target);
+        }
       }
     }
     else {
@@ -625,11 +619,12 @@ var xmpp = {
         ui.messageAddInfo(strings.error.badNick, {nick: nick}, 'error');
         this.nick.target = this.nick.current;
       }
-      // Cancel any join attempt:
-      this.room.target = this.room.current;
-      ui.updateRoom(this.room.current);
-      ui.updateFragment(this.room.current);
     }
+
+    // Cancel any join attempt:
+    this.room.target = this.room.current;
+    ui.updateRoom(this.room.current);
+    ui.updateFragment(this.room.current);
   },
 
   /**
