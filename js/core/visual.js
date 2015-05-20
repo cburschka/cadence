@@ -264,14 +264,14 @@ visual = {
     var codes = this.emoticonSets;
     var regex = this.emoticonRegex;
     if (!regex) return;
-    var image = function(groups) {
-      for (var i in groups) {
-        if (groups[i]) {
+    var image = function() {
+      for (var i in arguments) {
+        if (arguments[i]) {
           return  [$('<img class="emoticon" />').attr({
-            src: codes[i].baseURL + codes[i].codes[groups[i]],
-            title: groups[i],
-            alt: groups[i]
-          }), $('<span class="emote-alt"></span>').text(groups[i])]
+            src: codes[i].baseURL + codes[i].codes[arguments[i]],
+            title: arguments[i],
+            alt: arguments[i]
+          }), $('<span class="emote-alt"></span>').text(arguments[i])]
         }
       }
     };
@@ -296,11 +296,11 @@ visual = {
     }).replaceText(
       /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])/g,
       config.settings.markup.links ?
-      function(groups) {
-        return $('<a class="url-link"></a>').attr('href', groups[0]).text(groups[0]);
+      function(url) {
+        return $('<a class="url-link"></a>').attr('href', url).text(url);
       } :
-      function(groups) {
-        return $('<span class="url-link"></span>').text(groups[0]);
+      function(url) {
+        return $('<span class="url-link"></span>').text(url);
       }
     );
   },
@@ -445,36 +445,3 @@ visual = {
          + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
   }
 };
-
-(function($){
-  var textNode = function(node, search, replace, capturing) {
-    var tokens = node.nodeValue.split(search);
-    if (tokens.length < 2) return false;
-    for (var i = 0; i+capturing+1 < tokens.length; i += capturing+1) {
-      $(node).before(document.createTextNode(tokens[i]));
-      $(node).before(replace(tokens.slice(i+1, i+1+capturing)));
-    }
-    $(node).before(document.createTextNode(tokens[tokens.length-1]));
-    return true;
-  };
-
-  /**
-   * Replace substrings with HTML.
-   *
-   * @param node A text node.
-   * @param search A RegExp object.
-   * @param replace A function that generates the replacement jQuery content.
-   */
-  $.fn.replaceText = function(search, replace) {
-    var capturing = RegExp(search.source + '|').exec('').length - 1;
-    return this.each(function() {
-      var remove = [];
-      for (var node = this.firstChild; node; node = node.nextSibling) {
-        if (node.nodeType == document.TEXT_NODE && textNode(node, search, replace, capturing)) {
-          remove.push(node);
-        }
-      }
-      $(remove).remove();
-    });
-  }
-})(jQuery);
