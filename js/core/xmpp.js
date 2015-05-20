@@ -665,7 +665,8 @@ var xmpp = {
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
           ui.messageAddInfo(strings.info.evicted[type].me[index], {
-            'user.actor': actor, reason: reason
+            'user.actor': actor, reason: reason,
+            room: this.room.available[room]
           }, 'error');
           xmpp.prejoin();
         }
