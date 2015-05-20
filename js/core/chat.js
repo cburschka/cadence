@@ -589,7 +589,7 @@ var chat = {
       if (user) {
         ui.messageAddInfo(strings.info.whois, {
           user: user,
-          jid: user.jid,
+          jid: user.jid || '---',
           privilege: user.role + '/' + user.affiliation,
           status: user.show + (user.status ? ' (' + user.status + ')' : '')
         });
