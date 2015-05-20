@@ -7,7 +7,7 @@ $(document).ready(function() {
   ui.init();
   visual.init();
   xmpp.initialize();
-  bbcode = xbbcode.init(config.markup.bbcode);
+  bbcode = XBBCode(config.markup.bbcode);
   $(window).on({beforeunload : function() {
     if (xmpp.status != 'offline' && config.settings.notifications.leavePage)
       return strings.info.leavePage;
