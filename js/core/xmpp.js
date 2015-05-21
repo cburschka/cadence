@@ -218,14 +218,14 @@ var xmpp = {
    *
    * @param {string} The room to join.
    */
-  joinExistingRoom: function(room) {
+  joinExistingRoom: function(room, password) {
     var joinWithReservedNick = function() {
       this.getReservedNick(room, function(nick) {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
           ui.messageAddInfo(strings.info.nickRegistered, {nick: nick}, 'verbose');
         }
-        this.joinRoom(room);
+        this.joinRoom(room, password);
       });
     }.bind(this);
 
@@ -244,7 +244,7 @@ var xmpp = {
         }
       }, 'verbose');
       if (config.settings.xmpp.registerNick) joinWithReservedNick();
-      else this.joinRoom(room);
+      else this.joinRoom(room, password);
     }.bind(this));
   },
 
@@ -289,13 +289,13 @@ var xmpp = {
    *
    * @param {string} The room name.
    */
-  joinRoom: function(room) {
+  joinRoom: function(room, password) {
     this.room.target = room;
-    this.connection.send(
-      this.presence(room, this.nick.target)
-        .c('x', {xmlns:Strophe.NS.MUC})
-        .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'})
-    );
+    var presence = this.presence(room, this.nick.target)
+      .c('x', {xmlns:Strophe.NS.MUC})
+      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
+    if (password) presence.up().c('password', password);
+    this.connection.send(presence);
   },
 
   /**
@@ -610,15 +610,18 @@ var xmpp = {
         }
       }
     }
-    else {
-      if ($('forbidden', stanza).length)
-        ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
-      else if ($('not-allowed', stanza).length)
-        ui.messageAddInfo(strings.error.noCreate, 'error');
-      else if ($('jid-malformed', stanza).length) {
-        ui.messageAddInfo(strings.error.badNick, {nick: nick}, 'error');
-        this.nick.target = this.nick.current;
-      }
+    else if ($('not-authorized', stanza).length) {
+      var password = prompt(strings.info.joinPassword);
+      if (password) return this.joinExistingRoom(room, password);
+      else ui.messageAddInfo(strings.error.joinPassword, {room: this.room.available[room]}, 'error');
+    }
+    else if ($('forbidden', stanza).length)
+      ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+    else if ($('not-allowed', stanza).length)
+      ui.messageAddInfo(strings.error.noCreate, 'error');
+    else if ($('jid-malformed', stanza).length) {
+      ui.messageAddInfo(strings.error.badNick, {nick: nick}, 'error');
+      this.nick.target = this.nick.current;
     }
 
     // Cancel any join attempt:
