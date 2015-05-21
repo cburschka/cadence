@@ -287,6 +287,19 @@ var chat = {
       else xmpp.discoverRooms(create);
     },
 
+    destroy: function(arg) {
+      arg = chat.parseArgs(arg);
+      arg.room = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
+      var room = xmpp.room.available[arg.room];
+      if (!room)
+        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
+      xmpp.destroyRoom(arg.room, arg.alternate, arg.reason, function(error) {
+        if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room: room}, 'error');
+        else if (error) ui.messageAddInfo(strings.error.destroy, {room: room}, 'error');
+        else ui.messageAddInfo(strings.info.destroySuccess, {room: room});
+      });
+    },
+
     /**
      * dmsg <jid>
      *   Send a direct message to a user outside the chatroom.

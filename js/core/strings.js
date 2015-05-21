@@ -80,6 +80,17 @@ var strings = {
     aliasDelete: 'Alias /{cmd} deleted.',
     aliasReplace: 'Alias /{cmd} replaced.',
     creating: 'Creating {room} as {user} ...',
+    destroyed: [
+      [
+        '{room} has been destroyed!',
+        '{room} has been destroyed ({reason})!',
+      ],
+      [
+        '{room} has been destroyed in favor of {room:alternate}!',
+        '{room} has been destroyed in favor of {room:alternate} ({reason})!',
+      ]
+    ],
+    destroySuccess: 'Successfully destroyed room {room}.',
     evicted: {
       kick: {
         me: [
@@ -174,6 +185,8 @@ var strings = {
       offline: '/{cmd}: You are offline.',
       prejoin: '/{cmd}: You need to join a room first.',
     },
+    destroyDenied: 'You lack the authority to destroy {room}.',
+    destroy: 'Failed to destroy {room}.',
     kick: {
       405: 'You lack the authority to kick {nick}.',
       406: 'You can\'t kick {nick} because they\'re not in the room.',

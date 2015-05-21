@@ -162,7 +162,7 @@ visual = {
     room: function(room) {
       return '<a href="#' + visual.format.plain(room.id) + '" class="xmpp-room'
              + (room.id == xmpp.room.current ? ' xmpp-room-current' : '')
-             + '">' + visual.format.plain(room.title) + '</a>'
+             + '">' + visual.format.plain(room.title || room.id) + '</a>'
     },
 
     /**

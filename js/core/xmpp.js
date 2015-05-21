@@ -390,6 +390,25 @@ var xmpp = {
   },
 
   /**
+   * Order the server to destroy a room.
+   * @param {string} room The room ID.
+   * @param {string} alternate An alternate room ID (optional).
+   * @param {string} message The reason (optional).
+   * @param {function} success The callback to execute on completion.
+   */
+  destroyRoom: function(room, alternate, message, success) {
+    var iq = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room).c('destroy');
+    if (alternate) iq.attrs({jid: Strophe.escapeNode(alternate) + '@' + config.xmpp.mucService});
+    if (message) iq.c('reason', message);
+    this.connection.sendIQ(iq, function() {
+      success && success();
+      this.discoverRooms();
+    }.bind(this), function(stanza) {
+      success(stanza ? $('error', stanza).attr('code') : true);
+    });
+  },
+
+  /**
    * Request a command form and fill it out with the variables provided.
    */
   submitCommand: function(node, vars, callback) {
@@ -587,7 +606,7 @@ var xmpp = {
     }));
 
     if (type == 'unavailable')
-      this.eventPresenceUnavailable(room, nick, codes, item);
+      this.eventPresenceUnavailable(room, nick, codes, item, stanza);
     else
       this.eventPresenceDefault(room, nick, codes, item, stanza);
     return true;
@@ -633,7 +652,7 @@ var xmpp = {
   /**
    * Handle presence stanzas of type `unavailable`.
    */
-  eventPresenceUnavailable: function(room, nick, codes, item) {
+  eventPresenceUnavailable: function(room, nick, codes, item, stanza) {
     if (room == this.room.current && this.roster[room][nick]) {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
@@ -666,7 +685,6 @@ var xmpp = {
             actor: actor, reason: reason,
             room: this.room.available[room]
           }, 'error');
-          xmpp.prejoin();
         }
         else ui.messageAddInfo(strings.info.evicted[type].other[index], {
           actor: actor,
@@ -676,11 +694,27 @@ var xmpp = {
         });
         ui.playSound('leave');
       }
+      // A <destroy> element indicates that the room has been destroyed.
+      else if ($('x destroy', stanza)) {
+        var destroy = $('x destroy', stanza);
+        var jid = destroy.attr('jid');
+        var reason = $('reason', destroy).text();
+        if (jid && Strophe.getDomainFromJid(jid) == config.xmpp.mucService){
+          var alternate = Strophe.unescapeNode(Strophe.getNodeFromJid(jid));
+          alternate = xmpp.room.available[alternate] || {id: alternate};
+        }
+        ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {
+          room: xmpp.room.available[room], alternate: alternate, reason
+        }, 'error');
+      }
       // Any other `unavailable` presence indicates a logout.
       else {
         ui.messageAddInfo(strings.info.userOut, {user: this.roster[room][nick]});
         ui.playSound('leave');
       }
+
+      if (nick == xmpp.nick.current) xmpp.prejoin();
+
       // In either case, the old nick must be removed and destroyed.
       ui.userRemove(this.roster[room][nick]);
       delete this.roster[room][nick];
