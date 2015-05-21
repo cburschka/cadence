@@ -140,8 +140,8 @@ visual = {
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var nick = this.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
-      var jid = this.plain(user.jid || '');
+      var nick = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
+      var jid = visual.format.plain(user.jid || '');
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
@@ -151,7 +151,7 @@ visual = {
             + (jid ? ' ' + visual.jidClass(jid) : '')
             + ' user-show-' + (user.show || 'default') + '"'
             + ' data-affiliation="' + user.affiliation + '"'
-            + ' data-nick="' + this.plain(user.nick) + '" data-jid="' + jid + '"'
+            + ' data-nick="' + visual.format.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -160,16 +160,16 @@ visual = {
      * Currently only returns the room title.
      */
     room: function(room) {
-      return '<a href="#' + this.plain(room.id) + '" class="xmpp-room'
+      return '<a href="#' + visual.format.plain(room.id) + '" class="xmpp-room'
              + (room.id == xmpp.room.current ? ' xmpp-room-current' : '')
-             + '">' + this.plain(room.title) + '</a>'
+             + '">' + visual.format.plain(room.title) + '</a>'
     },
 
     /**
      * Format a nick.
      */
     nick: function(nick) {
-      return this.plain(visual.lengthLimit(nick, config.ui.maxNickLength));
+      return visual.format.plain(visual.lengthLimit(nick, config.ui.maxNickLength));
     },
 
     /**
@@ -217,28 +217,24 @@ visual = {
 
 
   /**
-   * Poor man's sprintf, with some features from Drupal's t().
-   * Splice variables into a template, optionally escaping them.
+   * Splice variables into a template with format identifiers.
    *
-   * @param {string} text A format string with placeholders like {a} and [b].
+   * @param {string} text A format string with placeholders like {name1} and {format:name2}.
    * @param {Object} variables A hash keyed by variable name.
    *
    * Any placeholder with a corresponding variable will be replaced.
-   * If the placeholder is in curly brackets, the variable will be HTML-escaped.
+   * The variable will be processed either by the specified format, or the one
+   * matching its name, or the "plaintext" formatter by default.
    * @return {string} The rendered text.
    */
   formatText: function(text, variables) {
-    for (var key in variables) if (!variables[key]) delete variables[key];
-    for (var key in variables) {
-      var m = /([a-z]+)\.[a-z]+/.exec(key);
-      var type = m ? m[1] : key;
-      type = this.format[type] ? type : 'plain';
-      variables[key] = this.format[type](variables[key]);
-    }
-    text = text.replace(/\{([a-z\.]+)\}/g, function(rep, key) {
-      return typeof variables[key] == 'string' ? variables[key] : rep;
+    return text.replace(/{(?:(\w+):)?(\w+)}/g, function(rep, format, key) {
+      if (key in variables) {
+        var out = (visual.format[format || key] || visual.format.plain)(variables[key]);
+        if (typeof out == 'string') return out;
+      }
+      return rep;
     });
-    return text;
   },
 
   /**

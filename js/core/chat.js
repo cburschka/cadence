@@ -43,7 +43,7 @@ var chat = {
 
           ui.messageAddInfo(output.length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
             type: arg.type,
-            'raw.users': output.sort().join('\n')
+            users: output.sort().join('\n')
           });
         }, function(stanza) {
           var type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
@@ -167,7 +167,7 @@ var chat = {
           });
           ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
             command: m.cmd,
-            'raw.result': result.join("\n")
+            result: result.join("\n")
           });
         }
       });
@@ -386,7 +386,7 @@ var chat = {
         var links = [];
         for (var room in rooms) links.push(visual.format.room(rooms[room]));
         if (links.length)
-          ui.messageAddInfo(strings.info.roomsAvailable, {'raw.rooms': links.join(', ')});
+          ui.messageAddInfo(strings.info.roomsAvailable, {rooms: links.join(', ')});
         else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
       });
     },
@@ -536,7 +536,7 @@ var chat = {
       var version = visual.format.plain(config.version);
       version = '<a href="https://github.com/cburschka/cadence/tree/' + version + '">'
               + 'cadence-' + version + '</a>';
-      ui.messageAddInfo(strings.info.versionClient, {'raw.version': version});
+      ui.messageAddInfo(strings.info.versionClient, {version: version});
       if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
         xmpp.getVersion(function(version) {
           if (version) ui.messageAddInfo(strings.info.versionServer, version);
@@ -561,7 +561,7 @@ var chat = {
           for (var i in nicks) links.push(visual.format.nick(nicks[i]));
           if (links.length) ui.messageAddInfo(strings.info.usersInRoom, {
             room: room,
-            'raw.users': links.join(', ')
+            users: links.join(', ')
           });
           else ui.messageAddInfo(strings.info.noUsers, {room: room});
         })
@@ -574,7 +574,7 @@ var chat = {
           var user = xmpp.roster[xmpp.room.current][nicks[i]];
           links.push(visual.format.user(user));
         }
-        ui.messageAddInfo(strings.info.usersInThisRoom, {'raw.users': links.join(', ')});
+        ui.messageAddInfo(strings.info.usersInThisRoom, {users: links.join(', ')});
       }
     },
 

@@ -62,7 +62,7 @@ var strings = {
 
   info: {
     admin: {
-      result: 'Completed command "{command}":\n{raw.result}',
+      result: 'Completed command "{command}":\n{raw:result}',
       completed: 'Completed command "{command}".'
     },
     affiliate: [
@@ -70,10 +70,10 @@ var strings = {
       'Affiliation of {user} in {room} set to {type}.'
     ],
     affiliations: {
-      'outcast': 'Banned users in this room:\n{raw.users}',
-      'member': 'Members of this room:\n{raw.users}',
-      'admin': 'Administrators of this room:\n{raw.users}',
-      'owner': 'Owners of this room:\n{raw.users}',
+      'outcast': 'Banned users in this room:\n{raw:users}',
+      'member': 'Members of this room:\n{raw:users}',
+      'admin': 'Administrators of this room:\n{raw:users}',
+      'owner': 'Owners of this room:\n{raw:users}',
     },
     affiliationsEmpty: 'No users have the affiliation "{type}" in this room.',
     aliasAdd: 'Alias /{cmd} added.',
@@ -85,28 +85,28 @@ var strings = {
         me: [
           'You have been kicked!',
           'You have been been kicked ({reason})!',
-          'You have been kicked by {user.actor}!',
-          'You have been kicked by {user.actor} ({reason})!'
+          'You have been kicked by {user:actor}!',
+          'You have been kicked by {user:actor} ({reason})!'
         ],
         other: [
           '{user} has been kicked.',
           '{user} has been kicked ({reason}).',
-          '{user.actor} has kicked {user}.',
-          '{user.actor} has kicked {user} ({reason}).'
+          '{user:actor} has kicked {user}.',
+          '{user:actor} has kicked {user} ({reason}).'
         ],
       },
       ban: {
         me: [
           'You have been banned from {room}!',
           'You have been been banned from {room} ({reason})!',
-          'You have been banned from {room} by {user.actor}!',
-          'You have been banned from {room} by {user.actor} ({reason})!'
+          'You have been banned from {room} by {user:actor}!',
+          'You have been banned from {room} by {user:actor} ({reason})!'
         ],
         other: [
           '{user} has been banned from {room}.',
           '{user} has been banned from {room} ({reason}).',
-          '{user.actor} has banned {user} from {room}.',
-          '{user.actor} has banned {user} from room ({reason}).'
+          '{user:actor} has banned {user} from {room}.',
+          '{user:actor} has banned {user} from room ({reason}).'
         ],
       },
     },
@@ -121,7 +121,7 @@ var strings = {
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
     macros: 'Macros:<br /><code>{macros}</code>',
-    motd: 'Announcement from {domain}: {raw.text}',
+    motd: 'Announcement from {domain}: {raw:text}',
     nickConflictResolve: 'This nickname is in user; enter another one.',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
@@ -130,15 +130,15 @@ var strings = {
     pongError: 'Ping to {target}: Target does not support ping ({delay} ms).',
     rejoinNick: 'Rejoining as {nick} ...',
     roomConf: 'Room configuration of {room} has been altered.',
-    roomsAvailable: 'Available rooms: {raw.rooms}',
+    roomsAvailable: 'Available rooms: {raw:rooms}',
     sessionAuth: 'Automatically logging in as {username}',
     userIn: '{user} has joined the room.',
-    userNick: '{user.from} is now known as {user.to}.',
+    userNick: '{user:from} is now known as {user:to}.',
     userOut: '{user} has left the room.',
     unbanSuccess: 'Unbanned {jid} from this room.',
-    usersInRoom: 'Users in {room}: {raw.users}.',
-    usersInThisRoom: 'Users in this room: {raw.users}.',
-    versionClient: 'Cadence version: {raw.version}',
+    usersInRoom: 'Users in {room}: {raw:users}.',
+    usersInThisRoom: 'Users in this room: {raw:users}.',
+    versionClient: 'Cadence version: {raw:version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     whisper: '(whispers)',
     whisperTo: '(whispers to {user})',

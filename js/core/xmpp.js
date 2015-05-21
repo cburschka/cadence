@@ -639,8 +639,8 @@ var xmpp = {
       if (codes.indexOf(303) >= 0) {
         var newNick = item.attr('nick');
         ui.messageAddInfo(strings.info.userNick, {
-          'user.from': this.roster[room][nick],
-          'user.to': {
+          from: this.roster[room][nick],
+          to: {
             nick: newNick,
             jid: this.roster[room][nick].jid,
             role: this.roster[room][nick].role,
@@ -663,13 +663,13 @@ var xmpp = {
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
           ui.messageAddInfo(strings.info.evicted[type].me[index], {
-            'user.actor': actor, reason: reason,
+            actor: actor, reason: reason,
             room: this.room.available[room]
           }, 'error');
           xmpp.prejoin();
         }
         else ui.messageAddInfo(strings.info.evicted[type].other[index], {
-          'user.actor': actor,
+          actor: actor,
           room: this.room.available[room],
           reason: reason,
           user: this.roster[room][nick]
@@ -738,8 +738,8 @@ var xmpp = {
       // This only happens when the old nick remains logged in - copy the item.
       if (this.nick.current != this.nick.target && nick == this.nick.target) {
         ui.messageAddInfo(strings.info.userNick, {
-          'user.from': this.roster[room][this.nick.current],
-          'user.to': user
+          from: this.roster[room][this.nick.current],
+          to: user
         });
         // Fill in the roster so we don't get a login message.
         this.roster[room][nick] = user;
@@ -787,7 +787,7 @@ var xmpp = {
 
       // Message of the Day.
       if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
-        return ui.messageAddInfo(strings.info.motd, {domain: domain, 'raw.text': body}, 'error');
+        return ui.messageAddInfo(strings.info.motd, {domain: domain, text: body}, 'error');
 
       else if (domain == config.xmpp.mucService) {
         // Accept invitations.
