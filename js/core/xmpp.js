@@ -386,7 +386,6 @@ var xmpp = {
     }
 
     var submit = function(values) {
-      console.log(values);
       var form = xmpp.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
       .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
       for (var name in values) {

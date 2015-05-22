@@ -541,7 +541,6 @@ var ui = {
     fields['jid-multi'] = fields['text-multi'];
     fields['list-single'] = function(field) {
       var f = $('<select>').attr('name', field.attr('var'));
-      console.log(field.attr('var'), f.attr('name'));
       var value = field.children('value').text();
       $('option', field).each(function() {
         var v = $('value', this).text();
@@ -559,9 +558,7 @@ var ui = {
       return $('<p>').text($('value', field).text());
     }
 
-    val = function(field) {
-      return field.val();
-    }
+    val = function(field) { return field.val(); }
     var values = {};
     values.boolean = function(field) {
       return field.prop('checked') ? "1" : "0";
@@ -588,8 +585,6 @@ var ui = {
     var submitForm = function() {
       var v = {};
       $('.data-form-field', form).each(function() {
-        var a = $(this).attr('name');
-        var b = values[$(this).attr('data-type')]($(this));
         v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
       });
       submit(v);
