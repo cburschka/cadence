@@ -58,10 +58,10 @@ ifneq (.,${PREFIX})
 endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
-	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 else
-install: all
+install: all ${LIB_FILES}
 endif
+	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
 install-cdn: install-init install-js install-css-global
