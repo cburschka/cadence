@@ -228,10 +228,7 @@ var strings = {
   <dt><code>--public, --public 0</code></dt><dd>Make the room public or private (unlisted).</dd>\
   <dt><code>--anonymous, --anonymous 0</code></dt><dd>Toggle anonymity. This determines whether non-moderators can see participants\' full JID.</dd>\
   <dt><code>--password &lt;...&gt;, --password 0</code></dt><dd>Set or remove a room password.</dd>\
-  <dt><code>--max-users &lt;...&gt;</code></dt><dd>Set the user limit.</dd>\
-  <dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd>\
-  <dt><code>--moderation [closed|open|none]</code></dt><dd>An open or closed room allows participants to be muted; in a closed room participants are muted by default.</dd>\
-  <dt><code>--msg, --msg 0</code></dt><dd>Toggle private messaging.</dd></dl>'
+  <dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd></dl>'
   },
 
   label: {
@@ -243,6 +240,9 @@ var strings = {
       msg: 'Private message',
       ping: 'Ping',
       whois: 'User info'
+    },
+    tip: {
+      multiline: 'Enter one item per line.',
     },
     button: {
       save: 'Save',
