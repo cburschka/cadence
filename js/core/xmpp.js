@@ -346,24 +346,26 @@ var xmpp = {
    * for a reference on supported room configuration fields.
    *
    * @param {string} room The room name.
-   * @param {Object} vars The field values to set, indexed by field name
-   *                 (including the prefix "muc#roomconfig_" if applicable)
+   * @param {Object|function} query Either the field values to set, or a function
+   *        that will acquire the field values asynchronously. The function receives
+   *        an <x> element of type form as a jQuery object and a callback function
+   *        to transmit the field values to.
    * @param {function} success The callback to execute after submission.
    * @param {function} update The callback to execute after updating the room list.
    */
-  configureRoom: function(room, values, success, update) {
+  configureRoom: function(room, query, success, update) {
     var error = success && function(stanza) {
       success(stanza ? $('error', stanza).attr('code') : true);
     }
-    this.connection.sendIQ(this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
-      function(stanza) {
-        var form = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
-        .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
-        $('field', $('query x', stanza)).each(function() {
+    if (typeof query == 'object') {
+      var values = query;
+      query = function(x, submit) {
+        var toSubmit = {};
+        $('field', x).each(function() {
           var type = $(this).attr('type');
           var name = $(this).attr('var');
-          var value = $('value', this).html();
+          var value = $(this).children('value').html();
           if (values[name] !== undefined) value = values[name];
           if (value && type == 'list-single') {
             var options = [];
@@ -373,20 +375,41 @@ var xmpp = {
                 {options: options.join(', '), field: name}, 'error'
               );
           }
+          toSubmit[name] = value;
           delete values[name];
-          form.c('field', {'var': name}).c('value', {}, value).up();
-          if (!value) form.up();
         });
         var fields = Object.keys(values);
         if (fields.length)
           ui.messageAddInfo(strings.error.roomConfFields, {name: room, fields: fields.join(', ')}, 'error');
+        submit(toSubmit);
+      }
+    }
 
-        this.connection.sendIQ(form, function() {
-          success && success();
-          // Need to refresh the room list now.
-          this.discoverRooms(update);
-        }.bind(this), error);
-      }.bind(this), error);
+    var submit = function(values) {
+      console.log(values);
+      var form = xmpp.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, room)
+      .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+      for (var name in values) {
+        if (values[name] === undefined) continue;
+        if (typeof values[name] === 'string') values[name] = [values[name]];
+        form.c('field', {'var': name});
+        for (var i in values[name]) {
+          form.c('value', values[name][i]).up();
+        }
+        form.up();
+      }
+
+      xmpp.connection.sendIQ(form, function() {
+        success && success();
+        // Need to refresh the room list now.
+        xmpp.discoverRooms(update);
+      }, error);
+    }
+
+    this.connection.sendIQ(
+      this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, room),
+      function(stanza) { query($('query x', stanza), submit); }, error
+    );
   },
 
   /**
