@@ -453,7 +453,6 @@ var chat = {
      */
     part: function() {
       if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
-      ui.updateFragment(null);
     },
 
     /**
