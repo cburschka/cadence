@@ -695,7 +695,7 @@ var xmpp = {
         ui.playSound('leave');
       }
       // A <destroy> element indicates that the room has been destroyed.
-      else if ($('x destroy', stanza)) {
+      else if ($('x destroy', stanza).length) {
         var destroy = $('x destroy', stanza);
         var jid = destroy.attr('jid');
         var reason = $('reason', destroy).text();
