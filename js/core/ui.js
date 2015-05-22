@@ -417,14 +417,14 @@ var ui = {
       },
       kick: {
         name: labels.kick,
-        icon: 'kick',
+        icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !mod || outranked || !nick || !roster || !roster[nick] || nick == xmpp.nick.current,
         callback: function() { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
-        icon: 'ban',
+        icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: rank < 2 || outranked || !jid || !roster || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
         callback: function() { chat.commands.ban({jid: jid}); }
@@ -465,7 +465,7 @@ var ui = {
       },
       part: {
         name: labels.part,
-        icon: 'kick',
+        icon: 'leave',
         disabled: !currentRoom,
         callback: chat.commands.part
       },
@@ -477,7 +477,7 @@ var ui = {
       },
       destroy: {
         name: labels.destroy,
-        icon: 'ban',
+        icon: 'destroy',
         disabled: currentRoom && !owner,
         callback: function() { chat.commands.destroy({room: id}); }
       }
