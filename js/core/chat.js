@@ -226,7 +226,7 @@ var chat = {
     configure: function(arg) {
       arg = chat.parseArgs(arg);
       if (arg.help) return ui.messageAddInfo(strings.help.configure);
-      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
+      if (!arg.name) arg.name = arg[0].join(' ');
       var name = arg.name || xmpp.room.current;
       if (!name)
         return ui.messageAddInfo(strings.error.noRoom, 'error');
