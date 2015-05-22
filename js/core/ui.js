@@ -418,14 +418,14 @@ var ui = {
       },
       kick: {
         name: labels.kick,
-        icon: 'kick',
+        icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
         callback: function() { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
-        icon: 'ban',
+        icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
         callback: function() { chat.commands.ban({jid: jid}); }
@@ -461,21 +461,25 @@ var ui = {
     var items = {
       join: {
         name: labels.join,
+        icon: 'join',
         disabled: !c('join') || currentRoom,
         callback: function() { chat.commands.join(id); }
       },
       part: {
         name: labels.part,
+        icon: 'leave',
         disabled: !c('part') || !currentRoom,
         callback: chat.commands.part
       },
       configure: {
         name: labels.configure,
+        icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
         callback: function() { chat.commands.configure({name: id, interactive: true}); }
       },
       destroy: {
         name: labels.destroy,
+        icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
         callback: function() { chat.commands.destroy({room: id}); }
       }
