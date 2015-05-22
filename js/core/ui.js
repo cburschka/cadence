@@ -372,7 +372,7 @@ var ui = {
    */
   buildContextMenu: function(user) {
     var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
-    var labels = strings.labels.commands;
+    var labels = strings.label.command;
     var roster = xmpp.roster[xmpp.room.current]
     var userSelf = roster && roster[xmpp.nick.current];
     var nick = user.attr('data-nick');
@@ -512,6 +512,102 @@ var ui = {
     }
     else config.settings.activeMenu = null;
     chat.saveSettings();
+  },
+
+  dataFormDialog: function(x, submit) {
+    var fields = {};
+    var input = function(field) {
+      return $('<input/>').attr('name', field.attr('var'));
+    }
+    fields.hidden = function(field) {
+      return input(field).attr('type', 'hidden')
+        .attr('value', $('value', field).text());
+    };
+    fields.boolean = function(field) {
+      return input(field).attr('type', 'checkbox')
+        .prop('checked', $('value', field).text() == '1');
+    };
+    fields['text-single'] = function(field) {
+      return input(field).attr('type', 'text')
+        .attr('value', $('value', field).text());
+    };
+    fields['text-private'] = fields['text-single'];
+    fields['jid-single'] = fields['text-single'];
+    fields['text-multi'] = function(field) {
+      var value = '';
+      $('value', field).each(function() { values.push($(this).text()); });
+      return $('<textarea>').attr('name', field.attr('var'))
+        .text(value);
+    }
+    fields['jid-multi'] = fields['text-multi'];
+    fields['list-single'] = function(field) {
+      var f = $('<select>').attr('name', field.attr('var'));
+      var value = field.children('value').text();
+      $('option', field).each(function() {
+        var v = $('value', this).text();
+        f.append($('<option></option>').attr('value', v)
+          .text($(this).attr('label'))
+          .prop('selected', value == v)
+        );
+      });
+      return f;
+    }
+    fields['list-multi'] = function(field) {
+      return fields['list-single'].prop('multiple', true);
+    }
+    fields['fixed'] = function(field) {
+      return $('<p>').text($('value', field).text());
+    }
+
+    val = function(field) { return field.val(); }
+    var values = {};
+    values.boolean = function(field) {
+      return field.prop('checked') ? "1" : "0";
+    }
+    values.hidden = val;
+    values['text-single'] = val;
+    values['text-private'] = val;
+    values['jid-single'] = val;
+    values['text-multi'] = function(field) {
+      return val(field).split("\n");
+    }
+    values['jid-multi'] = values['text-multi'];
+    values['list-single'] = val;
+    values['list-multi'] = val;
+    values['fixed'] = function() { return undefined; };
+
+    var form = $('<form class="data-form">').attr('title', $('title', x).text());
+    x.children('field').each(function() {
+      var type = $(this).attr('type');
+      var field = fields[type]($(this)).addClass('data-form-field').attr('data-type', type).uniqueId();
+      var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
+      form.append($('<div>').append(label, field, '<br>'));
+    });
+    var submitForm = function() {
+      var v = {};
+      $('.data-form-field', form).each(function() {
+        v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
+      });
+      submit(v);
+    };
+    form.dialog({
+      height: 0.8*$(window).height(),
+      width: Math.min(0.75*$(window).width(), 600),
+      buttons: [
+        {
+          text: strings.label.button.save,
+          click: function() { submitForm(); $(this).dialog('close') }
+        },
+        {
+          text: strings.label.button.apply,
+          click: submitForm
+        },
+        {
+          text: strings.label.button.close,
+          click: function() { $(this).dialog( 'close' ) }
+        }
+      ]
+    });
   },
 
   /**
