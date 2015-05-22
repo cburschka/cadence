@@ -22,7 +22,7 @@
 }
 #content button { background-color: #06b }
 #content button, #loginContainer input { border: 1px solid #06b } /* blue borders around login fields */
-.box, .container, input, select, button { box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset }
+.box, .container, #content input, #content select, #content button { box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset }
 .box, .container {
   background: url("Technetium/stripe.png");
   border: 2px solid #272727;
