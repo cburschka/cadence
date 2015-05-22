@@ -160,9 +160,11 @@ visual = {
      * Currently only returns the room title.
      */
     room: function(room) {
-      return '<a href="#' + visual.format.plain(room.id) + '" class="xmpp-room'
-             + (room.id == xmpp.room.current ? ' xmpp-room-current' : '')
-             + '">' + visual.format.plain(room.title || room.id) + '</a>'
+      var id = visual.format.plain(room.id);
+      return '<a href="#' + id + '" class="xmpp-room'
+             + (room.id == xmpp.room.current ? ' xmpp-room-current' : '') + '"'
+             + ' data-room="' + id + '"'
+             + '>' + (visual.format.plain(room.title) || id) + '</a>';
     },
 
     /**

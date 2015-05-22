@@ -351,18 +351,29 @@ var ui = {
       return true;
     });
 
-    var contextmenu = {
+    var usermenu = {
       selector: '.user:not(.user-role-bot)',
       trigger: config.settings.contextmenu,
       delay: 700, // only applies to hover.
-      build: ui.buildContextMenu
+      build: ui.userContextMenu
     };
-    $.contextMenu(contextmenu);
+    $.contextMenu(usermenu);
+
+    var roommenu = {
+      selector: '.xmpp-room',
+      trigger: config.settings.contextmenu,
+      delay: 700,
+      build: ui.roomContextMenu
+    };
+    $.contextMenu(roommenu);
 
     $('#settings-contextmenu').change(function() {
-      contextmenu.trigger = this.value;
+      usermenu.trigger = this.value;
+      roommenu.trigger = this.value;
       $.contextMenu('destroy', '.user');
-      $.contextMenu(contextmenu);
+      $.contextMenu('destroy', '.xmpp-room');
+      $.contextMenu(usermenu);
+      $.contextMenu(roommenu);
     });
   },
 
@@ -370,7 +381,7 @@ var ui = {
    * Build the context menu for a user.
    * @param {jq} user The user element.
    */
-  buildContextMenu: function(user) {
+  userContextMenu: function(user) {
     var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
     var roster = xmpp.roster[xmpp.room.current]
@@ -434,6 +445,41 @@ var ui = {
       }
     }
 
+    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+  },
+
+  /**
+   * Build the context menu for a room.
+   */
+  roomContextMenu: function(room) {
+    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
+    var labels = strings.label.command;
+    var id = room.attr('data-room');
+    var currentRoom = xmpp.room.current == id;
+    var self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
+    var owner = currentRoom && self.affiliation == 'owner';
+    var items = {
+      join: {
+        name: labels.join,
+        disabled: !c('join') || currentRoom,
+        callback: function() { chat.commands.join(id); }
+      },
+      part: {
+        name: labels.part,
+        disabled: !c('part') || !currentRoom,
+        callback: chat.commands.part
+      },
+      configure: {
+        name: labels.configure,
+        disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
+        callback: function() { chat.commands.configure({name: id, interactive: true}); }
+      },
+      destroy: {
+        name: labels.destroy,
+        disabled: !c('destroy') || currentRoom && !owner,
+        callback: function() { chat.commands.destroy({room: id}); }
+      }
+    }
     return {items: items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
