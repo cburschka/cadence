@@ -2,7 +2,7 @@
 	path = js/lib/xbbcode
 	url = https://github.com/cburschka/xbbcode.js/
 [submodule "js/lib/js-cookie"]
-	path = js/lib/js-cookie
+	path = js/lib/cookie
 	url = https://github.com/js-cookie/js-cookie.git
 [submodule "js/lib/moment"]
 	path = js/lib/moment

@@ -34,7 +34,7 @@ def generate_links(cdn_url, mode, css_alt, style):
         css = 'css/global/import.css'
         lib = [
             'js/lib/contextmenu.js',
-            'js/lib/js.cookie.js',
+            'js/lib/cookie.js',
             'js/lib/replacetext.js',
             'js/lib/strophe.js',
             'js/lib/moment.js',
