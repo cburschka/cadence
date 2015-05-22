@@ -158,7 +158,7 @@ h3 {
   padding: 3px;
   padding-right: 0px;
 }
-#trayContainer button,
+#trayContainer button.tray,
 #trayContainer div {
   border: none;
   color: transparent;
@@ -206,8 +206,7 @@ button.soundTest, select.soundSelect { vertical-align:middle; }
 
 .data-form label, .data-form-field {
   width: 45%;
-  display: block;
-  float: left;
+  display: inline-block;
   margin-bottom: 0.5em;;
   margin-top: 0.5em;
   vertical-align: middle;

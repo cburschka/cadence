@@ -14,12 +14,12 @@
     #ebf 100%
   );
 }
-a { color: #84f }
-#content, button, input, select, textarea {   color: #206 }
-.box, button, input, select { border: none }
+#content a { color: #84f }
+#content, #content button, #content input, #content select, #content textarea {   color: #206 }
+.box, #content button, #content input, #content select { border: none }
 h3 { background: linear-gradient(180deg, rgba(256,256,256,0.8) 0%, rgba(0,0,0,0) 100%) }
-button, input, select, .box { background-color: rgba(256,256,256, 0.4) }
-button:hover { background: rgba(0,0,0,0.05) }
-button:active { background: rgba(0,0,0,0.2) }
-input[type=text], input[type=password] { padding-left: 5px }
+#content button, #content input, #content select, .box { background-color: rgba(256,256,256, 0.4) }
+#content button:hover { background: rgba(0,0,0,0.05) }
+#content button:active { background: rgba(0,0,0,0.2) }
+#content input[type=text], input[type=password] { padding-left: 5px }
 .row:nth-child(odd) { background: rgba(256,256,256,0) }

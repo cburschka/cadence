@@ -14,11 +14,11 @@
 #content { color: #333 }
 .row:nth-child(odd) { background-color: #ddd }
 .box { background-color: white }
-button, h3 {
+#content button, h3 {
   background-color: #b84623;
   color: white;
 }
-.box, button, input[type=text], input[type=password], select { border: 1px solid #b84623 }
+.box, #content button, #content input[type=text], #content input[type=password], #content select { border: 1px solid #b84623 }
 .user-role-bot, #content a { color: #b84623 }
 .row.delayed .dateTime, .row.delayed .log-room { color: #555 }
 .author { color: black }
