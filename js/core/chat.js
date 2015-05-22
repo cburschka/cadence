@@ -226,15 +226,17 @@ var chat = {
     configure: function(arg) {
       arg = chat.parseArgs(arg);
       if (arg.help) return ui.messageAddInfo(strings.help.configure);
-      if (!arg.name) arg.name = arg[0].join(' ');
+      if (!arg.name && arg[0]) arg.name = arg[0].join(' ');
       var name = arg.name || xmpp.room.current;
       if (!name)
         return ui.messageAddInfo(strings.error.noRoom, 'error');
       if (!xmpp.room.available[name])
         return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
-
-      var config = chat.roomConf(arg);
+      arg.interactive = arg.interactive || Object.keys(arg).every(
+        function(e) { return e == '0' || e == '1' || e == 'name' }
+      );
       var room = xmpp.room.available[name];
+      var config = arg.interactive ? ui.dataFormDialog : chat.roomConf(arg);
 
       xmpp.configureRoom(name, config, function(error) {
         if (!error) ui.messageAddInfo(strings.info.roomConf, {room: room});

@@ -234,8 +234,8 @@ var strings = {
   <dt><code>--msg, --msg 0</code></dt><dd>Toggle private messaging.</dd></dl>'
   },
 
-  labels: {
-    commands: {
+  label: {
+    command: {
       ban: 'Ban',
       dmsg: 'Direct message',
       invite: 'Invite',
@@ -243,6 +243,11 @@ var strings = {
       msg: 'Private message',
       ping: 'Ping',
       whois: 'User info'
+    },
+    button: {
+      save: 'Save',
+      close: 'Close',
+      apply: 'Apply'
     }
   }
 };

@@ -203,3 +203,17 @@ span.hidden {
 }
 span.hidden:after { content: "[hidden]" }
 button.soundTest, select.soundSelect { vertical-align:middle; }
+
+.data-form label, .data-form-field {
+  width: 45%;
+  display: block;
+  float: left;
+  margin-bottom: 0.5em;;
+  margin-top: 0.5em;
+  vertical-align: middle;
+}
+.data-form label {
+  text-align: right;
+  padding-right: 2em;
+}
+.data-form br { clear: left }
