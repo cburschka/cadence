@@ -33,7 +33,6 @@ def generate_links(cdn_url, mode, css_alt, style):
     else:
         css = 'css/global/import.css'
         lib = [
-            'js/lib/jquery.js',
             'js/lib/contextmenu.js',
             'js/lib/js.cookie.js',
             'js/lib/replacetext.js',
@@ -56,7 +55,7 @@ def generate_links(cdn_url, mode, css_alt, style):
         )
         for name in css_alt
     )
-    js_template = '<script type="text/javascript" src="{src}" charset="utf-8"></script>'
+    js_template = '<script src="{src}"></script>'
     lib_links = ''.join(js_template.format(src=cdn_url + filename) for filename in lib)
     core_links = ''.join(js_template.format(src=cdn_url + filename) for filename in core)
     return css_links, lib_links, core_links
