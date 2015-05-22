@@ -234,10 +234,14 @@ var strings = {
   label: {
     command: {
       ban: 'Ban',
+      configure: 'Configure',
+      destroy: 'Destroy',
       dmsg: 'Direct message',
       invite: 'Invite',
+      join: 'Join',
       kick: 'Kick',
       msg: 'Private message',
+      part: 'Leave',
       ping: 'Ping',
       whois: 'User info'
     },
