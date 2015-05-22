@@ -843,30 +843,8 @@ var chat = {
       conf['muc#roomconfig_passwordprotectedroom'] = args.password ? '1' : '0';
       conf['muc#roomconfig_roomsecret'] = args.password;
     }
-    if (args['max-users']) conf['muc#roomconfig_maxusers'] = args['max-users'];
     if (args['members-only'] !== undefined)
       conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
-
-    // --moderation=closed|open|none:
-    if (args.moderation !== undefined) {
-      // closed: People must be voiced by moderators.
-      if (args.moderation == 'closed') {
-        conf['muc#roomconfig_moderatedroom'] = '1';
-        conf.members_by_default = '0';
-      }
-      // none: There is no moderation.
-      else if (!args.moderation || args.moderation == 'none') {
-        conf['muc#roomconfig_moderatedroom'] = '0';
-      }
-      // open: People can be muted by moderators.
-      else {
-        conf['muc#roomconfig_moderatedroom'] = '1';
-        conf.members_by_default = '1';
-      }
-    }
-    if (args.msg !== undefined) conf.allow_private_messages = args.msg ? '1' : '0';
-    if (args['msg-visitors'] in ['anyone', 'moderators', 'nobody'])
-      conf.allow_private_messages_from_visitors = args['msg-visitors'];
     return conf;
   },
 

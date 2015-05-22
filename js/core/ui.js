@@ -538,7 +538,9 @@ var ui = {
       return $('<textarea>').attr('name', field.attr('var'))
         .text(value);
     }
-    fields['jid-multi'] = fields['text-multi'];
+    fields['jid-multi'] = function(field) {
+      return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
+    }
     fields['list-single'] = function(field) {
       var f = $('<select>').attr('name', field.attr('var'));
       var value = field.children('value').text();
