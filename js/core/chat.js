@@ -613,7 +613,7 @@ var chat = {
   /**
    * Validate the current command by xmpp.status.
    */
-  cmdAvailableStatus: function(command) {
+  cmdAvailableStatus: function(command, silent) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
     var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     var offline = ['connect'];
@@ -626,11 +626,11 @@ var chat = {
       case 'prejoin':
         // do not allow chat commands in prejoin.
         if (chat.indexOf(command) >= 0)
-          return ui.messageAddInfo(strings.error.cmdStatus.prejoin, {cmd:command}, 'error') && false;
+          return !silent && ui.messageAddInfo(strings.error.cmdStatus.prejoin, {cmd:command}, 'error') && false;
       case 'online':
         // do not allow offline commands in prejoin or in rooms.
         if (offline.indexOf(command) >= 0)
-          return ui.messageAddInfo(strings.error.cmdStatus.online, {cmd:command}, 'error') && false;
+          return !silent && ui.messageAddInfo(strings.error.cmdStatus.online, {cmd:command}, 'error') && false;
         return true;
 
       // switch from blacklist to whitelist here.
@@ -639,7 +639,7 @@ var chat = {
       case 'offline':
         // allow offline commands while waiting or offline.
         if (offline.indexOf(command) >= 0) return true;
-        return ui.messageAddInfo(strings.error.cmdStatus.offline, {cmd:command}, 'error') && false;
+        return !silent && ui.messageAddInfo(strings.error.cmdStatus.offline, {cmd:command}, 'error') && false;
     }
   },
 
