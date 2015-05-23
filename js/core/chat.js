@@ -292,6 +292,8 @@ var chat = {
     destroy: function(arg) {
       arg = chat.parseArgs(arg);
       arg.room = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
+      if (!arg.room)
+        return ui.messageAddInfo(strings.error.noRoom, 'error');
       var room = xmpp.room.available[arg.room];
       if (!room)
         return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
