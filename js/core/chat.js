@@ -236,7 +236,9 @@ var chat = {
         function(e) { return e == '0' || e == '1' || e == 'name' }
       );
       var room = xmpp.room.available[name];
-      var config = arg.interactive ? ui.dataFormDialog : chat.roomConf(arg);
+      var config = arg.interactive ?
+          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
+        : chat.roomConf(arg);
 
       xmpp.configureRoom(name, config, function(error) {
         if (!error) ui.messageAddInfo(strings.info.roomConf, {room: room});

@@ -564,7 +564,14 @@ var ui = {
     chat.saveSettings();
   },
 
-  dataFormDialog: function(x, submit) {
+  /**
+   * Create a form out of an XMPP data form stanza.
+   *
+   * @param {jq} x The <x/> element containing the form fields.
+   * @param {function} submit The callback that the completed form values will be sent to.
+   * @return {jq} The HTML form.
+   */
+  dataForm: function(x, submit) {
     var fields = {};
     var input = function(field) {
       return $('<input/>').attr('name', field.attr('var'));
@@ -635,24 +642,37 @@ var ui = {
       var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
       form.append($('<div>').append(label, field, '<br>'));
     });
-    var submitForm = function() {
+    form.submit(function(e) {
+      e.preventDefault();
       var v = {};
       $('.data-form-field', form).each(function() {
         v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
       });
       submit(v);
-    };
+    });
+    return form;
+  },
+
+  /**
+   * Generate a dialog from a form.
+   * By default, the dialog will have three buttons: Save, Apply, and Close.
+   * Save and Apply will both trigger the form's submit() event,
+   * Save and Close will both close the dialog.
+   *
+   * @param form The form element.
+   */
+  formDialog: function(form) {
     form.dialog({
       height: 0.8*$(window).height(),
       width: Math.min(0.75*$(window).width(), 600),
       buttons: [
         {
           text: strings.label.button.save,
-          click: function() { submitForm(); $(this).dialog('close') }
+          click: function() { form.submit(); $(this).dialog('close') }
         },
         {
           text: strings.label.button.apply,
-          click: submitForm
+          click: function() { form.submit(); }
         },
         {
           text: strings.label.button.close,
