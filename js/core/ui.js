@@ -382,6 +382,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
+    var c = function(cmd) { chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
     var roster = xmpp.roster[xmpp.room.current]
     var userSelf = roster && roster[xmpp.nick.current];
@@ -398,13 +399,13 @@ var ui = {
       msg: {
         name: labels.msg,
         icon: 'msg',
-        disabled: !nick || !roster || !roster[nick], // disabled if user is not room occupant.
+        disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
         callback: function() { chat.prefixMsg(nick); }
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
-        disabled: !jid, // disabled if user is anonymous.
+        disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
         callback: function() { chat.prefixMsg(jid, true); }
       },
       sep1: '---',
@@ -412,34 +413,34 @@ var ui = {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !jid || !roster || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
+        disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
         callback: function() { chat.commands.invite({jid:jid}); }
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
-        disabled: !mod || outranked || !nick || !roster || !roster[nick] || nick == xmpp.nick.current,
+        disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
         callback: function() { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: rank < 2 || outranked || !jid || !roster || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
+        disabled: !('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
         callback: function() { chat.commands.ban({jid: jid}); }
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
-        disabled: !nick || !roster || !roster[nick],
+        disabled: !c('whois') || !nick || !roster[nick],
         callback: function() { chat.commands.whois(nick); }
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
-        disabled: !jid,
+        disabled: !c('ping') || !jid,
         callback: function() { chat.commands.ping(jid); }
       }
     }
@@ -451,6 +452,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(room) {
+    var c = function(cmd) { chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
     var id = room.attr('data-room');
     var currentRoom = xmpp.room.current == id;
@@ -460,25 +462,25 @@ var ui = {
       join: {
         name: labels.join,
         icon: 'join',
-        disabled: currentRoom,
+        disabled: c('join') || currentRoom,
         callback: function() { chat.commands.join(id); }
       },
       part: {
         name: labels.part,
         icon: 'leave',
-        disabled: !currentRoom,
+        disabled: c('part') || !currentRoom,
         callback: chat.commands.part
       },
       configure: {
         name: labels.configure,
         icon: 'configure',
-        disabled: currentRoom && !owner, // can only see authorization inside.
+        disabled: c('configure') || (currentRoom && !owner),
         callback: function() { chat.commands.configure({name: id, interactive: true}); }
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
-        disabled: currentRoom && !owner,
+        disabled: c('destroy') || (currentRoom && !owner),
         callback: function() { chat.commands.destroy({room: id}); }
       }
     }
