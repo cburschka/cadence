@@ -297,6 +297,7 @@ var chat = {
       var room = xmpp.room.available[arg.room];
       if (!room)
         return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
+      if (!window.confirm(visual.formatText(strings.info.destroyConfirm, {name: room.title}))) return;
       xmpp.destroyRoom(arg.room, arg.alternate, arg.reason, function(error) {
         if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room: room}, 'error');
         else if (error) ui.messageAddInfo(strings.error.destroy, {room: room}, 'error');
