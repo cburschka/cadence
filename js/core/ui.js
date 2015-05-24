@@ -370,7 +370,7 @@ var ui = {
     $('#settings-contextmenu').change(function() {
       usermenu.trigger = this.value;
       roommenu.trigger = this.value;
-      $.contextMenu('destroy', '.user');
+      $.contextMenu('destroy', '.user:not(.user-role-bot)');
       $.contextMenu('destroy', '.xmpp-room');
       $.contextMenu(usermenu);
       $.contextMenu(roommenu);
