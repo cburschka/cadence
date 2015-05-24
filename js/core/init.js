@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  Cookies.json = true;
   Cookies.defaults.expires = 365;
   init.loadSettings();
   init.loadEmoticons();
@@ -26,7 +27,7 @@ init = {
     if (window.localStorage && localStorage.settings) {
       stored = JSON.parse(localStorage.settings);
     }
-    else stored = Cookies.getJSON(config.clientName + '_settings');
+    else stored = Cookies.get(config.clientName + '_settings');
     if (stored) {
       if (stored.version == config.version) config.settings = stored;
       else config.settings = objMerge(config.settings, stored);
