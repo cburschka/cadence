@@ -123,8 +123,14 @@ var strings = {
       },
     },
     inviteReceived: [
-      '{user} has invited you to {room}.',
-      '{user} has invited you to {room} ({reason}).'
+      [
+        '{user} has invited you to {room}.',
+        '{user} has invited you to {room} ({reason}).'
+      ],
+      [
+        '{user} has invited you to {room}. The password is "{password}".',
+        '{user} has invited you to {room} ({reason}). The password is "{password}".'
+      ]
     ],
     inviteSent: 'Inviting {jid} to {room}.',
     joined: 'Now talking in {room}.',
