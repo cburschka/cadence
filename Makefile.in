@@ -15,11 +15,13 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
              js/core/emoticons.js js/core/init.js
 
 LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
-            js/lib/filesaver.js js/lib/cookie.js js/lib/moment.js \
-            js/lib/replacetext.js js/lib/strophe.js js/lib/xbbcode.js
+            js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
+            js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
+            js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
+                    css/global/jquery-ui.css \
                     css/global/contextmenu.css css/global/borders.css
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
@@ -109,6 +111,9 @@ js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 	$(CP) $^ $@
 
 js/lib/jquery.js: js/lib/jquery/jquery.js
+	$(CP) $^ $@
+
+js/lib/jquery-ui.js: js/lib/jquery-ui/jquery-ui.js
 	$(CP) $^ $@
 
 js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
