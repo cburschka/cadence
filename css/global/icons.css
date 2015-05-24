@@ -1,27 +1,27 @@
 /* Buttons */
-#content #trayContainer button.tray {
+#trayContainer button {
   background-repeat:no-repeat;
 }
-#content #logoutButton {
+#logoutButton {
   background-image:url('../../img/logout.png');
 }
-#content #helpButton {
+#helpButton {
   background-image:url('../../img/help.png');
 }
-#content #settingsButton {
+#settingsButton {
   background-image:url('../../img/settings.png');
 }
-#content #onlineListButton {
+#onlineListButton {
   background-image:url('../../img/users.png');
 }
-#content #audioButton {
+#audioButton {
   background-image:url('../../img/audio.png');
   background-position: 0px 0px;
 }
-#content #audioButton.off {
+#audioButton.off {
   background-position: 0px 100%;
 }
-#content #settingsList input.playback {
+#settingsList input.playback {
   background-image:url('../../img/playback.png');
 }
 

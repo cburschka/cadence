@@ -14,8 +14,8 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content, #content textarea { color:#b0b8a8 }
-#content input, #content button, #content select, #chatList, .menuContainer,
+#content, textarea { color:#b0b8a8 }
+input, button, select, #chatList, .menuContainer,
 .row:nth-child(even),
 .menuContainer h3, #inputFieldContainer
 { border-radius: 5px; -webkit-border-radius:5px;border:0;}
@@ -47,13 +47,13 @@ h3 {
   color:#4c9546;
 }
 select{background:#171717; color:#b0b8a8;}
-#content input, #content select{padding: 3px;}
+input, select{padding: 3px;}
 #content input,#content select {
   background-color:#0e0e0e;
   color:#b0b8a8;
 }
 #content #colorCodesContainer,#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #inputFieldContainer,
-#content input[type=text], #content input[type=password]{
+input[type=text], input[type=password]{
 box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49;
 }
 .box {
@@ -81,7 +81,7 @@ box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49
 #content #helplist table, #content  #settingsList table{border-spacing:0;}
 #content #emoticonsContainer { border-radius: 3px; }
 #content #bbCodeContainer { border: 0; padding-left: 0; }
-#content button {
+button {
   background-color: #d8ffd6;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#d8ffd6), to(#467a44));
   background-image: -webkit-linear-gradient(top, #d8ffd6, #467a44);
@@ -90,7 +90,7 @@ box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49
   background-image:         linear-gradient(to bottom, #d8ffd6, #467a44);
   color:#1d1d1d;
 }
-#content button:hover{
+button:hover{
   background-color: #ffffff;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#08ff35));
   background-image: -webkit-linear-gradient(top, #ffffff, #08ff35);
@@ -98,7 +98,7 @@ box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49
   background-image:      -o-linear-gradient(top, #ffffff, #08ff35);
   background-image:         linear-gradient(to bottom, #ffffff, #08ff35);
 }
-#content button:active { box-shadow:0px 0px 8px 1px #38ff56 }
+button:active { box-shadow:0px 0px 8px 1px #38ff56 }
 #loginButton{
   background-color: #4fff58;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#4fff58), to(#194221));

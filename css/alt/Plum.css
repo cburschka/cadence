@@ -13,26 +13,26 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content, #content textarea {
+#content, textarea {
   background-color: #2a112f;
   color: #9765a0;
 }
-#content a { color: #da83a1 }
-#content input[type=text], #content input[type=password], #content select, button.button {
+a { color: #da83a1 }
+input[type=text], input[type=password], select, button.button {
   border: 0;
   border-radius: 8px;
   box-shadow: 1px 1px 4px 0px;
 }
 #chatList { background: url('Plum/plum.png') no-repeat bottom right }
 .menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
-#content input, #content select, .box, #chatList {
+input, select, .box, #chatList {
   background-color: rgba(0,0,0,0.3);
   color: #9765a0;
 }
-#content button {
+button {
   background-color: #461124;
   color: #daabbc;
 }
-#content button:hover { background-color: #591e33 }
+button:hover { background-color: #591e33 }
 h3, .author { color: #cda6d2 }
 .row.delayed .log-room, .row.delayed .dateTime { color: #673570 }
