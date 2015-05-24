@@ -841,6 +841,8 @@ var xmpp = {
       var time = $('delay', stanza).attr('stamp');
       var body = $('html body p', stanza).html() || $($('body', stanza)[0]).text();
 
+      if (type == 'error') return xmpp.eventMessageError(stanza, from, domain, node, resource);
+
       // Message of the Day.
       if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
         return ui.messageAddInfo(strings.info.motd, {domain: domain, text: body}, 'error');
@@ -873,12 +875,7 @@ var xmpp = {
 
       // Accept direct messages from other domains.
       else var user = {jid: from};
-      if (type == 'error') {
-        if ($('error', stanza).attr('code') == '404') {
-          ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
-          return true
-        }
-      }
+
       this.historyEnd[node] = time || (new Date()).toISOString();
 
       if (time) ui.messageDelayed(
@@ -891,6 +888,24 @@ var xmpp = {
       }
     }
     return true;
+  },
+
+/**
+ * Handle message stanzas of type "error".
+ */
+  eventMessageError: function(stanza, from, domain, node, resource) {
+    if (domain == config.xmpp.mucService && node) {
+      var user = {nick: resource};
+    }
+    else user = {jid: from};
+
+    if ($('item-not-found', stanza).length) {
+      return ui.messageAddInfo(strings.error.unknownUser, {user: user}, 'error');
+    }
+    else if ($('forbidden', stanza).length)
+      return ui.messageAddInfo(strings.error.forbiddenUser, {user: user}, 'error');
+    else
+      return ui.messageAddInfo(strings.error.sending, {user: user}, 'error');
   },
 
   /**

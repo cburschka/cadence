@@ -194,6 +194,7 @@ var strings = {
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
+    forbiddenUser: 'Not allowed to send to {user}.',
     kick: {
       405: 'You lack the authority to kick {nick}.',
       406: 'You can\'t kick {nick} because they\'re not in the room.',
@@ -216,13 +217,14 @@ var strings = {
     roomExists: 'Could not create {room}; it already exists.',
     roomCreateName: 'Could not create a room without a name.',
     saveEmpty: 'There are no messages to save.',
+    sending: 'Failed to send to {user}.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
     unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
     unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
-    unknownUser: 'User {nick} not found.',
+    unknownUser: 'User {user} not found.',
     noRoomsAvailable: 'There are no rooms available.',
   },
 

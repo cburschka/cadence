@@ -432,7 +432,7 @@ var chat = {
 
       if (!m.nick || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (!(m.nick in xmpp.roster[xmpp.room.current]))
-        return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
+        return ui.messageAddInfo(strings.error.unknownUser, {user: {nick: m.nick}}, 'error');
 
       var html = chat.formatOutgoing(m.msg);
       xmpp.sendMessage(html, m.nick);
