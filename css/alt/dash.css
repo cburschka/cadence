@@ -7,14 +7,14 @@
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
  */
 #content { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
-#content, #content input, #content select, #content button, #content textarea { color: white }
+#content, input, select, button, textarea { color: white }
 a { color: #88c4eb }
 h3 {
   background: rgba(158, 219, 249, 0.5);
   color: #c6006f;
   text-shadow: 1px 1px 3px white;
 }
-.box, #content input[type=text], #content input[type=password], #content select, button.button, #emoticonsContainer, #trayContainer {
+.box, input[type=text], input[type=password], select, button.button, #emoticonsContainer, #trayContainer {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 4px white;
   border: 1px solid #222;

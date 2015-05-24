@@ -158,7 +158,7 @@ h3 {
   padding: 3px;
   padding-right: 0px;
 }
-#trayContainer button.tray,
+#trayContainer button,
 #trayContainer div {
   border: none;
   color: transparent;
