@@ -11,9 +11,9 @@
  * @author Sebastian Tschan @blueimp 2009 https://github.com/Frug/AJAX-Chat/blob/f138ecf192b0cd2cc59a77315a3de82902ddc2a9/chat/css/subblack2.css
  */
 #content { background-color: black }
-#content, #content button, #content input, #content select, #content textarea { color: #ffc }
+#content, button, input, select, textarea { color: #ffc }
 h3, a { color: #fc0 }
-.box, #content button, #content input, #content select {
+.box, button, input, select {
   background-color: #212121;
   border-color: gray;
 }

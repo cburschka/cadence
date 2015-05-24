@@ -7,12 +7,12 @@
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/omg.css
  */
 #content { background: url('omg/heartscape-diamond.png') #700070 }
-#content, #content button, #content input, #content select, #content textarea, .user-role-bot { color: #32cd32 }
+#content, button, input, select, textarea, .user-role-bot { color: #32cd32 }
 .author { color: #ffc }
-#content a { color: #fc0 }
-.box, #content input, #content select, #bbCodeContainer button { background-color: rgba(0,0,0,0.3) }
-#content button, #content input, #content select { border-color: #6c8a3f }
-#content button {
+a { color: #fc0 }
+.box, input, select, #bbCodeContainer button { background-color: rgba(0,0,0,0.3) }
+button, input, select { border-color: #6c8a3f }
+button {
   background-color: #6c8a3f;
   color: white;
 }
