@@ -13,10 +13,8 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-body, textarea {
-  background-color: #2a112f;
-  color: #9765a0;
-}
+body { background: #2a112f }
+body, textarea { color: #9765a0 }
 a { color: #da83a1 }
 input[type=text], input[type=password], select, button.button, textarea.form-field, .ui-tabs-nav li {
   border: 0;
