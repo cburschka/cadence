@@ -16,11 +16,13 @@
 body { background: #2a112f }
 body, textarea { color: #9765a0 }
 a { color: #da83a1 }
-input[type=text], input[type=password], select, button.button, textarea.form-field, .ui-tabs-nav li {
-  border: 0;
+input[type=text], input[type=password], select, textarea.form-field,
+button, .ui-tabs-nav li {
+  border: none;
   border-radius: 8px;
   box-shadow: 1px 1px 4px 0px;
 }
+button.tray { border-radius: 0 }
 .ui-tabs-nav li { box-shadow: 0px -1px 2px 0px }
 #chatList { background: url('Plum/plum.png') no-repeat bottom right }
 .menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
