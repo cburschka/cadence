@@ -1,4 +1,4 @@
-#content {
+body {
   font-family: sans-serif;
   font-size: 0.9em;
 }
@@ -15,3 +15,4 @@ code {
   white-space:pre-wrap;
 }
 #textColor, #helpList td.code { font-family:monospace }
+.dialog .ui-widget-header { font-size:1.2em; font-weight: bold }

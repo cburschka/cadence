@@ -13,7 +13,7 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content, textarea {
+body, textarea {
   background-color: #2a112f;
   color: #9765a0;
 }
@@ -36,3 +36,5 @@ button {
 button:hover { background-color: #591e33 }
 h3, .author { color: #cda6d2 }
 .row.delayed .log-room, .row.delayed .dateTime { color: #673570 }
+.dialog { background-color: rgba(0,0,0,0.8) }
+.context-menu-item.hover { background-color: #2a112f }

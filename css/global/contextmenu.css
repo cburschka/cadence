@@ -22,22 +22,21 @@
     position: absolute;
     list-style-type: none;
 
-    border: 1px solid #DDD;
-    background: #EEE;
+    font-size: 0.9em;
+}
+
+.dialog {
+    border: 1px solid;
 
     -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
        -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         -ms-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
          -o-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
 }
 
 .context-menu-item {
     padding: 2px 2px 2px 24px;
-    background-color: #EEE;
     position: relative;
     -webkit-user-select: none;
        -moz-user-select: -moz-none;
@@ -47,7 +46,7 @@
 
 .context-menu-separator {
     padding-bottom:0;
-    border-bottom: 1px solid #DDD;
+    border-bottom: 1px solid;
 }
 
 .context-menu-item > label > input,
@@ -67,15 +66,8 @@
     color: #666;
 }
 
-.context-menu-input.hover,
-.context-menu-item.disabled.hover {
-    cursor: default;
-    background-color: #EEE;
-}
-
 .context-menu-submenu:after {
     content: ">";
-    color: #666;
     position: absolute;
     top: 0;
     right: 3px;
