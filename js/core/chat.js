@@ -622,7 +622,7 @@ var chat = {
    */
   cmdAvailableStatus: function(command, silent) {
     var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
+    var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     var offline = ['connect'];
     var waiting = ['quit'];
 

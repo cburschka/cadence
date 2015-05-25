@@ -855,14 +855,16 @@ var xmpp = {
             xmpp.room.available[node] = data;
           });
           var reason = $('reason', invite).text();
-          ui.messageAddInfo(strings.info.inviteReceived[+!!reason], {
+          var password = $('x password', stanza).text();
+          return ui.messageAddInfo(strings.info.inviteReceived[+!!password][+!!reason], {
             user: {jid: invite.attr('from')},
             room: room,
+            password: password,
             reason: reason
           });
         }
         // Only accept MUC messages in the current room.
-        if (node != this.room.current || invite.length) return true;
+        if (node != this.room.current) return true;
 
         // If the sender is not in the room, just show the nick.
         // This *should* only happen for backlog messages.
