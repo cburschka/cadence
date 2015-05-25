@@ -13,16 +13,18 @@
   ) #363b6c;
 }
 a { color: #adfcf3 }
-body, .box, button, input, select, textarea {
+body, .box, button, input, select, textarea, .ui-tabs-nav li {
   color: #29caac;
   border-radius: 4px;
   border: none;
 }
 h3 { background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%) }
-.box {
+.box, .ui-tabs .ui-tabs-nav li {
   background-color: rgba(0,0,0, 0.4);
   border: 1px solid rgba(256,256,256,0.3);
 }
+.ui-tabs .ui-tabs-nav li { border-bottom: none }
+.ui-tabs li.ui-tabs-active { background: rgba(255, 255, 255, 0.05) }
 .dialog, .dialog input, .dialog select, .dialog button, .dialog textarea { box-shadow: 0 0 4px white }
 select, button, input { background: rgba(0,0,0,0.4) }
 /*select { background: #101040 }*/

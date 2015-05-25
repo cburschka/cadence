@@ -16,7 +16,7 @@ a:hover {
   transition: all 0.1s ease-in 0s;
   text-decoration: underline;
 }
-.box, input, #headlineContainer input, select, textarea.form-field {
+.box, input, #headlineContainer input, select, textarea.form-field, .ui-tabs-nav li {
   background: none repeat scroll 0 0 #161616;
   border: 2px solid #272727;
 }
@@ -26,7 +26,8 @@ button, #loginContainer input { border: 1px solid #06b } /* blue borders around 
   background: url("Technetium/stripe.png");
   border: 2px solid #272727;
 }
-.box, .container, button, input, select, textarea.form-field {
+.ui-tabs-nav .ui-tabs-active { background: #272727 }
+.box, .container, button, input, select, textarea.form-field, .ui-tabs-nav li {
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   border-radius: 10px
 } /* rounded corners everywhere! */

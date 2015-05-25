@@ -8,7 +8,7 @@
 body { background: black }
 body, .box, button, input, select, textarea { color: #ccc; border: none }
 a { color: white }
-button, input, select, #inputFieldContainer, textarea.form-field { background: #222 }
+button, input, select, #inputFieldContainer, textarea.form-field, .ui-tabs-active { background: #222 }
 button:hover { background: #444 }
 button:active { background: #666 }
 .dialog { border: 1px solid #222; background: black }

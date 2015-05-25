@@ -2,3 +2,9 @@ img, #inputField { border:none }
 .box, #colorCodesContainer a { border:1px solid }
 #helpList table, #settingsList table { border-collapse: collapse }
 button, span.user, span.hide-message, span.hidden { cursor:pointer }
+.ui-tabs-nav a { outline: none }
+body .ui-tabs-nav li {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border: 1px solid;
+}

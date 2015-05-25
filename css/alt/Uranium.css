@@ -17,7 +17,7 @@
 body, textarea { color:#b0b8a8 }
 input, button, select, #chatList, .menuContainer,
 .row:nth-child(even), textarea,
-.menuContainer h3, .box { border-radius: 5px; -webkit-border-radius:5px; border:0 }
+.menuContainer h3, .box, .ui-tabs-nav li { border-radius: 5px; -webkit-border-radius:5px; border:0 }
 #loginContent a {
   color:#4c9546;
 }
@@ -30,7 +30,7 @@ input, button, select, #chatList, .menuContainer,
   border-radius: 3px;
   border-color:black;
 }
-#content {
+#content, .ui-tabs-nav li {
 background-color: #464646;
 background-image: -webkit-gradient(linear, left top, left bottom, from(#464646), to(#181818));
 background-image: -webkit-linear-gradient(top, #464646, #181818);
@@ -137,7 +137,9 @@ button:active { box-shadow:0px 0px 8px 1px #38ff56 }
 #content #chatList a {
   color:#4c9546;
 }
-.menuContainer h3 {
+.ui-tabs .ui-tabs-nav li { border: none }
+.ui-tabs .ui-tabs-nav a { color: white }
+.menuContainer h3, li.ui-tabs-active {
 background-color: #171717;
 background-image: -webkit-gradient(linear, left top, left bottom, from(#3b6c37), to(#171717));
 background-image: -webkit-linear-gradient(top, #3b6c37, #223220, #171717);

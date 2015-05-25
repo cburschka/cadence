@@ -11,11 +11,14 @@
  */
 body, .dialog { background-color: #2a2a2a }
 body, input, select, button, textarea { color: #d4d4d4 }
-.box, input, select, button, #colorCodesContainer, textarea.form-field {
+.box, input, select, button, #colorCodesContainer, textarea.form-field,
+.ui-tabs-nav li {
   background-color: #383838;
   border-radius: 5px;
   border: 0;
 }
+.ui-tabs-nav .ui-tabs-active { background: #484848 }
+.ui-tabs-nav .ui-tabs-active a { color: #d4d4d4 }
 #colorCodesContainer {
   padding: 5px;
   box-shadow: 2px 2px 4px black;

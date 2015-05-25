@@ -9,12 +9,14 @@
 body { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
 body, input, select, button, textarea { color: white }
 a { color: #88c4eb }
-h3 {
+h3, .ui-tabs-nav li.ui-tabs-active {
   background: rgba(158, 219, 249, 0.5);
-  color: #c6006f;
   text-shadow: 1px 1px 3px white;
 }
-.box, input[type=text], input[type=password], textarea.form-field, select, button.button, #emoticonsContainer, #trayContainer {
+h3, li.ui-tabs-active a { color: #c6006f }
+.ui-tabs-nav li { background: rgba(0, 0, 0, 0.7) }
+.box, #emoticonsContainer, #trayContainer,
+input[type=text], input[type=password], textarea.form-field, select, button.button {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 4px white;
   border: 1px solid #222;

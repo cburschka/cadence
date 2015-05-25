@@ -18,18 +18,19 @@ body, textarea {
   color: #9765a0;
 }
 a { color: #da83a1 }
-input[type=text], input[type=password], select, button.button, textarea.form-field {
+input[type=text], input[type=password], select, button.button, textarea.form-field, .ui-tabs-nav li {
   border: 0;
   border-radius: 8px;
   box-shadow: 1px 1px 4px 0px;
 }
+.ui-tabs-nav li { box-shadow: 0px -1px 2px 0px }
 #chatList { background: url('Plum/plum.png') no-repeat bottom right }
 .menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
 input, select, .box, #chatList, textarea.form-field {
   background-color: rgba(0,0,0,0.3);
   color: #9765a0;
 }
-button {
+button, li.ui-tabs-active {
   background-color: #461124;
   color: #daabbc;
 }
