@@ -6,10 +6,9 @@
  * @license GPLv3+
  */
 body { background: black }
-body, button, input, select, textarea { color: #ccc }
+body, .box, button, input, select, textarea { color: #ccc; border: none }
 a { color: white }
-.box, button, input, select { border: none }
-button, input, select, #inputFieldContainer { background: #222 }
+button, input, select, #inputFieldContainer, textarea.form-field { background: #222 }
 button:hover { background: #444 }
 button:active { background: #666 }
 .dialog { border: 1px solid #222; background: black }

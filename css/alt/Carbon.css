@@ -13,7 +13,7 @@
 body { background-color: black }
 body, button, input, select, textarea { color: #ffc }
 h3, a { color: #fc0 }
-.box, button, input, select {
+.box, button, input, select, textarea.form-field {
   background-color: #212121;
   border-color: gray;
 }
