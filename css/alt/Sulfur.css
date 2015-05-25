@@ -10,7 +10,7 @@
  * @author Philip Nicolcev @Frug 2012 https://github.com/Frug/AJAX-Chat/blob/9da21807c60679c6a511732bebebcf30b76c0106/chat/css/Sulfur.css
  * @author Sebastian Tschan @blueimp 2009 https://github.com/Frug/AJAX-Chat/blob/f138ecf192b0cd2cc59a77315a3de82902ddc2a9/chat/css/Sulfur.css
  */
-#content, .row:nth-child(even) { background-color: #eee }
+#content, .row:nth-child(even) { background: #eee }
 #content { color: #333 }
 .row:nth-child(odd) { background-color: #ddd }
 .box, input, input, select, textarea.form-field { background-color: white }

@@ -34,4 +34,4 @@ input[type=text], input[type=password], textarea.form-field, select, button.butt
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
 .user-role-bot { color: #d9559f }
-.dialog { background-color: rgba(0,0,0,0.7) }
+.dialog { background: rgba(0, 0, 0, 0.7) }
