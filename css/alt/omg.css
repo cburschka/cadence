@@ -10,7 +10,7 @@ body { background: url('omg/heartscape-diamond.png') #700070 }
 body, button, input, select, textarea, .user-role-bot { color: #32cd32 }
 .author { color: #ffc }
 a { color: #fc0 }
-.box, input, select, #bbCodeContainer button, textarea.form-field { background: rgba(0, 0, 0, 0.3) }
+.box, input, select, #bbCodeContainer button, textarea.form-field { background: rgba(0, 0, 0, 0.5) }
 button, input, select, textarea.form-field { border-color: #6c8a3f }
 button {
   background-color: #6c8a3f;
