@@ -6,8 +6,8 @@
  *
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
  */
-#content { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
-#content, input, select, button, textarea { color: white }
+body { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
+body, input, select, button, textarea { color: white }
 a { color: #88c4eb }
 h3 {
   background: rgba(158, 219, 249, 0.5);
@@ -32,3 +32,4 @@ h3 {
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
 .user-role-bot { color: #d9559f }
+.dialog { background-color: rgba(0,0,0,0.7) }

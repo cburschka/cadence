@@ -14,11 +14,10 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content, textarea { color:#b0b8a8 }
+body, textarea { color:#b0b8a8 }
 input, button, select, #chatList, .menuContainer,
 .row:nth-child(even),
-.menuContainer h3, #inputFieldContainer
-{ border-radius: 5px; -webkit-border-radius:5px;border:0;}
+.menuContainer h3, .box { border-radius: 5px; -webkit-border-radius:5px; border:0 }
 #loginContent a {
   color:#4c9546;
 }
@@ -46,14 +45,15 @@ h3 {
 #content a {
   color:#4c9546;
 }
+.context-menu-item.hover { background-color: #4c9546 }
 select{background:#171717; color:#b0b8a8;}
 input, select{padding: 3px;}
-#content input,#content select {
+input, select, .dialog textarea {
   background-color:#0e0e0e;
   color:#b0b8a8;
 }
 #content #colorCodesContainer,#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #inputFieldContainer,
-input[type=text], input[type=password]{
+input[type=text], input[type=password], .dialog textarea {
 box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49;
 }
 .box {

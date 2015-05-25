@@ -5,10 +5,12 @@
  * @copyright Christoph Burschka (2014)
  * @license GPLv3+
  */
-#content { background: black }
-#content, button, input, select, textarea {   color: #ccc }
+body { background: black }
+body, button, input, select, textarea { color: #ccc }
 a { color: white }
 .box, button, input, select { border: none }
 button, input, select, #inputFieldContainer { background: #222 }
 button:hover { background: #444 }
 button:active { background: #666 }
+.dialog { border: 1px solid #222; background: black }
+.context-menu-item.hover { background-color: #222 }

@@ -20,5 +20,6 @@ button, h3 {
 }
 .box, button, input[type=text], input[type=password], select { border: 1px solid #b84623 }
 .user-role-bot, #content a { color: #b84623 }
+.context-menu-item.hover { background-color: #b84623 }
 .row.delayed .dateTime, .row.delayed .log-room { color: #555 }
 .author { color: black }
