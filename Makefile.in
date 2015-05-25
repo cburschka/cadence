@@ -11,11 +11,11 @@ include ${SRC_PATH}/VERSION
 VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
-              js/core/ui.js js/core/visual.js js/core/config.js \
-              js/core/emoticons.js js/core/init.js
+             js/core/ui.js js/core/visual.js js/core/config.js \
+             js/core/emoticons.js js/core/init.js
 
-LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js js/lib/filesaver.js \
-            js/lib/jquery.js js/lib/cookie.js js/lib/moment.js \
+LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
+            js/lib/filesaver.js js/lib/cookie.js js/lib/moment.js \
             js/lib/replacetext.js js/lib/strophe.js js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
@@ -126,9 +126,7 @@ js/lib/strophe.js: js/lib/strophe/strophe.js
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
-js/lib.js: js/lib/buzz.js js/lib/contextmenu.js js/lib/filesaver.js \
-           js/lib/jquery.js js/lib/cookie.js js/lib/moment.js \
-           js/lib/replacetext.js js/lib/strophe.js js/lib/xbbcode.js
+js/lib.js: ${LIB_FILES}
 	cat $^ > $@
 
 js/core.js: ${CORE_FILES}
