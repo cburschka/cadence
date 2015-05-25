@@ -42,9 +42,7 @@ h3 {
   color:#e2e9db;
   text-shadow: 1px 1px 2px #191919;
 }
-#content a {
-  color:#4c9546;
-}
+a { color:#4c9546 }
 .context-menu-item.hover { background-color: #4c9546 }
 select{background:#171717; color:#b0b8a8;}
 input, select{padding: 3px;}
