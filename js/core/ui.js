@@ -671,7 +671,7 @@ var ui = {
       buttons: [
         {
           text: strings.label.button.save,
-          click: function() { form.submit(); $(this).dialog('close') }
+          click: function() { form.submit(); $(this).dialog('destroy') }
         },
         {
           text: strings.label.button.apply,
@@ -679,7 +679,7 @@ var ui = {
         },
         {
           text: strings.label.button.close,
-          click: function() { $(this).dialog( 'close' ) }
+          click: function() { $(this).dialog('destroy') }
         }
       ]
     });
