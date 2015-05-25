@@ -216,3 +216,4 @@ button.soundTest, select.soundSelect { vertical-align:middle; }
   padding-right: 2em;
 }
 .data-form br { clear: left }
+.menuContainer .ui-tabs .ui-tabs-panel { padding: 0; }
