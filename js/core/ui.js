@@ -377,6 +377,7 @@ var ui = {
       $.contextMenu(usermenu);
       $.contextMenu(roommenu);
     });
+    $('#settingsList').tabs();
   },
 
   /**

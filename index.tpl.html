@@ -203,6 +203,12 @@
     <div id="settingsContainer" class="menuContainer box">
       <h3>Settings</h3>
       <div id="settingsList">
+        <ul>
+          <li><a href="#settingsGeneral">General</a></li>
+          <li><a href="#settingsDisplay">Display</a></li>
+          <li><a href="#settingsNotifications">Notifications</a></li>
+        </ul>
+        <section id="settingsGeneral">
         <table>
           <tr class="row">
             <td><label for="settings-xmpp.sessionAuth">Log in with forum session:</label></td>
@@ -213,8 +219,15 @@
             <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
-            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
+            <td><label for="settings-contextmenu">Show context menu on:</label></td>
+            <td class="setting">
+              <select class="settings" id="settings-contextmenu">
+                <option value="hover">Hover</option>
+                <option value="left">Left click</option>
+                <option value="right">Right click</option>
+                <option value="none">---</option>
+              </select>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="textColor">Text color:</label></td>
@@ -223,6 +236,14 @@
               <button class="button" id="textColorClear">Clear</button>
               <input type="color" class="settings" id="settings-textColor" />
             </td>
+          </tr>
+        </table>
+        </section>
+        <section id="settingsDisplay">
+        <table>
+          <tr class="row">
+            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
+            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
           <tr class="row">
             <td><label for="settings-markup.html">Show HTML markup:</label></td>
@@ -248,17 +269,10 @@
             <td><label for="settings-verbose">Display verbose messages:</label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
-          <tr class="row">
-            <td><label for="settings-contextmenu">Show context menu on:</label></td>
-            <td class="setting">
-              <select class="settings" id="settings-contextmenu">
-                <option value="hover">Hover</option>
-                <option value="left">Left click</option>
-                <option value="right">Right click</option>
-                <option value="none">---</option>
-              </select>
-            </td>
-          </tr>
+        </table>
+        </section>
+        <section id="settingsNotifications">
+        <table>
           <tr class="row">
             <td><label for="settings-notifications.desktop">Desktop notifications:</label></td>
             <td class="setting">
@@ -323,6 +337,7 @@
             <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" /></td>
           </tr>
         </table>
+        </section>
       </div>
       <!-- / settingsList -->
     </div>
