@@ -14,7 +14,7 @@ h3 {
   color: #c6006f;
   text-shadow: 1px 1px 3px white;
 }
-.box, input[type=text], input[type=password], select, button.button, #emoticonsContainer, #trayContainer {
+.box, input[type=text], input[type=password], textarea.form-field, select, button.button, #emoticonsContainer, #trayContainer {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 4px white;
   border: 1px solid #222;

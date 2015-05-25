@@ -595,7 +595,7 @@ var ui = {
     fields['text-multi'] = function(field) {
       var value = '';
       $('value', field).each(function() { values.push($(this).text()); });
-      return $('<textarea>').attr('name', field.attr('var'))
+      return $('<textarea class="form-field">').attr('name', field.attr('var'))
         .text(value);
     }
     fields['jid-multi'] = function(field) {
