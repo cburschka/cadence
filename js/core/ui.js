@@ -580,7 +580,7 @@ var ui = {
       return input(field).attr('type', 'hidden')
         .attr('value', $('value', field).text());
     };
-    fields.boolean = function(field) {
+    fields['boolean'] = function(field) {
       return input(field).attr('type', 'checkbox')
         .prop('checked', $('value', field).text() == '1');
     };
@@ -620,7 +620,7 @@ var ui = {
 
     val = function(field) { return field.val(); }
     var values = {};
-    values.boolean = function(field) {
+    values['boolean'] = function(field) {
       return field.prop('checked') ? "1" : "0";
     }
     values.hidden = val;
