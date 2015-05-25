@@ -726,7 +726,7 @@ var xmpp = {
           alternate = xmpp.room.available[alternate] || {id: alternate};
         }
         ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {
-          room: xmpp.room.available[room], alternate: alternate, reason
+          room: xmpp.room.available[room], alternate: alternate, reason: reason
         }, 'error');
       }
       // Any other `unavailable` presence indicates a logout.
