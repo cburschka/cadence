@@ -353,6 +353,7 @@ var ui = {
 
     var usermenu = {
       selector: '.user:not(.user-role-bot)',
+      className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700, // only applies to hover.
       build: ui.userContextMenu
@@ -361,6 +362,7 @@ var ui = {
 
     var roommenu = {
       selector: '.xmpp-room',
+      className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700,
       build: ui.roomContextMenu
@@ -640,7 +642,7 @@ var ui = {
       var type = $(this).attr('type');
       var field = fields[type]($(this)).addClass('data-form-field').attr('data-type', type).uniqueId();
       var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
-      form.append($('<div>').append(label, field, '<br>'));
+      form.append($('<div class="row">').append(label, field, '<br>'));
     });
     form.submit(function(e) {
       e.preventDefault();
@@ -663,6 +665,7 @@ var ui = {
    */
   formDialog: function(form) {
     form.dialog({
+      dialogClass: 'box dialog',
       height: 0.8*$(window).height(),
       width: Math.min(0.75*$(window).width(), 600),
       buttons: [
