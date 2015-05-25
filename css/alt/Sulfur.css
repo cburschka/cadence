@@ -13,12 +13,12 @@
 #content, .row:nth-child(even) { background-color: #eee }
 #content { color: #333 }
 .row:nth-child(odd) { background-color: #ddd }
-.box { background-color: white }
+.box, input, input, select, textarea.form-field { background-color: white }
 button, h3 {
   background-color: #b84623;
   color: white;
 }
-.box, button, input[type=text], input[type=password], select { border: 1px solid #b84623 }
+.box, button, input[type=text], input[type=password], select, textarea.form-field { border: 1px solid #b84623 }
 .user-role-bot, #content a { color: #b84623 }
 .context-menu-item.hover { background-color: #b84623 }
 .row.delayed .dateTime, .row.delayed .log-room { color: #555 }

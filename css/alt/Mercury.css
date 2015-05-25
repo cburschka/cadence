@@ -11,7 +11,7 @@
  */
 body, .dialog { background-color: #2a2a2a }
 body, input, select, button, textarea { color: #d4d4d4 }
-.box, input, select, button, #colorCodesContainer {
+.box, input, select, button, #colorCodesContainer, textarea.form-field {
   background-color: #383838;
   border-radius: 5px;
   border: 0;
