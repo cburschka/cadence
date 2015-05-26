@@ -145,11 +145,11 @@ visual = {
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
-      // role, affiliation and show are all trusted values.
+      // role and affiliation are all trusted values.
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
             + (jid ? ' ' + visual.jidClass(jid) : '')
-            + ' user-show-' + (user.show || 'default') + '"'
+            + ' user-show-' + (visual.format.plain(visual.escapeClass(user.show)) || 'default') + '"'
             + ' data-affiliation="' + user.affiliation + '"'
             + ' data-nick="' + visual.format.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
@@ -433,13 +433,14 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    var escape = function(str) {
-      return str ? str.replace(/[\s\0\\]/g, function(x) {
-        return '\\' + x.charCodeAt(0);
-      }) : '';
-    };
-    return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
-         + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
-         + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
+    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
+         + 'jid-domain-' + visual.escapeClass(Strophe.getDomainFromJid(jid)) + ' '
+         + 'jid-resource-' + visual.escapeClass(Strophe.getResourceFromJid(jid));
+  },
+
+  escapeClass: function(text) {
+    return text ? text.replace(/[\s\0\\]/g, function(x) {
+      return '\\' + x.charCodeAt(0);
+    }) : '';
   }
 };
