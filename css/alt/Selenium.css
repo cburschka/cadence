@@ -26,6 +26,7 @@ h3 { background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)
 .ui-tabs .ui-tabs-nav li { border-bottom: none }
 .ui-tabs li.ui-tabs-active { background: rgba(255, 255, 255, 0.05) }
 .dialog, .dialog input, .dialog select, .dialog button, .dialog textarea { box-shadow: 0 0 4px white }
+.dialog input[type=checkbox] { box-shadow: none }
 select, button, input { background: rgba(0,0,0,0.4) }
 option { background: #202341 }
 button:hover { background: rgba(0,0,0,0.3) }

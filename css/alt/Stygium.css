@@ -12,4 +12,5 @@ button, input, select, #inputFieldContainer, textarea.form-field, .ui-tabs-activ
 button:hover { background: #444 }
 button:active { background: #666 }
 .dialog { border: 1px solid #222; background: black }
+.ui-tabs .ui-tabs-nav li { border-color: #444 }
 .context-menu-item.hover { background-color: #222 }

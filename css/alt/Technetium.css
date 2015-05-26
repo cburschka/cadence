@@ -16,26 +16,27 @@ a:hover {
   transition: all 0.1s ease-in 0s;
   text-decoration: underline;
 }
-.box, input, #headlineContainer input, select, textarea.form-field, .ui-tabs-nav li {
-  background: none repeat scroll 0 0 #161616;
+input, select, textarea.form-field, .ui-tabs .ui-tabs-nav li {
+  background: #161616;
   border: 2px solid #272727;
 }
+.ui-tabs .ui-tabs-nav li { border-bottom: none }
 button { background-color: #06b }
-button, #loginContainer input { border: 1px solid #06b } /* blue borders around login fields */
+button, #loginContainer input { border: 1px solid #06b }
 .box, .container {
-  background: url("Technetium/stripe.png");
+  background: url("Technetium/stripe.png") #161616;
   border: 2px solid #272727;
 }
-.ui-tabs-nav .ui-tabs-active { background: #272727 }
+.ui-tabs-nav li.ui-tabs-active { background: #272727 }
 .box, .container, button, input, select, textarea.form-field, .ui-tabs-nav li {
   box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
   border-radius: 10px
-} /* rounded corners everywhere! */
-.row:nth-child(n) { background: none } /* cancel the alternating background */
+}
+input[type=checkbox] { box-shadow: none }
+.row:nth-child(n) { background: none }
 .row:hover {
   box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
   transition-duration: 0.1s;
   transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
-.user-role-bot { color:#32cd32 }
-.dialog { background: url("Technetium/stripe.png") #161616; box-shadow: 0 0 4px black }
+.user-role-bot { color: #32cd32 }
