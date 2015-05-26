@@ -1,4 +1,5 @@
-img, #inputField, button.tray { border: none }
+img, #inputField, button.icon { border: none }
+button.icon { color: transparent }
 .box, #colorCodesContainer a { border: 1px solid }
 #helpList table, #settingsList table { border-collapse: collapse }
 button, span.user, span.hide-message, span.hidden { cursor: pointer }

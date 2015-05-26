@@ -82,7 +82,7 @@ var ui = {
         )
         .appendTo(this.dom.emoticonSidebarContainer);
 
-      $('<button class="tray toggleMenu"></button>')
+      $('<button class="tray icon toggleMenu">')
         .attr('id', 'emoticon-' + set + 'Button')
         .attr('title', bars[set].title)
         .text(bars[set].title)
@@ -124,7 +124,7 @@ var ui = {
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').html(sounds).after(function() {
       var event = this.id.substring('settings-notifications.sounds.'.length);
-      return $('<button class="soundTest"></button>')
+      return $('<button class="icon soundTest">')
         .click(function() { ui.playSound(event); });
     });
 
