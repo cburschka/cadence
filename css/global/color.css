@@ -5,7 +5,7 @@
 #onlineList .user-affiliation-admin { color: #0a0 }
 .author .user-role-visitor,
 #onlineList .user-role-visitor,
-.author .user-role-external,
+.author .user-role-undefined,
 .row.delayed .dateTime, .row.delayed .log-room { color: gray }
 .row:nth-child(even) { background:rgba(0,0,0,0.1) }
 .row:nth-child(odd) { background:rgba(0,0,0,0.5) }

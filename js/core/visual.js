@@ -76,6 +76,7 @@ visual = {
 
     $('span.hide-message, span.hidden', node).click(function() {
       $('span.body, span.hidden', node).toggle('slow', function() {
+        // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
         if ($(this).css('display') == 'inline-block') {
           $(this).css('display', 'inline');
         }
@@ -127,27 +128,30 @@ visual = {
     /**
      * Render a user object for output.
      *
-     * @param {Object} user The user object to render. It must have these keys:
+     * @param {Object} user The user object to render. It must have one or more of these keys:
      *                 * nick: {string} The user's nickname.
      *                 * jid: {string} The user's jid, or null.
+     *                 It can have these keys:
      *                 * role: {string} The XEP-0045 room role of the user.
      *                 * affiliation: {string} The XEP-0045 room affiliation.
-     *                 * [show]: The <show/> (mostly away or null) of the user.
+     *                 * show: The <show/> ("away", "xa", "dnd", "chat" or null) of the user.
      * @return {string} The rendered user markup. It will have classes for role,
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var nick = visual.format.nick(user.nick);
+      var nick = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
       var jid = visual.format.plain(user.jid || '');
-      var recipient = user.role == 'external' ? user.jid : user.nick;
-      if (user.role == 'visitor' || (user.role != 'external' && user.jid &&
+      if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
+      // role and affiliation are all trusted values.
       return  '<span class="user user-role-' + user.role
             + ' user-affiliation-' + user.affiliation
-            + ' user-show-' + (user.show || 'default') + '"'
-            + ' data-recipient="' + visual.format.plain(recipient) + '"'
+            + (jid ? ' ' + visual.jidClass(jid) : '')
+            + ' user-show-' + (visual.format.plain(visual.escapeClass(user.show)) || 'default') + '"'
+            + ' data-affiliation="' + user.affiliation + '"'
+            + ' data-nick="' + visual.format.plain(user.nick) + '" data-jid="' + jid + '"'
             + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
     },
 
@@ -156,14 +160,18 @@ visual = {
      * Currently only returns the room title.
      */
     room: function(room) {
-      return room.title;
+      var id = visual.format.plain(room.id);
+      return '<a href="#' + id + '" class="xmpp-room'
+             + (room.id == xmpp.room.current ? ' xmpp-room-current' : '') + '"'
+             + ' data-room="' + id + '"'
+             + '>' + (visual.format.plain(room.title) || id) + '</a>';
     },
 
     /**
      * Format a nick.
      */
     nick: function(nick) {
-      return visual.lengthLimit(visual.format.plain(nick), config.ui.maxNickLength);
+      return visual.format.plain(visual.lengthLimit(nick, config.ui.maxNickLength));
     },
 
     /**
@@ -175,7 +183,7 @@ visual = {
      */
     plain: function(text) {
       var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
-      return text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
+      return text ? text.replace(/[<>&"]/g, function(x) { return replacers[x]; }) : '';
     },
 
     raw: function(text) {
@@ -193,15 +201,14 @@ visual = {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
-      function() { return $('<span></span>').text(this.outerHTML) }
+      function() { return document.createTextNode(this.outerHTML); }
     );
     // If markup is disabled, replace the entire node with its text content.
     if (!config.settings.markup.html)
       jq.text(jq.text());
     if (config.settings.markup.colors)
       this.addColor(jq);
-    if (config.settings.markup.links)
-      this.addLinks(jq);
+    this.addLinks(jq);
     // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
     this.addEmoticons(jq);
@@ -212,28 +219,24 @@ visual = {
 
 
   /**
-   * Poor man's sprintf, with some features from Drupal's t().
-   * Splice variables into a template, optionally escaping them.
+   * Splice variables into a template with format identifiers.
    *
-   * @param {string} text A format string with placeholders like {a} and [b].
+   * @param {string} text A format string with placeholders like {name1} and {format:name2}.
    * @param {Object} variables A hash keyed by variable name.
    *
    * Any placeholder with a corresponding variable will be replaced.
-   * If the placeholder is in curly brackets, the variable will be HTML-escaped.
+   * The variable will be processed either by the specified format, or the one
+   * matching its name, or the "plaintext" formatter by default.
    * @return {string} The rendered text.
    */
   formatText: function(text, variables) {
-    for (var key in variables) if (!variables[key]) delete variables[key];
-    for (var key in variables) {
-      var m = /([a-z]+)\.[a-z]+/.exec(key);
-      var type = m ? m[1] : key;
-      type = this.format[type] ? type : 'plain';
-      variables[key] = this.format[type](variables[key]);
-    }
-    text = text.replace(/\{([a-z\.]+)\}/g, function(rep, key) {
-      return typeof variables[key] == 'string' ? variables[key] : rep;
+    return text.replace(/{(?:(\w+):)?(\w+)}/g, function(rep, format, key) {
+      if (key in variables) {
+        var out = (visual.format[format || key] || visual.format.plain)(variables[key]);
+        if (typeof out == 'string') return out;
+      }
+      return rep;
     });
-    return text;
   },
 
   /**
@@ -259,20 +262,22 @@ visual = {
     var codes = this.emoticonSets;
     var regex = this.emoticonRegex;
     if (!regex) return;
-    var image = function(groups) {
-      for (var i in groups) {
-        if (groups[i]) {
-          return  $('<img class="emoticon" src="' + codes[i].baseURL
-           + codes[i].codes[groups[i]] + '" title="' + groups[i] + '" alt="'
-           + groups[i] + '" /><span class="emote-alt">' + groups[i] + '</span>');
+    var image = function() {
+      for (var i in arguments) {
+        if (arguments[i]) {
+          return  [$('<img class="emoticon" />').attr({
+            src: codes[i].baseURL + codes[i].codes[arguments[i]],
+            title: arguments[i],
+            alt: arguments[i]
+          }), $('<span class="emote-alt"></span>').text(arguments[i])]
         }
       }
     };
 
-    jq.add('*', jq).not('code, code *, a, a *').replaceText(regex, image, codes.length);
+    jq.add('*', jq).not('code, code *, a, a *').replaceText(regex, image);
 
     if (!config.settings.markup.emoticons) {
-      jq.find('img.emoticon').css({display:'none'}).next().css({display:'inline'});
+      jq.find('img.emoticon').css('display', 'none').next().css('display', 'inline');
     }
     return jq;
   },
@@ -288,8 +293,12 @@ visual = {
       return $(this).parents('a').length < 1;
     }).replaceText(
       /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])/g,
-      function(groups) {
-        return $('<a></a>').attr('href', groups[0]).text(groups[0]);
+      config.settings.markup.links ?
+      function(url) {
+        return $('<a class="url-link"></a>').attr('href', url).text(url);
+      } :
+      function(url) {
+        return $('<span class="url-link"></span>').text(url);
       }
     );
   },
@@ -302,15 +311,15 @@ visual = {
     var maxHeight = ui.dom.chatList.height() - 20;
 
     jq.find('img').wrap(function() {
-      return '<a href="' + this.src + '"></a>';
+      return $('<a></a>').attr('href', this.src);
     }).after(function() {
-      return '<span class="image-alt">[image:' + visual.ellipsis(this.src, 64) + ']</span>';
+      return $('<span class="image-alt"></span>').text('[image:' + visual.ellipsis(this.src, 64) + ']');
     });
     jq.find('img').addClass('rescale').load(function() {
       visual.rescale($(this), maxWidth, maxHeight);
     });
     if (!config.settings.markup.images) {
-      jq.find('img').css({display:'none'}).next().css({display:'inline'});
+      jq.find('img').css('display', 'none').next().css('display', 'inline');
     }
   },
 
@@ -326,7 +335,11 @@ visual = {
 
   msgOnClick: function(jq) {
     $('span.user', jq).click(function() {
-      chat.prefixMsg($(this).attr('data-recipient'), $(this).hasClass('user-role-external'));
+      // Disabled when the context menu overrides it.
+      if (config.settings.contextmenu == 'left') return;
+      var nick = $(this).attr('data-nick');
+      var jid = $(this).attr('data-jid');
+      chat.prefixMsg(nick || jid, !nick);
     });
   },
 
@@ -420,47 +433,14 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    var escape = function(str) {
-      return str.replace(/[\s\0\\]/g, function(x) {
-        return '\\' + x.charCodeAt(0);
-      });
-    };
-    return 'jid-node-' + escape(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
-         + 'jid-domain-' + escape(Strophe.getDomainFromJid(jid)) + ' '
-         + 'jid-resource-' + escape(Strophe.getResourceFromJid(jid));
+    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
+         + 'jid-domain-' + visual.escapeClass(Strophe.getDomainFromJid(jid)) + ' '
+         + 'jid-resource-' + visual.escapeClass(Strophe.getResourceFromJid(jid));
+  },
+
+  escapeClass: function(text) {
+    return text ? text.replace(/[\s\0\\]/g, function(x) {
+      return '\\' + x.charCodeAt(0);
+    }) : '';
   }
 };
-
-(function($){
-  var textNode = function(node, search, replace, capturing) {
-    var tokens = node.nodeValue.split(search);
-    if (tokens.length < 2) return false;
-    for (var i = 0; i+capturing < tokens.length; i += capturing+1) {
-      $(node).before(document.createTextNode(tokens[i]));
-      $(node).before(replace(tokens.slice(i+1, i+1+capturing)));
-    }
-    $(node).before(document.createTextNode(tokens[tokens.length-1]));
-    return true;
-  };
-
-  /**
-   * Replace substrings with HTML.
-   *
-   * @param node A text node.
-   * @param search A RegExp object that must have at least one capturing subgroup.
-   * @param replace A function that generates the replacement jQuery content.
-   * @param groups (optional) The number of capturing subgroups in the RegExp.
-   */
-  $.fn.replaceText = function(search, replace, capturing) {
-    capturing = capturing || 1;
-    return this.each(function() {
-      var remove = [];
-      for (var node = this.firstChild; node; node = node.nextSibling) {
-        if (node.nodeType == document.TEXT_NODE && textNode(node, search, replace, capturing)) {
-          remove.push(node);
-        }
-      }
-      $(remove).remove();
-    });
-  }
-})(jQuery);

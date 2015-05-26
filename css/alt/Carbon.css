@@ -10,14 +10,16 @@
  * @author Philip Nicolcev @Frug 2012 https://github.com/Frug/AJAX-Chat/blob/9da21807c60679c6a511732bebebcf30b76c0106/chat/css/subblack2.css
  * @author Sebastian Tschan @blueimp 2009 https://github.com/Frug/AJAX-Chat/blob/f138ecf192b0cd2cc59a77315a3de82902ddc2a9/chat/css/subblack2.css
  */
-#content { background-color: black }
-#content, button, input, select, textarea { color: #ffc }
+body { background: black }
+body, button, input, select, textarea { color: #ffc }
 h3, a { color: #fc0 }
-.box, button, input, select {
-  background-color: #212121;
+.box, button, input, select, textarea.form-field, .ui-tabs .ui-tabs-nav li {
+  background: #212121;
   border-color: gray;
 }
-.row:nth-child(even) { background-color: #212121 }
-.row:nth-child(odd) { background-color: black }
+.ui-tabs-nav li.ui-tabs-active { background: #313131 }
+.ui-tabs-nav .ui-tabs-active a { color: white }
+.row:nth-child(even) { background: #212121 }
+.row:nth-child(odd) { background: black }
 .user-role-bot { color: #c90 }
 #content #colorCodesContainer a { border-color: black }

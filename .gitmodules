@@ -1,21 +1,27 @@
 [submodule "js/lib/xbbcode"]
 	path = js/lib/xbbcode
-	url = git://github.com/cburschka/xbbcode.js/
-[submodule "js/lib/jquery-cookie"]
-	path = js/lib/jquery-cookie
-	url = git://github.com/carhartl/jquery-cookie.git
+	url = https://github.com/cburschka/xbbcode.js/
+[submodule "js/lib/js-cookie"]
+	path = js/lib/cookie
+	url = https://github.com/js-cookie/js-cookie.git
 [submodule "js/lib/moment"]
 	path = js/lib/moment
-	url = git://github.com/moment/moment.git
+	url = https://github.com/moment/moment.git
 [submodule "js/lib/strophejs"]
 	path = js/lib/strophe
-	url = git://github.com/strophe/strophejs.git
+	url = https://github.com/strophe/strophejs.git
 [submodule "js/lib/buzz"]
 	path = js/lib/buzz
-	url = git://github.com/jaysalvat/buzz.git
+	url = https://github.com/jaysalvat/buzz.git
 [submodule "js/lib/FileSaver.js"]
 	path = js/lib/filesaver
 	url = https://github.com/eligrey/FileSaver.js
 [submodule "js/lib/jquery"]
 	path = js/lib/jquery
 	url = https://github.com/cburschka/jquery-release.git
+[submodule "js/lib/contextmenu"]
+	path = js/lib/contextmenu
+	url = https://github.com/medialize/jquery-contextMenu
+[submodule "js/lib/replacetext"]
+	path = js/lib/replacetext
+	url = https://github.com/cburschka/jquery-replacetext

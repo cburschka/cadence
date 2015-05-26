@@ -68,43 +68,52 @@ var ui = {
 
     // Build the navigation menu.
     for (link in config.ui.navigation)
-      $('#navigation ul').append('<li><a href="' + config.ui.navigation[link] + '">' + link + '</a></li>');
+      $('#navigation ul').append($('<li></li>').append($('<a></a>').attr('href', config.ui.navigation[link])));
     if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
 
     // Build and fill the emoticon containers.
     var bars = config.ui.emoticonSidebars
     for (var set in bars) {
-      this.dom.menu['emoticon-' + set] = $(
-         '<div id="emoticon-' + set + '" class="menuContainer emoticon-sidebar box">'
-       + '<h3>' + bars[set].title + '</h3>'
-       + '<div id="emoticonsList-' + set + '" class="emoticon-list-sidebar" dir="ltr"></div></div>'
-       ).appendTo(this.dom.emoticonSidebarContainer);
-      $(
-        '<button class="tray toggleMenu" id="emoticon-' + set + 'Button" title="' + bars[set].title + '">' + bars[set].title + '</button>'
-      ).css('background-image', 'url("' + config.markup.emoticons[set].baseURL + bars[set].icon + '")')
-      .appendTo(ui.dom.emoticonTrayContainer);
+      this.dom.menu['emoticon-' + set] = $('<div class="menuContainer emoticon-sidebar box"></div>')
+        .attr('id', 'emoticon-' + set)
+        .append($('<h3></h3>').text(bars[set].title))
+        .append($('<div class="emoticon-list-sidebar" dir="ltr"></div>')
+          .attr('id', 'emoticonsList-' + set)
+        )
+        .appendTo(this.dom.emoticonSidebarContainer);
+
+      $('<button class="tray icon toggleMenu">')
+        .attr('id', 'emoticon-' + set + 'Button')
+        .attr('title', bars[set].title)
+        .text(bars[set].title)
+        .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
+        .appendTo(ui.dom.emoticonTrayContainer);
     }
     for (var set in config.markup.emoticons) {
-      var html = '';
+      var list = $('#emoticonsList-' + set);
       for (var code in config.markup.emoticons[set].codes) {
-        html += '<a href="javascript:void(\'' + code.replace('\'', '\\\'', 'g')
-             +  '\');" class="insert-text" title="'
-             + code + '">' + '<img src="' + config.markup.emoticons[set].baseURL
-             + config.markup.emoticons[set].codes[code] + '" alt="'
-             + code + '" /></a>';
+        list.append($('<a class="insert-text"></a>')
+          .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
+          .attr('title', code)
+          .append($('<img />')
+            .attr('src', config.markup.emoticons[set].baseURL + config.markup.emoticons[set].codes[code])
+            .attr('alt', code)
+          )
+        );
       }
-      $('#emoticonsList-' + set).html(html);
     }
 
     // Build the color palette picker.
-    var html = '';
+    var palette = $('#colorCodesContainer');
     for (var color in config.markup.colorCodes) {
       var code = config.markup.colorCodes[color]
-      html += '<a href="javascript:void(\'' + code + '\');" title="' + code
-           +  '" class="colorCode" style="background-color:' + code + '"></a>';
+      palette.append($('<a class="colorCode"></a>')
+        .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
+        .attr('title', code)
+        .css('background-color', code)
+      );
     }
-    html += '<button class="button" id="textColorFull">Advanced</button>';
-    $('#colorCodesContainer').html(html);
+    palette.append('<button class="button" id="textColorFull">Advanced</button>');
 
     // Add the access key labels to the BBCode buttons.
     $('#bbCodeContainer button').each(function() {
@@ -113,7 +122,11 @@ var ui = {
 
     var sounds = [new Option('---', '')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
-    $('#settingsContainer select.soundSelect').html(sounds);
+    $('#settingsContainer select.soundSelect').html(sounds).after(function() {
+      var event = this.id.substring('settings-notifications.sounds.'.length);
+      return $('<button class="icon soundTest">')
+        .click(function() { ui.playSound(event); });
+    });
 
     // Set the form values.
     $('#settingsContainer .settings').val(function() {
@@ -182,19 +195,19 @@ var ui = {
 
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
-      if (this.value) chat.commands.join(this.value);
+      if (this.value) chat.commands.join({name: this.value});
       else chat.commands.part();
     });
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join(ui.urlFragment.substring(1));
+        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
         else chat.commands.part();
       }
     });
 
     // Log in with the button or pressing enter.
-    $('#fakeLoginForm').submit(function(e) {
+    this.dom.loginContainer.submit(function(e) {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
@@ -308,6 +321,13 @@ var ui = {
       else visual.removeColor(ui.dom.chatList);
       ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
+    $('#settings-markup\\.links').change(function() {
+      $('.url-link').replaceWith(this.checked ? function() {
+        return $('<a class="url-link"></a>').attr('href', $(this).text()).text($(this).text());
+      } : function() {
+        return $('<span class="url-link"></span>').text($(this).text());
+      });
+    });
 
     // Instantly apply sound volume.
     $('.soundVolume').change(function() {
@@ -330,6 +350,144 @@ var ui = {
       ui.checkAutoScroll();
       return true;
     });
+
+    var usermenu = {
+      selector: '.user:not(.user-role-bot)',
+      className: 'box dialog',
+      trigger: config.settings.contextmenu,
+      delay: 700, // only applies to hover.
+      build: ui.userContextMenu
+    };
+    $.contextMenu(usermenu);
+
+    var roommenu = {
+      selector: '.xmpp-room',
+      className: 'box dialog',
+      trigger: config.settings.contextmenu,
+      delay: 700,
+      build: ui.roomContextMenu
+    };
+    $.contextMenu(roommenu);
+
+    $('#settings-contextmenu').change(function() {
+      usermenu.trigger = this.value;
+      roommenu.trigger = this.value;
+      $.contextMenu('destroy', '.user:not(.user-role-bot)');
+      $.contextMenu('destroy', '.xmpp-room');
+      $.contextMenu(usermenu);
+      $.contextMenu(roommenu);
+    });
+    $('#settingsList').tabs();
+  },
+
+  /**
+   * Build the context menu for a user.
+   * @param {jq} user The user element.
+   */
+  userContextMenu: function(user) {
+    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
+    var labels = strings.label.command;
+    var roster = xmpp.roster[xmpp.room.current]
+    var userSelf = roster && roster[xmpp.nick.current];
+    var nick = user.attr('data-nick');
+    var jid = user.attr('data-jid');
+    var jidBare = Strophe.getBareJidFromJid(jid);
+
+    var mod = userSelf && userSelf.role == 'moderator';
+    var ranks = {none: 0, member: 1, admin: 2, owner: 3};
+    var rank = userSelf && ranks[userSelf.affiliation];
+    var outranked = rank < ranks[user.attr('data-affiliation')];
+
+    var items = {
+      msg: {
+        name: labels.msg,
+        icon: 'msg',
+        disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
+        callback: function() { chat.prefixMsg(nick); }
+      },
+      dmsg: {
+        name: labels.dmsg,
+        icon: 'msg',
+        disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
+        callback: function() { chat.prefixMsg(jid, true); }
+      },
+      sep1: '---',
+      invite: {
+        name: labels.invite,
+        icon: 'invite',
+        // disabled on anonymous users, or users who are already in the room.
+        disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
+        callback: function() { chat.commands.invite({jid:jid}); }
+      },
+      kick: {
+        name: labels.kick,
+        icon: 'leave',
+        // disabled for non-mods, or higher affiliation, or absent users or yourself.
+        disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
+        callback: function() { chat.commands.kick(nick); }
+      },
+      ban: {
+        name: labels.ban,
+        icon: 'destroy',
+        // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
+        callback: function() { chat.commands.ban({jid: jid}); }
+      },
+      sep2: '',
+      whois: {
+        name: labels.whois,
+        icon: 'whois',
+        disabled: !c('whois') || !nick || !roster[nick],
+        callback: function() { chat.commands.whois(nick); }
+      },
+      ping: {
+        name: labels.ping,
+        icon: 'ping',
+        disabled: !c('ping') || !jid,
+        callback: function() { chat.commands.ping(jid); }
+      }
+    }
+
+    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+  },
+
+  /**
+   * Build the context menu for a room.
+   */
+  roomContextMenu: function(room) {
+    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
+    var labels = strings.label.command;
+    var id = room.attr('data-room');
+    var currentRoom = xmpp.room.current == id;
+    var self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
+    var owner = currentRoom && self.affiliation == 'owner';
+    var items = {
+      join: {
+        name: labels.join,
+        icon: 'join',
+        disabled: !c('join') || currentRoom,
+        callback: function() { chat.commands.join({name: id}); }
+      },
+      part: {
+        name: labels.part,
+        icon: 'leave',
+        disabled: !c('part') || !currentRoom,
+        callback: chat.commands.part
+      },
+      configure: {
+        name: labels.configure,
+        icon: 'configure',
+        disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
+        callback: function() { chat.commands.configure({name: id, interactive: true}); }
+      },
+      destroy: {
+        name: labels.destroy,
+        icon: 'destroy',
+        disabled: !c('destroy') || currentRoom && !owner,
+        callback: function() { chat.commands.destroy({room: id}); }
+      }
+    }
+    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
@@ -410,6 +568,125 @@ var ui = {
   },
 
   /**
+   * Create a form out of an XMPP data form stanza.
+   *
+   * @param {jq} x The <x/> element containing the form fields.
+   * @param {function} submit The callback that the completed form values will be sent to.
+   * @return {jq} The HTML form.
+   */
+  dataForm: function(x, submit) {
+    var fields = {};
+    var input = function(field) {
+      return $('<input/>').attr('name', field.attr('var'));
+    }
+    fields.hidden = function(field) {
+      return input(field).attr('type', 'hidden')
+        .attr('value', $('value', field).text());
+    };
+    fields['boolean'] = function(field) {
+      return input(field).attr('type', 'checkbox')
+        .prop('checked', $('value', field).text() == '1');
+    };
+    fields['text-single'] = function(field) {
+      return input(field).attr('type', 'text')
+        .attr('value', $('value', field).text());
+    };
+    fields['text-private'] = fields['text-single'];
+    fields['jid-single'] = fields['text-single'];
+    fields['text-multi'] = function(field) {
+      var value = '';
+      $('value', field).each(function() { values.push($(this).text()); });
+      return $('<textarea class="form-field">').attr('name', field.attr('var'))
+        .text(value);
+    }
+    fields['jid-multi'] = function(field) {
+      return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
+    }
+    fields['list-single'] = function(field) {
+      var f = $('<select>').attr('name', field.attr('var'));
+      var value = field.children('value').text();
+      $('option', field).each(function() {
+        var v = $('value', this).text();
+        f.append($('<option></option>').attr('value', v)
+          .text($(this).attr('label'))
+          .prop('selected', value == v)
+        );
+      });
+      return f;
+    }
+    fields['list-multi'] = function(field) {
+      return fields['list-single'].prop('multiple', true);
+    }
+    fields['fixed'] = function(field) {
+      return $('<p>').text($('value', field).text());
+    }
+
+    val = function(field) { return field.val(); }
+    var values = {};
+    values['boolean'] = function(field) {
+      return field.prop('checked') ? "1" : "0";
+    }
+    values.hidden = val;
+    values['text-single'] = val;
+    values['text-private'] = val;
+    values['jid-single'] = val;
+    values['text-multi'] = function(field) {
+      return val(field).split("\n");
+    }
+    values['jid-multi'] = values['text-multi'];
+    values['list-single'] = val;
+    values['list-multi'] = val;
+    values['fixed'] = function() { return undefined; };
+
+    var form = $('<form class="data-form">').attr('title', $('title', x).text());
+    x.children('field').each(function() {
+      var type = $(this).attr('type');
+      var field = fields[type]($(this)).addClass('data-form-field').attr('data-type', type).uniqueId();
+      var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
+      form.append($('<div class="row">').append(label, field, '<br>'));
+    });
+    form.submit(function(e) {
+      e.preventDefault();
+      var v = {};
+      $('.data-form-field', form).each(function() {
+        v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
+      });
+      submit(v);
+    });
+    return form;
+  },
+
+  /**
+   * Generate a dialog from a form.
+   * By default, the dialog will have three buttons: Save, Apply, and Close.
+   * Save and Apply will both trigger the form's submit() event,
+   * Save and Close will both close the dialog.
+   *
+   * @param form The form element.
+   */
+  formDialog: function(form) {
+    form.dialog({
+      dialogClass: 'box dialog',
+      height: 0.8*$(window).height(),
+      width: Math.min(0.75*$(window).width(), 600),
+      buttons: [
+        {
+          text: strings.label.button.save,
+          click: function() { form.submit(); $(this).dialog('destroy') }
+        },
+        {
+          text: strings.label.button.apply,
+          click: function() { form.submit(); }
+        },
+        {
+          text: strings.label.button.close,
+          click: function() { $(this).dialog('destroy') }
+        }
+      ]
+    });
+  },
+
+  /**
    * Create an informational message.
    * The first two arguments are passed straight to visual.formatText().
    *
@@ -453,12 +730,11 @@ var ui = {
    */
   messageDelayed: function(message) {
     var entry = visual.formatMessage(message);
-    entry.html.addClass('delayed');
-    entry.html.find('.dateTime').after(
-        ' <span class="log-room log-room-' + message.room.id + '">['
-      + visual.format.room(message.room)
-      + ']</span>'
-    );
+    entry.html.addClass('delayed')
+      .find('.dateTime').after(' ', $('<span class="log-room"></span>')
+        .addClass('log-room-' + message.room.id)
+        .text('[' + message.room.title + ']')
+      );
     this.messageInsert(entry);
   },
 
@@ -500,7 +776,7 @@ var ui = {
     });
     this.scrollDown();
     if (message.message.user.nick != xmpp.nick.current)
-      this.blinkTitle(message.message.user.nick);
+      this.blinkTitle(message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid));
   },
 
   /**
@@ -523,9 +799,6 @@ var ui = {
     var userLink = $('<div class="row"><span class="user-roster">'
                     + visual.format.user(user) + '</span></div>');
     visual.msgOnClick(userLink);
-
-    if (user.jid)
-      $('span.user-roster', userLink).addClass(visual.jidClass(user.jid));
 
     if (user.nick == xmpp.nick.current) {
       $('span.user-roster', userLink).addClass('user-self');
@@ -739,7 +1012,7 @@ var ui = {
       var text = $('<span>' + message.body + '</span>').text();
       if (message.type != 'groupchat' && message.type != 'local')
         text = strings.info.whisper + ' ' + text;
-      if (message.type != 'local') text = '<b>' + message.user.nick + ':</b> ' + text;
+      if (message.type != 'local') text = message.user.nick + ': ' + text;
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },

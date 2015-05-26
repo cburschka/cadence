@@ -11,15 +11,18 @@ include ${SRC_PATH}/VERSION
 VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
-              js/core/ui.js js/core/visual.js js/core/config.js \
-              js/core/emoticons.js js/core/init.js
+             js/core/ui.js js/core/visual.js js/core/config.js \
+             js/core/emoticons.js js/core/init.js
 
-LIB_FILES = js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.js js/lib/jquery.cookie.js \
-            js/lib/moment.js js/lib/strophe.js js/lib/xbbcode.js
+LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
+            js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
+            js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
+            js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
-                    css/global/borders.css
+                    css/global/jquery-ui.css \
+                    css/global/contextmenu.css css/global/borders.css
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
 endif
@@ -57,10 +60,10 @@ ifneq (.,${PREFIX})
 endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
-	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 else
-install: all
+install: all ${LIB_FILES}
 endif
+	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
 install-cdn: install-init install-js install-css-global
@@ -101,16 +104,25 @@ js/core/emoticons.js: index.html .config.vars
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@
 
+js/lib/contextmenu.js: js/lib/contextmenu/src/jquery.contextMenu.js
+	$(CP) $^ $@
+
 js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 	$(CP) $^ $@
 
 js/lib/jquery.js: js/lib/jquery/jquery.js
 	$(CP) $^ $@
 
-js/lib/jquery.cookie.js: js/lib/jquery-cookie/src/jquery.cookie.js
+js/lib/jquery-ui.js: js/lib/jquery-ui/jquery-ui.js
+	$(CP) $^ $@
+
+js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
 	$(CP) $^ $@
 
 js/lib/moment.js: js/lib/moment/moment.js
+	$(CP) $^ $@
+
+js/lib/replacetext.js: js/lib/replacetext/jquery.replacetext.js
 	$(CP) $^ $@
 
 js/lib/strophe.js: js/lib/strophe/strophe.js
@@ -119,8 +131,7 @@ js/lib/strophe.js: js/lib/strophe/strophe.js
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
-js/lib.js: js/lib/buzz.js js/lib/filesaver.js js/lib/jquery.js js/lib/jquery.cookie.js \
-               js/lib/moment.js js/lib/strophe.js js/lib/xbbcode.js
+js/lib.js: ${LIB_FILES}
 	cat $^ > $@
 
 js/core.js: ${CORE_FILES}

@@ -9,18 +9,22 @@
  * @author Sylae Corell @sylae 2013 https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/Mercury.css
  * @author Philip Nicolcev @Frug 2012 https://github.com/Frug/AJAX-Chat/blob/9da21807c60679c6a511732bebebcf30b76c0106/chat/css/Mercury.css
  */
-#content { background-color: #2a2a2a }
-#content, input, select, button, textarea { color: #d4d4d4 }
-.box, input, select, button, #colorCodesContainer {
-  background-color: #383838;
+body, .dialog { background: #2a2a2a }
+body, input, select, button, textarea { color: #d4d4d4 }
+.box, input, select, button, #colorCodesContainer, textarea.form-field,
+.ui-tabs-nav li {
+  background: #383838;
   border-radius: 5px;
-  border: 0;
+  border: none;
 }
+.ui-tabs .ui-tabs-nav li { background: #2a2a2a; border: none }
+.ui-tabs-nav li.ui-tabs-active { background: #484848 }
+.ui-tabs-nav .ui-tabs-active a { color: #d4d4d4 }
 #colorCodesContainer {
   padding: 5px;
   box-shadow: 2px 2px 4px black;
 }
 #emoticonsContainer { border-radius: 3px }
-button:hover { background-color: #555 }
+button:hover { background: #555 }
 input[type=image], button { border: 0 }
 a, .user-role-bot { color: #f6b620 }

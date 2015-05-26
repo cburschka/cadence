@@ -11,6 +11,9 @@ var config = {
     // Whether to display verbose log messages.
     verbose: true,
 
+    // Which trigger to use for the context menu (left, right, hover, none).
+    contextmenu: 'right',
+
     markup: {
       // Render incoming HTML Markup.
       html: true,
@@ -130,7 +133,7 @@ var config = {
   },
 
   // Defines the available sounds loaded on chat start:
-  sounds: ['droneriots', 'sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6', 'yay'],
+  sounds: ['sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6'],
   soundURL: '@@@CDN_URL@@@sounds/',
 
   xmpp: {

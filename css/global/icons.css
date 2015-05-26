@@ -25,7 +25,7 @@
   background-image:url('../../img/playback.png');
 }
 
-/* Status Icon */
+/* Status icon */
 #statusIcon {
   background-image: url('../../img/loading-sprite.gif');
   background-position: 0px -44px;
@@ -37,7 +37,7 @@
   background-position: 0px -22px;
 }
 
-/* Scroll Icon */
+/* Scroll icon */
 #autoScrollIcon {
   background-image:url('../../img/autoscroll.png');
   background-position: 0px 0px
@@ -55,9 +55,47 @@
   -webkit-transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
 
+/* User status icons */
+#onlineList .user-show-away {
+  background: url(../../img/away.png) center right no-repeat;
+  padding-right: 20px;
+}
+#onlineList .user-show-dnd {
+  background: url(../../img/dnd.png) center right no-repeat;
+  padding-right: 20px;
+}
+#onlineList .user-show-xa {
+  background: url(../../img/xa.png) center right no-repeat;
+  padding-right: 20px;
+}
+#onlineList .user-show-chat {
+  background: url(../../img/chat.png) center right no-repeat;
+  padding-right: 20px;
+}
+
 span.hide-message {
   display:inline-block;
   height:10px;
   width:10px;
   background-image:url('../../img/delete.png');
 }
+
+#settingsContainer button.soundTest {
+  display: inline-block;
+  border: none;
+  padding: 0;
+  height: 22px;
+  width: 22px;
+  margin-left: 5px;
+  background: url('../../img/playback.png');
+  background-color: none;
+}
+
+.context-menu-item.icon-configure { background-image: url(../../img/configure.png); }
+.context-menu-item.icon-destroy { background-image: url(../../img/destroy.png); }
+.context-menu-item.icon-invite { background-image: url(../../img/invite.png); }
+.context-menu-item.icon-join { background-image: url(../../img/join.png); }
+.context-menu-item.icon-leave { background-image: url(../../img/leave.png); }
+.context-menu-item.icon-msg { background-image: url(../../img/chat.png); }
+.context-menu-item.icon-ping { background-image: url(../../img/ping.png); }
+.context-menu-item.icon-whois { background-image: url(../../img/whois.png); }
