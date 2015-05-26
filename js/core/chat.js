@@ -277,7 +277,11 @@ var chat = {
       if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       if (!arg.name)
         return ui.messageAddInfo(strings.error.roomCreateName, 'error');
-      var config = chat.roomConf(arg);
+
+      var config = arg.interactive ?
+          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
+        : chat.roomConf(arg);
+
       var name = arg.name.toLowerCase();
       var create = function() {
         var room = chat.getRoomFromTitle(name);

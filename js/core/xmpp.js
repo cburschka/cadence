@@ -256,8 +256,7 @@ var xmpp = {
    */
   joinNewRoom: function(name, config) {
     var room = name.toLowerCase();
-    config = config || {};
-    config['muc#roomconfig_roomname'] = config['muc#roomconfig_roomname'] || name;
+    config = config || {'muc#roomconfig_roomname': name};
     ui.messageAddInfo(strings.info.creating, {
       room: {id: room, title: config['muc#roomconfig_roomname']},
       user: {
@@ -272,7 +271,7 @@ var xmpp = {
         return parseInt($(this).attr('code'));
       }));
       if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname']}, 'verbose');
+        ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname'] || name}, 'verbose');
         this.configureRoom(room, config, null, function(rooms) {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
