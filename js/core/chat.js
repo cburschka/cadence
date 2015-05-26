@@ -370,16 +370,17 @@ var chat = {
      *   will automatically leave the current room.
      */
     join: function(arg) {
-      var name = arg.trim();
-      if (!name) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var room = chat.getRoomFromTitle(name);
+      arg = chat.parseArgs(arg);
+      arg.name = arg.name || m[0].join(" ").trim();
+      if (!arg.name) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      var room = chat.getRoomFromTitle(arg.name);
       var join = function() {
-        var room = chat.getRoomFromTitle(name);
+        var room = chat.getRoomFromTitle(arg.name);
         if (room && xmpp.room.current == room.id) {
           return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
         }
-        room = room ? room.id : name;
-        xmpp.joinExistingRoom(room);
+        room = (room ? room.id : arg.name).toLowerCase();
+        xmpp.joinExistingRoom(room, arg.password);
         ui.updateFragment(room);
         chat.setSetting('xmpp.room', room);
       };
