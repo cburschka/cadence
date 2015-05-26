@@ -13,11 +13,11 @@
 body { background: black }
 body, button, input, select, textarea { color: #ffc }
 h3, a { color: #fc0 }
-.box, button, input, select, textarea.form-field, .ui-tabs-nav li {
+.box, button, input, select, textarea.form-field, .ui-tabs .ui-tabs-nav li {
   background: #212121;
   border-color: gray;
 }
-.ui-tabs-nav .ui-tabs-active { background: #313131 }
+.ui-tabs-nav li.ui-tabs-active { background: #313131 }
 .ui-tabs-nav .ui-tabs-active a { color: white }
 .row:nth-child(even) { background: #212121 }
 .row:nth-child(odd) { background: black }
