@@ -195,13 +195,13 @@ var ui = {
 
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
-      if (this.value) chat.commands.join(this.value);
+      if (this.value) chat.commands.join({name: this.value});
       else chat.commands.part();
     });
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join(ui.urlFragment.substring(1));
+        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
         else chat.commands.part();
       }
     });
@@ -466,7 +466,7 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: function() { chat.commands.join(id); }
+        callback: function() { chat.commands.join({name: id}); }
       },
       part: {
         name: labels.part,

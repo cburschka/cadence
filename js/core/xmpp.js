@@ -925,7 +925,7 @@ var xmpp = {
       var room = this.room.target || ui.urlFragment.substring(1) || config.settings.xmpp.room;
       if (config.settings.xmpp.autoJoin || ui.urlFragment) {
         this.discoverRooms(function (rooms) {
-          if (rooms[room]) chat.commands.join(room);
+          if (rooms[room]) chat.commands.join({name: room});
           else {
             ui.messageAddInfo(strings.error.unknownRoomAuto, {name: room});
             xmpp.prejoin();

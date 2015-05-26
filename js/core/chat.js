@@ -371,7 +371,7 @@ var chat = {
      */
     join: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.name = arg.name || m[0].join(" ").trim();
+      arg.name = arg.name || arg[0].join(" ").trim();
       if (!arg.name) return ui.messageAddInfo(strings.error.noArgument, 'error');
       var room = chat.getRoomFromTitle(arg.name);
       var join = function() {
