@@ -23,7 +23,8 @@ input[type=text], input[type=password], textarea.form-field, select, button.butt
   border: 1px solid #222;
 }
 .menuContainer { background: url("dash/cutie-dash.png") no-repeat bottom rgba(0, 0, 0, 0.6) }
-#headlineContainer label {
+#headlineContainer label, #headlineContainer a {
+  color: white;
   font-weight: bold;
   text-shadow: 1px 1px 2px black;
 }
