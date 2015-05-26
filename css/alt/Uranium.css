@@ -14,134 +14,59 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-#content, textarea { color:#b0b8a8 }
+body, input, textarea, select, .ui-tabs .ui-tabs-nav a { color: #b0b8a8; border: none }
 input, button, select, #chatList, .menuContainer,
-.row:nth-child(even),
-.menuContainer h3, #inputFieldContainer
-{ border-radius: 5px; -webkit-border-radius:5px;border:0;}
-#loginContent a {
-  color:#4c9546;
-}
-#content #inputFieldContainer{height:46px; background:#0E0E0E;padding:0;}
-#content #inputFieldContainer #inputField{box-shadow: inset 1px 1px 5px 1px #000; border:0;height: 40px;padding: 3px 0.5%;width: 99%;}
-#content #inputFieldContainer #inputField:focus{outline:none;box-shadow:0px 0px 8px 1px #376e34;}
+.row:nth-child(even), textarea,
+h3, .box, .ui-tabs-nav li { border-radius: 5px; border: none }
+#inputFieldContainer { padding: 0 }
+#inputField { box-shadow: inset 1px 1px 5px 1px black }
+#inputField:focus { box-shadow: 0px 0px 8px 1px #376e34 }
 #loginButton {
-  background-color:#424242;
-  color:#b0b8a8;
+  background: #424242;
+  color: #b0b8a8;
   border-radius: 3px;
-  border-color:black;
+  border-color: black;
 }
-#content {
-background-color: #464646;
-background-image: -webkit-gradient(linear, left top, left bottom, from(#464646), to(#181818));
-background-image: -webkit-linear-gradient(top, #464646, #181818);
-background-image:    -moz-linear-gradient(top, #464646, #181818);
-background-image:      -o-linear-gradient(top, #464646, #181818);
-background-image:         linear-gradient(to bottom, #464646, #181818);
+#content, .ui-tabs-nav li {
+  background: linear-gradient(to bottom, #464646, #181818) #464646;
+}
+.menuContainer h3, li.ui-tabs-active {
+  background: linear-gradient(to bottom, #3b6c37, #223220, #171717) #171717;
 }
 h3 {
-  color:#e2e9db;
+  color: #e2e9db;
   text-shadow: 1px 1px 2px #191919;
 }
-#content a {
-  color:#4c9546;
+a, .user-role-bot { color: #4c9546 }
+.context-menu-item.hover { background-color: #4c9546 }
+select, .box { background: #171717 }
+input, select { padding: 3px }
+input, select, textarea.form-field {  background-color: #0e0e0e }
+.box, input[type=text], input[type=password], select, textarea.form-field {
+  box-shadow: 0px 0px 8px 1px #495a49;
 }
-select{background:#171717; color:#b0b8a8;}
-input, select{padding: 3px;}
-#content input,#content select {
-  background-color:#0e0e0e;
-  color:#b0b8a8;
-}
-#content #colorCodesContainer,#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #inputFieldContainer,
-input[type=text], input[type=password]{
-box-shadow: 0px 0px 8px 1px #495a49; -webkit-box-shadow: 0px 0px 8px 1px #495a49;
-}
-.box {
-  background-color:#171717;
-  border:0;
-}
-#content #chatList:after, #content #chatList:before{
-  content:'';
-  display:block;
-  position:absolute;
-  border-radius: 5px;
-}
-#content #chatList:before{top:17px;left:0px;width:0px;height:98%;box-shadow: 1px 0px 8px 1px #000;}
-#content #chatList:after{top:0px;left:17px;width:98%;height:0px;box-shadow: 0px 1px 8px 1px #000;}
-
-#content #onlineListContainer #onlineList div {
-  margin: 0 1px 1px 1px;
-  background: none;
-}
-#content #onlineListContainer #onlineList ul {
-  margin-top: 1px;
-  list-style: none;
-}
-
-#content #helplist table, #content  #settingsList table{border-spacing:0;}
-#content #emoticonsContainer { border-radius: 3px; }
-#content #bbCodeContainer { border: 0; padding-left: 0; }
 button {
-  background-color: #d8ffd6;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#d8ffd6), to(#467a44));
-  background-image: -webkit-linear-gradient(top, #d8ffd6, #467a44);
-  background-image:    -moz-linear-gradient(top, #d8ffd6, #467a44);
-  background-image:      -o-linear-gradient(top, #d8ffd6, #467a44);
-  background-image:         linear-gradient(to bottom, #d8ffd6, #467a44);
-  color:#1d1d1d;
+  background: linear-gradient(to bottom, #d8ffd6, #467a44) #d8ffd6;
+  color: #1d1d1d;
 }
-button:hover{
-  background-color: #ffffff;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#08ff35));
-  background-image: -webkit-linear-gradient(top, #ffffff, #08ff35);
-  background-image:    -moz-linear-gradient(top, #ffffff, #08ff35);
-  background-image:      -o-linear-gradient(top, #ffffff, #08ff35);
-  background-image:         linear-gradient(to bottom, #ffffff, #08ff35);
-}
+button:hover { background: linear-gradient(to bottom, #ffffff, #08ff35) #ffffff }
 button:active { box-shadow:0px 0px 8px 1px #38ff56 }
-#loginButton{
-  background-color: #4fff58;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#4fff58), to(#194221));
-  background-image: -webkit-linear-gradient(top, #4fff58, #194221);
-  background-image:    -moz-linear-gradient(top, #4fff58, #194221);
-  background-image:      -o-linear-gradient(top, #4fff58, #194221);
-  background-image:         linear-gradient(to bottom, #4fff58, #194221);
-  font-weight:bold; color:#fff;
-  text-shadow:0px 0px 5px #000;
+#loginButton {
+  background: linear-gradient(to bottom, #4fff58, #194221) #4fff58;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0px 0px 5px black;
 }
-#loginButton:hover{
-  background-color: #99ffa8;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#99ffa8), to(#002405));
-  background-image: -webkit-linear-gradient(top, #99ffa8, #002405);
-  background-image:    -moz-linear-gradient(top, #99ffa8, #002405);
-  background-image:      -o-linear-gradient(top, #99ffa8, #002405);
-  background-image:         linear-gradient(to bottom, #99ffa8, #002405);
+#loginButton:hover { background: linear-gradient(to bottom, #99ffa8, #002405) #99ffa8 }
+#colorCodesContainer{
+  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 7px;
 }
-
-#content #colorCodesContainer{
-  border:0;
-  background:rgba(0,0,0,0.7);
-  padding:7px;
+#colorCodesContainer a {
+  border-radius: 10px;
+  box-shadow: 0px 0px 3px 1px rgba(255,255,255,0.3);
+  margin: 0 5px;
+  border: none;
 }
-#content #colorCodesContainer a{border-radius:10px; box-shadow:0px 0px 3px 1px rgba(255,255,255,0.3); margin:0 5px;border:0;}
-#trayContainer button { border: 0; padding: 0; margin-right: 5px;}
-.row:nth-child(even) {
-  background-color:#131413;
-}
-.author {
-  color:#b0b8a8;
-}
-.user-role-bot {
-  color:#4c9546;
-}
-#content #chatList a {
-  color:#4c9546;
-}
-.menuContainer h3 {
-background-color: #171717;
-background-image: -webkit-gradient(linear, left top, left bottom, from(#3b6c37), to(#171717));
-background-image: -webkit-linear-gradient(top, #3b6c37, #223220, #171717);
-background-image:    -moz-linear-gradient(top, #3b6c37, #223220, #171717);
-background-image:      -o-linear-gradient(top, #3b6c37, #223220, #171717);
-background-image:         linear-gradient(to bottom, #3b6c37, #223220, #171717);
-}
+.ui-tabs .ui-tabs-nav li { border: none }

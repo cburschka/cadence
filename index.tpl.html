@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf8" />
+  <meta charset="utf-8" />
   <title>@@@TITLE@@@</title>
   @@@CSS_LINKS@@@
-  <link rel="stylesheet" type="text/css" href="custom.css" charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="custom.css" />
 
   <!-- libraries -->
   @@@JS_LINKS_LIB@@@
 
   <!-- core -->
   @@@JS_LINKS_CORE@@@
-  <script src="config.custom.js" type="text/javascript" charset="UTF-8"></script>
+  <script src="config.custom.js"></script>
 </head>
 
 <body>
@@ -23,18 +23,16 @@
         <label for="roomSelection">Room:</label>
         <select id="roomSelection"></select>
       </span>
-      <span id="loginContainer">
-        <form id="fakeLoginForm" action="javascript:void();">
-          <label for="loginUser">User:</label>
-          <input type="text" id="loginUser" />
-          <label for="loginPass">Password:</label>
-          <input type="password" id="loginPass" />
-          <button class="button" type="submit" id="loginButton">Log in</button>
-        </form>
-      </span>
-      <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" />cadence</a></span>
+      <form id="loginContainer">
+        <label for="loginUser">User:</label>
+        <input type="text" id="loginUser" />
+        <label for="loginPass">Password:</label>
+        <input type="password" id="loginPass" />
+        <button class="button" type="submit" id="loginButton">Log in</button>
+      </form>
+      <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" alt="Cadence logo" />cadence</a></span>
       <div id="navigation">
-        <label for="navigation">Navigation:</label><ul></ul>
+        Navigation: <ul></ul>
       </div>
     </div>
     <!-- / headlineContainer -->
@@ -61,14 +59,14 @@
       <div id="emoticonsContainer" class="container">
         <span id="emoticonsList-general" dir="ltr"></span>
       </div>
-      <div id="colorCodesContainer" class="box" dir="ltr" class="container"></div>
+      <div id="colorCodesContainer" class="box container" dir="ltr"></div>
       <div id="trayContainer" class="container">
-        <button class="tray" id="logoutButton" title="Logout">Logout</button>
-        <button class="tray toggleMenu" id="helpButton" title="Show/hide help">Help</button>
+        <button class="tray icon" id="logoutButton" title="Logout">Logout</button>
+        <button class="tray icon toggleMenu" id="helpButton" title="Show/hide help">Help</button>
         <span id="emoticonTrayContainer"></span>
-        <button class="tray toggleMenu" id="settingsButton" title="Show/hide settings">Settings</button>
-        <button class="tray toggleMenu" id="onlineListButton" title="Show/hide online list">Users</button>
-        <button class="tray" id="audioButton" title="Sound on/off">Sound</button>
+        <button class="tray icon toggleMenu" id="settingsButton" title="Show/hide settings">Settings</button>
+        <button class="tray icon toggleMenu" id="onlineListButton" title="Show/hide online list">Users</button>
+        <button class="tray icon" id="audioButton" title="Sound on/off">Sound</button>
         <div id="statusIcon" class="offline"></div>
         <div id="autoScrollIcon" class="on"></div>
       </div>
@@ -83,7 +81,7 @@
       <h3>Help</h3>
       <div id="helpList">
         <table>
-          <caption><h4>Chat commands</h3></caption>
+          <caption><h4>Chat commands</h4></caption>
           <tr class="row">
             <td class="desc">Create a macro:</td>
             <td class="code">/alias &lt;cmd&gt; /a; /b</td>
@@ -169,7 +167,7 @@
           <caption><h4>Administration commands</h4></caption>
           <tr class="row">
             <td class="desc">Server command:</td>
-            <td class="code">/admin announce|motd ...</td>
+            <td class="code">/admin &lt;cmd&gt; ...</td>
           </tr>
           <tr class="row">
             <td class="desc">Change privileges:</td>
@@ -182,6 +180,10 @@
           <tr class="row">
             <td class="desc">List active bans:</td>
             <td class="code">/bans</td>
+          </tr>
+          <tr class="row">
+            <td class="desc">Destroy a room:</td>
+            <td class="code">/destroy [&lt;room&gt;]</td>
           </tr>
           <tr class="row">
             <td class="desc">Kick a user:</td>
@@ -201,6 +203,12 @@
     <div id="settingsContainer" class="menuContainer box">
       <h3>Settings</h3>
       <div id="settingsList">
+        <ul>
+          <li><a href="#settingsGeneral">General</a></li>
+          <li><a href="#settingsDisplay">Display</a></li>
+          <li><a href="#settingsNotifications">Notifications</a></li>
+        </ul>
+        <section id="settingsGeneral">
         <table>
           <tr class="row">
             <td><label for="settings-xmpp.sessionAuth">Log in with forum session:</label></td>
@@ -211,8 +219,15 @@
             <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
-            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
+            <td><label for="settings-contextmenu">Show context menu on:</label></td>
+            <td class="setting">
+              <select class="settings" id="settings-contextmenu">
+                <option value="hover">Hover</option>
+                <option value="left">Left click</option>
+                <option value="right">Right click</option>
+                <option value="none">---</option>
+              </select>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="textColor">Text color:</label></td>
@@ -221,6 +236,14 @@
               <button class="button" id="textColorClear">Clear</button>
               <input type="color" class="settings" id="settings-textColor" />
             </td>
+          </tr>
+        </table>
+        </section>
+        <section id="settingsDisplay">
+        <table>
+          <tr class="row">
+            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
+            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
           <tr class="row">
             <td><label for="settings-markup.html">Show HTML markup:</label></td>
@@ -246,6 +269,10 @@
             <td><label for="settings-verbose">Display verbose messages:</label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
+        </table>
+        </section>
+        <section id="settingsNotifications">
+        <table>
           <tr class="row">
             <td><label for="settings-notifications.desktop">Desktop notifications:</label></td>
             <td class="setting">
@@ -259,7 +286,7 @@
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.triggers">Alert keywords:</label></td>
-            <td class="setting"><input type="text" id="settings-notifications.triggers"></input></td>
+            <td class="setting"><input type="text" id="settings-notifications.triggers" /></td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.soundVolume">Sound volume:</label></td>
@@ -310,6 +337,7 @@
             <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" /></td>
           </tr>
         </table>
+        </section>
       </div>
       <!-- / settingsList -->
     </div>

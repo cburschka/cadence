@@ -34,7 +34,10 @@ def generate_links(cdn_url, mode, css_alt, style):
         css = 'css/global/import.css'
         lib = [
             'js/lib/jquery.js',
-            'js/lib/jquery.cookie.js',
+            'js/lib/jquery-ui.js',
+            'js/lib/contextmenu.js',
+            'js/lib/cookie.js',
+            'js/lib/replacetext.js',
             'js/lib/strophe.js',
             'js/lib/moment.js',
             'js/lib/xbbcode.js',
@@ -54,9 +57,9 @@ def generate_links(cdn_url, mode, css_alt, style):
         )
         for name in css_alt
     )
-    js_template = '<script type="text/javascript" src="{src}" charset="UTF-8"></script>'
-    lib_links = ''.join(js_template.format(src=cdn_url + filename) for filename in lib)
-    core_links = ''.join(js_template.format(src=cdn_url + filename) for filename in core)
+    js_template = '<script src="{src}"></script>'
+    lib_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in lib)
+    core_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in core)
     return css_links, lib_links, core_links
 
 def generate_emoticons(cdn_url, packs, src_path):
@@ -96,7 +99,7 @@ def main():
     css_alt = variables['CSS_ALT'].split()
     css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
-    variables['CSS_OPTIONS'] = ''.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
+    variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
     variables['JS_LINKS_CORE'] = corejs
     variables['VERSION'] = sys.argv[1]

@@ -6,21 +6,28 @@
  *
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
  */
-#content { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
-#content, input, select, button, textarea { color: white }
+body { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
+option { background: #2d002d }
+body, input, select, button, textarea { color: white }
 a { color: #88c4eb }
-h3 {
+h3, .ui-tabs-nav li.ui-tabs-active {
   background: rgba(158, 219, 249, 0.5);
-  color: #c6006f;
   text-shadow: 1px 1px 3px white;
 }
-.box, input[type=text], input[type=password], select, button.button, #emoticonsContainer, #trayContainer {
+h3, li.ui-tabs-active a { color: #c6006f }
+.box, #emoticonsContainer, #trayContainer, .ui-tabs-nav li,
+input[type=text], input[type=password], textarea.form-field, select, button.button {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 4px white;
   border: 1px solid #222;
 }
+.ui-tabs .ui-tabs-nav li {
+  border-color: #222;
+  box-shadow: 0 -1px 2px white;
+}
 .menuContainer { background: url("dash/cutie-dash.png") no-repeat bottom rgba(0, 0, 0, 0.6) }
-#headlineContainer label {
+#headlineContainer label, #headlineContainer a {
+  color: white;
   font-weight: bold;
   text-shadow: 1px 1px 2px black;
 }
@@ -32,3 +39,4 @@ h3 {
 .author .user-affiliation-owner,
 #onlineList .user-affiliation-owner { color: #ee3f44 }
 .user-role-bot { color: #d9559f }
+.dialog { background: rgba(0, 0, 0, 0.8) }

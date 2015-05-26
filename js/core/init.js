@@ -1,13 +1,13 @@
 $(document).ready(function() {
-  $.cookie.json = true;
-  $.cookie.defaults.expires = 365;
+  Cookies.json = true;
+  Cookies.defaults.expires = 365;
   init.loadSettings();
   init.loadEmoticons();
   strings.init();
   ui.init();
   visual.init();
   xmpp.initialize();
-  bbcode = xbbcode.init(config.markup.bbcode);
+  bbcode = XBBCode(config.markup.bbcode);
   $(window).on({beforeunload : function() {
     if (xmpp.status != 'offline' && config.settings.notifications.leavePage)
       return strings.info.leavePage;
@@ -27,7 +27,7 @@ init = {
     if (window.localStorage && localStorage.settings) {
       stored = JSON.parse(localStorage.settings);
     }
-    else stored = $.cookie(config.clientName + '_settings');
+    else stored = Cookies.get(config.clientName + '_settings');
     if (stored) {
       if (stored.version == config.version) config.settings = stored;
       else config.settings = objMerge(config.settings, stored);

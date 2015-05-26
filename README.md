@@ -1,13 +1,15 @@
 cadence
 =======
 
-cadence is a strophe.js-powered XMPP multi-user chat client that
-runs entirely in the browser without a server backend.
+cadence is a JavaScript-based web client for XMPP Multi-User Chat
+powered by strophe.js.
 
 Requirements
 ------------
 
-* Building cadence requires Python 2.7+ (or 3+) and GNU Make
+* An XMPP server with the Multi-User Chat and HTTP-BOSH extensions
+  is required to use cadence.
+* Python 2.7+ (or 3+) and GNU Make are required in the build process.
 * Optional JS and CSS compression uses the YUI Compressor utility.
   Install it using your distribution's package manager or download
   it here: https://github.com/yui/yuicompressor/releases
@@ -121,7 +123,7 @@ during the build process.
 
    * momentjs: http://momentjs.com/ (MIT)
 
-   * jquery-cookie (Klaus Hartl): https://github.com/carhartl/jquery-cookie
+   * js-cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
      (MIT)
 
    * buzz (Jay Salvat): https://github.com/jaysalvat/buzz

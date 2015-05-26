@@ -30,7 +30,7 @@ h3 { white-space: nowrap }
   top: 15px;
   right: 20px;
 }
-#fakeLoginForm { display: inline }
+#loginContainer { display: inline }
 #navigation {
   display: none;
   float: right;
@@ -160,8 +160,6 @@ h3 {
 }
 #trayContainer button,
 #trayContainer div {
-  border: none;
-  color: transparent;
   display: inline-block;
   margin: 0 2px;
   width: 22px;
@@ -189,18 +187,6 @@ h3 {
 #footerContainer #trayContainer button {
   background-color: transparent;
 }
-#onlineList .user-show-away {
-  background: url(../../img/away.png) center right no-repeat;
-  padding-right: 20px;
-}
-#onlineList .user-show-dnd {
-  background: url(../../img/dnd.png) center right no-repeat;
-  padding-right: 20px;
-}
-#onlineList .user-show-xa {
-  background: url(../../img/xa.png) center right no-repeat;
-  padding-right: 20px;
-}
 img.emoticon, img.rescale { vertical-align: middle }
 span.emote-alt, span.image-alt { display: none }
 
@@ -214,3 +200,18 @@ span.hidden {
   font-size: 90%;
 }
 span.hidden:after { content: "[hidden]" }
+button.soundTest, select.soundSelect { vertical-align:middle; }
+
+.data-form label, .data-form-field {
+  width: 45%;
+  display: inline-block;
+  margin-bottom: 0.5em;;
+  margin-top: 0.5em;
+  vertical-align: middle;
+}
+.data-form label {
+  text-align: right;
+  padding-right: 2em;
+}
+.data-form br { clear: left }
+.menuContainer .ui-tabs .ui-tabs-panel { padding: 0; }

@@ -8,30 +8,35 @@
  *
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/Technetium.css
  */
-#content { background: url("Technetium/bg.png") repeat scroll 0 0 #161616 }
-#content, input, select, button, textarea { color: #e7e7e7 }
+body { background: url("Technetium/bg.png") repeat scroll 0 0 #161616 }
+body, input, select, button, textarea { color: #e7e7e7 }
 a, a:hover, h3 { color: #0ae }
 a:hover, h3 { text-shadow: 0 0 3px #0ae }
 a:hover {
   transition: all 0.1s ease-in 0s;
   text-decoration: underline;
 }
-.box, .menuContainer input, #headlineContainer input, select {
-  background: none repeat scroll 0 0 #161616;
+input, select, textarea.form-field, .ui-tabs .ui-tabs-nav li {
+  background: #161616;
   border: 2px solid #272727;
 }
+.ui-tabs .ui-tabs-nav li { border-bottom: none }
 button { background-color: #06b }
-button, #loginContainer input { border: 1px solid #06b } /* blue borders around login fields */
-.box, .container, input, select, button { box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset }
+button, #loginContainer input { border: 1px solid #06b }
 .box, .container {
-  background: url("Technetium/stripe.png");
+  background: url("Technetium/stripe.png") #161616;
   border: 2px solid #272727;
 }
-.box, .container, button, input, select { border-radius: 10px } /* rounded corners everywhere! */
-#content .row { background: none } /* cancel the alternating background */
+.ui-tabs-nav li.ui-tabs-active { background: #272727 }
+.box, .container, button, input, select, textarea.form-field, .ui-tabs-nav li {
+  box-shadow: 0 5px 8px rgba(10, 10, 10, 0.75) inset;
+  border-radius: 10px
+}
+input[type=checkbox] { box-shadow: none }
+.row:nth-child(n) { background: none }
 .row:hover {
   box-shadow: 5px 5px 8px 5px rgba(10, 10, 10, 0.75) inset;
   transition-duration: 0.1s;
   transition-timing-function: cubic-bezier(0.2, 0.4, 0.7, 0.8);
 }
-.user-role-bot { color:#32cd32 }
+.user-role-bot { color: #32cd32 }
