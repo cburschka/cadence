@@ -27,7 +27,7 @@ h3 { background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)
 .ui-tabs li.ui-tabs-active { background: rgba(255, 255, 255, 0.05) }
 .dialog, .dialog input, .dialog select, .dialog button, .dialog textarea { box-shadow: 0 0 4px white }
 select, button, input { background: rgba(0,0,0,0.4) }
-/*select { background: #101040 }*/
+option { background: #202341 }
 button:hover { background: rgba(0,0,0,0.3) }
 button:active { background: rgba(256,256,256,0.1) }
 input[type=text], input[type=password] { padding-left: 5px }

@@ -30,6 +30,7 @@ input, select, .box, #chatList, textarea.form-field {
   background-color: rgba(0,0,0,0.3);
   color: #9765a0;
 }
+option { background: #1d0c21 }
 button, li.ui-tabs-active {
   background-color: #461124;
   color: #daabbc;

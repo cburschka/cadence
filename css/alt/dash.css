@@ -7,6 +7,7 @@
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
  */
 body { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
+option { background: #2d002d }
 body, input, select, button, textarea { color: white }
 a { color: #88c4eb }
 h3, .ui-tabs-nav li.ui-tabs-active {

@@ -7,6 +7,7 @@
  * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/omg.css
  */
 body { background: url('omg/heartscape-diamond.png') #700070 }
+option { background: #2d002d }
 body, button, input, select, textarea, .user-role-bot { color: #32cd32 }
 .author { color: #ffc }
 a { color: #fc0 }
