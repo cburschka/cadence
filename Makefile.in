@@ -59,6 +59,7 @@ ifneq (.,${PREFIX})
 	$(CP) -au index.html "${PREFIX}/"
 endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
+	$(CP) -au "${SRC_PATH}/css/global/images/" "${CDN_PREFIX}/css/global/"
 	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
 else
 install: all ${LIB_FILES}
