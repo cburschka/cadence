@@ -16,7 +16,7 @@ h3, .ui-tabs-nav li.ui-tabs-active {
 }
 h3, li.ui-tabs-active a { color: #c6006f }
 .box, #emoticonsContainer, #trayContainer, .ui-tabs-nav li,
-input[type=text], input[type=password], textarea.form-field, select, button.button {
+input[type=text], input[type=password], textarea.form-field, select, button.button, .dialog button {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 4px white;
   border: 1px solid #222;
