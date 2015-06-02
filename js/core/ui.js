@@ -336,6 +336,14 @@ var ui = {
       chat.setAudioVolume(this.value);
     });
 
+    // Instantly apply date format.
+    $('#settings-dateFormat').change(function() {
+      var format = $(this).val();
+      $('.time').text(function() {
+        return moment(+$(this).attr('data-timestamp')).format(format);
+      });
+    });
+
     // /quit button.
     $('#logoutButton').click(function() {
       chat.commands.quit();
