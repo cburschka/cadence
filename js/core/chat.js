@@ -558,8 +558,8 @@ var chat = {
      */
     version: function() {
       var version = visual.format.plain(config.version);
-      version = '<a href="https://github.com/cburschka/cadence/tree/' + version + '">'
-              + 'cadence-' + version + '</a>';
+      version = '<a href="https://github.com/cburschka/cadence/tree/'
+              + version + '">' + version + '</a>';
       ui.messageAddInfo(strings.info.versionClient, {version: version});
       if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
         xmpp.getVersion(function(version) {
