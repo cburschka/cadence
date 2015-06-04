@@ -838,7 +838,7 @@ var xmpp = {
       var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var resource = Strophe.getResourceFromJid(from);
       var time = $('delay', stanza).attr('stamp');
-      var body = $('html body p', stanza).html() || $($('body', stanza)[0]).text();
+      var body = $('html body p', stanza).html() || visual.format.plain($($('body', stanza)[0]).text());
 
       // Message of the Day.
       if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
