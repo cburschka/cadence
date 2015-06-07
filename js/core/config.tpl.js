@@ -150,7 +150,9 @@ var config = {
     'whip',
     'slap',
     'meow',
-    'lucia'
+    'lucia',
+    'droneriots',
+    'yay'
   ],
   soundURL: '@@@CDN_URL@@@sounds/',
 
