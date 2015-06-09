@@ -837,8 +837,9 @@ var xmpp = {
       var domain = Strophe.getDomainFromJid(from);
       var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var resource = Strophe.getResourceFromJid(from);
-      var time = $('delay', stanza).attr('stamp');
       var body = $('html body p', stanza).html() || visual.format.plain($($('body', stanza)[0]).text());
+      var delay = $('delay', stanza);
+      var time = delay.attr('stamp') || (new Date()).toISOString();
 
       // Message of the Day.
       if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
@@ -865,9 +866,11 @@ var xmpp = {
         // Only accept MUC messages in the current room.
         if (node != this.room.current) return true;
 
-        // If the sender is not in the room, just show the nick.
-        // This *should* only happen for backlog messages.
-        var user = this.roster[node][resource] || {nick: resource};
+        // Do not look up the nick for delayed messages, because it's unreliable.
+        if (!delay.length) {
+          // Fall back on just the nick if no roster entry exists (usually an error).
+          var user = this.roster[node][resource] || {nick: resource};
+        }
       }
 
       // Accept direct messages from other domains.
@@ -878,11 +881,28 @@ var xmpp = {
           return true
         }
       }
-      this.historyEnd[node] = time || (new Date()).toISOString();
+      this.historyEnd[node] = time;
 
-      if (time) ui.messageDelayed(
-        {user: user, body: body, time: time, room: this.room.available[node], type: type}
-      );
+      if (delay.length) {
+        user = {nick: resource}
+        var jid = delay.attr('from');
+        // In non-anonymous rooms, try to identify the author by JID.
+        if (Strophe.getBareJidFromJid(jid) != Strophe.getBareJidFromJid(from)) {
+          for (var nick in this.roster[node]) {
+            if (this.roster[node][nick].jid == jid) {
+              user = $.extend({}, this.roster[node][nick], user)
+              break;
+            }
+          }
+        }
+        ui.messageDelayed({
+          user: user,
+          body: body,
+          time: delay.attr('stamp'),
+          room: this.room.available[node],
+          type: type
+        });
+      }
       else {
         var message = {user: user, body: body, type: type};
         ui.messageAppend(visual.formatMessage(message));
