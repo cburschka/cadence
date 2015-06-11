@@ -68,7 +68,9 @@ var ui = {
 
     // Build the navigation menu.
     for (link in config.ui.navigation)
-      $('#navigation ul').append($('<li></li>').append($('<a></a>').attr('href', config.ui.navigation[link])));
+      $('#navigation ul').append($('<li>').append(
+        $('<a>').attr('href', config.ui.navigation[link]).text(link)
+      ));
     if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
 
     // Build and fill the emoticon containers.
