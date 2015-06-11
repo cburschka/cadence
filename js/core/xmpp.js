@@ -887,9 +887,11 @@ var xmpp = {
         user = {nick: resource}
         var jid = delay.attr('from');
         // In non-anonymous rooms, try to identify the author by JID.
-        if (Strophe.getBareJidFromJid(jid) != Strophe.getBareJidFromJid(from)) {
+        var bareJid = Strophe.getBareJidFromJid(jid)
+        if (bareJid != Strophe.getBareJidFromJid(from)) {
+          user.jid = jid;
           for (var nick in this.roster[node]) {
-            if (this.roster[node][nick].jid == jid) {
+            if (bareJid == Strophe.getBareJidFromJid(this.roster[node][nick].jid)) {
               user = $.extend({}, this.roster[node][nick], user)
               break;
             }
