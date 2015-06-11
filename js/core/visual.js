@@ -121,8 +121,10 @@ visual = {
      * @return {string} A timestamp formatted according to config.settings.dateFormat.
      */
     time: function(time) {
-      time = time || (new Date());
-      return moment(time).format(config.settings.dateFormat);
+      time = moment(time);
+      return '<span class="time" data-timestamp="' + time._d.getTime() + '">'
+           + visual.format.plain(time.format(config.settings.dateFormat))
+           + '</span>';
     },
 
     /**
