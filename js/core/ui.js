@@ -284,7 +284,8 @@ var ui = {
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
     $('#settings-notifications\\.triggers').change(function() {
-      var value = this.value.split(/[\s,;]+/);
+      var value = this.value.trim();
+      value = value ? value.split(/[\s,;]+/) : [];
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
 
