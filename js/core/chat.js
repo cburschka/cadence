@@ -326,14 +326,14 @@ var chat = {
       if (!Strophe.getNodeFromJid(m.jid))
         return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
 
-      var html = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(html, m.jid, true);
+      var body = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(body, m.jid, true);
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: {jid: m.jid},
         user: {jid: xmpp.jid},
-        body: html
+        body: body.html
       }));
     },
 
@@ -439,13 +439,13 @@ var chat = {
       if (!(m.nick in xmpp.roster[xmpp.room.current]))
         return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
 
-      var html = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(html, m.nick);
+      var body = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(body, m.nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: xmpp.roster[xmpp.room.current][m.nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
-        body: html
+        body: body.html
       }));
     },
 
@@ -528,8 +528,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      var html = chat.formatOutgoing(arg);
-      xmpp.sendMessage(html);
+      var body = chat.formatOutgoing(arg);
+      xmpp.sendMessage(body);
     },
 
     /**
@@ -713,7 +713,7 @@ var chat = {
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
     }
-    return html;
+    return {html: html, text: bbcodeMD.render(text)};
   },
 
   /**

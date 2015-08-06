@@ -484,10 +484,10 @@ var xmpp = {
    *
    * @param {jQuery} html The HTML node to send.
    */
-  sendMessage: function(html, nick, direct) {
-    html = $('<p>' + html + '</p>');
+  sendMessage: function(body, nick, direct) {
+    html = $('<p>' + body.html + '</p>');
     this.connection.send(this.msg(nick, direct)
-      .c('body', html.text()).up()
+      .c('body', body.text).up()
       .c('html', {xmlns:Strophe.NS.XHTML_IM})
       .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
     );
