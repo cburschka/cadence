@@ -707,9 +707,8 @@ var chat = {
    * @return {string} The HTML output.
    */
   formatOutgoing: function(text) {
-    text = visual.format.plain(text);
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    html = bbcode.render(text);
+    var html = bbcode.render(visual.format.plain(text));
     if (config.settings.textColor) {
       html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
     }
