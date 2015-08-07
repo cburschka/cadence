@@ -704,7 +704,8 @@ var chat = {
    * Format an outgoing message.
    *
    * @param {string} text The message to send.
-   * @return {string} The HTML output.
+   * @return {object} An object with `html` and `text` keys, containing
+   *         the html and markdown versions of the message.
    */
   formatOutgoing: function(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
