@@ -15,6 +15,48 @@ var chat = {
    */
   commands: {
     /**
+     * admin <cmd> <msg>:
+     *   Execute a server admin command.
+     */
+    admin: function(arg) {
+      var m = chat.parseArgs(arg);
+      var defaultArgs = {
+        announce: 'body',
+        'get-user-lastlogin': 'accountjid',
+        'set-motd': 'body',
+        'user-stats': 'accountjid',
+      }
+      if (m[0].length) m.cmd = m[0][0];
+      if (m[0].length > 1 && m.cmd in defaultArgs)
+        m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
+
+      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      xmpp.submitCommand(m.cmd, m, function(stanza, status) {
+        if (status < 2 && stanza) {
+          if ($('forbidden', stanza).length)
+            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
+          else if ($('service-unavailable', stanza).length)
+            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
+          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
+            command: m.cmd, text: $('text', stanza).text()
+          }, 'error');
+          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
+        }
+        else {
+          var result = [];
+          $('field[type!=hidden]', stanza).each(function() {
+            result.push('<strong>' + $(this).attr('label') + '</strong>: ' + $(this).text());
+          });
+          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
+            command: m.cmd,
+            result: result.join("\n")
+          });
+        }
+      });
+    },
+
+    /**
      * affiliate owner|admin|member|none [<nick>|<jid>]
      *   Set the affiliation of a particular user, or list all users with an affiliation.
      */
@@ -129,48 +171,6 @@ var chat = {
       else ui.messageAddInfo(strings.info.aliasAdd, {cmd: cmd});
       config.settings.macros[cmd] = macro;
       chat.saveSettings();
-    },
-
-    /**
-     * admin <cmd> <msg>:
-     *   Execute a server admin command.
-     */
-    admin: function(arg) {
-      var m = chat.parseArgs(arg);
-      var defaultArgs = {
-        announce: 'body',
-        'get-user-lastlogin': 'accountjid',
-        'set-motd': 'body',
-        'user-stats': 'accountjid',
-      }
-      if (m[0].length) m.cmd = m[0][0];
-      if (m[0].length > 1 && m.cmd in defaultArgs)
-        m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
-
-      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
-
-      xmpp.submitCommand(m.cmd, m, function(stanza, status) {
-        if (status < 2 && stanza) {
-          if ($('forbidden', stanza).length)
-            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
-          else if ($('service-unavailable', stanza).length)
-            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
-          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
-            command: m.cmd, text: $('text', stanza).text()
-          }, 'error');
-          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
-        }
-        else {
-          var result = [];
-          $('field[type!=hidden]', stanza).each(function() {
-            result.push('<strong>' + $(this).attr('label') + '</strong>: ' + $(this).text());
-          });
-          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
-            command: m.cmd,
-            result: result.join("\n")
-          });
-        }
-      });
     },
 
     /**
