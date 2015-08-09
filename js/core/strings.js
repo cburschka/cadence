@@ -194,6 +194,7 @@ var strings = {
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
+    formFields: 'The following fields could not be set: {fields}',
     kick: {
       405: 'You lack the authority to kick {nick}.',
       406: 'You can\'t kick {nick} because they\'re not in the room.',
@@ -211,7 +212,6 @@ var strings = {
     pingTimeout: 'Ping to {target} timed out ({delay}).',
     roomConf: 'Failed to configure {room}.',
     roomConfDenied: 'You lack the authority to configure {room}.',
-    roomConfFields: 'The following fields could not be set on {name}: {fields}',
     roomConfOptions: 'The allowed values for {field} are: {options}',
     roomExists: 'Could not create {room}; it already exists.',
     roomCreateName: 'Could not create a room without a name.',

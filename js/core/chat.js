@@ -32,7 +32,15 @@ var chat = {
 
       if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
 
-      xmpp.submitCommand(m.cmd, m, function(stanza, status) {
+      var arg = {};
+      for (var i in m) if (i != 'cmd' && i != 'interactive' && i*0 != 0) arg[i] = m[i];
+      m.interactive = m.interactive || Object.keys(arg).length == 0;
+
+      var query = m.interactive ?
+          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
+        : arg;
+
+      xmpp.submitCommand(m.cmd, query, function(stanza, status) {
         if (status < 2 && stanza) {
           if ($('forbidden', stanza).length)
             ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
