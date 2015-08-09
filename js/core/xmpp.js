@@ -800,7 +800,9 @@ var xmpp = {
         this.roster[room][nick] = user;
         this.nick.current = nick;
       }
-      if (!this.roster[room][nick]) {
+      var roster = this.roster[room][nick];
+
+      if (!roster) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
 
         // Play the alert sound if a watched user enters.
@@ -812,13 +814,21 @@ var xmpp = {
         }
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
-      else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
+      else if (roster.show != show || roster.status != status) {
         var msg = (show in strings.show) ? strings.show[show] : strings.showOther;
         ui.messageAddInfo(msg[+!!status], {
           user: user,
           show: show,
           status: status
         });
+        ui.playSound('info');
+      }
+      else if (roster.affiliation != user.affiliation) {
+        ui.messageAddInfo(strings.info.userAffiliation, {user: user, affiliation: user.affiliation});
+        ui.playSound('info');
+      }
+      else if (roster.role != user.role) {
+        ui.messageAddInfo(strings.info.userRole, {user: user, role: user.role});
         ui.playSound('info');
       }
     }
