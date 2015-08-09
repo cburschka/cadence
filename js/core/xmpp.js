@@ -876,10 +876,12 @@ var xmpp = {
       // Accept direct messages from other domains.
       else var user = {jid: from};
       if (type == 'error') {
-        if ($('error', stanza).attr('code') == '404') {
+        var error = $('error', stanza);
+        if ($('item-not-found', error).length)
           ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
-          return true
-        }
+        else if ($('forbidden', error).length)
+          ui.messageAddInfo(strings.error.messageDenied, {text: $('text', error).text()}, 'error');
+        return true;
       }
       this.historyEnd[node] = time;
 

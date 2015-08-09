@@ -204,6 +204,7 @@ var strings = {
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinPassword: 'A password is required to enter {room}.',
     joinSame: 'You are already in {room}.',
+    messageDenied: 'You lack the authority to send this message ({text}).',
     nickConflict: 'Username {nick} already in use.',
     noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
