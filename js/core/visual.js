@@ -435,7 +435,7 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
+    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid)).toLowerCase()) + ' '
          + 'jid-domain-' + visual.escapeClass(Strophe.getDomainFromJid(jid)) + ' '
          + 'jid-resource-' + visual.escapeClass(Strophe.getResourceFromJid(jid));
   },
