@@ -756,15 +756,13 @@ var ui = {
    */
   messageInsert: function(message) {
     var c = this.messages.length;
-    if (message.timestamp < this.messages[0].timestamp) {
-      message.offset = 0;
-      this.messages[0].html.before(message.html);
-      this.messages = [message].concat(this.messages);
+    if (c == 0 || message.timestamp > this.messages[c-1].timestamp) {
+      return this.messageAppend(message);
     }
-    else for (var i = 1; i <= c; i++) {
-      if (i == this.messages.length || message.timestamp < this.messages[i].timestamp) {
+    for (var i = 0; i < c; i++) {
+      if (message.timestamp < this.messages[i].timestamp) {
         message.offset = this.messages[i].offset;
-        this.messages[i-1].html.after(message.html);
+        this.messages[i].html.before(message.html);
         this.messages.splice(i, 0, message);
         break;
       }
