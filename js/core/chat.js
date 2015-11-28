@@ -918,7 +918,7 @@ var chat = {
       localStorage.settings = JSON.stringify(config.settings);
     }
     else {
-      Cookies.set(config.clientName + '_settings', config.settings);
+      Cookies.set(config.clientName + '_settings', config.settings, {expires: 365});
     }
   }
 }
