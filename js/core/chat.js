@@ -515,8 +515,7 @@ var chat = {
       if (ui.messages.length == 0)
         return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
-      type = type == 'html' ? 'html' : 'plain';
-      var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
+      var data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
       var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
       var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
       var suffix = type == 'html' ? 'html' : 'log';
