@@ -394,10 +394,26 @@ visual = {
     return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
   },
 
+  /**
+   * Truncate a string in the middle, leaving the beginning and end.
+   *
+   * @param {string} text The text to truncate.
+   * @param {int} len The maximum length, or 0.
+   *
+   * @return {string} Either the string, or (len) characters consisting of its
+   * prefix, followed by an ellipsis, followed by its suffix.
+   */
   ellipsis: function(str, len) {
     return (len && str.length > len) ? str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2) : str;
   },
 
+  /**
+   * Export messages to plaintext.
+   *
+   * @param {array} an array of rendered message objects (such as ui.messages).
+   *
+   * @return {string} a string containing all messages.
+   */
   messagesToText: function(messages) {
     var x = [];
     $(messages).each(function() {
@@ -416,7 +432,7 @@ visual = {
    *
    * @param {array} an array of rendered message objects (such as ui.messages).
    *
-   * @return {string} an HTML string containing all message.
+   * @return {string} an HTML string containing all messages.
    */
   messagesToHTML: function(messages) {
     var x = [];
