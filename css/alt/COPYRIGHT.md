@@ -4,9 +4,8 @@ Stylesheet Copyright
 These stylesheets are based to varying degrees on other versions with
 different copyrights:
 
-* omg.css, dash.css and Technetium.css are modified versions
-  originally written by Sylae Corell (@sylae) for AJAX-Chat,
-  used with permission.
+* dash.css and Technetium.css are modified versions originally written
+  by Sylae Corell (@sylae) for AJAX-Chat, used with permission.
 
 * Helium.css and Selenium.css are original works.
 
