@@ -718,7 +718,7 @@ var chat = {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
     var html = bbcode.render(visual.format.plain(text));
     if (config.settings.textColor) {
-      html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
+      html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
     return {html: html, text: bbcodeMD.render(text)};
   },

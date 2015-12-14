@@ -242,19 +242,17 @@ visual = {
   },
 
   /**
-   * Find span.color elements with a class named "color-{x}" and set their
-   * CSS color property to {x}.
+   * Find span.color elements with a data-color attribute and set their
+   * CSS color property to the attribute value.
    */
   addColor: function(jq) {
-    jq.find('span.color').css('color', function() {
-      for (var i in this.classList)
-        if (this.classList[i].substring(0,6) == 'color-')
-          return '#' + this.classList[i].substring(6);
+    jq.find('span.color[data-color]').css('color', function() {
+      return $(this).attr('data-color');
     });
   },
 
   removeColor: function(jq) {
-    jq.find('span.color').css('color', '');
+    jq.find('span.color[data-color]').css('color', '');
   },
 
   /**
