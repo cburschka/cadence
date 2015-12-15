@@ -50,7 +50,7 @@ init = {
       }
       return p;
     };
-  
+
     for (pack in emoticons.packages) {
       config.markup.emoticons[pack] = emoticons.packages[pack];
       config.markup.emoticons[pack].codes = flatten(emoticons.packages[pack].codes);
