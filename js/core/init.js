@@ -36,8 +36,24 @@ init = {
   },
 
   loadEmoticons: function() {
+    var flatten = function(pack, parent) {
+      var p = {};
+      for (var code in pack) {
+        if (typeof pack[code] == 'object') {
+          var c = flatten(pack[code][1], code);
+          p[code] = {image: pack[code][0], parent: parent};
+          for (var c2 in c) {
+            p[c2] = c[c2];
+          }
+        }
+        else p[code] = {image: pack[code], parent: parent};
+      }
+      return p;
+    };
+  
     for (pack in emoticons.packages) {
       config.markup.emoticons[pack] = emoticons.packages[pack];
+      config.markup.emoticons[pack].codes = flatten(emoticons.packages[pack].codes);
     }
     config.ui.emoticonSidebars = {};
     for (pack in emoticons.sidebars) {

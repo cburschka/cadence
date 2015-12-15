@@ -91,18 +91,27 @@ var ui = {
         .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
         .appendTo(ui.dom.emoticonTrayContainer);
     }
+    ui.dom.emoticonSections = {};
     for (var set in config.markup.emoticons) {
       var list = $('#emoticonsList-' + set);
-      for (var code in config.markup.emoticons[set].codes) {
-        list.append($('<a class="insert-text"></a>')
+      var sections = {'undefined': list};
+      var icons = config.markup.emoticons[set];
+
+      for (var code in icons.codes) {
+        var icon = icons.codes[code];
+        if (!sections[icon.parent]) sections[icon.parent] = $('<div class="emoticon-section">')
+          .attr('id', 'emoticon-section-' + code);
+        sections[icon.parent].append($('<a class="insert-text">')
+          .attr('id', 'emoticon-' + code);
           .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
           .attr('title', code)
           .append($('<img />')
-            .attr('src', config.markup.emoticons[set].baseURL + config.markup.emoticons[set].codes[code])
+            .attr('src', icons.baseURL + img)
             .attr('alt', code)
           )
         );
       }
+      ui.dom.emoticonSections[set] = sections;
     }
 
     // Build the color palette picker.

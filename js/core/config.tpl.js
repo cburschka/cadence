@@ -155,6 +155,7 @@ var config = {
 
   ui: {
     chatBotName: '@@@CHATBOT@@@',
+    emoticons = {},
     title: '@@@TITLE@@@',
     maxNickLength: 48,
     maxMessageLength: 2048,
