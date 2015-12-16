@@ -102,11 +102,11 @@ var ui = {
         if (!sections[icon.parent]) sections[icon.parent] = $('<div class="emoticon-section">')
           .attr('id', 'emoticon-section-' + code);
         sections[icon.parent].append($('<a class="insert-text">')
-          .attr('id', 'emoticon-' + code);
+          .attr('id', 'emoticon-' + code)
           .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
           .attr('title', code)
           .append($('<img />')
-            .attr('src', icons.baseURL + img)
+            .attr('src', icons.baseURL + (icon.image || icon))
             .attr('alt', code)
           )
         );

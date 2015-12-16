@@ -36,19 +36,16 @@ init = {
   },
 
   loadEmoticons: function() {
-    var flatten = function(pack, parent) {
-      var p = {};
+    var flatten = function(pack, parent, result) {
+      result = result || {};
       for (var code in pack) {
         if (typeof pack[code] == 'object') {
-          var c = flatten(pack[code][1], code);
-          p[code] = {image: pack[code][0], parent: parent};
-          for (var c2 in c) {
-            p[c2] = c[c2];
-          }
+          result[code] = {image: pack[code][0], parent: parent};
+          result = flatten(pack[code][1], code, result);
         }
-        else p[code] = {image: pack[code], parent: parent};
+        else result[code] = {image: pack[code], parent: parent};
       }
-      return p;
+      return result;
     };
 
     for (pack in emoticons.packages) {
