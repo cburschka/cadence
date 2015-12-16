@@ -15,6 +15,56 @@ var chat = {
    */
   commands: {
     /**
+     * admin <cmd> <msg>:
+     *   Execute a server admin command.
+     */
+    admin: function(arg) {
+      var m = chat.parseArgs(arg);
+      var defaultArgs = {
+        announce: 'body',
+        'get-user-lastlogin': 'accountjid',
+        'set-motd': 'body',
+        'user-stats': 'accountjid',
+      }
+      if (m[0].length) m.cmd = m[0][0];
+      if (m[0].length > 1 && m.cmd in defaultArgs)
+        m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
+
+      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      var arg = {};
+      for (var i in m) if (i != 'cmd' && i != 'interactive' && i*0 != 0) arg[i] = m[i];
+      m.interactive = m.interactive || Object.keys(arg).length == 0;
+
+      var query = m.interactive ?
+          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
+        : arg;
+
+      xmpp.submitCommand(m.cmd, query, function(stanza, status) {
+        if (status < 2 && stanza) {
+          if ($('forbidden', stanza).length)
+            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
+          else if ($('service-unavailable', stanza).length)
+            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
+          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
+            command: m.cmd, text: $('text', stanza).text()
+          }, 'error');
+          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
+        }
+        else {
+          var result = [];
+          $('field[type!=hidden]', stanza).each(function() {
+            result.push('<strong>' + $(this).attr('label') + '</strong>: ' + $(this).text());
+          });
+          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
+            command: m.cmd,
+            result: result.join("\n")
+          });
+        }
+      });
+    },
+
+    /**
      * affiliate owner|admin|member|none [<nick>|<jid>]
      *   Set the affiliation of a particular user, or list all users with an affiliation.
      */
@@ -129,48 +179,6 @@ var chat = {
       else ui.messageAddInfo(strings.info.aliasAdd, {cmd: cmd});
       config.settings.macros[cmd] = macro;
       chat.saveSettings();
-    },
-
-    /**
-     * admin <cmd> <msg>:
-     *   Execute a server admin command.
-     */
-    admin: function(arg) {
-      var m = chat.parseArgs(arg);
-      var defaultArgs = {
-        announce: 'body',
-        'get-user-lastlogin': 'accountjid',
-        'set-motd': 'body',
-        'user-stats': 'accountjid',
-      }
-      if (m[0].length) m.cmd = m[0][0];
-      if (m[0].length > 1 && m.cmd in defaultArgs)
-        m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
-
-      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
-
-      xmpp.submitCommand(m.cmd, m, function(stanza, status) {
-        if (status < 2 && stanza) {
-          if ($('forbidden', stanza).length)
-            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
-          else if ($('service-unavailable', stanza).length)
-            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
-          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
-            command: m.cmd, text: $('text', stanza).text()
-          }, 'error');
-          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
-        }
-        else {
-          var result = [];
-          $('field[type!=hidden]', stanza).each(function() {
-            result.push('<strong>' + $(this).attr('label') + '</strong>: ' + $(this).text());
-          });
-          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
-            command: m.cmd,
-            result: result.join("\n")
-          });
-        }
-      });
     },
 
     /**
@@ -326,14 +334,14 @@ var chat = {
       if (!Strophe.getNodeFromJid(m.jid))
         return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
 
-      var html = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(html, m.jid, true);
+      var body = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(body, m.jid, true);
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: {jid: m.jid},
         user: {jid: xmpp.jid},
-        body: html
+        body: body.html
       }));
     },
 
@@ -439,13 +447,13 @@ var chat = {
       if (!(m.nick in xmpp.roster[xmpp.room.current]))
         return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
 
-      var html = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(html, m.nick);
+      var body = chat.formatOutgoing(m.msg);
+      xmpp.sendMessage(body, m.nick);
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: xmpp.roster[xmpp.room.current][m.nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
-        body: html
+        body: body.html
       }));
     },
 
@@ -515,8 +523,7 @@ var chat = {
       if (ui.messages.length == 0)
         return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
-      type = type == 'html' ? 'html' : 'plain';
-      var data = type == 'html' ? ui.dom.chatList.html() : visual.messagesToText(ui.messages);
+      var data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
       var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
       var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
       var suffix = type == 'html' ? 'html' : 'log';
@@ -528,8 +535,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      var html = chat.formatOutgoing(arg);
-      xmpp.sendMessage(html);
+      var body = chat.formatOutgoing(arg);
+      xmpp.sendMessage(body);
     },
 
     /**
@@ -704,16 +711,16 @@ var chat = {
    * Format an outgoing message.
    *
    * @param {string} text The message to send.
-   * @return {string} The HTML output.
+   * @return {object} An object with `html` and `text` keys, containing
+   *         the html and markdown versions of the message.
    */
   formatOutgoing: function(text) {
-    text = visual.format.plain(text);
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    html = bbcode.render(text);
+    var html = bbcode.render(visual.format.plain(text));
     if (config.settings.textColor) {
-      html = '<span class="color color-' + config.settings.textColor.substring(1) + '">' + html + '</span>';
+      html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
-    return html;
+    return {html: html, text: bbcodeMD.render(text)};
   },
 
   /**
@@ -918,7 +925,7 @@ var chat = {
       localStorage.settings = JSON.stringify(config.settings);
     }
     else {
-      Cookies.set(config.clientName + '_settings', config.settings);
+      Cookies.set(config.clientName + '_settings', config.settings, {expires: 365});
     }
   }
 }

@@ -359,29 +359,7 @@ var xmpp = {
 
     if (typeof query == 'object') {
       var values = query;
-      query = function(x, submit) {
-        var toSubmit = {};
-        $('field', x).each(function() {
-          var type = $(this).attr('type');
-          var name = $(this).attr('var');
-          var value = $(this).children('value').html();
-          if (values[name] !== undefined) value = values[name];
-          if (value && type == 'list-single') {
-            var options = [];
-            $('option value', this).each(function() { options.push(this.innerHTML)});
-            if (options.indexOf(value) < 0)
-              return ui.messageAddInfo(strings.error.roomConfOptions,
-                {options: options.join(', '), field: name}, 'error'
-              );
-          }
-          toSubmit[name] = value;
-          delete values[name];
-        });
-        var fields = Object.keys(values);
-        if (fields.length)
-          ui.messageAddInfo(strings.error.roomConfFields, {name: room, fields: fields.join(', ')}, 'error');
-        submit(toSubmit);
-      }
+      query = xmpp.fillForm(values);
     }
 
     var submit = function(values) {
@@ -411,6 +389,41 @@ var xmpp = {
   },
 
   /**
+   * Create a non-interactive form-filling function.
+   *
+   * @param {Object} values The values that sh
+   * @return {function} A function that receives a DOM node and a submit function
+   *         The submit callback receives the validated form values, including
+   *         defaults for any omitted fields. Any values that do not match a
+   *         form field trigger a warning message.
+   */
+  fillForm: function(values) {
+    return function (x, submit) {
+      var toSubmit = {};
+      $('field', x).each(function() {
+        var type = $(this).attr('type');
+        var name = $(this).attr('var');
+        var value = $(this).children('value').html();
+        if (values[name] !== undefined) value = values[name];
+        if (value && type == 'list-single') {
+          var options = [];
+          $('option value', this).each(function() { options.push(this.innerHTML)});
+          if (options.indexOf(value) < 0)
+            return ui.messageAddInfo(strings.error.roomConfOptions,
+              {options: options.join(', '), field: name}, 'error'
+            );
+        }
+        toSubmit[name] = value;
+        delete values[name];
+      });
+      var fields = Object.keys(values);
+      if (fields.length)
+        ui.messageAddInfo(strings.error.formFields, {fields: fields.join(', ')}, 'error');
+      submit(toSubmit);
+    }
+  },
+
+  /**
    * Order the server to destroy a room.
    * @param {string} room The room ID.
    * @param {string} alternate An alternate room ID (optional).
@@ -430,36 +443,58 @@ var xmpp = {
   },
 
   /**
-   * Request a command form and fill it out with the variables provided.
+   * Request a service administration command form and fill it out with the values provided.
+   *
+   * @param {string} node The command node name.
+   * @param {Object|function} query Either the field values to set, or a function
+   *        that will acquire the field values asynchronously. The function receives
+   *        an <x> element of type form as a jQuery object and a callback function
+   *        to transmit the field values to.
+   * @param {function} callback The callback to execute after submission.
    */
-  submitCommand: function(node, vars, callback) {
-    this.connection.sendIQ(this.iq('set', null, null, true)
+  submitCommand: function(node, query, callback) {
+    if (typeof query == 'object') {
+      var values = query;
+      query = xmpp.fillForm(values);
+    }
+
+    var submit = function(sessionid) {
+      return function(values) {
+        var form = xmpp.iq('set', null, null, true).c('command', {
+          xmlns: 'http://jabber.org/protocol/commands',
+          node: 'http://jabber.org/protocol/admin#' + node,
+          sessionid: sessionid
+        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+        for (var name in values) {
+          if (values[name] === undefined) continue;
+          if (typeof values[name] === 'string') values[name] = [values[name]];
+          form.c('field', {'var': name});
+          for (var i in values[name]) {
+            form.c('value', values[name][i]).up();
+          }
+          form.up();
+        }
+
+        xmpp.connection.sendIQ(form,
+          function (stanza) { callback && callback(stanza, 2); },
+          function (stanza) { callback && callback(stanza, 1); }
+        );
+      }
+    }
+
+    this.connection.sendIQ(
+      this.iq('set', null, null, true)
       .c('command', {
         xmlns: 'http://jabber.org/protocol/commands',
         action: 'execute',
         node: 'http://jabber.org/protocol/admin#' + node
       }),
-      function (stanza) {
+      function(stanza) {
         var values = {};
         var sessionid = $('command', stanza).attr('sessionid');
-        var form = this.iq('set', null, null, true).c('command', {
-          xmlns: 'http://jabber.org/protocol/commands',
-          node: 'http://jabber.org/protocol/admin#' + node,
-          sessionid: sessionid
-        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
-        $('field', $('x', stanza)).each(function() {
-          var name = $(this).attr('var');
-          var value = vars[name] || $('value', this).html() || '';
-          form.c('field', {'var': name});
-          if (value) form.c('value', {}, value);
-          form.up();
-        });
-        this.connection.sendIQ(form,
-          function (stanza) { callback(stanza, 2); },
-          function (stanza) { callback(stanza, 1); }
-        );
-      }.bind(this),
-      function (stanza) { callback(stanza, 0); }
+        query($('command x', stanza), submit(sessionid));
+      },
+      callback
     );
   },
 
@@ -484,10 +519,10 @@ var xmpp = {
    *
    * @param {jQuery} html The HTML node to send.
    */
-  sendMessage: function(html, nick, direct) {
-    html = $('<p>' + html + '</p>');
+  sendMessage: function(body, nick, direct) {
+    html = $('<p>' + body.html + '</p>');
     this.connection.send(this.msg(nick, direct)
-      .c('body', html.text()).up()
+      .c('body', body.text).up()
       .c('html', {xmlns:Strophe.NS.XHTML_IM})
       .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
     );
@@ -800,7 +835,9 @@ var xmpp = {
         this.roster[room][nick] = user;
         this.nick.current = nick;
       }
-      if (!this.roster[room][nick]) {
+      var roster = this.roster[room][nick];
+
+      if (!roster) {
         ui.messageAddInfo(strings.info.userIn, {user: user});
 
         // Play the alert sound if a watched user enters.
@@ -812,13 +849,21 @@ var xmpp = {
         }
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
-      else if (this.roster[room][nick].show != show || this.roster[room][nick].status != status) {
+      else if (roster.show != show || roster.status != status) {
         var msg = (show in strings.show) ? strings.show[show] : strings.showOther;
         ui.messageAddInfo(msg[+!!status], {
           user: user,
           show: show,
           status: status
         });
+        ui.playSound('info');
+      }
+      else if (roster.affiliation != user.affiliation) {
+        ui.messageAddInfo(strings.info.userAffiliation, {user: user, affiliation: user.affiliation});
+        ui.playSound('info');
+      }
+      else if (roster.role != user.role) {
+        ui.messageAddInfo(strings.info.userRole, {user: user, role: user.role});
         ui.playSound('info');
       }
     }
@@ -876,10 +921,12 @@ var xmpp = {
       // Accept direct messages from other domains.
       else var user = {jid: from};
       if (type == 'error') {
-        if ($('error', stanza).attr('code') == '404') {
+        var error = $('error', stanza);
+        if ($('item-not-found', error).length)
           ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
-          return true
-        }
+        else if ($('forbidden', error).length)
+          ui.messageAddInfo(strings.error.messageDenied, {text: $('text', error).text()}, 'error');
+        return true;
       }
       this.historyEnd[node] = time;
 
@@ -887,9 +934,11 @@ var xmpp = {
         user = {nick: resource}
         var jid = delay.attr('from');
         // In non-anonymous rooms, try to identify the author by JID.
-        if (Strophe.getBareJidFromJid(jid) != Strophe.getBareJidFromJid(from)) {
+        var bareJid = Strophe.getBareJidFromJid(jid)
+        if (bareJid != Strophe.getBareJidFromJid(from)) {
+          user.jid = jid;
           for (var nick in this.roster[node]) {
-            if (this.roster[node][nick].jid == jid) {
+            if (bareJid == Strophe.getBareJidFromJid(this.roster[node][nick].jid)) {
               user = $.extend({}, this.roster[node][nick], user)
               break;
             }

@@ -87,6 +87,15 @@ var config = {
       color: '<span style="color:{option}">{content}</span>'
     },
 
+    bbcodeMD: {
+      b: '**{content}**',
+      i: '*{content}*',
+      u: '_{content}_',
+      s: '~~{content}~~',
+      code: '```{content}```',
+      url: '[{content}]({option})',
+      img: '![Image({content})]({content})',
+    },
 
     // Colors shown in palette selector.
     colorCodes: [
