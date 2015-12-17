@@ -212,7 +212,7 @@ var strings = {
     noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
     noRoom: 'You are not in a room and did not specify one.',
-    pingTimeout: 'Ping to {target} timed out ({delay}).',
+    pingTimeout: 'Ping to {target} timed out ({delay} ms).',
     roomConf: 'Failed to configure {room}.',
     roomConfDenied: 'You lack the authority to configure {room}.',
     roomConfOptions: 'The allowed values for {field} are: {options}',
