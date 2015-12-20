@@ -165,6 +165,7 @@ visual = {
       var id = visual.format.plain(room.id);
       return '<a href="#' + id + '" class="xmpp-room'
              + (room.id == xmpp.room.current ? ' xmpp-room-current' : '') + '"'
+             + ' title="' + id + '"'
              + ' data-room="' + id + '"'
              + '>' + (visual.format.plain(room.title) || id) + '</a>';
     },
