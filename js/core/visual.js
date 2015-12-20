@@ -121,8 +121,10 @@ visual = {
      * @return {string} A timestamp formatted according to config.settings.dateFormat.
      */
     time: function(time) {
-      time = time || (new Date());
-      return moment(time).format(config.settings.dateFormat);
+      time = moment(time);
+      return '<span class="time" data-timestamp="' + time._d.getTime() + '">'
+           + visual.format.plain(time.format(config.settings.dateFormat))
+           + '</span>';
     },
 
     /**
@@ -240,19 +242,17 @@ visual = {
   },
 
   /**
-   * Find span.color elements with a class named "color-{x}" and set their
-   * CSS color property to {x}.
+   * Find span.color elements with a data-color attribute and set their
+   * CSS color property to the attribute value.
    */
   addColor: function(jq) {
-    jq.find('span.color').css('color', function() {
-      for (var i in this.classList)
-        if (this.classList[i].substring(0,6) == 'color-')
-          return '#' + this.classList[i].substring(6);
+    jq.find('span.color[data-color]').css('color', function() {
+      return $(this).attr('data-color');
     });
   },
 
   removeColor: function(jq) {
-    jq.find('span.color').css('color', '');
+    jq.find('span.color[data-color]').css('color', '');
   },
 
   /**
@@ -392,21 +392,54 @@ visual = {
     return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
   },
 
+  /**
+   * Truncate a string in the middle, leaving the beginning and end.
+   *
+   * @param {string} text The text to truncate.
+   * @param {int} len The maximum length, or 0.
+   *
+   * @return {string} Either the string, or (len) characters consisting of its
+   * prefix, followed by an ellipsis, followed by its suffix.
+   */
   ellipsis: function(str, len) {
     return (len && str.length > len) ? str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2) : str;
   },
 
+  /**
+   * Export messages to plaintext.
+   *
+   * @param {array} an array of rendered message objects (such as ui.messages).
+   *
+   * @return {string} a string containing all messages.
+   */
   messagesToText: function(messages) {
     var x = [];
     $(messages).each(function() {
       var jQ = this.html.clone();
       jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
-      jQ.find('img.emoticon').replaceWith(function() { return $(this).attr('alt'); });
+      jQ.find('img.emoticon').remove(); // The alt text is already in a hidden <span>.
       jQ.find('img').replaceWith(function() { return '[img]' + this.src + '[/img]'; });
       jQ.find('q').replaceWith(function() { return '"' + $(this).html() + '"'; });
       x.push(jQ.text());
     });
     return x.join("\n");
+  },
+
+  /**
+   * Export messages to HTML code, stripping hidden utility markup.
+   *
+   * @param {array} an array of rendered message objects (such as ui.messages).
+   *
+   * @return {string} an HTML string containing all messages.
+   */
+  messagesToHTML: function(messages) {
+    var x = [];
+    $(messages).each(function() {
+      var jQ = this.html.clone();
+      jQ.find('.emote-alt, .hide-message, .hidden').remove();
+      x.push(jQ.html());
+    });
+    return x.join("<br />\n");
   },
 
   /**
@@ -433,7 +466,7 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid))) + ' '
+    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid)).toLowerCase()) + ' '
          + 'jid-domain-' + visual.escapeClass(Strophe.getDomainFromJid(jid)) + ' '
          + 'jid-resource-' + visual.escapeClass(Strophe.getResourceFromJid(jid));
   },
