@@ -59,7 +59,7 @@ visual = {
   formatMessage: function(message, internal) {
     message.time = message.time ? new Date(message.time) : new Date();
     var body = message.body;
-    if (internal) body = this.lengthLimit(body, config.ui.maxMessageLength);
+    if (!internal) body = this.lengthLimit(body, config.ui.maxMessageLength);
     body = $('<span>' + body + '</span>');
     if (message.user.role != 'bot') body = this.formatBody(body);
 
