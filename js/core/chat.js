@@ -558,8 +558,8 @@ var chat = {
      */
     version: function() {
       var version = visual.format.plain(config.version);
-      version = '<a href="https://github.com/cburschka/cadence/tree/' + version + '">'
-              + 'cadence-' + version + '</a>';
+      version = '<a href="https://github.com/cburschka/cadence/tree/'
+              + version + '">' + version + '</a>';
       ui.messageAddInfo(strings.info.versionClient, {version: version});
       if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
         xmpp.getVersion(function(version) {
@@ -814,7 +814,7 @@ var chat = {
     for (var match; match = re.exec(text); ) {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
-        var v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/, '$1');
+        var v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
         if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
         arguments[match[1]] = v;
         arguments[1][match[1]] = re.lastIndex;
@@ -826,7 +826,7 @@ var chat = {
       }
       // value: 6|7|8 = value
       else {
-        arguments[0].push((match[6] || match[7] || match[8]).replace(/\\([\\\s"'])/, '$1'));
+        arguments[0].push((match[6] || match[7] || match[8]).replace(/\\([\\\s"'])/g, '$1'));
         arguments[1][0].push(re.lastIndex);
       }
     }
