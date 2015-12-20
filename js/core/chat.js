@@ -498,11 +498,11 @@ var chat = {
 
       xmpp.ping(arg, function(stanza) {
           var elapsed = ((new Date()).getTime() - time).toString();
-          ui.messageAddInfo(strings.info.pong, {target: arg, delay: elapsed});
+          ui.messageAddInfo(strings.info.pong, {jid: arg, delay: elapsed});
         }, function(error) {
           var elapsed = ((new Date()).getTime() - time).toString();
-          if (error) ui.messageAddInfo(strings.info.pongError, {target: arg, delay: elapsed});
-          else ui.messageAddInfo(strings.error.pingTimeout, {target: arg, delay: elapsed}, 'error');
+          if (error) ui.messageAddInfo(strings.info.pongError, {jid: arg, delay: elapsed});
+          else ui.messageAddInfo(strings.error.pingTimeout, {jid: arg, delay: elapsed}, 'error');
         }
       );
     },

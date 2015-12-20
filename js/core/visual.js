@@ -171,6 +171,15 @@ visual = {
     },
 
     /**
+     * Format a JID.
+     *
+     * This is a shortcut to formatting a non-occupant user.
+     */
+    jid: function(jid) {
+      return visual.format.user({jid: jid});
+    },
+
+    /**
      * Format a nick.
      */
     nick: function(nick) {
