@@ -784,8 +784,10 @@ var ui = {
       ui.scrollDown();
     });
     this.scrollDown();
-    if (message.message.user.nick != xmpp.nick.current)
-      this.blinkTitle(message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid));
+    if (message.message.user.nick != xmpp.nick.current) {
+      var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
+      this.blinkTitle(sender);
+    }
   },
 
   /**
@@ -991,9 +993,11 @@ var ui = {
     var mention = (message.body.indexOf(xmpp.nick.current) >= 0
                 || message.body.indexOf(xmpp.user) >= 0);
     var sender = false;
-    for (var i in config.settings.notifications.triggers) {
-      mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
-      sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
+    var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
+    var triggers = config.settings.notifications.triggers;
+    for (var i in triggers) {
+      mention = mention || (0 <= message.body.indexOf(triggers[i]));
+      sender = sender || (0 <= name.indexOf(triggers[i]));
     }
 
     // Any kind of alert is level 1, everything else is 2.
@@ -1021,7 +1025,11 @@ var ui = {
       var text = $('<span>' + message.body + '</span>').text();
       if (message.type != 'groupchat' && message.type != 'local')
         text = strings.info.whisper + ' ' + text;
-      if (message.type != 'local') text = message.user.nick + ': ' + text;
+
+      if (message.type != 'local') {
+        var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
+        text = sender + ': ' + text;
+      }
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },
