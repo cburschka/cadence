@@ -966,12 +966,24 @@ var xmpp = {
    */
   eventIQCallback: function(stanza) {
     if (stanza) {
-      // Respond to ping.
+      // Respond to <ping> (XEP-0199).
       if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
-        this.connection.send(this.iq('result').attrs({
+        return this.connection.send(this.iq('result').attrs({
           to: $(stanza).attr('from'),
           id: $(stanza).attr('id')
         }));
+      }
+
+      // Respond to <time> (XEP-0202).
+      if ($('time', stanza).attr('xmlns') == 'urn:xmpp:time') {
+        return this.connection.send(this.iq('result').attrs({
+            to: $(stanza).attr('from'),
+            id: $(stanza).attr('id')
+          })
+          .c('time', {xmlns: 'urn:xmpp:time'})
+          .c('utc', moment().toISOString())
+          .c('tzo', moment().format('Z'))
+        );
       }
     }
     return true;
