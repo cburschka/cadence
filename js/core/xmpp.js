@@ -118,7 +118,7 @@ var xmpp = {
       client: config.clientName,
       version: config.version,
       timestamp: (new Date()).getTime().toString()
-    });
+    }).text();
   },
 
   /**
@@ -904,7 +904,9 @@ var xmpp = {
       var domain = Strophe.getDomainFromJid(from);
       var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var resource = Strophe.getResourceFromJid(from);
-      var body = $('html body p', stanza).html() || visual.format.plain($($('body', stanza)[0]).text());
+      var body = $('html body p', stanza).contents();
+      if (!body.length) body = $('body:first', stanza).contents();
+
       var delay = $('delay', stanza);
       var time = delay.attr('stamp') || (new Date()).toISOString();
 
@@ -924,7 +926,7 @@ var xmpp = {
           var reason = $('reason', invite).text();
           var password = $('x password', stanza).text();
           return ui.messageAddInfo(strings.info.inviteReceived[+!!password][+!!reason], {
-            user: {jid: invite.attr('from')},
+            jid: invite.attr('from'),
             room: room,
             password: password,
             reason: reason

@@ -65,15 +65,12 @@ var strings = {
       result: 'Completed command "{command}":\n{raw:result}',
       completed: 'Completed command "{command}".'
     },
-    affiliate: [
-      'Affiliation of {jid} in {room} set to {type}.',
-      'Affiliation of {user} in {room} set to {type}.'
-    ],
+    affiliate: 'Affiliation of {user} in {room} set to {type}.',
     affiliations: {
-      'outcast': 'Banned users in this room:\n{raw:users}',
-      'member': 'Members of this room:\n{raw:users}',
-      'admin': 'Administrators of this room:\n{raw:users}',
-      'owner': 'Owners of this room:\n{raw:users}',
+      'outcast': 'Banned users in this room:\n{list}',
+      'member': 'Members of this room:\n{list}',
+      'admin': 'Administrators of this room:\n{list}',
+      'owner': 'Owners of this room:\n{list}',
     },
     affiliationsEmpty: 'No users have the affiliation "{type}" in this room.',
     aliasAdd: 'Alias /{cmd} added.',
@@ -124,12 +121,12 @@ var strings = {
     },
     inviteReceived: [
       [
-        '{user} has invited you to {room}.',
-        '{user} has invited you to {room} ({reason}).'
+        '{jid} has invited you to {room}.',
+        '{jid} has invited you to {room} ({reason}).'
       ],
       [
-        '{user} has invited you to {room}. The password is "{password}".',
-        '{user} has invited you to {room} ({reason}). The password is "{password}".'
+        '{jid} has invited you to {room}. The password is "{password}".',
+        '{jid} has invited you to {room} ({reason}). The password is "{password}".'
       ]
     ],
     inviteSent: 'Inviting {jid} to {room}.',
@@ -150,7 +147,7 @@ var strings = {
     ],
     rejoinNick: 'Rejoining as {nick} ...',
     roomConf: 'Room configuration of {room} has been altered.',
-    roomsAvailable: 'Available rooms: {raw:rooms}',
+    roomsAvailable: 'Available rooms: {list}',
     sessionAuth: 'Automatically logging in as {username}',
     userAffiliation: 'The affiliation of {user} has been set to {affiliation}.',
     userIn: '{user} has joined the room.',
@@ -158,8 +155,8 @@ var strings = {
     userOut: '{user} has left the room.',
     userRole: 'The role of {user} has been set to {role}.',
     unbanSuccess: 'Unbanned {jid} from this room.',
-    usersInRoom: 'Users in {room}: {raw:users}.',
-    usersInThisRoom: 'Users in this room: {raw:users}.',
+    usersInRoom: 'Users in {room}: {list}.',
+    usersInThisRoom: 'Users in this room: {list}.',
     versionClient: 'Cadence version: {raw:version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     whisper: '(whispers)',
@@ -186,7 +183,7 @@ var strings = {
       'default': 'Unknown error while getting the list of {type} affiliations.',
       forbidden: 'You are not authorized to get the {type} list for this room.',
     },
-    aliasFormat: 'Usage: /alias &lt;cmd&gt; /&lt;...&gt;[; /&lt;...&gt;]*',
+    aliasFormat: 'Usage: /alias <cmd> /<...>[; /<...>]*',
     aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
     aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
