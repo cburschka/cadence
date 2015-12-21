@@ -51,7 +51,7 @@ visual = {
    *                    keys:
    *                    * user : {Object} The author.
    *                    * time : {Date} the message timestamp or null.
-   *                    * body : {string} The message body.
+   *                    * body : {jQuery} The message body.
    *
    * @return {jQuery} the rendered node. It has events attached and must not be
    *                  copied or transformed back into markup before insertion.
@@ -59,8 +59,7 @@ visual = {
   formatMessage: function(message, internal) {
     message.time = message.time ? new Date(message.time) : new Date();
     var body = message.body;
-    if (!internal) body = this.lengthLimit(body, config.ui.maxMessageLength);
-    body = $('<span>' + body + '</span>');
+
     if (message.user.role != 'bot') body = this.formatBody(body);
 
     var node =  $('<div class="row message"><span class="hide-message"></span>'
@@ -83,10 +82,12 @@ visual = {
       });
       ui.updateHeights();
     });
+
     $('span.dateTime', node).append(this.format.time(message.time));
     $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
     var me = message.user.role != 'bot' && this.findMe(body);
+
     if (me) {
       $('span.authorMessageContainer', node)
         .prepend('* ').wrap('<span class="action"></span>');
@@ -96,10 +97,9 @@ visual = {
 
     if (message.type != 'groupchat' && message.type != 'local') {
       $('span.' + (me ? 'body' : 'author'), node).after(
-        ' <span class="privmsg">' + (message.to ?
+        $('<span class="privmsg">').append(message.to ?
           this.formatText(strings.info.whisperTo, {user:message.to})
         : strings.info.whisper)
-        + '</span>'
       );
     }
 
@@ -115,16 +115,57 @@ visual = {
 
   format: {
     /**
+     * Format a JID.
+     *
+     * This is a shortcut to formatting a non-occupant user.
+     */
+    jid: function(jid) {
+      return visual.format.user({jid: jid});
+    },
+
+    /**
+     * Convert an iterable object to a sorted, comma-separated list.
+     *
+     * @param {iterable} An object or array with values that are either strings
+     *                   or jQuery objects.
+     */
+    list: function(list) {
+      var keys = Object.keys(list).sort();
+      var output = [list[keys[0]]];
+      for (var i = 1; i < keys.length; i++) output.push(', ', list[keys[i]]);
+      return output;
+    },
+
+    /**
+     * Format a nick.
+     */
+    nick: function(nick) {
+      return visual.lengthLimit(nick, config.ui.maxNickLength);
+    },
+
+    /**
+     * Format a room object.
+     * Currently only returns the room title.
+     */
+    room: function(room) {
+      return $('<a class="xmpp-room">')
+        .attr('title', room.id)
+        .attr('data-room', room.id)
+        .attr('href', '#' + room.id)
+        .text(room.title || room.id)
+        .addClass((room.id == xmpp.room.current) && 'xmpp-room-current');
+    },
+
+    /**
      * Render a time-stamp for output.
      *
      * @param {Date} time The timestamp or null for the current time.
-     * @return {string} A timestamp formatted according to config.settings.dateFormat.
+     * @return {jQuery} A timestamp formatted according to config.settings.dateFormat.
      */
     time: function(time) {
-      time = moment(time);
-      return '<span class="time" data-timestamp="' + time._d.getTime() + '">'
-           + visual.format.plain(time.format(config.settings.dateFormat))
-           + '</span>';
+      return $('<span class="time">')
+        .attr('data-timestamp', time.getTime())
+        .text(moment(time).format(config.settings.dateFormat));
     },
 
     /**
@@ -137,69 +178,27 @@ visual = {
      *                 * role: {string} The XEP-0045 room role of the user.
      *                 * affiliation: {string} The XEP-0045 room affiliation.
      *                 * show: The <show/> ("away", "xa", "dnd", "chat" or null) of the user.
-     * @return {string} The rendered user markup. It will have classes for role,
+     * @return {jQuery} The rendered user markup. It will have classes for role,
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
       var nick = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
-      var jid = visual.format.plain(user.jid || '');
+
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
         nick = '(' + nick + ')';
-      // role and affiliation are all trusted values.
-      return  '<span class="user user-role-' + user.role
-            + ' user-affiliation-' + user.affiliation
-            + (jid ? ' ' + visual.jidClass(jid) : '')
-            + ' user-show-' + (visual.format.plain(visual.escapeClass(user.show)) || 'default') + '"'
-            + ' data-affiliation="' + user.affiliation + '"'
-            + ' data-nick="' + visual.format.plain(user.nick) + '" data-jid="' + jid + '"'
-            + (jid ? (' title="' + jid + '"') : '') + '>' + nick + '</span>';
-    },
 
-    /**
-     * Format a room object.
-     * Currently only returns the room title.
-     */
-    room: function(room) {
-      var id = visual.format.plain(room.id);
-      return '<a href="#' + id + '" class="xmpp-room'
-             + (room.id == xmpp.room.current ? ' xmpp-room-current' : '') + '"'
-             + ' title="' + id + '"'
-             + ' data-room="' + id + '"'
-             + '>' + (visual.format.plain(room.title) || id) + '</a>';
-    },
-
-    /**
-     * Format a JID.
-     *
-     * This is a shortcut to formatting a non-occupant user.
-     */
-    jid: function(jid) {
-      return visual.format.user({jid: jid});
-    },
-
-    /**
-     * Format a nick.
-     */
-    nick: function(nick) {
-      return visual.format.plain(visual.lengthLimit(nick, config.ui.maxNickLength));
-    },
-
-    /**
-     * Escape < and > in a text.
-     *
-     * Wherever possible, this function should be avoided in favor of DOM
-     * and jQuery methods like $.text() and Text().
-     * Only use it when working on strings.
-     */
-    plain: function(text) {
-      var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
-      return text ? text.replace(/[<>&"]/g, function(x) { return replacers[x]; }) : '';
-    },
-
-    raw: function(text) {
-      return text;
+      return $('<span class="user">')
+        .addClass('user-role-' + user.role)
+        .addClass('user-affiliation-' + user.affiliation)
+        .addClass(user.jid && visual.jidClass(user.jid))
+        .addClass('user-show-' + (visual.escapeClass(user.show) || 'default'))
+        .attr('data-affiliation', user.affiliation)
+        .attr('data-jid', user.jid)
+        .attr('data-nick', user.nick)
+        .attr('title', user.jid)
+        .text(nick);
     }
   },
 
@@ -213,7 +212,7 @@ visual = {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
-      function() { return document.createTextNode(this.outerHTML); }
+      function() { return new Text(this.outerHTML); }
     );
     // If markup is disabled, replace the entire node with its text content.
     if (!config.settings.markup.html)
@@ -235,20 +234,24 @@ visual = {
    *
    * @param {string} text A format string with placeholders like {name1} and {format:name2}.
    * @param {Object} variables A hash keyed by variable name.
+   * @param {bool} html Optional flag that causes text to be evaluated as HTML.
    *
    * Any placeholder with a corresponding variable will be replaced.
    * The variable will be processed either by the specified format, or the one
    * matching its name, or the "plaintext" formatter by default.
    * @return {string} The rendered text.
    */
-  formatText: function(text, variables) {
-    return text.replace(/{(?:(\w+):)?(\w+)}/g, function(rep, format, key) {
-      if (key in variables) {
-        var out = (visual.format[format || key] || visual.format.plain)(variables[key]);
-        if (typeof out == 'string') return out;
-      }
-      return rep;
-    });
+  formatText: function(text, variables, html) {
+    return $('<span>')[html ? 'html' : 'text'](text)
+      .replaceText(/({(?:(\w+):)?(\w+)})/g, function(rep, format, key) {
+        if (key in variables) {
+          if ((format || key) in visual.format) {
+            return visual.format[format || key](variables[key]);
+          }
+          return variables[key];
+        }
+        return rep;
+      });
   },
 
   /**
@@ -485,5 +488,17 @@ visual = {
     return text ? text.replace(/[\s\0\\]/g, function(x) {
       return '\\' + x.charCodeAt(0);
     }) : '';
+  },
+
+  /**
+   * Escape < and > in a text.
+   *
+   * Wherever possible, this function should be avoided in favor of using DOM
+   * and jQuery methods like $.text() and Text().
+   * Only use it when working on strings.
+   */
+  escapeHTML: function(text) {
+    var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
+    return text && text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
   }
 };

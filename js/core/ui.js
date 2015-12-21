@@ -722,9 +722,9 @@ var ui = {
       this.playSound('error');
     }
 
-    text = visual.formatText(text, variables);
+    var body = visual.formatText(text, variables);
     var message = {
-      body: text, type: 'local',
+      body: body, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     };
     this.notifyDesktop(3, message);
@@ -805,8 +805,9 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row"><span class="user-roster">'
-                    + visual.format.user(user) + '</span></div>');
+    var userLink = $('<div class="row"><span class="user-roster">')
+      .append(visual.format.user(user));
+
     visual.msgOnClick(userLink);
 
     if (user.nick == xmpp.nick.current) {
