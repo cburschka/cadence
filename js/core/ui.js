@@ -343,7 +343,7 @@ var ui = {
     $('#settings-dateFormat').change(function() {
       var format = $(this).val();
       $('.time').text(function() {
-        return moment(+$(this).attr('data-timestamp')).format(format);
+        return moment($(this).attr('data-time')).format(format);
       });
     });
 

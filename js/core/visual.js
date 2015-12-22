@@ -122,7 +122,7 @@ visual = {
      */
     time: function(time) {
       time = moment(time);
-      return '<span class="time" data-timestamp="' + time._d.getTime() + '">'
+      return '<span class="time" data-time="' + time.toISOString() + '">'
            + visual.format.plain(time.format(config.settings.dateFormat))
            + '</span>';
     },
