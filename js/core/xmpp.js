@@ -93,10 +93,10 @@ var xmpp = {
    * Generate an IQ.
    *
    * @param {string} type: Required; one of get, set, result, error.
-   * @param {object} item: jQuery or generic object.
    * @param {object} target: A target object.
+   * @param {object} item: jQuery or generic object.
    */
-  iq: function(type, item, target) {
+  iq: function(type, target, item) {
     var iq = $iq({from: this.connection.jid, to: this.jid(target), type: type});
     if (item) {
       if (item.constructor === Object) iq.c('query', item);
@@ -141,8 +141,8 @@ var xmpp = {
     var node = data.node || room || '';
     var resource = data.resource || data.nick || '';
 
-    // domain defaults to the MUC service if a room is given.
-    var domain = data.domain || config.xmpp[room ? 'mucService' : 'domain'];
+    // domain defaults to the MUC service if a room (even null) is given.
+    var domain = data.domain || config.xmpp[data.room !== undefined ? 'mucService' : 'domain'];
 
     // Construct the JID.
     if (node) node = Strophe.escapeNode(node) + '@';
@@ -215,7 +215,7 @@ var xmpp = {
       callback(nick);
     }
     this.connection.sendIQ(
-      this.iq('get', {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'}),
+      this.iq('get', {room: room}, {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'}),
       iqCallback, iqCallback
     );
   },
@@ -225,7 +225,7 @@ var xmpp = {
    */
   getRoomInfo: function(room, callback) {
     this.connection.sendIQ(
-      this.iq('get', {xmlns: Strophe.NS.DISCO_INFO}, {room: room}),
+      this.iq('get', {room: room}, {xmlns: Strophe.NS.DISCO_INFO}),
       function(stanza) {
         var query = $('query', stanza);
         callback({
@@ -349,7 +349,7 @@ var xmpp = {
    *                         if the server responded, or null if the ping timed out.
    */
   ping: function(to, success, error) {
-    this.connection.sendIQ(this.iq('get', null, {jid: to})
+    this.connection.sendIQ(this.iq('get', {jid: to})
         .c('ping', {xmlns:'urn:xmpp:ping'}
       ), success, error, 15000);
   },
@@ -392,7 +392,7 @@ var xmpp = {
     }
 
     var submit = function(values) {
-      var form = xmpp.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, {room: room})
+      var form = xmpp.iq('set', {room: room}, {xmlns: Strophe.NS.MUC + '#owner'})
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
       for (var name in values) {
@@ -413,7 +413,7 @@ var xmpp = {
     }
 
     this.connection.sendIQ(
-      this.iq('get', {xmlns: Strophe.NS.MUC + '#owner'}, {room: room}),
+      this.iq('get', {room: room}, {xmlns: Strophe.NS.MUC + '#owner'}),
       function(stanza) {
         query($('query x', stanza), submit);
       }, error
@@ -463,7 +463,7 @@ var xmpp = {
    * @param {function} success The callback to execute on completion.
    */
   destroyRoom: function(room, alternate, message, success) {
-    var iq = this.iq('set', {xmlns: Strophe.NS.MUC + '#owner'}, {room: room})
+    var iq = this.iq('set', {room: room}, {xmlns: Strophe.NS.MUC + '#owner'})
       .c('destroy');
     if (alternate) iq.attrs({jid: Strophe.escapeNode(alternate) + '@' + config.xmpp.mucService});
     if (message) iq.c('reason', message);
@@ -516,7 +516,7 @@ var xmpp = {
     }
 
     this.connection.sendIQ(
-      this.iq('set', null, {})
+      this.iq('set', {})
       .c('command', {
         xmlns: 'http://jabber.org/protocol/commands',
         action: 'execute',
@@ -567,7 +567,7 @@ var xmpp = {
    */
   setUser: function(item, success, error) {
     this.connection.sendIQ(
-      this.iq('set', {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
+      this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
       success, function(response) {
       var code = $('error', response).attr('code');
       error(code, response);
@@ -579,7 +579,7 @@ var xmpp = {
    */
   getUsers: function(query, success, error) {
     this.connection.sendIQ(
-      this.iq('get', {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
+      this.iq('get', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
       success, error
     );
   },
@@ -589,7 +589,7 @@ var xmpp = {
    */
   getOccupants: function(room, callback) {
     this.connection.sendIQ(
-      this.iq('get', {xmlns:Strophe.NS.DISCO_ITEMS}, {room: room}),
+      this.iq('get', {room: room}, {xmlns: Strophe.NS.DISCO_ITEMS}),
       function (stanza) {
         var users = {};
         $('item', stanza).each(function() {
@@ -608,7 +608,7 @@ var xmpp = {
    */
   getVersion: function(callback) {
     this.connection.sendIQ(
-      this.iq('get', {xmlns:'jabber:iq:version'}, {}),
+      this.iq('get', {}, {xmlns:'jabber:iq:version'}),
       function (stanza) {
         callback({
           name: $('name', stanza).html() || '-',
@@ -629,7 +629,7 @@ var xmpp = {
    */
   discoverRooms: function(callback) {
     this.connection.sendIQ(
-      this.iq('get', {xmlns:Strophe.NS.DISCO_ITEMS}, {domain: config.xmpp.mucService}),
+      this.iq('get', {room: null}, {xmlns:Strophe.NS.DISCO_ITEMS}),
       function(stanza) {
         var rooms = {};
         $('item', stanza).each(function(s,t) {
