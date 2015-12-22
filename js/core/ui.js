@@ -203,7 +203,9 @@ var ui = {
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
+        if (ui.urlFragment) chat.commands.join({
+          name: ui.getFragment()
+        });
         else chat.commands.part();
       }
     });
@@ -341,7 +343,7 @@ var ui = {
     $('#settings-dateFormat').change(function() {
       var format = $(this).val();
       $('.time').text(function() {
-        return moment(+$(this).attr('data-timestamp')).format(format);
+        return moment($(this).attr('data-time')).format(format);
       });
     });
 
@@ -849,10 +851,22 @@ var ui = {
   },
 
   /**
-   * Update the current URL fragment.
+   * Get the room from the URL fragment.
+   *
+   * @returns {string}
    */
-  updateFragment: function(room) {
-    ui.urlFragment = '#' + (room || '');
+  getFragment: function() {
+    return decodeURIComponent(this.urlFragment.substring(1));
+  },
+
+
+  /**
+   * Set the URL fragment to a room.
+   *
+   * @param {string} room
+   */
+  setFragment: function(room) {
+    ui.urlFragment = '#' + encodeURIComponent(room || '');
     window.location.hash = ui.urlFragment;
   },
 
@@ -1073,9 +1087,12 @@ var ui = {
         // For each match, cut down to the longest common prefix.
         for (var i in results) {
           for (var j in results[i]) {
-            if (result[j] != results[i][j]) break;
+            if (result[j] != results[i][j]) {
+              result = result.substring(0, j);
+              break;
+            }
           }
-          result = result.substring(0, j);
+          result = result.substring(0, results[i].length);
         }
         results = result ? [result] : [];
       }
@@ -1100,11 +1117,11 @@ var ui = {
     else {
       var result = prefixSearch(prefix, Object.keys(this.userLinks));
     }
-    if (result) {
+    if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
-  }
+  },
 };

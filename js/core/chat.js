@@ -296,7 +296,7 @@ var chat = {
         if (room)
           return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
         xmpp.joinNewRoom(name, config);
-        ui.updateFragment(name);
+        ui.setFragment(name);
         chat.setSetting('xmpp.room', room);
       };
       if (!chat.getRoomFromTitle(name)) create();
@@ -389,7 +389,7 @@ var chat = {
         }
         room = (room ? room.id : arg.name).toLowerCase();
         xmpp.joinExistingRoom(room, arg.password);
-        ui.updateFragment(room);
+        ui.setFragment(room);
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.

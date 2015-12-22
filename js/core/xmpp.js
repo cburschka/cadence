@@ -47,10 +47,10 @@ var xmpp = {
     this.connection.addTimedHandler(30, this.discoverRooms);
     // DEBUG: print connection stream to console:
     this.connection.rawInput = function(data) {
-      if (config.settings.debug) console.log("RECV " + data);
+      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
     };
     this.connection.rawOutput = function(data) {
-      if (config.settings.debug) console.log("SEND " + data);
+      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
   },
 
@@ -191,7 +191,7 @@ var xmpp = {
 
   prejoin: function() {
     this.room.current = null;
-    ui.updateFragment(null);
+    ui.setFragment(null);
     this.status = 'prejoin';
     ui.setStatus(this.status);
     chat.commands.list();
@@ -257,7 +257,7 @@ var xmpp = {
 
     this.getRoomInfo(room, function(roomInfo) {
       if (!roomInfo) {
-        ui.updateFragment(xmpp.room.current);
+        ui.setFragment(xmpp.room.current);
         return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
       }
       this.room.available[room] = roomInfo;
@@ -735,7 +735,7 @@ var xmpp = {
     // Cancel any join attempt:
     this.room.target = this.room.current;
     ui.updateRoom(this.room.current);
-    ui.updateFragment(this.room.current);
+    ui.setFragment(this.room.current);
   },
 
   /**
@@ -1036,7 +1036,7 @@ var xmpp = {
 
     if (status == 'prejoin') {
       this.announce();
-      var room = this.room.target || ui.urlFragment.substring(1) || config.settings.xmpp.room;
+      var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (config.settings.xmpp.autoJoin || ui.urlFragment) {
         this.discoverRooms(function (rooms) {
           if (rooms[room]) chat.commands.join({name: room});
