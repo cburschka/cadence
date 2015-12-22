@@ -68,14 +68,22 @@ var xmpp = {
   },
 
   /**
-   * Wrapper for $pres() that fills in the current JID.
+   * Wrapper for $pres() that fills in the sender JID, an optional target,
+   * and optional attributes.
+   *
+   * @param {Object} target The target of the directed presence.
+   * @param {Object} attrs The attributes of the <presence/> element.
    */
-  pres: function() {
-    return $pres({from: this.connection.jid});
+  pres: function(target, attrs) {
+    return $pres({
+      from: this.currentJid,
+      to: target && this.jid(target)
+    }).attrs(attrs);
   },
 
+
   /**
-   * Wrapper for $msg() that fills in the sender JID and the target JID.
+   * Wrapper for $msg() that fills in the sender JID and the target.
    *
    * @param {object} target: A target passed to xmpp.jid().
    */
@@ -101,14 +109,6 @@ var xmpp = {
       else if (item.constructor === $) iq.cnode(item[0]);
     }
     return iq;
-  },
-
-  /**
-   * Announce general availability to the server by sending an empty presence
-   * with no recipient.
-   */
-  announce: function() {
-    this.connection.send(this.pres());
   },
 
   /**
@@ -167,7 +167,7 @@ var xmpp = {
   changeNick: function(nick) {
     this.nick.target = nick;
     if (this.status == 'online')
-      this.connection.send(this.presence({nick: nick}));
+      this.connection.send(this.pres({nick: nick}));
     else ui.messageAddInfo(strings.info.nickPrejoin, {nick: nick});
   },
 
@@ -178,7 +178,10 @@ var xmpp = {
    */
   leaveRoom: function(room) {
     ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
-    this.connection.send(this.presence({room: room, nick: this.nick.current}, {type: 'unavailable'}));
+    this.connection.send(this.pres(
+      {room: room, nick: this.nick.current},
+      {type: 'unavailable'}
+    ));
     delete this.roster[room];
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
@@ -316,7 +319,7 @@ var xmpp = {
    */
   joinRoom: function(room, password) {
     this.room.target = room;
-    var presence = this.presence({room: room, nick: this.nick.target})
+    var presence = this.pres({room: room, nick: this.nick.target})
       .c('x', {xmlns:Strophe.NS.MUC})
       .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
     if (password) presence.up().c('password', password);
@@ -350,19 +353,6 @@ var xmpp = {
     this.connection.sendIQ(this.iq('get', {jid: to})
         .c('ping', {xmlns:'urn:xmpp:ping'}
       ), success, error, 15000);
-  },
-
-  /**
-   * Create a directed presence to a specific target, with specific attributes.
-   * The stanza is not yet sent, but returned to the caller for additional data.
-   *
-   * @param {Object} target The target of the directed presence.
-   * @param {Object} attrs The attributes of the <presence/> element.
-   */
-  presence: function(target, attrs) {
-    return this.pres().attrs({
-      to: this.jid(target)
-    }).attrs(attrs);
   },
 
   /**
@@ -538,7 +528,7 @@ var xmpp = {
    * @param {string} status This is an arbitrary status message.
    */
   sendStatus: function(show, status) {
-    var p = this.presence({nick: this.nick.current});
+    var p = this.pres({nick: this.nick.current});
     if (show) p.c('show', {}, show);
     if (status) p.c('status', {}, status);
     this.userStatus = show;
@@ -1033,7 +1023,7 @@ var xmpp = {
     ui.setStatus(this.status);
 
     if (status == 'prejoin') {
-      this.announce();
+      this.connection.send(this.pres());
       var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (config.settings.xmpp.autoJoin || ui.urlFragment) {
         this.discoverRooms(function (rooms) {
@@ -1085,7 +1075,7 @@ var xmpp = {
    */
   disconnect: function() {
     if (this.connection) {
-      this.connection.send(this.pres().attrs({type: 'unavailable'}));
+      this.connection.send(this.pres({}, {type: 'unavailable'}));
       this.connection.disconnect();
     }
   }
