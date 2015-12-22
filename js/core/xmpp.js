@@ -992,7 +992,7 @@ var xmpp = {
         return this.connection.send(this.iq('result').attrs({
           to: $(stanza).attr('from'),
           id: $(stanza).attr('id')
-        }));
+        })) || true;
       }
 
       // Respond to <time> (XEP-0202).
@@ -1004,7 +1004,7 @@ var xmpp = {
           .c('time', {xmlns: 'urn:xmpp:time'})
           .c('utc', moment().toISOString())
           .c('tzo', moment().format('Z'))
-        );
+        ) || true;
       }
     }
     return true;
