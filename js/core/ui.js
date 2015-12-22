@@ -1087,9 +1087,12 @@ var ui = {
         // For each match, cut down to the longest common prefix.
         for (var i in results) {
           for (var j in results[i]) {
-            if (result[j] != results[i][j]) break;
+            if (result[j] != results[i][j]) {
+              result = result.substring(0, j);
+              break;
+            }
           }
-          result = result.substring(0, j);
+          result = result.substring(0, results[i].length);
         }
         results = result ? [result] : [];
       }
@@ -1114,7 +1117,7 @@ var ui = {
     else {
       var result = prefixSearch(prefix, Object.keys(this.userLinks));
     }
-    if (result) {
+    if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
       inputField[0].selectionEnd = inputField[0].selectionStart;
