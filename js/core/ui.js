@@ -203,7 +203,9 @@ var ui = {
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
+        if (ui.urlFragment) chat.commands.join({
+          name: ui.getFragment()
+        });
         else chat.commands.part();
       }
     });
@@ -849,10 +851,22 @@ var ui = {
   },
 
   /**
-   * Update the current URL fragment.
+   * Get the room from the URL fragment.
+   *
+   * @returns {string}
    */
-  updateFragment: function(room) {
-    ui.urlFragment = '#' + (room || '');
+  getFragment: function() {
+    return decodeURIComponent(this.urlFragment.substring(1));
+  },
+
+
+  /**
+   * Set the URL fragment to a room.
+   *
+   * @param {string} room
+   */
+  setFragment: function(room) {
+    ui.urlFragment = '#' + encodeURIComponent(room || '');
     window.location.hash = ui.urlFragment;
   },
 
@@ -1106,5 +1120,5 @@ var ui = {
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
-  }
+  },
 };
