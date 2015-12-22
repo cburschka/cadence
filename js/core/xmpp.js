@@ -47,10 +47,10 @@ var xmpp = {
     this.connection.addTimedHandler(30, this.discoverRooms);
     // DEBUG: print connection stream to console:
     this.connection.rawInput = function(data) {
-      if (config.settings.debug) console.log("RECV " + data);
+      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
     };
     this.connection.rawOutput = function(data) {
-      if (config.settings.debug) console.log("SEND " + data);
+      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
   },
 
