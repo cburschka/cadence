@@ -75,17 +75,15 @@ var xmpp = {
   },
 
   /**
-   * Wrapper for $msg() that fills in the sender JID and the room/nick JID.
+   * Wrapper for $msg() that fills in the sender JID and the target JID.
    *
    * @param {object} target: A target passed to xmpp.jid().
-   * @param {string} type: Optional; defaults to "chat" if a target is present,
-   * otherwise "groupchat".
    */
-  msg: function(target, type) {
+  msg: function(target) {
     return $msg({
       from: this.connection.jid,
       to:   this.jid(target),
-      type: type || (target ? 'chat' : 'groupchat')
+      type: (target ? 'chat' : 'groupchat')
     });
   },
 
