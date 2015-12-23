@@ -149,9 +149,11 @@ visual = {
      */
     room: function(room) {
       return $('<a class="xmpp-room">')
-        .attr('title', room.id)
-        .attr('data-room', room.id)
-        .attr('href', '#' + room.id)
+        .attr({
+          title: room.id,
+          href: '#' + room.id,
+          'data-room': room.id,
+        })
         .text(room.title || room.id)
         .addClass((room.id == xmpp.room.current) && 'xmpp-room-current');
     },
@@ -183,22 +185,24 @@ visual = {
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var nick = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
+      var pdn = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
-        nick = '(' + nick + ')';
+        pdn = '(' + pdn + ')';
 
       return $('<span class="user">')
         .addClass('user-role-' + user.role)
         .addClass('user-affiliation-' + user.affiliation)
         .addClass(user.jid && visual.jidClass(user.jid))
         .addClass('user-show-' + (visual.escapeClass(user.show) || 'default'))
-        .attr('data-affiliation', user.affiliation)
-        .attr('data-jid', user.jid)
-        .attr('data-nick', user.nick)
-        .attr('title', user.jid)
-        .text(nick);
+        .attr({
+          'data-affiliation': user.affiliation,
+          'data-jid': user.jid,
+          'data-nick': user.nick,
+          'title': user.jid,
+        })
+        .text(pdn);
     }
   },
 
