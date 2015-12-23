@@ -903,7 +903,9 @@ var xmpp = {
       var domain = Strophe.getDomainFromJid(from);
       var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var resource = Strophe.getResourceFromJid(from);
-      var body = $('html body p', stanza).children() || $('body:first', stanza).text();
+      var body = $('html body p', stanza).contents();
+      if (!body.length) body = $('body:first', stanza).contents();
+
       var delay = $('delay', stanza);
       var time = delay.attr('stamp') || (new Date()).toISOString();
 

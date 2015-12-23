@@ -58,8 +58,8 @@ visual = {
    */
   formatMessage: function(message, internal) {
     message.time = message.time ? new Date(message.time) : new Date();
-    var body = message.body;
 
+    var body = $('<span>').append(message.body);
     if (message.user.role != 'bot') body = this.formatBody(body);
 
     var node =  $('<div class="row message"><span class="hide-message"></span>'
