@@ -138,8 +138,9 @@ var xmpp = {
     var node = data.node || room || '';
     var resource = data.resource || data.nick || '';
 
-    // domain defaults to the MUC service if a room (even null) is given.
-    var domain = data.domain || config.xmpp[data.room !== undefined ? 'mucService' : 'domain'];
+    // domain defaults to the MUC service if a room or nick (even null) is given.
+    var muc = data.nick || data.room !== undefined;
+    var domain = data.domain || config.xmpp[muc ? 'mucService' : 'domain'];
 
     // Construct the JID.
     if (node) node = Strophe.escapeNode(node) + '@';
