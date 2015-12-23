@@ -164,7 +164,7 @@ visual = {
      */
     time: function(time) {
       return $('<span class="time">')
-        .attr('data-timestamp', time.getTime())
+        .attr('data-time', time.toISOString())
         .text(moment(time).format(config.settings.dateFormat));
     },
 
@@ -305,13 +305,23 @@ visual = {
     jq.not('a').add(':not(a)', jq).filter(function() {
       return $(this).parents('a').length < 1;
     }).replaceText(
-      /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])/g,
-      config.settings.markup.links ?
-      function(url) {
-        return $('<a class="url-link"></a>').attr('href', url).text(url);
-      } :
-      function(url) {
-        return $('<span class="url-link"></span>').text(url);
+      /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])(\)*)/g,
+      function(url, paren) {
+        // Allow URLs to finish with a parenthesized part.
+        var open = 0;
+        for (var i in url) {
+          if (url[i] == '(') open++;
+          else if (open && url[i] == ')') open--;
+        }
+
+        url += paren.substring(0, open);
+        paren = paren.substring(open);
+        return [
+          config.settings.markup.links ?
+            $('<a class="url-link"></a>').attr('href', url).text(url) :
+            $('<span class="url-link"></span>').text(url),
+          paren
+        ];
       }
     );
   },

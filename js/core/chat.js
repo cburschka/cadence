@@ -304,7 +304,7 @@ var chat = {
         if (room)
           return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
         xmpp.joinNewRoom(name, config);
-        ui.updateFragment(name);
+        ui.setFragment(name);
         chat.setSetting('xmpp.room', room);
       };
       if (!chat.getRoomFromTitle(name)) create();
@@ -343,12 +343,12 @@ var chat = {
         return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
 
       var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, m.jid, true);
+      xmpp.sendMessage(body, {jid: m.jid});
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: {jid: m.jid},
-        user: {jid: xmpp.jid},
+        user: {jid: xmpp.currentJid},
         body: body.html
       }));
     },
@@ -367,7 +367,7 @@ var chat = {
      */
     invite: function(arg) {
       var m = chat.parseArgs(arg);
-      if (m.room && m.nick) m.jid = xmpp.jidFromRoomNick(m.room, m.nick);
+      if (m.room && m.nick) m.jid = xmpp.jid({room: m.room, nick: m.nick});
       if (m[0] && m[0].length >= 1) {
         m.jid = m[0][0]
         m.msg = arg.substring(m[1][0][0]).trim();
@@ -397,7 +397,7 @@ var chat = {
         }
         room = (room ? room.id : arg.name).toLowerCase();
         xmpp.joinExistingRoom(room, arg.password);
-        ui.updateFragment(room);
+        ui.setFragment(room);
         chat.setSetting('xmpp.room', room);
       };
       // If the room is known, join it now. Otherwise, refresh before joining.
@@ -456,7 +456,7 @@ var chat = {
         return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
 
       var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, m.nick);
+      xmpp.sendMessage(body, {nick: m.nick});
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: xmpp.roster[xmpp.room.current][m.nick],
@@ -553,7 +553,7 @@ var chat = {
      */
     unban: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.jid = Strophe.getBareJidFromJid(arg.jid || arg[0][0]);
+      arg.jid = Strophe.getBareJid(arg.jid || arg[0][0]);
 
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         if ($('item', stanza).is(function() { return $(this).attr('jid') === arg.jid; }))

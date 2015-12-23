@@ -203,7 +203,9 @@ var ui = {
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
+        if (ui.urlFragment) chat.commands.join({
+          name: ui.getFragment()
+        });
         else chat.commands.part();
       }
     });
@@ -341,7 +343,7 @@ var ui = {
     $('#settings-dateFormat').change(function() {
       var format = $(this).val();
       $('.time').text(function() {
-        return moment(+$(this).attr('data-timestamp')).format(format);
+        return moment($(this).attr('data-time')).format(format);
       });
     });
 
@@ -441,7 +443,7 @@ var ui = {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
         callback: function() { chat.commands.ban({jid: jid}); }
       },
       sep2: '',
@@ -784,8 +786,10 @@ var ui = {
       ui.scrollDown();
     });
     this.scrollDown();
-    if (message.message.user.nick != xmpp.nick.current)
-      this.blinkTitle(message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid));
+    if (message.message.user.nick != xmpp.nick.current) {
+      var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
+      this.blinkTitle(sender);
+    }
   },
 
   /**
@@ -848,10 +852,22 @@ var ui = {
   },
 
   /**
-   * Update the current URL fragment.
+   * Get the room from the URL fragment.
+   *
+   * @returns {string}
    */
-  updateFragment: function(room) {
-    ui.urlFragment = '#' + (room || '');
+  getFragment: function() {
+    return decodeURIComponent(this.urlFragment.substring(1));
+  },
+
+
+  /**
+   * Set the URL fragment to a room.
+   *
+   * @param {string} room
+   */
+  setFragment: function(room) {
+    ui.urlFragment = '#' + encodeURIComponent(room || '');
     window.location.hash = ui.urlFragment;
   },
 
@@ -992,9 +1008,11 @@ var ui = {
     var mention = (message.body.indexOf(xmpp.nick.current) >= 0
                 || message.body.indexOf(xmpp.user) >= 0);
     var sender = false;
-    for (var i in config.settings.notifications.triggers) {
-      mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
-      sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
+    var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
+    var triggers = config.settings.notifications.triggers;
+    for (var i in triggers) {
+      mention = mention || (0 <= message.body.indexOf(triggers[i]));
+      sender = sender || (0 <= name.indexOf(triggers[i]));
     }
 
     // Any kind of alert is level 1, everything else is 2.
@@ -1022,7 +1040,11 @@ var ui = {
       var text = $('<span>' + message.body + '</span>').text();
       if (message.type != 'groupchat' && message.type != 'local')
         text = strings.info.whisper + ' ' + text;
-      if (message.type != 'local') text = message.user.nick + ': ' + text;
+
+      if (message.type != 'local') {
+        var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
+        text = sender + ': ' + text;
+      }
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },
@@ -1066,9 +1088,12 @@ var ui = {
         // For each match, cut down to the longest common prefix.
         for (var i in results) {
           for (var j in results[i]) {
-            if (result[j] != results[i][j]) break;
+            if (result[j] != results[i][j]) {
+              result = result.substring(0, j);
+              break;
+            }
           }
-          result = result.substring(0, j);
+          result = result.substring(0, results[i].length);
         }
         results = result ? [result] : [];
       }
@@ -1093,11 +1118,11 @@ var ui = {
     else {
       var result = prefixSearch(prefix, Object.keys(this.userLinks));
     }
-    if (result) {
+    if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
-  }
+  },
 };
