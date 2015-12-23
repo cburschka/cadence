@@ -68,19 +68,20 @@ var xmpp = {
   },
 
   /**
-   * Wrapper for $pres() that fills in the sender JID, an optional target,
-   * and optional attributes.
+   * Wrapper for $iq() that fills in the sender, target and an optional <query>.
    *
-   * @param {Object} target The target of the directed presence.
-   * @param {Object} attrs The attributes of the <presence/> element.
+   * @param {string} type: Required; one of get, set, result, error.
+   * @param {object} target: A target object.
+   * @param {object} item: jQuery or generic object.
    */
-  pres: function(target, attrs) {
-    return $pres({
-      from: this.currentJid,
-      to: target && this.jid(target)
-    }).attrs(attrs);
+  iq: function(type, target, item) {
+    var iq = $iq({from: this.connection.jid, to: this.jid(target), type: type});
+    if (item) {
+      if (item.constructor === Object) iq.c('query', item);
+      else if (item.constructor === $) iq.cnode(item[0]);
+    }
+    return iq;
   },
-
 
   /**
    * Wrapper for $msg() that fills in the sender JID and the target.
@@ -96,19 +97,17 @@ var xmpp = {
   },
 
   /**
-   * Generate an IQ.
+   * Wrapper for $pres() that fills in the sender JID, an optional target,
+   * and optional attributes.
    *
-   * @param {string} type: Required; one of get, set, result, error.
-   * @param {object} target: A target object.
-   * @param {object} item: jQuery or generic object.
+   * @param {Object} target The target of the directed presence.
+   * @param {Object} attrs The attributes of the <presence/> element.
    */
-  iq: function(type, target, item) {
-    var iq = $iq({from: this.connection.jid, to: this.jid(target), type: type});
-    if (item) {
-      if (item.constructor === Object) iq.c('query', item);
-      else if (item.constructor === $) iq.cnode(item[0]);
-    }
-    return iq;
+  pres: function(target, attrs) {
+    return $pres({
+      from: this.currentJid,
+      to: target && this.jid(target)
+    }).attrs(attrs);
   },
 
   /**
@@ -351,7 +350,7 @@ var xmpp = {
    */
   ping: function(to, success, error) {
     this.connection.sendIQ(this.iq('get', {jid: to})
-        .c('ping', {xmlns:'urn:xmpp:ping'}
+        .c('ping', {xmlns: 'urn:xmpp:ping'}
       ), success, error, 15000);
   },
 
@@ -557,9 +556,10 @@ var xmpp = {
     this.connection.sendIQ(
       this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
       success, function(response) {
-      var code = $('error', response).attr('code');
-      error(code, response);
-    });
+        var code = $('error', response).attr('code');
+        error(code, response);
+      }
+    );
   },
 
   /**
