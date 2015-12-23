@@ -16,7 +16,7 @@ var xmpp = {
     target: null,
     current: null,
   },
-  jid: null,
+  currentJid: null,
   user: null,
   resource: null,
   status: 'offline',
@@ -124,7 +124,7 @@ var xmpp = {
   /**
    * Generate a JID from an object of values.
    *
-   * @param {object} data: The values for the JID.
+   * @param {object} data The values for the JID.
    */
   jid: function(data) {
     // A JID overrides everything else.
@@ -1051,6 +1051,9 @@ var xmpp = {
   /**
    * Determine the status (online, waiting, offline) of the connection from
    * the code.
+   *
+   * @param {int} status A Strophe status constant.
+   * @return {string} One of "offline", "waiting", or "prejoin".
    */
   readConnectionStatus: function(status) {
     switch (status) {
