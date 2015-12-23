@@ -1005,13 +1005,14 @@ var ui = {
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
    */
   notify: function(message) {
-    var mention = (message.body.indexOf(xmpp.nick.current) >= 0
-                || message.body.indexOf(xmpp.user) >= 0);
+    var text = message.body.text();
+    var mention = (text.indexOf(xmpp.nick.current) >= 0
+                || text.indexOf(xmpp.user) >= 0);
     var sender = false;
     var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
     var triggers = config.settings.notifications.triggers;
     for (var i in triggers) {
-      mention = mention || (0 <= message.body.indexOf(triggers[i]));
+      mention = mention || (0 <= text.indexOf(triggers[i]));
       sender = sender || (0 <= name.indexOf(triggers[i]));
     }
 
