@@ -472,7 +472,7 @@ visual = {
    * for <user@domain/resource>.
    *
    * Whitespace characters, NUL and "\" will be replaced with "\HEX", where HEX
-   * is the two-digit hexadecimal representation of the character value, eg. 20.
+   * is the hexadecimal representation of the character value, eg. 20.
    * This needs to be further escaped in CSS selectors, eg. \\20.
    *
    * All other characters will be left alone. Some of these may need
