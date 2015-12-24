@@ -56,7 +56,7 @@ visual = {
    * @return {jQuery} the rendered node. It has events attached and must not be
    *                  copied or transformed back into markup before insertion.
    */
-  formatMessage: function(message, internal) {
+  formatMessage: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
 
     var body = $('<span>').append(message.body);
