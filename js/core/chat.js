@@ -241,7 +241,8 @@ var chat = {
      */
     configure: function(arg) {
       arg = chat.parseArgs(arg);
-      if (arg.help) return ui.messageAddInfo(strings.help.configure);
+      if (arg.help)
+        return ui.messageAddInfo($('<div>').html(strings.help.configure));
       if (!arg.name && arg[0]) arg.name = arg[0].join(' ');
       var name = arg.name || xmpp.room.current;
       if (!name)
