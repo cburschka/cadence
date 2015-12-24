@@ -96,11 +96,12 @@ visual = {
     else $('span.author', node).append(':');
 
     if (message.type != 'groupchat' && message.type != 'local') {
-      $('span.' + (me ? 'body' : 'author'), node).after(
-        $('<span class="privmsg">').append(message.to ?
-          this.formatText(strings.info.whisperTo, {user:message.to})
-        : strings.info.whisper)
-      );
+      $('span.' + (me ? 'body' : 'author'), node).after([' ',
+        $('<span class="privmsg">').append(this.formatText(
+          strings.info[message.to ? 'whisperTo' : 'whisper'],
+          {user: message.to}
+        ))
+      ]);
     }
 
     // Make users clickable.
