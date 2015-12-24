@@ -480,12 +480,12 @@ visual = {
    *
    * for <user@domain/resource>.
    *
-   * Whitespace characters, NUL and "\" will be replaced with "\DEC", where DEC
-   * is the decimal representation of the character value, eg. \32.
-   * This needs to be further escaped in CSS selectors, eg. \\32.
+   * Whitespace characters, NUL and "\" will be replaced with "\HEX", where HEX
+   * is the hexadecimal representation of the character value, eg. 20.
+   * This needs to be further escaped in CSS selectors, eg. \\20.
    *
-   * All others characters will be left alone. Some of these may need
-   * to be escaped in CSS selectors with \ or as "\DEC" (see above).
+   * All other characters will be left alone. Some of these may need
+   * to be escaped in CSS selectors, eg. ":" and ".".
    *
    * Note: The jid-resource-* class is only useful for selecting particular
    * prefixes such as [class*=jid-resource-cadence\/] since the full value
@@ -502,7 +502,7 @@ visual = {
 
   escapeClass: function(text) {
     return text ? text.replace(/[\s\0\\]/g, function(x) {
-      return '\\' + x.charCodeAt(0);
+      return '\\' + x.charCodeAt(0).toString(16);
     }) : '';
   },
 
