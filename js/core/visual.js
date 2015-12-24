@@ -216,9 +216,15 @@ visual = {
   formatBody: function(jq) {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
-    $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(
-      function() { return new Text(this.outerHTML); }
-    );
+    $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(function() {
+      var content = $(this).contents().detach();
+      var wrapper = this.outerHTML.match(/^(.*)(<\/[\w]+>)$/);
+      return [
+        new Text(wrapper[1]),
+        content,
+        new Text(wrapper[2])
+      ];
+    });
     // If markup is disabled, replace the entire node with its text content.
     if (!config.settings.markup.html)
       jq.text(jq.text());
