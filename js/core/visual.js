@@ -472,9 +472,9 @@ visual = {
     $(messages).each(function() {
       var jQ = this.html.clone();
       jQ.find('.emote-alt, .hide-message, .hidden').remove();
-      x.push(jQ.html());
+      x.push(jQ);
     });
-    return x.join("<br />\n");
+    return x;
   },
 
   /**
