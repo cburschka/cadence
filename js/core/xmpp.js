@@ -987,7 +987,7 @@ var xmpp = {
    * This function handles any <iq> stanzas.
    */
   eventIQCallback: function(stanza) {
-    if (stanza) {
+    if (stanza && $(stanza).attr('type') == 'get') {
       // Respond to <ping> (XEP-0199).
       if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
         return this.connection.send(this.iq('result').attrs({
