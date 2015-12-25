@@ -513,14 +513,14 @@ visual = {
   },
 
   /**
-   * Escape < and > in a text.
+   * Escape HTML special characters in a text.
    *
    * Wherever possible, this function should be avoided in favor of using DOM
    * and jQuery methods like $.text() and Text().
    * Only use it when working on strings.
    */
   escapeHTML: function(text) {
-    var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
+    var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;'};
     return text && text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
   }
 };
