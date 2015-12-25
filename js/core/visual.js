@@ -521,6 +521,6 @@ visual = {
    */
   escapeHTML: function(text) {
     var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;'};
-    return text && text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
+    return text && text.replace(/[<>&"']/g, function(x) { return replacers[x]; });
   }
 };
