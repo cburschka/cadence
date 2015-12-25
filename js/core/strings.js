@@ -144,8 +144,10 @@ var strings = {
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
     noUsers: 'No users are online in {room}.',
-    pong: 'Ping to {jid}: Pong ({delay} ms).',
-    pongError: 'Ping to {jid}: Target does not support ping ({delay} ms).',
+    pong: [
+      'Ping: Pong ({delay} ms).',
+      'Ping to {user}: Pong ({delay} ms).'
+    ],
     rejoinNick: 'Rejoining as {nick} ...',
     roomConf: 'Room configuration of {room} has been altered.',
     roomsAvailable: 'Available rooms: {raw:rooms}',
@@ -212,7 +214,11 @@ var strings = {
     noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
     noRoom: 'You are not in a room and did not specify one.',
-    pingTimeout: 'Ping to {jid} timed out ({delay} ms).',
+    pingError: 'Ping: Target does not support ping.',
+    pingTimeout: [
+      'Ping timed out ({delay} ms).',
+      'Ping to {user} timed out ({delay} ms).'
+    ],
     roomConf: 'Failed to configure {room}.',
     roomConfDenied: 'You lack the authority to configure {room}.',
     roomConfOptions: 'The allowed values for {field} are: {options}',

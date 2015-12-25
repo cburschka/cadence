@@ -344,15 +344,15 @@ var xmpp = {
   /**
    * Send a ping.
    *
-   * @param {string} to The ping target.
+   * @param {object} target The ping target.
    * @param {function} success The success callback.
    * @param {function} error The error callback. This will receive an error stanza
    *                         if the server responded, or null if the ping timed out.
    */
-  ping: function(to, success, error) {
-    this.connection.sendIQ(this.iq('get', {jid: to})
-        .c('ping', {xmlns: 'urn:xmpp:ping'}
-      ), success, error, 15000);
+  ping: function(target, success, error) {
+    this.connection.sendIQ(this.iq('get', target || {})
+        .c('ping', {xmlns: 'urn:xmpp:ping'}),
+      success, error, 15000);
   },
 
   /**

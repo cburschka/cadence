@@ -456,8 +456,8 @@ var ui = {
       ping: {
         name: labels.ping,
         icon: 'ping',
-        disabled: !c('ping') || !jid,
-        callback: function() { chat.commands.ping(jid); }
+        disabled: !c('ping'),
+        callback: function() { chat.commands.ping(nick || jid); }
       }
     }
 

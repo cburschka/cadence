@@ -481,28 +481,27 @@ var chat = {
      */
     ping: function(arg) {
       arg = arg.trim();
-      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var room = xmpp.room.available[xmpp.room.current];
-      var roster = xmpp.roster[xmpp.room.current];
-      var absent = false;
-
-      if (!arg) arg = config.xmpp.domain;
-      else if (arg.indexOf('@') < 0 && roster) {
-        var user = roster[arg];
-        if (!user) return ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-        if (!user.jid) return ui.messageAddInfo(strings.error.unknownJid, {user: user}, 'error');
-        arg = user.jid;
-      }
-
+      var jid = arg.indexOf('@') >= 0;
+      var target = arg && (jid ? {jid: arg} : {nick: arg});
+      var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
       var time = (new Date()).getTime();
 
-      xmpp.ping(arg, function(stanza) {
+      xmpp.ping(target, function(stanza) {
           var elapsed = ((new Date()).getTime() - time).toString();
-          ui.messageAddInfo(strings.info.pong, {jid: arg, delay: elapsed});
+          ui.messageAddInfo(strings.info.pong[+!!user], {user: user, delay: elapsed});
         }, function(error) {
           var elapsed = ((new Date()).getTime() - time).toString();
-          if (error) ui.messageAddInfo(strings.info.pongError, {jid: arg, delay: elapsed});
-          else ui.messageAddInfo(strings.error.pingTimeout, {jid: arg, delay: elapsed}, 'error');
+          if (error) {
+            if ($('item-not-found', error)) {
+              ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+            }
+            else {
+              ui.messageAddInfo(strings.error.pingError, 'error');
+            }
+          }
+          else {
+            ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user: user, delay: elapsed}, 'error');
+          }
         }
       );
     },
