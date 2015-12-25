@@ -584,7 +584,7 @@ var chat = {
       ui.messageAddInfo(strings.info.versionClient, {
         version: $('<a>')
           .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
-          .text(version)
+          .text(config.version)
       });
       if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
         xmpp.getVersion(function(version) {
