@@ -533,8 +533,13 @@ var chat = {
         return ui.messageAddInfo(strings.error.saveEmpty, 'error');
       var type = arg.trim();
       var data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
-      var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
       var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+      if (type == 'html') {
+        data = '<!DOCTYPE html><html><head><title>'
+             + visual.format.plain(xmpp.room.available[xmpp.room.current].title + ' (' + timestamp + ')')
+             + '</title></head><body>' + data + '</body></html>';
+      }
+      var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
       var suffix = type == 'html' ? 'html' : 'log';
       saveAs(blob, xmpp.room.current + '-' + timestamp + '.' + suffix);
     },
