@@ -1009,6 +1009,16 @@ var xmpp = {
         ) || true;
       }
 
+      // Respond to jabber:iq:version (XEP-0092).
+      if ($('query', stanza).attr('xmlns') == Strophe.NS.VERSION) {
+        return this.connection.send(response
+          .c('query', {xmlns: Strophe.NS.VERSION})
+          .c('name', {}, config.clientName)
+          .c('version', {}, config.version)
+          .c('os', {}, navigator.userAgent)
+        );
+      }
+
       // List available features (XEP-0030).
       if ($('query', stanza).attr('xmlns') == Strophe.NS.DISCO_INFO) {
         response.c('query', {xmlns: Strophe.NS.DISCO_INFO})

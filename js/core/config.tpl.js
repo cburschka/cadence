@@ -165,6 +165,7 @@ var config = {
     Strophe.NS.MUC,
     Strophe.NS.MUC + '#user',
     Strophe.NS.XHTML_IM,
+    Strophe.NS.VERSION,
     'jabber:x:conference',
     'urn:xmpp:time',
     'urn:xmpp:ping',
