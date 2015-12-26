@@ -66,6 +66,23 @@ var ui = {
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
 
+    // Build help sidebar.
+    var helpSidebar = $('#helpList');
+    var categories = strings.help.sidebar;
+    for (var category in categories) {
+      var table = $('<table>');
+      table.append($('<caption>').append($('<h4>').text(categories[category].title)));
+      var commands = categories[category].commands;
+      for (var command in commands) {
+        var row = $('<tr class="row">').append(
+          $('<td class="desc">').text(commands[command][0]),
+          $('<td class="code">').text(commands[command][1])
+        );
+        table.append(row);
+      }
+      helpSidebar.append(table);
+    }
+
     // Build the navigation menu.
     for (link in config.ui.navigation)
       $('#navigation ul').append($('<li>').append(
@@ -115,16 +132,11 @@ var ui = {
         .css('background-color', code)
       );
     }
-    palette.append('<button class="button" id="textColorFull">Advanced</button>');
+    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced"></button>');
 
-    // Add the access key labels to the BBCode buttons.
-    $('#bbCodeContainer button').each(function() {
-      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
-    });
-
-    var sounds = [new Option('---', '')];
+    var sounds = [$('<option value="" class="string" data-string="label.page.none">')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
-    $('#settingsContainer select.soundSelect').html(sounds).after(function() {
+    $('#settingsContainer select.soundSelect').append(sounds).after(function() {
       var event = this.id.substring('settings-notifications.sounds.'.length);
       return $('<button class="icon soundTest">')
         .click(function() { ui.playSound(event); });
@@ -150,6 +162,26 @@ var ui = {
     chat.setAudioVolume(config.settings.notifications.soundVolume);
 
     $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
+
+    ui.loadStrings();
+  },
+
+  loadStrings: function() {
+    // Fill strings.
+    $('.string').text(function() {
+      return ui.getString($(this).attr('data-string'));
+    });
+    $('.string-html').html(function() {
+      return ui.getString($(this).attr('data-html'));
+    })
+    $('.string-title').attr('title', function() {
+      return ui.getString($(this).attr('data-title'));
+    });
+
+    // Add the access key labels to the BBCode buttons.
+    $('#bbCodeContainer button').each(function() {
+      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
+    });
   },
 
   /**
@@ -545,7 +577,8 @@ var ui = {
   setTextColorPicker: function(color) {
     $('#textColor')
       .css('color', color || '')
-      .text(color || 'None')
+      .text(color || strings.label.settings.textColor.none)
+      .toggleClass('string', !color)
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', config.settings.markup.colors && color || '');
     $('#settings-textColor').val(color);
@@ -1126,4 +1159,13 @@ var ui = {
     }
     return true;
   },
+
+  getString: function(key) {
+    var path = key.split('.');
+    var ref = strings;
+    for (var i = 0; i < path.length; i++) {
+      ref = ref[path[i]];
+    }
+    return ref;
+  }
 };

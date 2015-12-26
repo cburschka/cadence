@@ -227,18 +227,6 @@ var strings = {
     noRoomsAvailable: 'There are no rooms available.',
   },
 
-  help: {
-    configure: 'Configuration arguments:\
-  <dl><dt><code>--title &lt;...&gt;</code></dt><dd>Set human-readable room title.</dd>\
-  <dt><code>--desc &lt;...&gt;</code></dt><dd>Set the room description.</dd>\
-  <dt><code>--log, --log 0</code></dt><dd>Toggle logging.</dd>\
-  <dt><code>--persistent, --persistent 0</code></dt><dd>Toggle room persistence.</dd>\
-  <dt><code>--public, --public 0</code></dt><dd>Make the room public or private (unlisted).</dd>\
-  <dt><code>--anonymous, --anonymous 0</code></dt><dd>Toggle anonymity. This determines whether non-moderators can see participants\' full JID.</dd>\
-  <dt><code>--password &lt;...&gt;, --password 0</code></dt><dd>Set or remove a room password.</dd>\
-  <dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd></dl>'
-  },
-
   label: {
     command: {
       ban: 'Ban',
@@ -257,9 +245,230 @@ var strings = {
       multiline: 'Enter one item per line.',
     },
     button: {
+      advanced: 'Advanced',
       save: 'Save',
       close: 'Close',
-      apply: 'Apply'
+      apply: 'Apply',
+      login: 'Log in',
+      logout: 'Log out',
+      help: 'Help',
+      settings: 'Settings',
+      roster: 'Users',
+      sound: 'Sound',
+    },
+    page: {
+      style: 'Style:',
+      room: 'Room:',
+      user: 'User:',
+      password: 'Password:',
+      navigation: 'Navigation:',
+      roster: 'Online users',
+      help: 'Help',
+      settings: {
+        main: 'Settings',
+        general: 'General',
+        display: 'Display',
+        notifications: 'Notifications'
+      },
+      none: '---'
+    },
+    tooltip: {
+       input: 'Press SHIFT+ENTER to input a line break',
+       bold: 'Bold text: [b]text[/b]',
+       italic: 'Italic text: [i]text[/i]',
+       underline: 'Underline text: [u]text[/u]',
+       strike: 'Strike out text: [s]text[/s]',
+       quote: 'Quote text: [quote]text[/quote] or [quote=author]text[/quote]',
+       code: 'Code display: [code]code[/code]',
+       url: 'Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]',
+       img: 'Insert image: [img]http://example.org/image.jpg[/img]',
+       color: 'Text color: [color=red]text[/color]',
+       help: 'Show/hide help',
+       settings: 'Show/hide settings',
+       roster: 'Show/hide online list',
+       sound: 'Sound on/off',
+    },
+    settings: {
+      xmpp: {
+        sessionAuth: 'Log in with forum session',
+        autoJoin: 'Join room on login'
+      },
+      contextmenu: {
+        label: 'Open context menu with',
+        hover: 'Hover',
+        left: 'Left click',
+        right: 'Right click'
+      },
+      textColor: {
+        label: 'Text color',
+        clear: 'Clear',
+        none: 'None'
+      },
+      dateFormat: 'Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>)',
+      markup: {
+        html: 'Show HTML markup',
+        images: 'Show images in-line',
+        links: 'Make URLs clickable',
+        colors: 'Show persistent colors',
+        emoticons: 'Show emoticons as images'
+      },
+      verbose: 'Display verbose messages',
+      notifications: {
+        desktop: {
+          label: 'Desktop notifications',
+          0: 'None',
+          1: 'Alerts',
+          2: 'All messages',
+          3: 'Everything'
+        },
+        triggers: 'Alert keywords',
+        soundVolume: 'Sound volume',
+        sounds: {
+          receive: 'Receive sound',
+          send: 'Send sound',
+          enter: 'Enter sound',
+          leave: 'Leave sound',
+          info: 'Info sound',
+          error: 'Error sound',
+          mention: 'Mention sound',
+          msg: 'Private message sound'
+        },
+        leavePage: 'Warn before closing',
+        blinkSpeed: 'Blink speed',
+        blinkLength: 'Blink length'
+      }
+    }
+  },
+  help: {
+    configure: 'Configuration arguments:\
+<dl><dt><code>--title &lt;...&gt;</code></dt><dd>Set human-readable room title.</dd>\
+<dt><code>--desc &lt;...&gt;</code></dt><dd>Set the room description.</dd>\
+<dt><code>--log, --log 0</code></dt><dd>Toggle logging.</dd>\
+<dt><code>--persistent, --persistent 0</code></dt><dd>Toggle room persistence.</dd>\
+<dt><code>--public, --public 0</code></dt><dd>Make the room public or private (unlisted).</dd>\
+<dt><code>--anonymous, --anonymous 0</code></dt><dd>Toggle anonymity. This determines whether non-moderators can see participants\' full JID.</dd>\
+<dt><code>--password &lt;...&gt;, --password 0</code></dt><dd>Set or remove a room password.</dd>\
+<dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd></dl>',
+
+    sidebar: {
+      chat: {
+        title: 'Chat commands',
+        commands: {
+          alias: [
+            'Create a macro',
+            '/alias <cmd> /a; /b'
+          ],
+          away: [
+            'Set away status',
+            '/away <message>'
+          ],
+          back: [
+            'Remove away status',
+            '/back'
+          ],
+          clear: [
+            'Clear all messages',
+            '/clear'
+          ],
+          configure: [
+            'Configure an existing room',
+            '/configure [--help | --interactive | <options>]'
+          ],
+          connect: [
+            'Connect',
+            '/connect [<user> <pass>]'
+          ],
+          create: [
+            'Create a new room',
+            '/create [--help | <name> [<options>]]'
+          ],
+          join: [
+            'Join a room',
+            '/join <room>'
+          ],
+          list: [
+            'List available rooms',
+            '/list'
+          ],
+          me: [
+            'Describe action',
+            '/me <text>'
+          ],
+          msg: [
+            'Private message',
+            '/msg <nick> ...'
+          ],
+          msgme: [
+            'Describe action in private message',
+            '/msg <nick> /me ...'
+          ],
+          nick: [
+            'Change nickname',
+            '/nick <nick>'
+          ],
+          part: [
+            'Leave the room',
+            '/part'
+          ],
+          ping: [
+            'Ping',
+            '/ping [<nick> | <JID>]'
+          ],
+          quit: [
+            'Disconnect',
+            '/quit'
+          ],
+          save: [
+            'Save history as file',
+            '/save [html]'
+          ],
+          say: [
+            'Say something',
+            '[/say] ...'
+          ],
+          version: [
+            'Print version',
+            '/version [<nick> | <JID>]'
+          ],
+          who: [
+            'List users',
+            '/who [<room>]'
+          ]
+        },
+      },
+      admin: {
+        title: 'Administration commands',
+        commands: {
+          admin: [
+            'Server command',
+            '/admin <cmd> [...]'
+          ],
+          affiliate: [
+            'Set or show privileges',
+            '/affiliate <type> [<nick> | <JID>]'
+          ],
+          ban: [
+            'Ban a user',
+            '/ban [<nick> | <JID>]'
+          ],
+          bans: [
+            'List active bans',
+            '/bans'
+          ],
+          destroy: [
+            'Destroy a room',
+            '/destroy [<room>]'
+          ],
+          kick: [
+            'Kick a user',
+            '/kick <nick> [<reason>]'
+          ],
+          unban: [
+            'Unban a user',
+            '/unban <JID>'
+          ]
+        }
+      }
     }
   }
 };
