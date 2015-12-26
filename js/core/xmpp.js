@@ -990,25 +990,38 @@ var xmpp = {
    */
   eventIQCallback: function(stanza) {
     if (stanza && $(stanza).attr('type') == 'get') {
+      var response = this.iq('result').attrs({
+        to: $(stanza).attr('from'),
+        id: $(stanza).attr('id')
+      });
+
       // Respond to <ping> (XEP-0199).
       if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
-        return this.connection.send(this.iq('result').attrs({
-          to: $(stanza).attr('from'),
-          id: $(stanza).attr('id')
-        })) || true;
+        return this.connection.send(response) || true;
       }
 
       // Respond to <time> (XEP-0202).
       if ($('time', stanza).attr('xmlns') == 'urn:xmpp:time') {
-        return this.connection.send(this.iq('result').attrs({
-            to: $(stanza).attr('from'),
-            id: $(stanza).attr('id')
-          })
+        return this.connection.send(response
           .c('time', {xmlns: 'urn:xmpp:time'})
           .c('utc', moment().toISOString())
           .c('tzo', moment().format('Z'))
         ) || true;
       }
+
+      // List available features (XEP-0030).
+      if ($('query', stanza).attr('xmlns') == Strophe.NS.DISCO_INFO) {
+        response.c('query', {xmlns: Strophe.NS.DISCO_INFO})
+        response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
+        for (var i in config.features)
+          response.c('feature', {var: config.features[i]}).up();
+        return this.connection.send(response) || true;
+      }
+
+      // Send <feature-not-implemented/> for anything not recognized.
+      response.attrs({type: 'error'}).c('error', {type: 'cancel', code: 501});
+      response.c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS});
+      return this.connection.send(response) || true;
     }
     return true;
   },

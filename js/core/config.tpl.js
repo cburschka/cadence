@@ -160,6 +160,16 @@ var config = {
     maxMessageLength: 2048,
   },
 
+  features: [
+    Strophe.NS.DISCO_INFO,
+    Strophe.NS.MUC,
+    Strophe.NS.MUC + '#user',
+    Strophe.NS.XHTML_IM,
+    'jabber:x:conference',
+    'urn:xmpp:time',
+    'urn:xmpp:ping',
+  ],
+
   clientName: "cadence",
   version: '@@@VERSION@@@',
 };
