@@ -1,7 +1,6 @@
 $(document).ready(function() {
   init.loadSettings();
   init.loadEmoticons();
-  strings.init();
   ui.init();
   visual.init();
   xmpp.initialize();

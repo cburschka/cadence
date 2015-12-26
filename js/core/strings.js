@@ -1,35 +1,25 @@
 /**
  * strings.js contains all user-facing strings that the client will generate.
  *
+ * Guide to translators:
+ *  - Make a copy of this file and alter the string values accordingly.
+ *  - Note that markup is only supported in strings that already contain it.
+ *
  * @author Christoph Burschka <christoph@burschka.de>
  * @year 2014
  * @license GPL3+
  */
 var strings = {
-  init: function() {
-    var connection = {};
-    connection[Strophe.Status.ERROR] = this.connection.error;
-    connection[Strophe.Status.CONNECTING] = this.connection.connecting;
-    connection[Strophe.Status.CONNFAIL] = this.connection.connfail;
-    connection[Strophe.Status.AUTHENTICATING] = this.connection.authenticating;
-    connection[Strophe.Status.AUTHFAIL] = this.connection.authfail;
-    connection[Strophe.Status.CONNECTED] = this.connection.connected;
-    connection[Strophe.Status.DISCONNECTED] = this.connection.disconnected;
-    connection[Strophe.Status.DISCONNECTING] = this.connection.disconnecting;
-    connection[Strophe.Status.ATTACHED] = this.connection.attached;
-    this.connection = connection;
-  },
-
   connection: {
-    error : 'An error has occurred.',
-    connecting : 'Connecting ...',
-    connfail : 'Connection failed.',
-    authenticating : 'Authenticating...',
-    authfail : 'Authentication failed.',
-    connected : 'You are now connected.',
-    disconnected : 'You are now disconnected.',
-    disconnecting : 'Disconnecting ...',
-    attached : 'Session resumed.',
+    ERROR : 'An error has occurred.',
+    CONNECTING : 'Connecting ...',
+    CONNFAIL : 'Connection failed.',
+    AUTHENTICATING : 'Authenticating...',
+    AUTHFAIL : 'Authentication failed.',
+    CONNECTED : 'You are now connected.',
+    DISCONNECTED : 'You are now disconnected.',
+    DISCONNECTING : 'Disconnecting ...',
+    ATTACHED : 'Session resumed.',
   },
 
   show: {

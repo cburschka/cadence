@@ -21,6 +21,7 @@ var xmpp = {
   resource: null,
   status: 'offline',
   userStatus: null,
+  statusConstants: {},
   roster: {},
   historyEnd: {},
 
@@ -34,6 +35,11 @@ var xmpp = {
     this.eventMessageCallback = this.eventMessageCallback.bind(this);
     this.eventIQCallback = this.eventIQCallback.bind(this);
     this.disconnect = this.disconnect.bind(this);
+
+    // Generate a reverse lookup table for the connection status constants.
+    for (key in Strophe.Status) {
+      this.statusConstants[Strophe.Status[key]] = key;
+    }
   },
 
   /**
@@ -1043,7 +1049,7 @@ var xmpp = {
    * This function handles any changes in the connection state.
    */
   eventConnectCallback: function(status, errorCondition) {
-    var msg = strings.connection[status];
+    var msg = strings.connection[this.statusConstants[status]];
     var status = this.readConnectionStatus(status)
     if (errorCondition) msg += ' (' + errorCondition + ')';
     if (status != this.status)
