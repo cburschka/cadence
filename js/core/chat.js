@@ -98,7 +98,7 @@ var chat = {
 
           for (var jid in users) users[jid] = visual.format.user(users[jid]);
 
-          ui.messageAddInfo(output.length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
+          ui.messageAddInfo(Object.keys(users).length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
             type: arg.type,
             list: users
           });
