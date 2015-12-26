@@ -593,20 +593,23 @@ var xmpp = {
 
 
   /**
-   * Query server version.
+   * Query an entity's version.
+   *
+   * @param {function} callback The function that handles the response.
+   * @param {object} target The (optional) target to query.
    */
-  getVersion: function(callback) {
+  getVersion: function(callback, target) {
     this.connection.sendIQ(
-      this.iq('get', {}, {xmlns:'jabber:iq:version'}),
+      this.iq('get', target || {}, {xmlns:'jabber:iq:version'}),
       function (stanza) {
         callback({
-          name: $('name', stanza).html() || '-',
-          version: $('version', stanza).html() || '-',
-          os: $('os', stanza).html() || '-'
-        });
+          name: $('name', stanza).text() || '-',
+          version: $('version', stanza).text() || '-',
+          os: $('os', stanza).text() || '-'
+        }, stanza);
       },
-      function () {
-        callback(false);
+      function (stanza) {
+        callback(false, stanza);
       }
     );
   },

@@ -159,6 +159,7 @@ var strings = {
     usersInThisRoom: 'Users in this room: {list}.',
     versionClient: 'Cadence version: {version}',
     versionServer: 'Server version: {name} {version} running on {os}',
+    versionUser: '{user} is using: {name} {version} running on {os}',
     whisper: '(whispers)',
     whisperTo: '(whispers to {user})',
     whois: 'Information for {user}: {jid}, Role: {privilege}, Status: {status}'

@@ -501,7 +501,7 @@ var chat = {
         }, function(error) {
           var elapsed = ((new Date()).getTime() - time).toString();
           if (error) {
-            if ($('item-not-found', error)) {
+            if ($('item-not-found', error).length != 0) {
               ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
             }
             else {
@@ -577,9 +577,24 @@ var chat = {
 
     /**
      * version
-     *   Emit the config.version key.
+     *   Either print the client and server version, or query another user.
      */
-    version: function() {
+    version: function(arg) {
+      arg = arg.trim();
+      if (arg) {
+        var jid = arg.indexOf('@') >= 0;
+        var target = arg && (jid ? {jid: arg} : {nick: arg});
+        var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
+        return xmpp.getVersion(function(version, stanza) {
+          if (version) ui.messageAddInfo(strings.info.versionUser, {
+            name: version.name, version: version.version, os: version.os,
+            user: user
+          });
+          else if ($('item-not-found', stanza).length != 0)
+            ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        }, target);
+      }
+
       ui.messageAddInfo(strings.info.versionClient, {
         version: $('<a>')
           .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
