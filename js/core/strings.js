@@ -62,7 +62,7 @@ var strings = {
 
   info: {
     admin: {
-      result: 'Completed command "{command}":\n{raw:result}',
+      result: 'Completed command "{command}":\n{result}',
       completed: 'Completed command "{command}".'
     },
     affiliate: 'Affiliation of {user} in {room} set to {type}.',
@@ -136,7 +136,7 @@ var strings = {
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
     macros: 'Macros:<br /><code>{macros}</code>',
-    motd: 'Announcement from {domain}: {raw:text}',
+    motd: 'Announcement from {domain}: {text}',
     nickConflictResolve: 'This nickname is in user; enter another one.',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
@@ -157,7 +157,7 @@ var strings = {
     unbanSuccess: 'Unbanned {jid} from this room.',
     usersInRoom: 'Users in {room}: {list}.',
     usersInThisRoom: 'Users in this room: {list}.',
-    versionClient: 'Cadence version: {raw:version}',
+    versionClient: 'Cadence version: {version}',
     versionServer: 'Server version: {name} {version} running on {os}',
     whisper: '(whispers)',
     whisperTo: '(whispers to {user})',

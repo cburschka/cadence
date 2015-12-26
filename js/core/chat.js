@@ -54,11 +54,11 @@ var chat = {
         else {
           var result = [];
           $('field[type!=hidden]', stanza).each(function() {
-            result.push('<strong>' + $(this).attr('label') + '</strong>: ' + $(this).text());
+            result.push($('<strong>').text($(this).attr('label') + ': '), $(this).text(), $('<br>'));
           });
           ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
             command: m.cmd,
-            result: result.join("\n")
+            result: result
           });
         }
       });
