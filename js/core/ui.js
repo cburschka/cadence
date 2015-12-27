@@ -176,6 +176,10 @@ var ui = {
         .click(function() { ui.playSound(event); });
     });
 
+    $('#settings-locale').append($.map(locale, function(l, code) {
+      return $('<option>').attr('value', code).text(l.language);
+    }));
+
     // Set the form values.
     $('#settingsContainer .settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
@@ -355,6 +359,12 @@ var ui = {
       var value = this.value.trim();
       value = value ? value.split(/[\s,;]+/) : [];
       chat.setSetting(this.id.substring('settings-'.length), value);
+    });
+
+    // Instantly apply language setting.
+    $('#settings-locale').change(function() {
+      strings = locale[this.value];
+      ui.loadStrings();
     });
 
     // If notifications are activated, ensure they can be sent.
