@@ -46,7 +46,7 @@ def generate_links(cdn_url, mode, css_alt, style):
             'js/lib/filesaver.js'
         ]
         core = [
-            'js/core/strings.js', 'js/core/chat.js', 'js/core/xmpp.js',
+            'js/core/locale.js', 'js/core/chat.js', 'js/core/xmpp.js',
             'js/core/ui.js', 'js/core/visual.js', 'js/core/config.js',
             'js/core/emoticons.js', 'js/core/init.js'
         ]
