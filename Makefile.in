@@ -10,7 +10,7 @@ include ${SRC_PATH}/VERSION
 
 VPATH = ${SRC_PATH}
 
-CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
+CORE_FILES = js/core/locale.js js/core/chat.js js/core/xmpp.js \
              js/core/ui.js js/core/visual.js js/core/config.js \
              js/core/emoticons.js js/core/init.js
 
@@ -45,7 +45,7 @@ init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/core/config.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
+	rm -f index.html js/core/config.js js/core/locale.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
 	rmdir -p --ignore-fail-on-non-empty js/core/ js/lib/ css/global/
 
 distclean: clean
@@ -96,11 +96,12 @@ templates:
 	fi; \
 	"${SRC_PATH}/setup.py" $$VERSION
 
-index.html: index.tpl.html js/core/config.tpl.js .config.vars
+index.html: index.tpl.html js/core/config.tpl.js .config.vars locale/*.json
 	make templates
 
 js/core/config.js: index.html .config.vars
 js/core/emoticons.js: index.html .config.vars
+js/core/locale.js: index.html .config.vars
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@

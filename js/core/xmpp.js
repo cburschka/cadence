@@ -1033,7 +1033,7 @@ var xmpp = {
         response.c('query', {xmlns: Strophe.NS.DISCO_INFO})
         response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
         for (var i in config.features)
-          response.c('feature', {var: config.features[i]}).up();
+          response.c('feature', {'var': config.features[i]}).up();
         return this.connection.send(response) || true;
       }
 

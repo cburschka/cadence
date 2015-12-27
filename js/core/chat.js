@@ -241,8 +241,25 @@ var chat = {
      */
     configure: function(arg) {
       arg = chat.parseArgs(arg);
-      if (arg.help)
-        return ui.messageAddInfo($('<div>').html(strings.help.configure));
+      if (arg.help) {
+        var help = $('<dl>');
+        var values = ['title', 'desc'];
+        var options = ['log', 'persistent', 'anonymous', 'public', 'members-only'];
+        for (var i in values) help.append(
+          $('<dt>').append($('<code>').text('--' + values[i] + ' <...>')),
+          $('<dd>').append(strings.help.configure[values[i]])
+        );
+        for (var i in options) help.append(
+          $('<dt>').append($('<code>').text('--' + options[i] + ', --' + options[i] + ' 0')),
+          $('<dd>').append(strings.help.configure[options[i]])
+        );
+        help.append(
+          '<dt><code>--password &lt;...&gt;</code></dt>',
+          $('<dd>').append(strings.help.configure.password)
+        );
+        return ui.messageAddInfo(strings.help.configure.label, {args: help});
+      }
+
       if (!arg.name && arg[0]) arg.name = arg[0].join(' ');
       var name = arg.name || xmpp.room.current;
       if (!name)

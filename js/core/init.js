@@ -1,5 +1,6 @@
 $(document).ready(function() {
   init.loadSettings();
+  strings = locale[config.settings.locale] || locale.en;
   init.loadEmoticons();
   ui.init();
   visual.init();
