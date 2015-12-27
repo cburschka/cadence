@@ -8,6 +8,7 @@ Makefile
 index.html
 js/core/config.js
 js/core/emoticons.js
+js/core/locale.js
 js/lib/*.js
 js/lib.js
 js/core.js

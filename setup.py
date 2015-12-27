@@ -63,6 +63,18 @@ def generate_links(cdn_url, mode, css_alt, style):
     core_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in core)
     return css_links, lib_links, core_links
 
+def generate_locales(locales, src_path):
+    output = {}
+    try:
+        for locale in locales:
+            datafile = src_path + '/locale/' + locale + '.json'
+            data = json.load(open(datafile, 'r'))
+            output[locale] = data
+        open('js/core/locale.js', 'w+').write('var locale = ' + json.dumps(output) + ';')
+    except ValueError:
+        print("Error parsing locale {}.".format(locale))
+        raise(e)
+
 def generate_emoticons(cdn_url, packs, src_path):
     output = {'packages': {}, 'sidebars': {}}
     imagepath = 'img/emoticons/packs'
@@ -96,6 +108,7 @@ targets = {
     'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
     'js/core/config.js': lambda v: generate_file('js/core/config.tpl.js', 'js/core/config.js', v),
     'js/core/emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split(), v['SRC_PATH']),
+    'js/core/locale.js': lambda v: generate_locales(v['LOCALES'].split(), v['SRC_PATH'])
 }
 
 def main(target, version=None):

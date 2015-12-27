@@ -67,16 +67,50 @@ var ui = {
     this.setStyle(config.settings.activeStyle);
 
     // Build help sidebar.
+    var commands = {
+      chat: {
+        alias: "/alias <cmd> /a; /b",
+        away: "/away <message>",
+        back: "/back",
+        clear: "/clear",
+        configure: "/configure [--help | --interactive | <options>]",
+        connect: "/connect [<user> <pass>]",
+        create: "/create [--help | <name> [<options>]]",
+        join: "/join <room>",
+        list: "/list",
+        me: "/me <text>",
+        msg: "/msg <nick> ...",
+        msgme: "/msg <nick> /me ...",
+        nick: "/nick <nick>",
+        part: "/part",
+        ping: "/ping [<nick> | <JID>]",
+        quit: "/quit",
+        save: "/save [html]",
+        say: "[/say] ...",
+        version: "/version [<nick> | <JID>]",
+        who: "/who [<room>]",
+        whois: "/whois <nick>"
+      },
+      admin: {
+        admin: "/admin <cmd> [...]",
+        affiliate: "/affiliate <type> [<nick> | <JID>]",
+        ban: "/ban [<nick> | <JID>]",
+        bans: "/bans",
+        destroy: "/destroy [<room>]",
+        kick: "/kick <nick> [<reason>]",
+        unban: "/unban <JID>"
+      }
+    };
+
     var helpSidebar = $('#helpList');
-    var categories = strings.help.sidebar;
-    for (var category in categories) {
+    for (var category in commands) {
       var table = $('<table>');
-      table.append($('<caption>').append($('<h4>').text(categories[category].title)));
-      var commands = categories[category].commands;
-      for (var command in commands) {
+      table.append($('<caption>').append($('<h4 class="string">')
+        .attr('data-string', 'help.sidebar.category.' + category)));
+      for (var command in commands[category]) {
         var row = $('<tr class="row">').append(
-          $('<td class="desc">').text(commands[command][0]),
-          $('<td class="code">').text(commands[command][1])
+          $('<td class="desc string">').attr('data-string', 'help.sidebar.command.' + command),
+          $('<td class="code">').text(commands[category][command])
         );
         table.append(row);
       }

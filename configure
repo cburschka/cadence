@@ -22,6 +22,8 @@ def main():
     args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
         if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
 
+    args.locales = ' '.join(file[:-5] for file in os.listdir(args.src_path + '/locale')
+        if file[-5:] == '.json')
 
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
@@ -47,6 +49,7 @@ SRC_PATH={src_path}
 CSS_ALT={css_alt}
 STYLE={style}
 PACKS={packs}
+LOCALES={locales}
 '''.format(**vars(args)))
 
 

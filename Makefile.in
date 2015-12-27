@@ -8,7 +8,7 @@ endif
 
 VPATH = ${SRC_PATH}
 
-CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
+CORE_FILES = js/core/locale.js js/core/chat.js js/core/xmpp.js \
              js/core/ui.js js/core/visual.js js/core/config.js \
              js/core/emoticons.js js/core/init.js
 
@@ -44,7 +44,7 @@ init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/core/config.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
+	rm -f index.html js/core/config.js js/core/emoticons.js js/core/locale.js js/*.js js/lib/*.js css/global/all.*
 	for dir in "js/core/ js/lib/ css/global/"; do\
 	  if [ -d "$$dir" ]; then rmdir --ignore-fail-on-non-empty $$dir; fi;\
 	done
@@ -101,6 +101,9 @@ index.html: index.tpl.html .config.vars
 	"${SRC_PATH}/setup.py" $@
 
 js/core/emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
+	"${SRC_PATH}/setup.py" $@
+
+js/core/locale.js: $(wildcard locale/*.json) .config.vars
 	"${SRC_PATH}/setup.py" $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
