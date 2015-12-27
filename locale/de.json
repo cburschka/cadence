@@ -1,0 +1,383 @@
+{
+  "language": "Deutsch",
+  "connection": {
+    "ERROR": "Ein Fehler ist aufgetreten.",
+    "CONNECTING": "Verbindung wird aufgebaut ...",
+    "CONNFAIL" : "Verbindung fehlgeschlagen.",
+    "AUTHENTICATING" : "Anmeldung ...",
+    "AUTHFAIL" : "Anmeldung fehlgeschlagen.",
+    "CONNECTED" : "Sie sind verbunden.",
+    "DISCONNECTED" : "Die Verbindung wurde getrennt.",
+    "DISCONNECTING" : "Verbindung wird getrennt ...",
+    "ATTACHED" : "Sitzung wieder aufgenommen."
+  },
+
+  "show": {
+    "away": [
+      "{user} ist abwesend.",
+      "{user} ist abwesend ({status})."
+    ],
+    "xa": [
+      "{user} ist abwesend.",
+      "{user} ist abwesend ({status})."
+    ],
+    "dnd": [
+      "{user} ist beschäftigt.",
+      "{user} ist beschäftigt ({status})."
+    ],
+    "default": [
+      "{user} ist zurück.",
+      "{user} ist zurück ({status})."
+    ]
+  },
+  "showOther": [
+    "{user} wechselte zum Modus \"{show}\".",
+    "{user} wechselte zum Modus \"{show}\" ({status})."
+  ],
+
+  "code": {
+    "201": "Der Raum {name} wurde neu erstellt.",
+    "210": "Ihr Name wurde vom Server geändert."
+  },
+
+  "info": {
+    "admin": {
+      "result": "Befehl \"{command}\" ausgeführt:\n{result}",
+      "completed": "Befehl \"{command}\" ausgeführt."
+    },
+    "affiliate": "Zugehörigkeit von {user} in {room} ist jetzt {type}.",
+    "affiliations": {
+      "outcast": "Verbannte Benutzer in diesem Raum: {list}",
+      "member": "Mitglieder in diesem Raum: {list}",
+      "admin": "Administratoren in diesem Raum: {list}",
+      "owner": "Besitzer dieses Raums: {list}"
+    },
+    "affiliationsEmpty": "Kein Benutzer hat die Zugehörigkeit \"{type}\" in diesem Raum.",
+    "aliasAdd": "Alias /{cmd} erstellt.",
+    "aliasDelete": "Alias /{cmd} gelöscht.",
+    "aliasReplace": "Alias /{cmd} geändert.",
+    "creating": "Erzeuge den Raum {room} als {user} ...",
+    "destroyConfirm": "Wollen Sie den Raum {name} zerstören?",
+    "destroyed": [
+      [
+        "{room} wurde zerstört!",
+        "{room} wurde zerstört ({reason})!"
+      ],
+      [
+        "{room} wurde zerstört und durch {room:alternate} ersetzt!",
+        "{room} wurde zerstört {room:alternate} ersetzt ({reason})!"
+      ]
+    ],
+    "destroySuccess": "Der Raums {room} wurde erfolgreich zerstört.",
+    "evicted": {
+      "kick": {
+        "me": [
+          "Sie wurden hinausgeworfen!",
+          "Sie wurden hinausgeworfen ({reason})!",
+          "{user:actor} hat Sie hinausgeworfen!",
+          "{user:actor} hat Sie hinausgeworfen ({reason})!"
+        ],
+        "other": [
+          "{user} wurde hinausgeworfen.",
+          "{user} wurde hinausgeworfen ({reason}).",
+          "{user:actor} hat {user} hinausgeworfen.",
+          "{user:actor} hat {user} hinausgeworfen ({reason})."
+        ]
+      },
+      "ban": {
+        "me": [
+          "Sie wurden aus {room} verbannt!",
+          "Sie wurden aus {room} verbannt ({reason})!",
+          "{user:actor} hat Sie aus {room} verbannt!",
+          "{user:actor} hat Sie aus {room} verbannt ({reason})!"
+        ],
+        "other": [
+          "{user} wurde aus {room} verbannt.",
+          "{user} wurde aus {room} verbannt ({reason}).",
+          "{user:actor} hat {user} aus {room} verbannt.",
+          "{user:actor} hat {user} aus {room} verbannt ({reason})."
+        ]
+      }
+    },
+    "inviteReceived": [
+      [
+        "{jid} hat Sie nach {room} eingeladen.",
+        "{jid} hat Sie nach {room} eingeladen ({reason})."
+      ],
+      [
+        "{jid} hat Sie nach {room} eingeladen. Das Passwort ist \"{password}\".",
+        "{jid} hat Sie nach {room} eingeladen ({reason}). Das Passwort ist \"{password}\"."
+      ]
+    ],
+    "inviteSent": "{jid} nach {room} eingeladen.",
+    "joined": "Sie sind jetzt in {room}.",
+    "joining": "Trete {room} als {user} bei ...",
+    "joinPassword": "Dieser Raum ist passwortgeschützt.",
+    "leave": "Verlasse {room} ...",
+    "leavePage": "Beim Schließen dieser Seite verlieren Sie die empfangenen Nachrichten.",
+    "macros": "Makros:<br /><code>{macros}</code>",
+    "motd": "Nachricht von {domain}: {text}",
+    "nickConflictResolve": "Dieser Name ist im Gebrauch; wählen Sie einen anderen.",
+    "nickPrejoin": "Ihr vorgezogener Name ist jetzt {nick}",
+    "nickRegistered": "Wechsle zum registrierten Namen {nick}.",
+    "noUsers": "Keine Benutzer in {room}.",
+    "pong": [
+      "Ping: Pong ({delay} ms).",
+      "Ping zu {user}: Pong ({delay} ms)."
+    ],
+    "rejoinNick": "Weiche auf {nick} aus ...",
+    "roomConf": "Die Konfiguration von {room} wurde geändert.",
+    "roomsAvailable": "Verfügbare Räume: {list}",
+    "sessionAuth": "Automatische Anmeldung als {username}",
+    "userAffiliation": "Die Zugehörigkeit von {user} wurde auf {affiliation} gesetzt.",
+    "userIn": "{user} ist dem Raum beigetreten.",
+    "userNick": "{user:from} heißt jetzt {user:to}.",
+    "userOut": "{user} hat den Raum verlassen.",
+    "userRole": "Die Rolle von {user} wurde auf {role} gesetzt.",
+    "unbanSuccess": "Die Verbannung von {jid} wurde aufgehoben.",
+    "usersInRoom": "Benutzer in {room}: {list}.",
+    "usersInThisRoom": "Benutzer in diesem Raum: {list}.",
+    "versionClient": "Cadence-Version: {version}",
+    "versionServer": "Server-Version: {name} {version} auf {os}",
+    "versionUser": "{user} verwendet: {name} {version} auf {os}",
+    "whisper": "(flüstert)",
+    "whisperTo": "(flüstert zu {user})",
+    "whois": "Information zu {user}: {jid}, Rolle: {privilege}, Status: {status}"
+  },
+
+  "error": {
+    "admin": {
+      "forbidden": "Sie sind vom Server nicht befugt, \"{command}\" auszuführen.",
+      "badCommand": "Unbekannter Server-Befehl \"{command}\".",
+      "generic": "Fehler bei der Ausführung von \"{command}\": {text}",
+      "unknown": "Unbekannter Fehler bei der Ausführung von \"{command}\"."
+    },
+    "affiliate": {
+      "anon": "Sie haben keinen Zugriff auf die JID von {user} in diesem Raum.",
+      "conflict": "Sie können ihre eigene Zugehörigkeit nicht auf diesen Wert setzen.",
+      "default": "Unbekannter Fehler beim Ändern der Zugehörigkeit.",
+      "notAllowed": "Sie sind nicht befugt, die Zugehörigkeit von {user} auf {type} zu setzen.",
+      "type": "Zugehörigkeit \"{type}\" ist \"ungültig\": Gültige Werte: \"owner\", \"admin\", \"member\", \"none\", \"outcast\".",
+      "unknown": "Es gibt keinen Benutzer {nick} in diesem Raum."
+    },
+    "affiliations": {
+      "default": "Unbekannter Fehler beim Anzeigen der Gruppe {type}.",
+      "forbidden": "Sie sind nicht befugt, die Gruppe {type} in diesem Raum anzuzeigen."
+    },
+    "aliasFormat": "Verwendung: /alias <cmd> /<...>[; /<...>]*",
+    "aliasConflict": "/alias: Der Befehl /{cmd} kann nicht überschrieben werden.",
+    "aliasRecursion": "Fehler bei der Definition von {cmd}; Rekursion gefunden via {path}.",
+    "noMacros": "Keine Makros sind definiert.",
+    "badNick": "Der Name {nick} ist ungültig.",
+    "cmdStatus": {
+      "online": "/{cmd}: Sie sind bereits verbunden.",
+      "offline": "/{cmd}: Sie sind nicht verbunden.",
+      "prejoin": "/{cmd}: Sie sind nicht in einem Raum."
+    },
+    "destroyDenied": "Sie sind nicht dazu befugt, {room} zu zerstören.",
+    "destroy": "Fehler bei der Zerstörung von {room}.",
+    "dmsg": {
+      "domain": "Der Server {domain} wurde nicht erreicht.",
+      "node": "Der Nutzer {node} auf {domain} wurde nicht erreicht."
+    },
+    "formFields": "Die folgenden Felder konnten nicht gesetzt werden: {fields}",
+    "kick": {
+      "405": "Sie sind nicht dazu befugt, {nick} hinauszuwerfen.",
+      "406": "{nick} ist nicht anwesend und kann nicht hinausgeworfen werden."
+    },
+    "cmdUnknown": "Unbekannter Befehl: /{cmd}. Verwenden Sie \"/say /{cmd}\" oder \"//{cmd}\" um dies im Raum zu sagen.",
+    "jidInvalid": "{arg} ist keine gültige JID.",
+    "joinBanned": "Sie sind aus {room} verbannt.",
+    "joinConflict": "Konnte nicht beitreten; der Name {nick} ist schon im Gebrauch.",
+    "joinPassword": "Der Raum {room} ist passwortgeschützt.",
+    "joinSame": "Sie sind bereits in {room}.",
+    "messageDenied": "Sie sind nicht befugt, diese Nachricht zu senden ({text}).",
+    "nickConflict": "Der Name {nick} wird schon verwendet.",
+    "noArgument": "Dieser Befehl erfordert mehr Argumente.",
+    "noCreate": "Sie können keine Räume erzeugen.",
+    "noRoom": "Sie sind nicht in einem Raum und haben auch keinen angegeben.",
+    "pingError": "Ping: Das Ziel unterstützt keinen ping.",
+    "pingTimeout": [
+      "Ping: Zeitüberschreitung ({delay} ms).",
+      "Ping zu {user}: Zeitüberschreitung ({delay} ms)."
+    ],
+    "roomConf": "Konfiguration von {room} fehlgeschlagen.",
+    "roomConfDenied": "Sie sind nicht dazu befugt, {room} zu konfigurieren.",
+    "roomConfOptions": "Die erlaubten Werte für {field} sind: {options}",
+    "roomExists": "Konnte {room} nicht erzeugen; der Raum existiert schon.",
+    "roomCreateName": "Konnte keinen Raum ohne Namen erzeugen.",
+    "saveEmpty": "Es gibt keine zu speichernden Nachrichten.",
+    "unban": "Konnte die Verbannung von {jid} nicht aufheben.",
+    "unbanNone": "Dieser Nutzer ist nicht verbannt.",
+    "userpass": "Benutzername und Passwort sind erforderlich.",
+    "unknownJid": "Der Benutzer {user} ist anonym.",
+    "unknownRoom": "Der Raum {name} existiert nicht.",
+    "unknownRoomAuto": "Konnte dem Raum {name} nicht automatisch beitreten; er existiert nicht.",
+    "unknownUser": "Der Benutzer {nick} wurde nicht gefunden.",
+    "noRoomsAvailable": "Es sind keine Räume verfügbar."
+  },
+
+  "label": {
+    "command": {
+      "ban": "Verbannen",
+      "configure": "Konfigurieren",
+      "destroy": "Zerstören",
+      "dmsg": "Direkte Nachricht",
+      "invite": "Einladen",
+      "join": "Beitreten",
+      "kick": "Hinauswerfen",
+      "msg": "Private Nachricht",
+      "part": "Verlassen",
+      "ping": "Ping",
+      "whois": "Information"
+    },
+    "tip": {
+      "multiline": "Ein Eintrag pro Zeile."
+    },
+    "button": {
+      "advanced": "Erweitert",
+      "save": "Speichern",
+      "close": "Schließen",
+      "apply": "Anwenden",
+      "login": "Anmelden",
+      "logout": "Abmelden",
+      "help": "Hilfe",
+      "settings": "Einstellungen",
+      "roster": "Benutzer",
+      "sound": "Ton"
+    },
+    "page": {
+      "style": "Stil:",
+      "room": "Raum:",
+      "user": "Benutzer:",
+      "password": "Passwort:",
+      "navigation": "Navigation:",
+      "roster": "Benutzer",
+      "help": "Hilfe",
+      "settings": {
+        "main": "Einstellungen",
+        "general": "Allgemein",
+        "display": "Anzeige",
+        "notifications": "Mitteilungen"
+      },
+      "none": "---"
+    },
+    "tooltip": {
+       "input": "Drücken Sie STRG+EINGABE um einen Zeilenumbruch zu erzeugen.",
+       "bold": "Fetter Text: [b]text[/b]",
+       "italic": "Kursiver Text: [i]text[/i]",
+       "underline": "Unterstrichener Text: [u]text[/u]",
+       "strike": "Durchgestrichener Text: [s]text[/s]",
+       "quote": "Zitat: [quote]text[/quote] or [quote=author]text[/quote]",
+       "code": "Code: [code]code[/code]",
+       "url": "Link: [url]http://example.org[/url] or [url=http://example.org]text[/url]",
+       "img": "Bild: [img]http://example.org/image.jpg[/img]",
+       "color": "Textfarbe: [color=red]text[/color]",
+       "help": "Hilfe anzeigen/verbergen",
+       "settings": "Einstellungen anzeigen/verbergen",
+       "roster": "Benutzerliste anzeigen/verbergen",
+       "sound": "Ton an/aus"
+    },
+    "settings": {
+      "locale": "Sprache",
+      "xmpp": {
+        "sessionAuth": "Automatisch mit Forum-Sitzung anmelden",
+        "autoJoin": "Automatisch einem Raum beitreten"
+      },
+      "contextmenu": {
+        "label": "Kontextmenü öffnen mit",
+        "hover": "Mouseover",
+        "left": "Links-Klick",
+        "right": "Rechts-Klick"
+      },
+      "textColor": {
+        "label": "Textfarbe",
+        "clear": "Zurücksetzen",
+        "none": "Keine"
+      },
+      "dateFormat": "Datumsformat (<a href=\"http://momentjs.com/docs/#/displaying/format/\">Hilfe</a>)",
+      "markup": {
+        "html": "HTML anzeigen",
+        "images": "Bilder anzeigen",
+        "links": "URLs in Links umwandeln",
+        "colors": "Textfarben anzeigen",
+        "emoticons": "Emoticons anzeigen"
+      },
+      "verbose": "Detaillierte Nachrichten anzeigen",
+      "notifications": {
+        "desktop": {
+          "label": "Desktop-Benachrichtigungen",
+          "0": "Keine",
+          "1": "Alarm",
+          "2": "Alle Nachrichten",
+          "3": "Alles"
+        },
+        "triggers": "Alarmworte",
+        "soundVolume": "Lautstärke",
+        "sounds": {
+          "receive": "Empfangen",
+          "send": "Senden",
+          "enter": "Beitreten",
+          "leave": "Verlassen",
+          "info": "Information",
+          "error": "Fehler",
+          "mention": "Alarm",
+          "msg": "Private Nachricht"
+        },
+        "leavePage": "Vor dem Schließen warnen",
+        "blinkSpeed": "Blinkgeschwindigkeit",
+        "blinkLength": "Blinkdauer"
+      }
+    }
+  },
+  "help": {
+    "configure": {
+      "label": "Konfigurationsargumente:\n{args}",
+      "title": "Titel des Raums",
+      "desc": "Beschreibung.",
+      "log": "Der Raum wird aufgezeichnet.",
+      "persistent": "Der Raum bleibt ohne Teilnehmer bestehen.",
+      "public": "Der Raum ist öffentlich einsehbar.",
+      "anonymous": "Nur Moderatoren können die JID der Teilnehmer sehen.",
+      "password": "Schütze den Raum durch ein Passwort.",
+      "members-only": "Nur Mitglieder dürfen dem Raum beitreten."
+    },
+
+    "sidebar": {
+      "category": {
+        "chat": "Chat-Befehle",
+        "admin": "Administrations-Befehle"
+      },
+      "command": {
+        "admin": "Server-Befehl",
+        "affiliate": "Zugehörigkeiten anzeigen und ändern",
+        "alias": "Makro erzeugen",
+        "away": "Abwesenheit melden",
+        "back": "Abwesenheit beenden",
+        "ban": "Benutzer verbannen",
+        "bans": "Verbannungen anzeigen",
+        "clear": "Alle Nachrichten entfernen",
+        "configure": "Raum konfigurieren",
+        "connect": "Verbinden",
+        "create": "Neuen Raum erzeugen",
+        "destroy": "Raum zerstören",
+        "join": "Raum beitreten",
+        "kick": "Benutzer hinauswerfen",
+        "list": "Verfügbare Räume anzeigen",
+        "me": "Handlung beschreiben",
+        "msg": "Private Nachricht",
+        "msgme": "Handlung in privater Nachricht beschreiben",
+        "nick": "Namen ändern",
+        "part": "Raum verlassen",
+        "ping": "Ping",
+        "quit": "Abmelden",
+        "save": "Nachrichten als Datei speichern",
+        "say": "Etwas sagen",
+        "unban": "Verbannung aufheben",
+        "version": "Version anzeigen",
+        "who": "Benutzer anzeigen",
+        "whois": "Benutzer-Details anzeigen"
+      }
+    }
+  }
+}
