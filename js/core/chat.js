@@ -561,7 +561,7 @@ var chat = {
      */
     unban: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.jid = Strophe.getBareJid(arg.jid || arg[0][0]);
+      arg.jid = Strophe.getBareJidFromJid(arg.jid || arg[0][0]);
 
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         if ($('item', stanza).is(function() { return $(this).attr('jid') === arg.jid; }))
