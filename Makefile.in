@@ -6,8 +6,6 @@ ifndef CP
   CP=cp
 endif
 
-include ${SRC_PATH}/VERSION
-
 VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/locale.js js/core/chat.js js/core/xmpp.js \
@@ -35,6 +33,7 @@ ifeq (${MODE},minify)
   CSS_FILES = css/global/all.min.css
 endif
 ifeq (${MODE},debug)
+  JS_FILES = ${CORE_FILES} ${LIB_FILES}
   CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 endif
 
@@ -45,8 +44,10 @@ init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/core/config.js js/core/locale.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
-	rmdir -p --ignore-fail-on-non-empty js/core/ js/lib/ css/global/
+	rm -f index.html js/core/config.js js/core/emoticons.js js/core/locale.js js/*.js js/lib/*.js css/global/all.*
+	for dir in "js/core/ js/lib/ css/global/"; do\
+	  if [ -d "$$dir" ]; then rmdir --ignore-fail-on-non-empty $$dir; fi;\
+	done
 
 distclean: clean
 	rm .config.vars
@@ -89,19 +90,21 @@ install-css-global: ${CSS_FILES}
 	mkdir -p "${CDN_PREFIX}/css/global"
 	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
 
-templates:
+js/core/config.js: js/core/config.tpl.js .config.vars
 	VERSION=${VERSION}
 	if [ -d "${SRC_PATH}/.git" ]; then \
 	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always`; \
 	fi; \
-	"${SRC_PATH}/setup.py" $$VERSION
+	"${SRC_PATH}/setup.py" $@ $$VERSION
 
-index.html: index.tpl.html js/core/config.tpl.js .config.vars locale/*.json
-	make templates
+index.html: index.tpl.html .config.vars
+	"${SRC_PATH}/setup.py" $@
 
-js/core/config.js: index.html .config.vars
-js/core/emoticons.js: index.html .config.vars
-js/core/locale.js: index.html .config.vars
+js/core/emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
+	"${SRC_PATH}/setup.py" $@
+
+js/core/locale.js: $(wildcard locale/*.json) .config.vars
+	"${SRC_PATH}/setup.py" $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@

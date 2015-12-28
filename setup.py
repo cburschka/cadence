@@ -7,11 +7,12 @@ import collections
 
 def load_variables():
     data = open('.config.vars').read().strip().split('\n')
+    if (os.path.isfile('.version')):
+      data += open('.version').read().strip().split('\n')
     return dict(line.split('=', 2) for line in data)
 
-
 def generate_file(src, dest, var):
-    template = open(src).read()
+    template = open(var['SRC_PATH'] + '/' + src).read()
     template = re.sub('([{}])', '\\1\\1', template)
     template = re.sub('@@@([A-Z_]+)@@@', '{\\1}', template)
     open(dest, 'w+').write(template.format(**var))
@@ -103,21 +104,24 @@ def generate_emoticons(cdn_url, packs, src_path):
         print("Error parsing emoticon pack {}".format(pack))
         raise(e)
 
+targets = {
+    'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
+    'js/core/config.js': lambda v: generate_file('js/core/config.tpl.js', 'js/core/config.js', v),
+    'js/core/emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split(), v['SRC_PATH']),
+    'js/core/locale.js': lambda v: generate_locales(v['LOCALES'].split(), v['SRC_PATH'])
+}
 
-
-
-def main():
+def main(target, version=None):
     variables = load_variables()
+    if (version):
+        variables['VERSION'] = version
     css_alt = variables['CSS_ALT'].split()
     css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
     variables['JS_LINKS_CORE'] = corejs
-    variables['VERSION'] = sys.argv[1]
 
-    generate_files(variables['SRC_PATH'], variables)
-    generate_emoticons(variables['CDN_URL'], variables['PACKS'].split(), variables['SRC_PATH'])
-    generate_locales(variables['LOCALES'].split(), variables['SRC_PATH'])
+    return targets[target](variables)
 
-main()
+main(*sys.argv[1:])
