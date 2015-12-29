@@ -186,6 +186,10 @@ var strings = {
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
+    dmsg: {
+      domain: 'The remote server {domain} was not found.',
+      node: 'User {node} on {domain} is not available.'
+    },
     formFields: 'The following fields could not be set: {fields}',
     kick: {
       405: 'You lack the authority to kick {nick}.',
