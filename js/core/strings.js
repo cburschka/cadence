@@ -166,7 +166,7 @@ var strings = {
       anon: 'You cannot access the JID of {user} in this room.',
       conflict: 'You cannot change your own affiliation in this way.',
       'default': 'Unknown error while attempting to set affiliation.',
-      notAllowed: 'You lack the authority to do this.',
+      notAllowed: 'You lack the authority to set the affiliation of {user} to {type}.',
       type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".',
       unknown: 'There is no user named {nick} in this room.',
     },
