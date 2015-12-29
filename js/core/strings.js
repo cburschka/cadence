@@ -270,7 +270,8 @@ var strings = {
         display: 'Display',
         notifications: 'Notifications'
       },
-      none: '---'
+      none: '---',
+      offline: 'Offline'
     },
     tooltip: {
        input: 'Press SHIFT+ENTER to input a line break',

@@ -778,8 +778,8 @@ var ui = {
     var entry = visual.formatMessage(message);
     entry.html.addClass('delayed')
       .find('.dateTime').after(' ', $('<span class="log-room"></span>')
-        .addClass('log-room-' + message.room.id)
-        .text('[' + message.room.title + ']')
+        .addClass(message.room && ('log-room-' + message.room.id))
+        .text('[' + (message.room ? message.room.title : strings.label.page.offline) + ']')
       );
     this.messageInsert(entry);
   },

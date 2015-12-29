@@ -917,6 +917,8 @@ var xmpp = {
       if (type == 'error')
         return this.eventMessageError(stanza, node, domain, resource) || true;
 
+      var muc = domain == config.xmpp.mucService;
+
       // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
       if (!$(stanza).children('body').length) return true;
 
@@ -927,10 +929,10 @@ var xmpp = {
       var time = delay.attr('stamp') || (new Date()).toISOString();
 
       // Message of the Day.
-      if ((domain == config.xmpp.domain || domain == config.xmpp.mucService) && !node && !resource)
+      if (!node && !resource)
         return ui.messageAddInfo(strings.info.motd, {domain: domain, text: body}, 'error');
 
-      else if (domain == config.xmpp.mucService) {
+      else if (muc) {
         // Accept invitations.
         var invite = $('x invite', stanza);
         if (invite.length) {
@@ -952,10 +954,24 @@ var xmpp = {
         if (node != this.room.current) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
-        if (!delay.length) {
-          // Fall back on just the nick if no roster entry exists (usually an error).
-          var user = this.roster[node][resource] || {nick: resource};
+        if (delay.length) {
+          user = {nick: resource}
+          var jid = delay.attr('from');
+          // In non-anonymous rooms, try to identify the author by JID.
+          var bareJid = Strophe.getBareJidFromJid(jid)
+          if (bareJid != Strophe.getBareJidFromJid(from)) {
+            user.jid = jid;
+            for (var nick in this.roster[node]) {
+              if (bareJid == Strophe.getBareJidFromJid(this.roster[node][nick].jid)) {
+                user = $.extend({}, this.roster[node][nick], user)
+                break;
+              }
+            }
+          }
         }
+
+        // Fall back on just the nick if no roster entry exists (usually an error).
+        else var user = this.roster[node][resource] || {nick: resource};
       }
 
       // Accept direct messages from other domains.
@@ -963,24 +979,11 @@ var xmpp = {
       this.historyEnd[node] = time;
 
       if (delay.length) {
-        user = {nick: resource}
-        var jid = delay.attr('from');
-        // In non-anonymous rooms, try to identify the author by JID.
-        var bareJid = Strophe.getBareJidFromJid(jid)
-        if (bareJid != Strophe.getBareJidFromJid(from)) {
-          user.jid = jid;
-          for (var nick in this.roster[node]) {
-            if (bareJid == Strophe.getBareJidFromJid(this.roster[node][nick].jid)) {
-              user = $.extend({}, this.roster[node][nick], user)
-              break;
-            }
-          }
-        }
         ui.messageDelayed({
           user: user,
           body: body,
           time: delay.attr('stamp'),
-          room: this.room.available[node],
+          room: muc && this.room.available[node],
           type: type
         });
       }
