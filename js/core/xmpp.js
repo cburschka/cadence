@@ -917,8 +917,11 @@ var xmpp = {
       if (type == 'error')
         return this.eventMessageError(stanza, node, domain, resource) || true;
 
+      // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
+      if (!$(stanza).children('body').length) return true;
+
       var body = $('html body p', stanza).contents();
-      if (!body.length) body = $('body:first', stanza).contents();
+      if (!body.length) body = $(stanza).children('body').contents();
 
       var delay = $('delay', stanza);
       var time = delay.attr('stamp') || (new Date()).toISOString();
