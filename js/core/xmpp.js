@@ -1082,7 +1082,7 @@ var xmpp = {
     if (status == 'prejoin') {
       this.connection.send(this.pres());
       var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
-      if (config.settings.xmpp.autoJoin || ui.urlFragment) {
+      if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         this.discoverRooms(function (rooms) {
           if (rooms[room]) chat.commands.join({name: room});
           else {
