@@ -156,7 +156,7 @@
       "anon": "You cannot access the JID of {user} in this room.",
       "conflict": "You cannot change your own affiliation to this value.",
       "default": "Unknown error while attempting to set affiliation.",
-      "notAllowed": "You lack the authority to do this.",
+      "notAllowed": "You lack the authority to set the affiliation of {user} to {type}.",
       "type": "Affiliation \"{type}\" must be one of \"owner\", \"admin\", \"member\", \"none\", \"outcast\".",
       "unknown": "There is no user named {nick} in this room."
     },
@@ -176,13 +176,17 @@
     },
     "destroyDenied": "You lack the authority to destroy {room}.",
     "destroy": "Failed to destroy {room}.",
+    "dmsg": {
+      "domain": "The remote server {domain} was not found.",
+      "node": "User {node} on {domain} is not available."
+    },
     "formFields": "The following fields could not be set: {fields}",
     "kick": {
       "405": "You lack the authority to kick {nick}.",
       "406": "You can't kick {nick} because they're not in the room."
     },
     "cmdUnknown": "Unknown command: /{cmd}. Type \"/say /{cmd}\" or \"//{cmd}\" to say this in chat.",
-    "jidInvalid": "{jid} is not a valid JID.",
+    "jidInvalid": "{arg} is not a valid JID.",
     "joinBanned": "You are banned from {room}.",
     "joinConflict": "Unable to join; username {nick} already in use.",
     "joinPassword": "A password is required to enter {room}.",

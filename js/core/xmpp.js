@@ -913,6 +913,10 @@ var xmpp = {
       var domain = Strophe.getDomainFromJid(from);
       var node = Strophe.unescapeNode(Strophe.getNodeFromJid(from) || '') || null;
       var resource = Strophe.getResourceFromJid(from);
+
+      if (type == 'error')
+        return this.eventMessageError(stanza, node, domain, resource) || true;
+
       var body = $('html body p', stanza).contents();
       if (!body.length) body = $('body:first', stanza).contents();
 
@@ -953,14 +957,6 @@ var xmpp = {
 
       // Accept direct messages from other domains.
       else var user = {jid: from};
-      if (type == 'error') {
-        var error = $('error', stanza);
-        if ($('item-not-found', error).length)
-          ui.messageAddInfo(strings.error.unknownUser, {nick: user.nick}, 'error');
-        else if ($('forbidden', error).length)
-          ui.messageAddInfo(strings.error.messageDenied, {text: $('text', error).text()}, 'error');
-        return true;
-      }
       this.historyEnd[node] = time;
 
       if (delay.length) {
@@ -992,6 +988,26 @@ var xmpp = {
       }
     }
     return true;
+  },
+
+  /**
+   * Handle <message> stanzas of type "error".
+   *
+   * @param {object} stanza
+   * @param {string} node
+   * @param {string} domain
+   * @param {string} resource
+   */
+  eventMessageError: function(stanza, node, domain, resource) {
+    var error = $('error', stanza);
+    if ($('remote-server-not-found', error).length)
+      return ui.messageAddInfo(strings.error.dmsg.domain, {domain: domain}, 'error');
+    if ($('service-unavailable', error).length)
+      return ui.messageAddInfo(strings.error.dmsg.node, {domain: domain, node: node}, 'error');
+    if ($('item-not-found', error).length)
+      return ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
+    if ($('forbidden', error).length)
+      return ui.messageAddInfo(strings.error.messageDenied, {text: $('text', error).text()}, 'error');
   },
 
   /**

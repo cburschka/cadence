@@ -111,7 +111,7 @@ var chat = {
       // Attempt to set a user's affiliation.
       if (!user.jid)
         return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
-      if (user.jid.indexOf('@') < 0)
+      if (!Strophe.getNodeFromJid(user.jid))
         return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: user.jid}, 'error');
 
       if (!user.nick)
@@ -130,7 +130,7 @@ var chat = {
         var error = 'default';
         if ($('not-allowed', iq).length) error = 'notAllowed';
         else if ($('conflict', iq).length) error = 'conflict';
-        ui.messageAddInfo(strings.error.affiliate[error], 'error');
+        ui.messageAddInfo(strings.error.affiliate[error], {user: user, type: arg.type}, 'error');
       });
     },
 
@@ -358,7 +358,7 @@ var chat = {
 
       if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (!Strophe.getNodeFromJid(m.jid))
-        return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
+        return ui.messageAddInfo(strings.error.jidInvalid, {arg: m.jid});
 
       var body = chat.formatOutgoing(m.msg);
       xmpp.sendMessage(body, {jid: m.jid});
@@ -507,7 +507,7 @@ var chat = {
      */
     ping: function(arg) {
       arg = arg.trim();
-      var jid = arg.indexOf('@') >= 0;
+      var jid = Strophe.getResourceFromJid(arg); // Only accept full JIDs.
       var target = arg && (jid ? {jid: arg} : {nick: arg});
       var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
       var time = (new Date()).getTime();
@@ -578,7 +578,7 @@ var chat = {
      */
     unban: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.jid = Strophe.getBareJid(arg.jid || arg[0][0]);
+      arg.jid = Strophe.getBareJidFromJid(arg.jid || arg[0][0]);
 
       xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
         if ($('item', stanza).is(function() { return $(this).attr('jid') === arg.jid; }))
@@ -599,7 +599,7 @@ var chat = {
     version: function(arg) {
       arg = arg.trim();
       if (arg) {
-        var jid = arg.indexOf('@') >= 0;
+        var jid = Strophe.getResourceFromJid(arg);
         var target = arg && (jid ? {jid: arg} : {nick: arg});
         var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
         return xmpp.getVersion(function(version, stanza) {

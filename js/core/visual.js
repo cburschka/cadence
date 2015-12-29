@@ -501,9 +501,12 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    return 'jid-node-' + visual.escapeClass(Strophe.unescapeNode(Strophe.getNodeFromJid(jid)).toLowerCase()) + ' '
-         + 'jid-domain-' + visual.escapeClass(Strophe.getDomainFromJid(jid)) + ' '
-         + 'jid-resource-' + visual.escapeClass(Strophe.getResourceFromJid(jid));
+    var node = Strophe.unescapeNode(Strophe.getNodeFromJid(jid) || '').toLowerCase();
+    var domain = Strophe.getDomainFromJid(jid);
+    var resource = Strophe.getResourceFromJid(jid);
+    return 'jid-node-' + visual.escapeClass(node) + ' '
+         + 'jid-domain-' + visual.escapeClass(domain) + ' '
+         + 'jid-resource-' + visual.escapeClass(resource);
   },
 
   escapeClass: function(text) {

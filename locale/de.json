@@ -156,7 +156,7 @@
       "anon": "Sie haben keinen Zugriff auf die JID von {user} in diesem Raum.",
       "conflict": "Sie können ihre eigene Zugehörigkeit nicht auf diesen Wert setzen.",
       "default": "Unbekannter Fehler beim Ändern der Zugehörigkeit.",
-      "notAllowed": "Sie haben dazu nicht die Befugnis.",
+      "notAllowed": "Sie sind nicht befugt, die Zugehörigkeit von {user} auf {type} zu setzen.",
       "type": "Zugehörigkeit \"{type}\" ist \"ungültig\": Gültige Werte: \"owner\", \"admin\", \"member\", \"none\", \"outcast\".",
       "unknown": "Es gibt keinen Benutzer {nick} in diesem Raum."
     },
@@ -176,13 +176,17 @@
     },
     "destroyDenied": "Sie sind nicht dazu befugt, {room} zu zerstören.",
     "destroy": "Fehler bei der Zerstörung von {room}.",
+    "dmsg": {
+      "domain": "Der Server {domain} wurde nicht erreicht.",
+      "node": "Der Nutzer {node} auf {domain} wurde nicht erreicht."
+    },
     "formFields": "Die folgenden Felder konnten nicht gesetzt werden: {fields}",
     "kick": {
       "405": "Sie sind nicht dazu befugt, {nick} hinauszuwerfen.",
       "406": "{nick} ist nicht anwesend und kann nicht hinausgeworfen werden."
     },
     "cmdUnknown": "Unbekannter Befehl: /{cmd}. Verwenden Sie \"/say /{cmd}\" oder \"//{cmd}\" um dies im Raum zu sagen.",
-    "jidInvalid": "{jid} ist keine gültige JID.",
+    "jidInvalid": "{arg} ist keine gültige JID.",
     "joinBanned": "Sie sind aus {room} verbannt.",
     "joinConflict": "Konnte nicht beitreten; der Name {nick} ist schon im Gebrauch.",
     "joinPassword": "Der Raum {room} ist passwortgeschützt.",
