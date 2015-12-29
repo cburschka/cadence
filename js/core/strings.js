@@ -192,7 +192,7 @@ var strings = {
       406: 'You can\'t kick {nick} because they\'re not in the room.',
     },
     cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
-    jidInvalid: '{jid} is not a valid JID.',
+    jidInvalid: '{arg} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinPassword: 'A password is required to enter {room}.',

@@ -341,7 +341,7 @@ var chat = {
 
       if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
       if (!Strophe.getNodeFromJid(m.jid))
-        return ui.messageAddInfo(strings.error.jidInvalid, {jid: m.jid});
+        return ui.messageAddInfo(strings.error.jidInvalid, {arg: m.jid});
 
       var body = chat.formatOutgoing(m.msg);
       xmpp.sendMessage(body, {jid: m.jid});
