@@ -1073,7 +1073,7 @@ var ui = {
     if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
       var title = xmpp.room.available[xmpp.room.current].title;
-      var text = $('<span>' + message.body + '</span>').text();
+      var text = $(message.body).text();
       if (message.type != 'groupchat' && message.type != 'local')
         text = strings.info.whisper + ' ' + text;
 
