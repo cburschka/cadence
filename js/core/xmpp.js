@@ -972,7 +972,10 @@ var xmpp = {
       }
 
       // Accept direct messages from other domains.
-      else var user = {jid: from};
+      else {
+        var user = {jid: from};
+        type = 'direct';
+      }
       this.historyEnd[node] = time;
 
       // Process an XEP-0224 <attention> element.

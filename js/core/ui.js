@@ -1072,15 +1072,19 @@ var ui = {
   notifyDesktop: function(level, message) {
     if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
-      var title = xmpp.room.available[xmpp.room.current].title;
       var text = $(message.body).text();
-      if (message.type != 'groupchat' && message.type != 'local')
-        text = strings.info.whisper + ' ' + text;
+      var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
 
-      if (message.type != 'local') {
-        var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
-        text = sender + ': ' + text;
+      if (message.type != 'direct') {
+        var title = xmpp.room.available[xmpp.room.current].title;
+        if (message.type != 'local') {
+          if (message.type != 'groupchat')
+            text = strings.info.whisper + ' ' + text;
+          text = sender + ': ' + text;
+        }
       }
+      else title = sender;
+
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },
