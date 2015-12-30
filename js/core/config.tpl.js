@@ -169,8 +169,10 @@ var config = {
     'jabber:x:conference',
     'urn:xmpp:time',
     'urn:xmpp:ping',
+    'http://jabber.org/protocol/caps'
   ],
 
   clientName: "cadence",
+  clientURL: "https://github.com/cburschka/cadence",
   version: '@@@VERSION@@@',
 };

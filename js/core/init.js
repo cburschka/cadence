@@ -1,6 +1,7 @@
 $(document).ready(function() {
   init.loadSettings();
   init.loadEmoticons();
+  config.capHash = init.capHash();
   ui.init();
   visual.init();
   xmpp.initialize();
@@ -42,6 +43,19 @@ init = {
     for (pack in emoticons.sidebars) {
       config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
+  },
+
+  /**
+   * Generate a verification string according to XEP-0115 Section 5.1
+   *
+   * @returns {string}
+   */
+  capHash: function() {
+    var s = 'client/web//' + config.clientName + '<';
+    for (i in config.features.sort()) {
+      s += config.features[i] + '<';
+    }
+    return SHA1.b64_sha1(s);
   },
 
   shutDown: function() {

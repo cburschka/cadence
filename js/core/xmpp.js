@@ -1080,7 +1080,7 @@ var xmpp = {
     ui.setStatus(this.status);
 
     if (status == 'prejoin') {
-      this.connection.send(this.pres());
+      this.broadcastPresence();
       var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         this.discoverRooms(function (rooms) {
@@ -1128,6 +1128,15 @@ var xmpp = {
       case Strophe.Status.ATTACHED:
         return 'prejoin';
     }
+  },
+
+  broadcastPresence: function() {
+    this.connection.send(this.pres().c('c', {
+        xmlns: 'http://jabber.org/protocol/caps',
+        hash: 'sha-1',
+        node: config.clientURL,
+        ver: config.capHash
+    }));
   },
 
   /**
