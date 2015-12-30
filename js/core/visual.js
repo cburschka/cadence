@@ -255,7 +255,7 @@ visual = {
     if (typeof(text) === 'string') text = $('<span>').text(text);
     text.find('*').addBack() // include all descendants and the top element.
       .replaceText(/({(?:(\w+):)?(\w+)})/g, function(rep, format, key) {
-        if (key in variables) {
+        if (variables && key in variables) {
           if ((format || key) in visual.format) {
             return visual.format[format || key](variables[key]);
           }
