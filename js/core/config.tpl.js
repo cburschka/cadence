@@ -148,7 +148,7 @@ var config = {
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
     domain: '@@@XMPP_DOMAIN@@@',
-    boshURL: '@@@XMPP_BOSH@@@',
+    url: '@@@XMPP_URL@@@',
     mucService: '@@@XMPP_MUC@@@',
     sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
   },

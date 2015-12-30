@@ -46,7 +46,7 @@ var xmpp = {
    * Build a new connection object. This is used whenever the client reconnects.
    */
   buildConnection: function() {
-    this.connection = new Strophe.Connection(config.xmpp.boshURL);
+    this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
     this.connection.addHandler(this.eventMessageCallback, null, 'message');
     this.connection.addHandler(this.eventIQCallback, null, 'iq');
