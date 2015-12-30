@@ -919,9 +919,6 @@ var xmpp = {
 
       var muc = domain == config.xmpp.mucService;
 
-      // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
-      if (!$(stanza).children('body').length) return true;
-
       var body = $('html body p', stanza).contents();
       if (!body.length) body = $(stanza).children('body').contents();
 
@@ -977,6 +974,14 @@ var xmpp = {
       // Accept direct messages from other domains.
       else var user = {jid: from};
       this.historyEnd[node] = time;
+
+      // Process an XEP-0224 <attention> element.
+      if ($(stanza).children('attention').attr('xmlns') == 'urn:xmpp:attention:0') {
+        ui.messageAddInfo(strings.info.attention, {user: user}, 'error');
+      }
+
+      // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
+      if (!$(stanza).children('body').length) return true;
 
       if (delay.length) {
         ui.messageDelayed({

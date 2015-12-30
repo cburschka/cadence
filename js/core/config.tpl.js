@@ -169,6 +169,7 @@ var config = {
     'jabber:x:conference',
     'urn:xmpp:time',
     'urn:xmpp:ping',
+    'urn:xmpp:attention:0',
     'http://jabber.org/protocol/caps'
   ],
 

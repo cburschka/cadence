@@ -748,6 +748,7 @@ var ui = {
       classes = variables;
       variables = false;
     }
+    var error = false;
 
     // Suppress verbose messages.
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
@@ -755,6 +756,7 @@ var ui = {
     }
     else if (0 <= (' ' + classes + ' ').indexOf(' error ')) {
       this.playSound('error');
+      error = true;
     }
 
     var body = visual.formatText(text, variables);
@@ -762,7 +764,7 @@ var ui = {
       body: body, type: 'local',
       user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
     };
-    this.notifyDesktop(3, message);
+    this.notifyDesktop(error ? 1 : 3, message);
     message = visual.formatMessage(message, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
