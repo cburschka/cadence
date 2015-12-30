@@ -647,7 +647,14 @@ var xmpp = {
         ui.refreshRooms(this.room.available);
         if (callback) callback(rooms);
       }.bind(this),
-      function() {}
+      function(stanza) {
+        var type = 'default';
+        var error = $(stanza).children('error');
+        if (error.children('remote-server-not-found').length) type = 404;
+        var text = error.children('text').text();
+        text = text ? ' (' + text + ')' : '';
+        ui.messageAddInfo(strings.error.muc[type] + text, {domain: config.xmpp.mucService}, 'error');
+      }
     );
     return true;
   },

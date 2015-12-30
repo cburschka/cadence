@@ -203,6 +203,10 @@ var strings = {
     joinPassword: 'A password is required to enter {room}.',
     joinSame: 'You are already in {room}.',
     messageDenied: 'You lack the authority to send this message ({text}).',
+    muc: {
+      404: 'The conference server {domain} is not available.',
+      'default': 'Unknown error while connecting to the conference server {domain}.',
+    },
     nickConflict: 'Username {nick} already in use.',
     noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
