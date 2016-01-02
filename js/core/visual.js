@@ -116,6 +116,17 @@ visual = {
 
   format: {
     /**
+     * Render a button.
+     * @param {object} button An object with a "label" string, a "click" function
+     *                        and an optional "attributes" object.
+     * @returns {jQuery} the rendered button.
+     */
+    button: function(button) {
+      return $('<button>').text(button.label).click(button.click)
+              .attr(button.attributes || {});
+    },
+
+    /**
      * Format a JID.
      *
      * This is a shortcut to formatting a non-occupant user.
