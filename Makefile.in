@@ -9,8 +9,8 @@ endif
 VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
-             js/core/ui.js js/core/visual.js js/core/config.js \
-             js/core/emoticons.js js/core/init.js
+             js/core/ui.js js/core/visual.js js/core/init.j \
+             js/core/config.js js/core/emoticons.js s
 
 LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \

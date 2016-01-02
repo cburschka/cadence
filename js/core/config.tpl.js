@@ -166,11 +166,11 @@ var config = {
     Strophe.NS.MUC + '#user',
     Strophe.NS.XHTML_IM,
     Strophe.NS.VERSION,
-    'jabber:x:conference',
-    'urn:xmpp:time',
-    'urn:xmpp:ping',
-    'urn:xmpp:attention:0',
-    'http://jabber.org/protocol/caps'
+    Strophe.NS.Cadence_ATTN,
+    Strophe.NS.Cadence_CAPS,
+    Strophe.NS.Cadence_CONFERENCE,
+    Strophe.NS.Cadence_PING,
+    Strophe.NS.Cadence_TIME
   ],
 
   clientName: "cadence",

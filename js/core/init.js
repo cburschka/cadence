@@ -1,3 +1,12 @@
+var NS = {
+  ATTN: 'urn:xmpp:attention:0',
+  CAPS: 'http://jabber.org/protocol/caps',
+  CONFERENCE: 'jabber:x:conference',
+  PING: 'urn:xmpp:ping',
+  TIME: 'urn:xmpp:time'
+};
+for (var i in NS) Strophe.addNamespace('Cadence_' + i, NS[i]);
+
 $(document).ready(function() {
   init.loadSettings();
   init.loadEmoticons();

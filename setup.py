@@ -47,8 +47,8 @@ def generate_links(cdn_url, mode, css_alt, style):
         ]
         core = [
             'js/core/strings.js', 'js/core/chat.js', 'js/core/xmpp.js',
-            'js/core/ui.js', 'js/core/visual.js', 'js/core/config.js',
-            'js/core/emoticons.js', 'js/core/init.js'
+            'js/core/ui.js', 'js/core/visual.js', 'js/core/init.js',
+            'js/core/config.js', 'js/core/emoticons.js',
         ]
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
