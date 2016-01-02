@@ -2,7 +2,10 @@ var NS = {
   ATTN: 'urn:xmpp:attention:0',
   CAPS: 'http://jabber.org/protocol/caps',
   CONFERENCE: 'jabber:x:conference',
+  IBB: 'http://jabber.org/protocol/ibb',
   PING: 'urn:xmpp:ping',
+  SI: 'http://jabber.org/protocol/si',
+  SI_FT: 'http://jabber.org/protocol/si/profile/file-transfer',
   TIME: 'urn:xmpp:time'
 };
 for (var i in NS) Strophe.addNamespace('Cadence_' + i, NS[i]);

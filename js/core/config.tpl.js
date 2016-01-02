@@ -169,7 +169,10 @@ var config = {
     Strophe.NS.Cadence_ATTN,
     Strophe.NS.Cadence_CAPS,
     Strophe.NS.Cadence_CONFERENCE,
+    Strophe.NS.Cadence_IBB,
     Strophe.NS.Cadence_PING,
+    Strophe.NS.Cadence_SI,
+    Strophe.NS.Cadence_SI_FT,
     Strophe.NS.Cadence_TIME
   ],
 
