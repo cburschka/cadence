@@ -119,22 +119,27 @@ The following libraries are used without modifications in this project.
 These libraries are not included, but are downloaded automatically
 during the build process.
 
-   * strophejs (Collecta Inc.): https://github.com/strophe/strophejs
-     (MIT, with BSD and public domain parts)
-
-   * jquery (jQuery Foundation): https://github.com/jquery/jquery
+   * Strophe.js (Collecta Inc.): http://strophe.im/strophejs/
      (MIT)
 
-   * momentjs: http://momentjs.com/ (MIT)
-
-   * js-cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
+   * jQuery (jQuery Foundation): https://jquery.com/
      (MIT)
 
-   * buzz (Jay Salvat): https://github.com/jaysalvat/buzz
+   * jQuery UI (jQuery Foundation): https://jqueryui.com/
+
+   * Moment.js: http://momentjs.com/ (MIT)
+
+   * JavaScript Cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
+     (MIT)
+
+   * Buzz (Jay Salvat): https://github.com/jaysalvat/buzz
      (MIT)
 
    * FileSaver.js (Eli Grey): https://github.com/eligrey/FileSaver.js
-     (MIT/X11)
+     (MIT)
+
+   * jQuery replaceText (Christoph Burschka): https://github.com/cburschka/jquery-replacetext
+     (MIT)
 
    * xbbcode.js (Christoph Burschka): https://github.com/cburschka/xbbcode.js
      (GPL v2+)
