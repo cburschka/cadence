@@ -606,7 +606,7 @@ var xmpp = {
    */
   getVersion: function(callback, target) {
     this.connection.sendIQ(
-      this.iq('get', target || {}, {xmlns:'jabber:iq:version'}),
+      this.iq('get', target || {}, {xmlns: Strophe.NS.VERSION}),
       function (stanza) {
         callback({
           name: $('name', stanza).text() || '-',
@@ -986,7 +986,7 @@ var xmpp = {
       this.historyEnd[node] = time;
 
       // Process an XEP-0224 <attention> element.
-      if ($(stanza).children('attention').attr('xmlns') == 'urn:xmpp:attention:0') {
+      if ($(stanza).children('attention').attr('xmlns') == Strophe.NS.Cadence_ATTN) {
         ui.messageAddInfo(strings.info.attention, {user: user}, 'error');
       }
 
@@ -1035,19 +1035,23 @@ var xmpp = {
    * This function handles any <iq> stanzas.
    */
   eventIQCallback: function(stanza) {
-    if (stanza && $(stanza).attr('type') == 'get') {
-      var response = this.iq('result').attrs({
-        to: $(stanza).attr('from'),
-        id: $(stanza).attr('id')
-      });
+    if (!stanza) return true;
+    stanza = $(stanza);
+    var from = stanza.attr('from');
+    var type = stanza.attr('type');
+    var response = this.iq('result').attrs({
+      to: from,
+      id: stanza.attr('id')
+    });
 
+    if (type == 'get') {
       // Respond to <ping> (XEP-0199).
-      if ($('ping', stanza).attr('xmlns') == 'urn:xmpp:ping') {
+      if (stanza.children('ping').attr('xmlns') == Strophe.NS.Cadence_PING) {
         return this.connection.send(response) || true;
       }
 
       // Respond to <time> (XEP-0202).
-      if ($('time', stanza).attr('xmlns') == 'urn:xmpp:time') {
+      if (stanza.children('time').attr('xmlns') == Strophe.NS.Cadence_TIME) {
         return this.connection.send(response
           .c('time', {xmlns: 'urn:xmpp:time'})
           .c('utc', moment().toISOString())
@@ -1056,17 +1060,17 @@ var xmpp = {
       }
 
       // Respond to jabber:iq:version (XEP-0092).
-      if ($('query', stanza).attr('xmlns') == Strophe.NS.VERSION) {
+      if (stanza.children('query').attr('xmlns') == Strophe.NS.VERSION) {
         return this.connection.send(response
           .c('query', {xmlns: Strophe.NS.VERSION})
           .c('name', {}, config.clientName)
           .c('version', {}, config.version)
           .c('os', {}, navigator.userAgent)
-        );
+        ) || true;
       }
 
       // List available features (XEP-0030).
-      if ($('query', stanza).attr('xmlns') == Strophe.NS.DISCO_INFO) {
+      if (stanza.children('query').attr('xmlns') == Strophe.NS.DISCO_INFO) {
         response.c('query', {xmlns: Strophe.NS.DISCO_INFO})
         response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
         for (var i in config.features)
