@@ -251,14 +251,14 @@ var strings = {
     },
     button: {
       advanced: 'Advanced',
-      save: 'Save',
-      close: 'Close',
       apply: 'Apply',
+      close: 'Close',
+      help: 'Help',
       login: 'Log in',
       logout: 'Log out',
-      help: 'Help',
-      settings: 'Settings',
       roster: 'Users',
+      save: 'Save',
+      settings: 'Settings',
       sound: 'Sound',
     },
     page: {
