@@ -844,8 +844,9 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row"><span class="user-roster">')
-      .append(visual.format.user(user));
+    var userLink = $('<div class="row">').append(
+      $('<span class="user-roster">').append(visual.format.user(user))
+    );
 
     visual.msgOnClick(userLink);
 
