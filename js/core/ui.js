@@ -1112,6 +1112,52 @@ var ui = {
     }, delay);
   },
 
+  incomingFile: function(user, file, accept, decline) {
+    var id = (new Date()).getTime();
+    var finished = function(data) {
+      if (data) ui.messageAddInfo(strings.info.file.receive.complete, {
+        user: user,
+        name: file.name,
+        download: {
+          label: strings.label.button.download,
+          click: function() { saveAs(data, file.name); }
+        }
+      });
+      else ui.messageAddInfo(strings.error.file.receive, {
+        user: user,
+        name: file.name
+      });
+    };
+    var buttons = {
+      accept: {
+        label: strings.label.button.accept,
+        attributes: {class: 'button-' + id},
+        click: function() {
+          $(this).remove();
+          accept(finished);
+        }
+      },
+      decline: {
+        label: strings.label.button.decline,
+        attributes: {class: 'button-' + id},
+        click: function() {
+          $('.button-' + id).remove();
+          decline();
+          ui.messageAddInfo(strings.info.file.receive.decline, {user: user, name: file.name});
+        }
+      }
+    };
+
+    ui.messageAddInfo(strings.info.file.receive.offer, {
+      user: user,
+      name: file.name,
+      size: file.size,
+      accept: buttons.accept,
+      decline: buttons.decline
+    });
+
+  },
+
   /**
    * Autocomplete partial nicknames or commands with Tab.
    */

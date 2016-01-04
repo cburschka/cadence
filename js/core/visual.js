@@ -171,6 +171,24 @@ visual = {
     },
 
     /**
+     * Render a size with SI prefixes. The default unit is bytes (B).
+     *
+     * @param {int|object} size The size, or an object containing "size" and "unit".
+     */
+    size: function(size) {
+      var unit = (size && size.unit) || 'B';
+      size = (size && size.size) || size;
+      var sign = size < 0 ? '-' : '';
+      size = Math.abs(size);
+      var prefix = ['y', 'z', 'a', 'f', 'p', 'n', 'μ', 'm', '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+      var offset = 8;
+      var i = Math.floor((Math.log10(size) / 3)); // log base 1000 rounded toward 0.
+      i = Math.min(8, Math.max(-8, i)); // inside [-8, 8].
+      size = size / Math.pow(1000, i);
+      return sign + (+size.toFixed(2)) + ' ' + prefix[offset+i] + unit;
+    },
+
+    /**
      * Render a time-stamp for output.
      *
      * @param {Date} time The timestamp or null for the current time.

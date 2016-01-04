@@ -24,6 +24,7 @@ var xmpp = {
   statusConstants: {},
   roster: {},
   historyEnd: {},
+  streams: {},
 
   /**
    * Bind the object methods and create the connection object.
@@ -1083,7 +1084,96 @@ var xmpp = {
       response.c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS});
       return this.connection.send(response) || true;
     }
+
+    if (type == 'set') {
+      var si = stanza.children('si');
+      if (si.attr('xmlns') == Strophe.NS.Cadence_SI &&
+          si.attr('profile') == Strophe.NS.Cadence_SI_FT) {
+
+        var file = si.children('file');
+
+        // We can only accept IBB.
+        if (!si.find('feature value:contains("' + Strophe.NS.Cadence_IBB + '")').length)
+          return this.connection.send(response.attrs({type: 'error'})
+            .c('error', {code: 400, type: 'cancel'})
+            .c('bad-request', {xmlns: Strophe.NS.STANZAS}, '')
+            .c('no-valid-streams', {xmlns: Strophe.NS.Cadence_SI})) || true;
+
+        var accept = function(finished) {
+          this.waitForStream(from, si.attr('id'), finished);
+          this.connection.send(response.c('si', {xmlns: Strophe.NS.Cadence_SI})
+            .c('feature', {xmlns: 'http://jabber.org/protocol/feature-neg'})
+            .c('x', {xmlns: 'jabber:x:data', type: 'submit'})
+            .c('field', {'var': 'stream-method'})
+            .c('value', {}, Strophe.NS.Cadence_IBB)
+          );
+        }.bind(this);
+        var decline = function() {
+          this.connection.send(response.attrs({type: 'error'})
+            .c('error', {code: 403, type: 'cancel'})
+            .c('forbidden', {xmlns: Strophe.NS.STANZAS})
+          );
+        }.bind(this);
+
+        return ui.incomingFile(this.userFromJid(from, true), {
+          name: file.attr('name'),
+          size: file.attr('size')
+        }, accept, decline) || true;
+      }
+    }
+
     return true;
+  },
+
+  waitForStream: function(from, sid, finished, size) {
+    var packets = [];
+    var packetHandler;
+
+    var acknowledge = function (stanza) {
+      return this.connection.send(this.iq('result', {jid: from}).attrs({
+        id: stanza.attr('id')
+      })) || true;
+    }.bind(this);
+    var addPacket = function(stanza) {
+      stanza = $(stanza);
+      var data = stanza.children('data');
+      if (data.attr('sid') !== sid) return true; // ignore other streams
+      if (data.attr('seq') != packets.length) {
+        // Sequence broken, stream is lost.
+        delete this.streams[from][sid];
+        return this.connection.send(xmpp.iq('error').attrs({
+          to: from, id: stanza.attr('id'),
+        }).c('error', {type: 'cancel'}).c('item-not-found', {xmlns: Strophe.NS.STANZAS}));
+      }
+      packets.push(atob(data.text()));
+      return acknowledge(stanza);
+    }.bind(this);
+
+    var openStream = function(stanza) {
+      stanza = $(stanza);
+      var open = stanza.children('open');
+      var stream = open.attr('sid');
+      if (stream !== sid) return true;
+      if (!(from in this.streams)) this.streams[from] = {};
+      this.streams[from][sid] = sid;
+      packetHandler = this.connection.addHandler(addPacket, Strophe.NS.Cadence_IBB, 'iq', 'set', null, from);
+      this.connection.addHandler(closeStream, Strophe.NS.Cadence_IBB, 'iq', 'set', null, from);
+      return acknowledge(stanza);
+    }.bind(this);
+
+    var closeStream = function(stanza) {
+      stanza = $(stanza);
+      var close = stanza.children('close');
+      var stream = close.attr('sid');
+      if (stream !== sid) return true;
+      delete this.streams[from][sid];
+      this.connection.deleteHandler(packetHandler);
+      var data = new Blob(packets);
+      finished(data.length === size && data);
+      return acknowledge(stanza);
+    }.bind(this);
+
+    this.connection.addHandler(openStream, Strophe.NS.Cadence_IBB, 'iq', 'set', null, from);
   },
 
   /**
@@ -1156,6 +1246,32 @@ var xmpp = {
         node: config.clientURL,
         ver: config.capHash
     }));
+  },
+
+  /**
+   * Create a user object from a JID.
+   *
+   * @param {string} jid A full JID.
+   * @param {boolean}
+   */
+  userFromJid: function(jid, rosterNick, rosterJid) {
+    var domain = Strophe.getDomainFromJid(jid);
+    var node = Strophe.unescapeNode(Strophe.getNodeFromJid(jid));
+    var resource = Strophe.getResourceFromJid(jid);
+
+    // This is a MUC JID.
+    if (domain == config.xmpp.mucService) {
+      return rosterNick && node == this.room.active && this.roster[node][user]
+             || {room: node, nick: resource};
+    }
+    if (rosterJid && this.roster[xmpp.room.active]) {
+      roster = this.roster[xmpp.room.active];
+      var bareJid = Strophe.getBareJidFromJid(jid);
+      for (var nick in roster)
+        if (Strophe.getBareJidFromJid(roster[nick].jid) == bareJid)
+          return roster[nick];
+    }
+    return {jid: jid};
   },
 
   /**

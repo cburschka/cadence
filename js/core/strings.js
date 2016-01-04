@@ -110,6 +110,13 @@ var strings = {
         ],
       },
     },
+    file: {
+      receive: {
+        offer: '{user} would like to send you {name} ({size}). {button:accept} {button:decline}',
+        decline: 'You have declined the transfer of {name} from {user}.',
+        complete: 'The transfer of {name} from {user} is complete. {button:download}'
+      }
+    },
     inviteReceived: [
       [
         '{jid} has invited you to {room}.',
@@ -191,6 +198,9 @@ var strings = {
       domain: 'The remote server {domain} was not found.',
       node: 'User {node} on {domain} is not available.'
     },
+    file: {
+      receive: 'The transfer of {name} from {user} failed.'
+    },
     formFields: 'The following fields could not be set: {fields}',
     kick: {
       405: 'You lack the authority to kick {nick}.',
@@ -250,9 +260,12 @@ var strings = {
       multiline: 'Enter one item per line.',
     },
     button: {
+      accept: 'Accept',
       advanced: 'Advanced',
       apply: 'Apply',
       close: 'Close',
+      decline: 'Decline',
+      download: 'Download',
       help: 'Help',
       login: 'Log in',
       logout: 'Log out',
