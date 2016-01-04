@@ -1118,8 +1118,8 @@ var xmpp = {
       this.nick.current = null;
       this.room.current = null;
       this.roster = {};
-      ui.userRefresh({});
       ui.refreshRooms({});
+      ui.updateRoom();
     }
     return true;
   },
@@ -1163,7 +1163,7 @@ var xmpp = {
    */
   disconnect: function() {
     if (this.connection) {
-      this.connection.send(this.pres({}, {type: 'unavailable'}));
+      this.connection.send(this.pres(undefined, {type: 'unavailable'}));
       this.connection.disconnect();
     }
   }
