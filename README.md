@@ -7,8 +7,8 @@ powered by strophe.js.
 Requirements
 ------------
 
-* An XMPP server with the Multi-User Chat and HTTP-BOSH extensions
-  is required to use cadence.
+* An XMPP server with Multi-User Chat and either BOSH or WebSocket
+  support is required to run cadence.
 * Python 2.7+ (or 3+) and GNU Make are required in the build process.
 * Optional JS and CSS compression uses the YUI Compressor utility.
   Install it using your distribution's package manager or download
@@ -27,9 +27,13 @@ These arguments are supported:
 
 ```
   -h, --help            show this help message and exit
-  -s, --https           Generate HTTPS URLs
+  -s, --secure          Generate HTTPS or Secure WebSocket URLs
   --domain DOMAIN       XMPP domain to log in on.
-  --bosh BOSH           BOSH URL to connect to [http(s)://DOMAIN:528(0|1)/http-bind]
+  --url URL             BOSH or WebSocket URL to connect to [PROTOCOL://HOST:PORT/PATH]
+  --protocol            The protocol to connect through [http, https, ws, wss].
+  --host                The host to connect to, if it differs from the XMPP domain [DOMAIN]
+  --port                The port to connect to [5280, 5281].
+  --path                The socket path on the server to connect to [/http-bind or /websocket].
   --session-auth AUTH   The URL to use for session authentication.
   --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
   --chatbot CHATBOT     The displayed name of the virtual ChatBot. ["Info"]
@@ -43,7 +47,7 @@ These arguments are supported:
                         Whether to optimize JS/CSS files ["minify"]
 ```
 
-* Only `--domain` is strictly required. `--muc` and `--bosh` are required if
+* Only `--domain` is strictly required. `--muc` and `--url` are required if
   they differ from the default values.
 
 * `--session-auth` is required if you would like to hook into an existing site's login
@@ -115,22 +119,27 @@ The following libraries are used without modifications in this project.
 These libraries are not included, but are downloaded automatically
 during the build process.
 
-   * strophejs (Collecta Inc.): https://github.com/strophe/strophejs
-     (MIT, with BSD and public domain parts)
-
-   * jquery (jQuery Foundation): https://github.com/jquery/jquery
+   * Strophe.js (Collecta Inc.): http://strophe.im/strophejs/
      (MIT)
 
-   * momentjs: http://momentjs.com/ (MIT)
-
-   * js-cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
+   * jQuery (jQuery Foundation): https://jquery.com/
      (MIT)
 
-   * buzz (Jay Salvat): https://github.com/jaysalvat/buzz
+   * jQuery UI (jQuery Foundation): https://jqueryui.com/
+
+   * Moment.js: http://momentjs.com/ (MIT)
+
+   * JavaScript Cookie (Klaus Hartl): https://github.com/js-cookie/js-cookie
+     (MIT)
+
+   * Buzz (Jay Salvat): https://github.com/jaysalvat/buzz
      (MIT)
 
    * FileSaver.js (Eli Grey): https://github.com/eligrey/FileSaver.js
-     (MIT/X11)
+     (MIT)
+
+   * jQuery replaceText (Christoph Burschka): https://github.com/cburschka/jquery-replacetext
+     (MIT)
 
    * xbbcode.js (Christoph Burschka): https://github.com/cburschka/xbbcode.js
      (GPL v2+)
