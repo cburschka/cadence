@@ -771,6 +771,7 @@ var xmpp = {
       else if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
         var type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
         var actor = $('actor', item).attr('nick');
+        actor = actor && this.roster[room][actor];
         var reason = $('reason', item).text();
         var index = (actor != null) * 2 + (reason != "");
         // ejabberd bug: presence does not use 110 code; check nick.
