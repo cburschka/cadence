@@ -9,8 +9,7 @@ git submodule sync
 
 echo "Purging CDN"
 rm -rfv /tmp/cadence-cdn
-rm -rfv /var/www/s3files/cdn.calref.net/chat
-# TODO: Rackspace Cloudfiles API edge purge
+aws s3 rm s3://cdn.calref.net/chat/ --recursive
 
 echo "Configuring cadence"
 
@@ -35,4 +34,6 @@ make install > /dev/null
 
 echo "Deploying CDN"
 
-cp -rv /tmp/cadence-cdn /var/www/s3files/cdn.calref.net/chat
+aws s3 cp /tmp/cadence-cdn s3://cdn.calref.net/chat/ --recursive
+
+
