@@ -9,7 +9,7 @@ git submodule sync
 
 echo "Purging CDN"
 rm -rfv /tmp/cadence-cdn
-rm -rfv /var/www/cloudfiles/calamityrefuge/chat
+rm -rfv /var/www/s3files/cdn.calref.net/chat
 # TODO: Rackspace Cloudfiles API edge purge
 
 echo "Configuring cadence"
@@ -21,7 +21,7 @@ echo "Configuring cadence"
   --chatbot="Ligrev" \
   --title="Calamity Refuge" \
   --mode=debug \
-  --cdn-url="https://c312441.ssl.cf1.rackcdn.com/chat" \
+  --cdn-url="https://cdn.calref.net/chat" \
   --cdn-prefix="/tmp/cadence-cdn" \
   $*
 
@@ -35,4 +35,4 @@ make install > /dev/null
 
 echo "Deploying CDN"
 
-cp -rv /tmp/cadence-cdn /var/www/cloudfiles/calamityrefuge/chat
+cp -rv /tmp/cadence-cdn /var/www/s3files/cdn.calref.net/chat
