@@ -145,13 +145,13 @@ var chat = {
         for (var macro in config.settings.macros) {
           out += '    /' + macro + ' - ' + config.settings.macros[macro].join('; ') + '\n';
         }
-        if (out) return ui.messageAddInfo(strings.info.macros, {
+        if (out) return ui.messageAddInfo($('<div>').html(strings.info.macros), {
           macros: out
         });
         else return ui.messageAddInfo(strings.error.noMacros, 'error');
       }
       var m = arg.match(/^\/*(\S+)/);
-      if (!m) return ui.messageAddInfo(strings.error.aliasFormat, 'error');
+      if (!m) return ui.messageAddInfo($('<div>').html(strings.error.aliasFormat), 'error');
       var cmd = m[1];
       if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
         cmd: cmd
@@ -290,7 +290,8 @@ var chat = {
      */
     create: function(arg) {
       arg = chat.parseArgs(arg);
-      if (arg.help) return ui.messageAddInfo(strings.help.configure);
+      if (arg.help)
+        return ui.messageAddInfo($('<div>').html(strings.help.configure));
       if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
       if (!arg.name)
         return ui.messageAddInfo(strings.error.roomCreateName, 'error');
