@@ -806,7 +806,7 @@ var chat = {
    * This will replace any existing /msg <nick> prefix.
    */
   prefixMsg: function(nick, direct) {
-    nick = nick.replace(/[\\\s]/g, '\\$&');
+    nick = nick.replace(/[\\\s"']/g, '\\$&');
     var text = ui.dom.inputField.val();
     var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
     if (m) text = text.substring(m[0].length).trimLeft();
