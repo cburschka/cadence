@@ -841,7 +841,7 @@ var chat = {
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
     // All literal backslashes must also be escaped.
-    var value = /(?:"((?:\\.|[^\\\\"])+)"|'((?:\\.|[^\\\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
+    var value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
     var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
