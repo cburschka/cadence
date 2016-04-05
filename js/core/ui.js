@@ -661,7 +661,7 @@ var ui = {
       return f;
     }
     fields['list-multi'] = function(field) {
-      return fields['list-single'].prop('multiple', true);
+      return fields['list-single'](field).prop('multiple', true);
     }
     fields['fixed'] = function(field) {
       return $('<p>').text($('value', field).text());
