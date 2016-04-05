@@ -158,6 +158,7 @@ var config = {
     title: '@@@TITLE@@@',
     maxNickLength: 48,
     maxMessageLength: 2048,
+    welcome: ''
   },
 
   features: [

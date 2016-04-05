@@ -24,7 +24,12 @@ $(document).ready(function() {
   if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
     chat.sessionAuth(config.xmpp.sessionAuthURL);
   }
-  else ui.setStatus('offline');
+  else {
+    ui.setStatus('offline');
+    if (config.ui.welcome) {
+      ui.messageAddInfo(config.ui.welcome);
+    }
+  }
 });
 
 init = {
