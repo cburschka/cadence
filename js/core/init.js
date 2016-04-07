@@ -21,15 +21,12 @@ $(document).ready(function() {
       return strings.info.leavePage;
   }});
   $(window).unload(function() { init.shutDown(); });
-  if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
-    chat.sessionAuth(config.xmpp.sessionAuthURL);
-  }
-  else {
+  chat.sessionAuth(config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL, function() {
     ui.setStatus('offline');
     if (config.ui.welcome) {
       ui.messageAddInfo(config.ui.welcome);
     }
-  }
+  });
 });
 
 init = {
