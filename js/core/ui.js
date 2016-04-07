@@ -640,10 +640,10 @@ var ui = {
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
     fields['text-multi'] = function(field) {
-      var value = '';
+      var values = [];
       $('value', field).each(function() { values.push($(this).text()); });
       return $('<textarea class="form-field">').attr('name', field.attr('var'))
-        .text(value);
+        .text(values.join("\n"));
     }
     fields['jid-multi'] = function(field) {
       return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
