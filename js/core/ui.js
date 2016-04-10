@@ -1095,7 +1095,7 @@ var ui = {
    */
   blinkTitle: function(string) {
     window.clearInterval(this.blinker);
-    string = string ? ' ' + string + ' - ' : '';
+    string = string ? string + ' - ' : '';
     var speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
     var delay = Math.ceil(1000 / speed);
     var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
@@ -1106,7 +1106,7 @@ var ui = {
         $(document).attr('title', ui.title);
         return window.clearInterval(ui.blinker);
       }
-      $(document).attr('title', (state ? '[@ ]' : '[ @]') + string + ui.title);
+      $(document).attr('title', (state ? '[@ ] ' : '[ @] ') + string + ui.title);
       state = !state;
       number--;
     }, delay);
