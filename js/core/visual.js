@@ -60,12 +60,12 @@ visual = {
     message.time = message.time ? new Date(message.time) : new Date();
 
     var body = $('<span>').append(message.body);
-    if (message.user.role != 'bot') body = this.formatBody(body);
+    if (message.type != 'local') body = this.formatBody(body);
 
     var node =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
-                  + '<span class="author"></span> '
+                  + '<span class="author"></span>'
                   + '<span class="body"></span>'
                   + '<span class="hidden"></span></span>'
                   + '</div>');
@@ -84,16 +84,18 @@ visual = {
     });
 
     $('span.dateTime', node).append(this.format.time(message.time));
-    $('span.author', node).append(this.format.user(message.user));
     $('span.body', node).append(body);
-    var me = message.user.role != 'bot' && this.findMe(body);
+    var me = message.type != 'local' && this.findMe(body);
 
-    if (me) {
-      $('span.authorMessageContainer', node)
-        .prepend('* ').wrap('<span class="action"></span>');
-      me.nodeValue = me.nodeValue.substring(4);
+    if (message.user.nick) {
+      $('span.author', node).append(this.format.user(message.user)).after(' ');
+      if (me) {
+        $('span.authorMessageContainer', node)
+          .prepend('* ').wrap('<span class="action"></span>');
+        me.nodeValue = me.nodeValue.substring(4);
+      }
+      else $('span.author', node).append(':');
     }
-    else $('span.author', node).append(':');
 
     if (message.type != 'groupchat' && message.type != 'local') {
       $('span.' + (me ? 'body' : 'author'), node).after([' ',

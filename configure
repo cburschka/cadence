@@ -100,7 +100,7 @@ def parser():
       )
     parser.add_argument(
       '--chatbot', type=str,
-      help='The displayed name of the virtual ChatBot. ["Info"]', metavar='CHATBOT', dest='chatbot', default='Info'
+      help='Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
       )
     parser.add_argument(
       '--title', type=str,
