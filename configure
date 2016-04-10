@@ -21,9 +21,9 @@ def main():
     args.src_path = os.path.dirname(__file__) or '.'
     shutil.copy(os.path.realpath(args.src_path) + '/Makefile.in', os.getcwd() + '/Makefile')
 
-    args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
-        if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
-
+    if args.packs == 'auto':
+        args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
+            if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
 
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
@@ -105,6 +105,10 @@ def parser():
     parser.add_argument(
       '--title', type=str,
       help='The page title. ["cadence"]', metavar='TITLE', dest='title', default='cadence'
+      )
+    parser.add_argument(
+      '--packs', type=str,
+      help='Emoticon packs (must be inside emoticon-packs/) ["auto"].', metavar='PACKS', dest='packs', default='auto'
       )
     parser.add_argument(
       '--cdn-url', type=str,
