@@ -762,7 +762,11 @@ var ui = {
     var body = visual.formatText(text, variables);
     var message = {
       body: body, type: 'local',
-      user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
+      user: config.ui.chatBotName && {
+        nick: config.ui.chatBotName,
+        role: 'bot',
+        affiliation: 'bot'
+      }
     };
     this.notifyDesktop(error ? 1 : 3, message);
     message = visual.formatMessage(message, true);

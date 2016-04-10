@@ -70,9 +70,6 @@ visual = {
                   + '<span class="hidden"></span></span>'
                   + '</div>');
 
-    if (message.user.jid)
-      node.addClass(this.jidClass(message.user.jid));
-
     $('span.hide-message, span.hidden', node).click(function() {
       $('span.body, span.hidden', node).toggle('slow', function() {
         // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
@@ -87,8 +84,12 @@ visual = {
     $('span.body', node).append(body);
     var me = message.type != 'local' && this.findMe(body);
 
-    if (message.user.nick) {
+    if (message.user) {
       $('span.author', node).append(this.format.user(message.user)).after(' ');
+
+      if (message.user.jid)
+        node.addClass(this.jidClass(message.user.jid));
+
       if (me) {
         $('span.authorMessageContainer', node)
           .prepend('* ').wrap('<span class="action"></span>');
