@@ -4,7 +4,7 @@ Stylesheet Copyright
 These stylesheets are based to varying degrees on other versions with
 different copyrights:
 
-* dash.css and Technetium.css are modified versions originally written
+* Technetium.css is a modified version originally written
   by Sylae Corell (@sylae) for AJAX-Chat, used with permission.
 
 * Helium.css and Selenium.css are original works.
