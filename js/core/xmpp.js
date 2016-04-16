@@ -521,7 +521,7 @@ var xmpp = {
         var sessionid = $('command', stanza).attr('sessionid');
         query($('command x', stanza), submit(sessionid));
       },
-      callback
+      function(stanza) { callback && callback(stanza, 0); }
     );
   },
 
