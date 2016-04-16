@@ -1,9 +1,5 @@
 /**
  * ui.js contains all functions that alter the user interface.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 var ui = {
   userLinks: {},

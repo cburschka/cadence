@@ -1,10 +1,6 @@
 /**
  * visual.js contains all the functions that render output for
  * display on the local client.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 visual = {
   /**

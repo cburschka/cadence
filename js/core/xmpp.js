@@ -1,9 +1,5 @@
 /**
  * xmpp.js contains all the functions that communicate with the XMPP server.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 var xmpp = {
   connection: null,

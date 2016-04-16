@@ -1,10 +1,6 @@
 /**
  * chat.js contains all the functions that alter the state
  * in response to user requests.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 var chat = {
   history: [],

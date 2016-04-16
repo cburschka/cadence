@@ -4,10 +4,6 @@
  * Guide to translators:
  *  - Make a copy of this file and alter the string values accordingly.
  *  - Note that markup is only supported in strings that already contain it.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 var strings = {
   connection: {
