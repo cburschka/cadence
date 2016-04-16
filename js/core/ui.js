@@ -147,7 +147,7 @@ var ui = {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     this.setTextColorPicker(config.settings.textColor);
-    $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
+    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));

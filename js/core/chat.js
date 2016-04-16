@@ -53,7 +53,7 @@ var chat = {
         }
         else {
           var result = [];
-          $('field[type!=hidden]', stanza).each(function() {
+          $('field[type!="hidden"]', stanza).each(function() {
             result.push($('<strong>').text($(this).attr('label') + ': '), $(this).text(), $('<br>'));
           });
           ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {

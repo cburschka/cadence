@@ -238,7 +238,7 @@ var xmpp = {
         callback({
           id: room,
           title: $('identity', query).attr('name'),
-          members: $('x field[var=muc#roominfo_occupants] value').text(),
+          members: $('x field[var="muc#roominfo_occupants"] value').text(),
           info: query
         });
       },
