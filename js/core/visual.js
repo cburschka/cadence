@@ -58,7 +58,7 @@ visual = {
     var body = $('<span>').append(message.body);
     if (message.type != 'local') body = this.formatBody(body);
 
-    var node =  $('<div class="row message"><span class="hide-message"></span>'
+    var html =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span>'
@@ -66,8 +66,8 @@ visual = {
                   + '<span class="hidden"></span></span>'
                   + '</div>');
 
-    $('span.hide-message, span.hidden', node).click(function() {
-      $('span.body, span.hidden', node).toggle('slow', function() {
+    $('span.hide-message, span.hidden', html).click(function() {
+      $('span.body, span.hidden', html).toggle('slow', function() {
         // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
         if ($(this).css('display') == 'inline-block') {
           $(this).css('display', 'inline');
@@ -76,26 +76,26 @@ visual = {
       ui.updateHeights();
     });
 
-    $('span.dateTime', node).append(this.format.time(message.time));
-    $('span.body', node).append(body);
+    $('span.dateTime', html).append(this.format.time(message.time));
+    $('span.body', html).append(body);
     var me = message.type != 'local' && this.findMe(body);
 
     if (message.user) {
-      $('span.author', node).append(this.format.user(message.user)).after(' ');
+      $('span.author', html).append(this.format.user(message.user)).after(' ');
 
       if (message.user.jid)
-        node.addClass(this.jidClass(message.user.jid));
+        html.addClass(this.jidClass(message.user.jid));
 
       if (me) {
-        $('span.authorMessageContainer', node)
+        $('span.authorMessageContainer', html)
           .prepend('* ').wrap('<span class="action"></span>');
         me.nodeValue = me.nodeValue.substring(4);
       }
-      else $('span.author', node).append(':');
+      else $('span.author', html).append(':');
     }
 
     if (message.type != 'groupchat' && message.type != 'local') {
-      $('span.' + (me ? 'body' : 'author'), node).after([' ',
+      $('span.' + (me ? 'body' : 'author'), html).after([' ',
         $('<span class="privmsg">').append(this.formatText(
           strings.info[message.to ? 'whisperTo' : 'whisper'],
           {user: message.to}
@@ -104,13 +104,9 @@ visual = {
     }
 
     // Make users clickable.
-    this.msgOnClick(node);
+    this.msgOnClick(html);
 
-    return {
-      timestamp: message.time.getTime(),
-      html: node,
-      message: message,
-    };
+    return {timestamp: message.time.getTime(), html, message};
   },
 
   format: {
@@ -131,7 +127,7 @@ visual = {
      * This is a shortcut to formatting a non-occupant user.
      */
     jid: function(jid) {
-      return visual.format.user({jid: jid});
+      return visual.format.user({jid});
     },
 
     /**

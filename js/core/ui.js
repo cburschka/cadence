@@ -458,7 +458,7 @@ var ui = {
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
         disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
-        callback: function() { chat.commands.invite({jid:jid}); }
+        callback: function() { chat.commands.invite({jid}); }
       },
       kick: {
         name: labels.kick,
@@ -472,7 +472,7 @@ var ui = {
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
-        callback: function() { chat.commands.ban({jid: jid}); }
+        callback: function() { chat.commands.ban({jid}); }
       },
       sep2: '',
       whois: {
@@ -495,11 +495,11 @@ var ui = {
   /**
    * Build the context menu for a room.
    */
-  roomContextMenu: function(room) {
+  roomContextMenu: function(element) {
     var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
-    var id = room.attr('data-room');
-    var currentRoom = xmpp.room.current == id;
+    var room = element.attr('data-room');
+    var currentRoom = xmpp.room.current == room;
     var self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
     var owner = currentRoom && self.affiliation == 'owner';
     var items = {
@@ -507,7 +507,7 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: function() { chat.commands.join({name: id}); }
+        callback: function() { chat.commands.join({name: room}); }
       },
       part: {
         name: labels.part,
@@ -519,16 +519,16 @@ var ui = {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: function() { chat.commands.configure({name: id, interactive: true}); }
+        callback: function() { chat.commands.configure({name: room, interactive: true}); }
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: function() { chat.commands.destroy({room: id}); }
+        callback: function() { chat.commands.destroy({room}); }
       }
     }
-    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+    return {items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
@@ -1073,20 +1073,20 @@ var ui = {
   notifyDesktop: function(level, message) {
     if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
-      var text = $(message.body).text();
+      var body = $(message.body).text();
       var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
 
       if (message.type != 'direct') {
         var title = xmpp.room.available[xmpp.room.current].title;
         if (message.type != 'local') {
           if (message.type != 'groupchat')
-            text = strings.info.whisper + ' ' + text;
-          text = sender + ': ' + text;
+            body = strings.info.whisper + ' ' + body;
+          body = sender + ': ' + body;
         }
       }
       else title = sender;
 
-      new Notification(title, {body: text, tag: xmpp.room.current});
+      new Notification(title, {body, tag: xmpp.room.current});
     }
   },
 

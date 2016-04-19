@@ -35,27 +35,24 @@ var chat = {
       var query = m.interactive ?
           function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
         : arg;
+      var command = m.cmd;
 
-      xmpp.submitCommand(m.cmd, query, function(stanza, status) {
+      xmpp.submitCommand(command, query, function(stanza, status) {
         if (status < 2 && stanza) {
           if ($('forbidden', stanza).length)
-            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
+            ui.messageAddInfo(strings.error.admin.forbidden, {command}, 'error');
           else if ($('service-unavailable', stanza).length)
-            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
-          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
-            command: m.cmd, text: $('text', stanza).text()
-          }, 'error');
-          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
+            ui.messageAddInfo(strings.error.admin.badCommand, {command}, 'error');
+          else if ($('text', stanza).length)
+            ui.messageAddInfo(strings.error.admin.generic, {command, text: $('text', stanza).text()}, 'error');
+          else ui.messageAddInfo(strings.error.admin.unknown, {command}, 'error');
         }
         else {
           var result = [];
           $('field[type!="hidden"]', stanza).each(function() {
             result.push($('<strong>').text($(this).attr('label') + ': '), $(this).text(), $('<br>'));
           });
-          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
-            command: m.cmd,
-            result: result
-          });
+          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
         }
       });
     },
@@ -72,18 +69,19 @@ var chat = {
       var room = xmpp.room.available[xmpp.room.current]
       var roster = xmpp.roster[xmpp.room.current];
       var user = roster[arg.nick] || {jid: Strophe.getBareJidFromJid(arg.jid || arg.nick) };
+      var type = arg.type;
 
       if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(arg.type) < 0)
-        return ui.messageAddInfo(strings.error.affiliate.type, {type: arg.type}, 'error')
+        return ui.messageAddInfo(strings.error.affiliate.type, {type}, 'error')
 
       // List users with a specific affiliation.
       if (!arg.jid && !arg.nick) {
-        return xmpp.getUsers({affiliation: arg.type}, function(stanza) {
+        return xmpp.getUsers({affiliation: type}, function(stanza) {
           // Create a dictionary of non-occupant users:
           var users = {};
           $('item', stanza).each(function() {
             var jid = $(this).attr('jid').toLowerCase();
-            users[jid] = {jid: jid};
+            users[jid] = {jid};
           });
 
           // Find users who are occupants:
@@ -95,18 +93,17 @@ var chat = {
           for (var jid in users) users[jid] = visual.format.user(users[jid]);
 
           ui.messageAddInfo(Object.keys(users).length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
-            type: arg.type,
-            list: users
+            type, list: users
           });
         }, function(stanza) {
           var type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
-          ui.messageAddInfo(strings.error.affiliations[type], {type: arg.type}, 'error');
+          ui.messageAddInfo(strings.error.affiliations[type], {type}, 'error');
         });
       }
 
       // Attempt to set a user's affiliation.
       if (!user.jid)
-        return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
+        return ui.messageAddInfo(strings.error.affiliate.anon, {user}, 'error');
       if (!Strophe.getNodeFromJid(user.jid))
         return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: user.jid}, 'error');
 
@@ -117,16 +114,12 @@ var chat = {
 
       xmpp.setUser({jid: user.jid, affiliation: arg.type}, function(iq) {
         if ($(iq).attr('type') == 'result')
-          ui.messageAddInfo(strings.info.affiliate, {
-            user: user,
-            room: room,
-            type: arg.type
-          });
+          ui.messageAddInfo(strings.info.affiliate, {user, room, type});
       }, function(code, iq) {
         var error = 'default';
         if ($('not-allowed', iq).length) error = 'notAllowed';
         else if ($('conflict', iq).length) error = 'conflict';
-        ui.messageAddInfo(strings.error.affiliate[error], {user: user, type: arg.type}, 'error');
+        ui.messageAddInfo(strings.error.affiliate[error], {user, type}, 'error');
       });
     },
 
@@ -148,15 +141,13 @@ var chat = {
       }
       var m = arg.match(/^\/*(\S+)/);
       if (!m) return ui.messageAddInfo($('<div>').html(strings.error.aliasFormat), 'error');
-      var cmd = m[1];
-      if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
-        cmd: cmd
-      }, 'error');
+      var command = m[1];
+      if (chat.commands[command]) return ui.messageAddInfo(strings.error.aliasConflict, {command}, 'error');
       var macro = arg.substring(m[0].length).trim();
       if (!macro) {
-        delete config.settings.macros[cmd];
+        delete config.settings.macros[command];
         chat.saveSettings();
-        return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
+        return ui.messageAddInfo(strings.info.aliasDelete, {command});
       }
       macro = macro.split(';');
       for (var i in macro) {
@@ -167,21 +158,21 @@ var chat = {
       var search = function(c, t) {
         if (c) for (var i in c) {
           var m = c[i].match(/^\/(\S+)/);
-          var u = m && ((m[1] == cmd && t.concat([m[1]])) || search(config.settings.macros[m[1]], t.concat([m[1]])));
+          var u = m && ((m[1] == command && t.concat([m[1]])) || search(config.settings.macros[m[1]], t.concat([m[1]])));
           if (u) return u;
         }
         return false;
       }
-      var rec = search(macro, [cmd]);
+      var rec = search(macro, [command]);
       if (rec) return ui.messageAddInfo(strings.error.aliasRecursion, {
-        cmd: cmd, path: rec.join(' -> ')
+        command, path: rec.join(' -> ')
       }, 'error');
 
-      if (config.settings.macros[cmd]) {
-        ui.messageAddInfo(strings.info.aliasReplace, {cmd: cmd});
+      if (config.settings.macros[command]) {
+        ui.messageAddInfo(strings.info.aliasReplace, {command});
       }
-      else ui.messageAddInfo(strings.info.aliasAdd, {cmd: cmd});
-      config.settings.macros[cmd] = macro;
+      else ui.messageAddInfo(strings.info.aliasAdd, {command});
+      config.settings.macros[command] = macro;
       chat.saveSettings();
     },
 
@@ -244,7 +235,7 @@ var chat = {
       if (!name)
         return ui.messageAddInfo(strings.error.noRoom, 'error');
       if (!xmpp.room.available[name])
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
+        return ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
       arg.interactive = arg.interactive || Object.keys(arg).every(
         function(e) { return e == '0' || e == '1' || e == 'name' }
       );
@@ -254,9 +245,9 @@ var chat = {
         : chat.roomConf(arg);
 
       xmpp.configureRoom(name, config, function(error) {
-        if (!error) ui.messageAddInfo(strings.info.roomConf, {room: room});
-        else if (error == '403') ui.messageAddInfo(strings.error.roomConfDenied, {room: room}, 'error');
-        else ui.messageAddInfo(strings.error.roomConf, {room: room}, 'error');
+        if (!error) ui.messageAddInfo(strings.info.roomConf, {room});
+        else if (error == '403') ui.messageAddInfo(strings.error.roomConfDenied, {room}, 'error');
+        else ui.messageAddInfo(strings.error.roomConf, {room}, 'error');
       });
     },
 
@@ -300,7 +291,7 @@ var chat = {
       var create = function() {
         var room = chat.getRoomFromTitle(name);
         if (room)
-          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
+          return ui.messageAddInfo(strings.error.roomExists, {room}, 'error');
         xmpp.joinNewRoom(name, config);
         ui.setFragment(name);
         chat.setSetting('xmpp.room', room);
@@ -317,11 +308,11 @@ var chat = {
       var room = xmpp.room.available[arg.room];
       if (!room)
         return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
-      if (!window.confirm(visual.formatText(strings.info.destroyConfirm, {name: room.title}).text())) return;
+      if (!window.confirm(visual.formatText(strings.info.destroyConfirm, {room}).text())) return;
       xmpp.destroyRoom(arg.room, arg.alternate, arg.reason, function(error) {
-        if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room: room}, 'error');
-        else if (error) ui.messageAddInfo(strings.error.destroy, {room: room}, 'error');
-        else ui.messageAddInfo(strings.info.destroySuccess, {room: room});
+        if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room}, 'error');
+        else if (error) ui.messageAddInfo(strings.error.destroy, {room}, 'error');
+        else ui.messageAddInfo(strings.info.destroySuccess, {room});
       });
     },
 
@@ -367,7 +358,7 @@ var chat = {
       var m = chat.parseArgs(arg);
       if (m.room && m.nick) m.jid = xmpp.jid({room: m.room, nick: m.nick});
       if (m[0] && m[0].length >= 1) {
-        m.jid = m[0][0]
+        m.jid = m[0][0];
         m.msg = arg.substring(m[1][0][0]).trim();
       }
       if (!m.jid)
@@ -391,7 +382,7 @@ var chat = {
       var join = function() {
         var room = chat.getRoomFromTitle(arg.name);
         if (room && xmpp.room.current == room.id) {
-          return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
+          return ui.messageAddInfo(strings.error.joinSame, {room}, 'error');
         }
         room = (room ? room.id : arg.name).toLowerCase();
         xmpp.joinExistingRoom(room, arg.password);
@@ -411,8 +402,8 @@ var chat = {
      */
     kick: function(arg) {
       var nick = arg.trim();
-      xmpp.setUser({nick: nick, role: 'none'}, function() {}, function(errorCode) {
-        ui.messageAddInfo(strings.error.kick[errorCode], {nick: nick}, 'error');
+      xmpp.setUser({nick, role: 'none'}, function() {}, function(errorCode) {
+        ui.messageAddInfo(strings.error.kick[errorCode], {nick}, 'error');
       });
     },
 
@@ -493,10 +484,10 @@ var chat = {
       var time = (new Date()).getTime();
 
       xmpp.ping(target, function(stanza) {
-          var elapsed = ((new Date()).getTime() - time).toString();
-          ui.messageAddInfo(strings.info.pong[+!!user], {user: user, delay: elapsed});
+          var delay = ((new Date()).getTime() - time).toString();
+          ui.messageAddInfo(strings.info.pong[+!!user], {user, delay});
         }, function(error) {
-          var elapsed = ((new Date()).getTime() - time).toString();
+          var delay = ((new Date()).getTime() - time).toString();
           if (error) {
             if ($('item-not-found', error).length != 0) {
               ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
@@ -506,7 +497,7 @@ var chat = {
             }
           }
           else {
-            ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user: user, delay: elapsed}, 'error');
+            ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user, delay}, 'error');
           }
         }
       );
@@ -621,7 +612,7 @@ var chat = {
             room: room,
             list: list
           });
-          else ui.messageAddInfo(strings.info.noUsers, {room: room});
+          else ui.messageAddInfo(strings.info.noUsers, {room});
         })
       }
       else {
@@ -630,7 +621,7 @@ var chat = {
         for (var nick in roster) {
           list[nick] = visual.format.user(roster[nick]);
         }
-        ui.messageAddInfo(strings.info.usersInThisRoom, {list: list});
+        ui.messageAddInfo(strings.info.usersInThisRoom, {list});
       }
     },
 
@@ -644,7 +635,7 @@ var chat = {
       var user = xmpp.roster[xmpp.room.current][arg];
       if (user) {
         ui.messageAddInfo(strings.info.whois, {
-          user: user,
+          user,
           jid: user.jid || '---',
           privilege: user.role + '/' + user.affiliation,
           status: user.show + (user.status ? ' (' + user.status + ')' : '')
@@ -670,11 +661,11 @@ var chat = {
       case 'prejoin':
         // do not allow chat commands in prejoin.
         if (chat.indexOf(command) >= 0)
-          return !silent && ui.messageAddInfo(strings.error.cmdStatus.prejoin, {cmd:command}, 'error') && false;
+          return !silent && ui.messageAddInfo(strings.error.cmdStatus.prejoin, {command}, 'error') && false;
       case 'online':
         // do not allow offline commands in prejoin or in rooms.
         if (offline.indexOf(command) >= 0)
-          return !silent && ui.messageAddInfo(strings.error.cmdStatus.online, {cmd:command}, 'error') && false;
+          return !silent && ui.messageAddInfo(strings.error.cmdStatus.online, {command}, 'error') && false;
         return true;
 
       // switch from blacklist to whitelist here.
@@ -683,7 +674,7 @@ var chat = {
       case 'offline':
         // allow offline commands while waiting or offline.
         if (offline.indexOf(command) >= 0) return true;
-        return !silent && ui.messageAddInfo(strings.error.cmdStatus.offline, {cmd:command}, 'error') && false;
+        return !silent && ui.messageAddInfo(strings.error.cmdStatus.offline, {command}, 'error') && false;
     }
   },
 
@@ -699,25 +690,25 @@ var chat = {
     if (!text) return;
 
     // Without commands, execute /say.
-    var cmd = 'say';
+    var command = 'say';
 
-    // Execute /cmd, but turn //cmd into /say /cmd.
+    // Execute /command, but turn //command into /say /command.
     var m = /^\/(\/?)(\S+)/.exec(text);
     if (m) {
       if (!m[1]) {
-        cmd = m[2];
+        command = m[2];
         text = text.substring(m[0].length);
       }
       else text = text.substring(1);
     }
 
-    if (this.commands[cmd]) {
-      if (this.cmdAvailableStatus(cmd)) this.commands[cmd](text);
+    if (this.commands[command]) {
+      if (this.cmdAvailableStatus(command)) this.commands[command](text);
     }
-    else if (config.settings.macros[cmd])
-      this.executeMacro(config.settings.macros[cmd], text);
+    else if (config.settings.macros[command])
+      this.executeMacro(config.settings.macros[command], text);
     else
-      ui.messageAddInfo(strings.error.cmdUnknown, {cmd:cmd}, 'error');
+      ui.messageAddInfo(strings.error.cmdUnknown, {command}, 'error');
   },
 
   /**
@@ -745,7 +736,7 @@ var chat = {
     if (config.settings.textColor) {
       html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
-    return {html: html, text: bbcodeMD.render(text)};
+    return {html, text: bbcodeMD.render(text)};
   },
 
   /**
@@ -895,11 +886,10 @@ var chat = {
    */
   sessionAuth: function(url, callback) {
     var salt = (new Date().getTime()) + Math.random();
-    $.post(url, {salt: salt}, function(data) {
-      if (!data) return;
-      if (data.user && data.secret) {
-        ui.messageAddInfo(strings.info.sessionAuth, {username:data.user});
-        chat.commands.connect({user:data.user, pass:data.secret});
+    $.post(url, {salt}, function({user, secret}) {
+      if (user && secret) {
+        ui.messageAddInfo(strings.info.sessionAuth, {username:user});
+        chat.commands.connect({user, pass: secret});
       }
       else {
         ui.setStatus('offline');
