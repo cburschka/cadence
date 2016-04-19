@@ -22,16 +22,9 @@ var xmpp = {
   historyEnd: {},
 
   /**
-   * Bind the object methods and create the connection object.
+   * Create the connection object.
    */
   initialize: function() {
-    this.discoverRooms = this.discoverRooms.bind(this);
-    this.eventConnectCallback = this.eventConnectCallback.bind(this);
-    this.eventPresenceCallback = this.eventPresenceCallback.bind(this);
-    this.eventMessageCallback = this.eventMessageCallback.bind(this);
-    this.eventIQCallback = this.eventIQCallback.bind(this);
-    this.disconnect = this.disconnect.bind(this);
-
     // Generate a reverse lookup table for the connection status constants.
     for (key in Strophe.Status) {
       this.statusConstants[Strophe.Status[key]] = key;
@@ -39,25 +32,7 @@ var xmpp = {
   },
 
   /**
-   * Build a new connection object. This is used whenever the client reconnects.
-   */
-  buildConnection: function() {
-    this.connection = new Strophe.Connection(config.xmpp.url);
-    this.connection.addHandler(this.eventPresenceCallback, null, 'presence');
-    this.connection.addHandler(this.eventMessageCallback, null, 'message');
-    this.connection.addHandler(this.eventIQCallback, null, 'iq');
-    this.connection.addTimedHandler(30, this.discoverRooms);
-    // DEBUG: print connection stream to console:
-    this.connection.rawInput = function(data) {
-      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
-    };
-    this.connection.rawOutput = function(data) {
-      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
-    };
-  },
-
-  /**
-   * Open the connection and authenticate.
+   * Open a new connection and authenticate.
    */
   newConnection: function(user, pass) {
     this.disconnect();
@@ -65,8 +40,20 @@ var xmpp = {
     this.user = user;
     this.nick.target = user;
     this.currentJid = Strophe.escapeNode(user) + '@' + config.xmpp.domain + '/' + this.createResourceName();
-    this.buildConnection();
-    this.connection.connect(this.currentJid, pass, this.eventConnectCallback);
+    this.connection = new Strophe.Connection(config.xmpp.url);
+    this.connection.addHandler((stanza) => { return this.eventPresenceCallback(stanza) }, null, 'presence');
+    this.connection.addHandler((stanza) => { return this.eventMessageCallback(stanza) }, null, 'message');
+    this.connection.addHandler((stanza) => { return this.eventIQCallback(stanza) }, null, 'iq');
+    this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
+    // DEBUG: print connection stream to console:
+    this.connection.rawInput = (data) => {
+      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
+    };
+    this.connection.rawOutput = (data) => {
+      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
+    };
+
+    this.connection.connect(this.currentJid, pass, (status, error) => { return this.eventConnectCallback(status, error) });
   },
 
   /**
@@ -211,12 +198,12 @@ var xmpp = {
    *                   complete.
    */
   getReservedNick: function(room, callback) {
-    var iqCallback = function(stanza) {
+    var iqCallback = (stanza) => {
       var nick = (
         ($('query').attr('node') == 'x-roomuser-item') &&
         $('identity', stanza).attr('name') || null);
       callback(nick);
-    }
+    };
     this.connection.sendIQ(
       this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'}),
       iqCallback, iqCallback
@@ -229,7 +216,7 @@ var xmpp = {
   getRoomInfo: function(room, callback) {
     this.connection.sendIQ(
       this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO}),
-      function(stanza) {
+      (stanza) => {
         var query = $('query', stanza);
         callback({
           id: room,
@@ -238,7 +225,7 @@ var xmpp = {
           info: query
         });
       },
-      function(error) { callback(null) }
+      (error) => { callback(null) }
     );
   },
 
@@ -248,17 +235,17 @@ var xmpp = {
    * @param {string} The room to join.
    */
   joinExistingRoom: function(room, password) {
-    var joinWithReservedNick = function() {
-      this.getReservedNick(room, function(nick) {
+    var joinWithReservedNick = () => {
+      this.getReservedNick(room, (nick) => {
         if (nick && nick != this.nick.target) {
           this.nick.target = nick;
           ui.messageAddInfo(strings.info.nickRegistered, {nick}, 'verbose');
         }
         this.joinRoom(room, password);
       });
-    }.bind(this);
+    };
 
-    this.getRoomInfo(room, function(roomInfo) {
+    this.getRoomInfo(room, (roomInfo) => {
       if (!roomInfo) {
         ui.setFragment(xmpp.room.current);
         return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
@@ -274,7 +261,7 @@ var xmpp = {
       }, 'verbose');
       if (config.settings.xmpp.registerNick) joinWithReservedNick();
       else this.joinRoom(room, password);
-    }.bind(this));
+    });
   },
 
   /**
@@ -295,21 +282,19 @@ var xmpp = {
     }, 'verbose');
     // After creating a room, we must configure it. cadence does not support
     // custom configuration, but it will set the natural-language title.
-    this.connection.addHandler(function(stanza) {
+    this.connection.addHandler((stanza) => {
       var codes = $.makeArray($('status', stanza).map(function() {
         return parseInt($(this).attr('code'));
       }));
       if (codes.indexOf(201) >= 0) {
         ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname'] || name}, 'verbose');
-        this.configureRoom(room, config, null, function(rooms) {
+        this.configureRoom(room, config, null, (rooms) => {
           // Only update the menu after the room has been titled.
           ui.updateRoom(room, this.roster[room]);
           ui.messageAddInfo(strings.info.joined, {room: rooms[room]}, 'verbose');
-        }.bind(this));
+        });
       }
-    }.bind(this), null, 'presence', null, null, this.jid(
-      {room, nick: this.nick.target}
-    ));
+    }, null, 'presence', null, null, this.jid({room, nick: this.nick.target}));
     this.joinRoom(room);
   },
 
@@ -372,16 +357,16 @@ var xmpp = {
    * @param {function} update The callback to execute after updating the room list.
    */
   configureRoom: function(room, query, success, update) {
-    var error = success && function(stanza) {
+    var error = success && ((stanza) => {
       success(stanza ? $('error', stanza).attr('code') : true);
-    }
+    });
 
     if (typeof query == 'object') {
       var values = query;
       query = xmpp.fillForm(values);
     }
 
-    var submit = function(values) {
+    var submit = (values) => {
       var form = xmpp.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
@@ -395,7 +380,7 @@ var xmpp = {
         form.up();
       }
 
-      xmpp.connection.sendIQ(form, function() {
+      xmpp.connection.sendIQ(form, () => {
         success && success();
         // Need to refresh the room list now.
         xmpp.discoverRooms(update);
@@ -404,9 +389,7 @@ var xmpp = {
 
     this.connection.sendIQ(
       this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'}),
-      function(stanza) {
-        query($('query x', stanza), submit);
-      }, error
+      (stanza) => { query($('query x', stanza), submit); }, error
     );
   },
 
@@ -420,7 +403,7 @@ var xmpp = {
    *         form field trigger a warning message.
    */
   fillForm: function(values) {
-    return function (x, submit) {
+    return (x, submit) => {
       var toSubmit = {};
       $('field', x).each(function() {
         var type = $(this).attr('type');
@@ -428,8 +411,7 @@ var xmpp = {
         var value = $(this).children('value').html();
         if (values[name] !== undefined) value = values[name];
         if (value && type == 'list-single') {
-          var options = [];
-          $('option value', this).each(function() { options.push(this.innerHTML)});
+          var options = $.makeArray($('option value', this).map(function() { return this.innerHTML }));
           if (options.indexOf(value) < 0)
             return ui.messageAddInfo(strings.error.roomConfOptions,
               {options: options.join(', '), field: name}, 'error'
@@ -457,12 +439,11 @@ var xmpp = {
       .c('destroy');
     if (alternate) iq.attrs({jid: Strophe.escapeNode(alternate) + '@' + config.xmpp.mucService});
     if (message) iq.c('reason', message);
-    this.connection.sendIQ(iq, function() {
+    this.connection.sendIQ(iq, () => {
       success && success();
       this.discoverRooms();
-    }.bind(this), function(stanza) {
-      success(stanza ? $('error', stanza).attr('code') : true);
-    });
+    },
+    (stanza) => { success(stanza ? $('error', stanza).attr('code') : true); });
   },
 
   /**
@@ -481,8 +462,8 @@ var xmpp = {
       query = xmpp.fillForm(values);
     }
 
-    var submit = function(sessionid) {
-      return function(values) {
+    var submit = (sessionid) => {
+      return (values) => {
         var form = xmpp.iq('set', {}).c('command', {
           xmlns: 'http://jabber.org/protocol/commands',
           node: 'http://jabber.org/protocol/admin#' + node,
@@ -499,8 +480,8 @@ var xmpp = {
         }
 
         xmpp.connection.sendIQ(form,
-          function (stanza) { callback && callback(stanza, 2); },
-          function (stanza) { callback && callback(stanza, 1); }
+          (stanza) => { callback && callback(stanza, 2); },
+          (stanza) => { callback && callback(stanza, 1); }
         );
       }
     }
@@ -512,12 +493,12 @@ var xmpp = {
         action: 'execute',
         node: 'http://jabber.org/protocol/admin#' + node
       }),
-      function(stanza) {
+      (stanza) => {
         var values = {};
         var sessionid = $('command', stanza).attr('sessionid');
         query($('command x', stanza), submit(sessionid));
       },
-      function(stanza) { callback && callback(stanza, 0); }
+     (stanza) => { callback && callback(stanza, 0); }
     );
   },
 
@@ -558,7 +539,7 @@ var xmpp = {
   setUser: function(item, success, error) {
     this.connection.sendIQ(
       this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
-      success, function(response) {
+      success, (response) => {
         var code = $('error', response).attr('code');
         error(code, response);
       }
@@ -581,7 +562,7 @@ var xmpp = {
   getOccupants: function(room, callback) {
     this.connection.sendIQ(
       this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_ITEMS}),
-      function (stanza) {
+      (stanza) => {
         var users = {};
         $('item', stanza).each(function() {
           var nick = $(this).attr('name');
@@ -589,7 +570,7 @@ var xmpp = {
         });
         callback(users);
       },
-      function () { callback(); }
+      callback
     );
   },
 
@@ -603,16 +584,14 @@ var xmpp = {
   getVersion: function(callback, target) {
     this.connection.sendIQ(
       this.iq('get', target || {}, {xmlns: Strophe.NS.VERSION}),
-      function (stanza) {
+      (stanza) => {
         callback({
           name: $('name', stanza).text() || '-',
           version: $('version', stanza).text() || '-',
           os: $('os', stanza).text() || '-'
         }, stanza);
       },
-      function (stanza) {
-        callback(false, stanza);
-      }
+      (stanza) => { callback(false, stanza); }
     );
   },
 
@@ -624,9 +603,9 @@ var xmpp = {
   discoverRooms: function(callback) {
     this.connection.sendIQ(
       this.iq('get', {room: null}, {xmlns:Strophe.NS.DISCO_ITEMS}),
-      function(stanza) {
+      (stanza) => {
         var rooms = {};
-        $('item', stanza).each(function(s,t) {
+        $('item', stanza).each((s,t) => {
           var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
           // Strip off the parenthesized number of participants in the name:
           var name = $(t).attr('name');
@@ -642,8 +621,8 @@ var xmpp = {
         this.room.available = rooms;
         ui.refreshRooms(this.room.available);
         if (callback) callback(rooms);
-      }.bind(this),
-      function(stanza) {
+      },
+      (stanza) => {
         var type = 'default';
         var error = $(stanza).children('error');
         if (error.children('remote-server-not-found').length) type = 404;
@@ -932,7 +911,7 @@ var xmpp = {
         var invite = $('x invite', stanza);
         if (invite.length) {
           var room = xmpp.room.available[node];
-          if (!room) xmpp.getRoomInfo(node, function(data) {
+          if (!room) xmpp.getRoomInfo(node, (data) => {
             room = data;
             xmpp.room.available[node] = data;
           });
@@ -1089,7 +1068,7 @@ var xmpp = {
       this.broadcastPresence();
       var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
-        this.discoverRooms(function (rooms) {
+        this.discoverRooms((rooms) => {
           if (rooms[room]) chat.commands.join({name: room});
           else {
             ui.messageAddInfo(strings.error.unknownRoomAuto, {name: room});

@@ -102,7 +102,7 @@ var ui = {
         .attr('title', bars[set].title)
         .text(bars[set].title)
         .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
-        .appendTo(ui.dom.emoticonTrayContainer);
+        .appendTo(this.dom.emoticonTrayContainer);
     }
     for (var set in config.markup.emoticons) {
       var list = $('#emoticonsList-' + set);
@@ -134,8 +134,7 @@ var ui = {
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').append(sounds).after(function() {
       var event = this.id.substring('settings-notifications.sounds.'.length);
-      return $('<button class="icon soundTest">')
-        .click(function() { ui.playSound(event); });
+      return $('<button class="icon soundTest">').click(() => { ui.playSound(event); });
     });
 
     // Set the form values.
@@ -188,7 +187,7 @@ var ui = {
     visual.linkOnClick(document);
 
     // Inserting BBCode tags.
-    var insertBBCode = function(tag, arg) {
+    var insertBBCode = (tag, arg) => {
       arg = arg ? '=' + arg : '';
       var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
       chat.insertText(v);
@@ -199,9 +198,9 @@ var ui = {
     this.dom.inputField.on({
       keypress: this.onKeyMap({
         //  9: <tab>
-         9: function() { return ui.autocomplete(); },
+         9: () => { return this.autocomplete(); },
         // 13: <return> (unless shift is down)
-        13: function(e,x) {
+        13: (e,x) => {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
             $(x).val('');
@@ -209,18 +208,18 @@ var ui = {
           }
         },
         // 38: <arrow-up> (if the field is empty, or ctrl is down)
-        38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
+        38: (e,x) => { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
         // 40: <arrow-down> (if ctrl is down)
-        40: function(e) { return e.ctrlKey && chat.historyDown(); },
+        40: (e) => { return e.ctrlKey && chat.historyDown(); },
 
         // 98, 105, 117, 117: b,i,s,u
-        98: function(e) { return e.ctrlKey && insertBBCode('b'); },
-        105: function(e) { return e.ctrlKey && insertBBCode('i'); },
-        115: function(e) { return e.ctrlKey && insertBBCode('s'); },
-        117: function(e) { return e.ctrlKey && insertBBCode('u'); },
+        98: (e) => { return e.ctrlKey && insertBBCode('b'); },
+        105: (e) => { return e.ctrlKey && insertBBCode('i'); },
+        115: (e) => { return e.ctrlKey && insertBBCode('s'); },
+        117: (e) => { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
-      keyup: function() { ui.updateMessageLengthCounter(); }
+      keyup: () => { this.updateMessageLengthCounter(); }
     });
 
     // The room selection menu listens for changes.
@@ -228,18 +227,18 @@ var ui = {
       if (this.value) chat.commands.join({name: this.value});
       else chat.commands.part();
     });
-    $(window).on('hashchange', function() {
-      if (ui.urlFragment != window.location.hash) {
-        ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({
-          name: ui.getFragment()
+    $(window).on('hashchange', () => {
+      if (this.urlFragment != window.location.hash) {
+        this.urlFragment = window.location.hash;
+        if (this.urlFragment) chat.commands.join({
+          name: this.getFragment()
         });
         else chat.commands.part();
       }
     });
 
     // Log in with the button or pressing enter.
-    this.dom.loginContainer.submit(function(e) {
+    this.dom.loginContainer.submit((e) => {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
@@ -258,19 +257,19 @@ var ui = {
     });
 
     // Open the color tray.
-    $('#colorBBCode').click(function() {
-      ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
+    $('#colorBBCode').click(() => {
+      this.colorPicker = this.colorPicker != 'bbcode' ? 'bbcode' : null;
       $('#textColorFull').css('display', 'none');
-      ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
+      this.dom.colorCodesContainer[this.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    $('#textColor').click(function() {
+    $('#textColor').click(() => {
       $('#textColorFull').css('display', 'block');
       if (config.settings.fullColor && config.settings.textColor != '') {
         $('#settings-textColor').click();
       }
       else {
-        ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-        ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+        this.colorPicker = this.colorPicker != 'setting' ? 'setting' : null;
+        this.dom.colorCodesContainer[this.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
       }
     });
 
@@ -288,16 +287,16 @@ var ui = {
     });
 
     // Toggle the full RGB color setting.
-    $('#textColorFull').click(function() {
+    $('#textColorFull').click(() => {
       $('#textColor').click();
       config.settings.fullColor = true;
       $('#settings-textColor').click();
     });
     // Clear the text color setting.
-    $('#textColorClear').click(function() {
+    $('#textColorClear').click(() => {
       config.settings.fullColor = false;
       chat.setSetting('textColor', '');
-      ui.setTextColorPicker('');
+      this.setTextColorPicker('');
     });
     $('#settings-textColor').change(function() {
       ui.setTextColorPicker($(this).val())
@@ -323,30 +322,30 @@ var ui = {
     $('#settings-notifications\\.desktop').change(function() {
       if (this.value == 0) return;
       if (Notification.permission == 'default')
-        Notification.requestPermission(function(permission) {
+        Notification.requestPermission((permission) => {
           // If denied, revert the setting.
           if (permission != 'granted') $(this).val(0).change();
-        }.bind(this));
+        });
       else if (Notification.permission == 'denied')
         $(this).val(0).change();
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
-    var toggler = function(selector) {
+    var toggler = (selector) => {
       // Find the message at the top of the viewport...
-      var i = ui.getMessageAt(ui.dom.chatList.prop('scrollTop'));
+      var i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
       $(selector).toggle();
-      ui.updateHeights();
+      this.updateHeights();
       if (i) {
         // ... and scroll to it again (snap to bottom if appropriate).
-        ui.dom.chatList.prop('scrollTop', ui.messages[i].offset);
-        ui.scrollDown();
+        this.dom.chatList.prop('scrollTop', this.messages[i].offset);
+        this.scrollDown();
       }
-    }
-    $('#settings-markup\\.images').change(function() {
+    };
+    $('#settings-markup\\.images').change(() => {
       toggler('img.rescale, span.image-alt');
     });
-    $('#settings-markup\\.emoticons').change(function() {
+    $('#settings-markup\\.emoticons').change(() => {
       toggler('img.emoticon, span.emote-alt');
     });
     $('#settings-markup\\.colors').change(function() {
@@ -376,9 +375,7 @@ var ui = {
     });
 
     // /quit button.
-    $('#logoutButton').click(function() {
-      chat.commands.quit();
-    });
+    $('#logoutButton').click(() => { chat.commands.quit(); });
 
     $('#audioButton').click(function() {
       var audio = !config.settings.notifications.soundEnabled;
@@ -387,8 +384,8 @@ var ui = {
     });
 
     // scrolling up the chat list turns off auto-scrolling.
-    this.dom.chatList.scroll(function() {
-      ui.checkAutoScroll();
+    this.dom.chatList.scroll(() => {
+      this.checkAutoScroll();
       return true;
     });
 
@@ -397,7 +394,7 @@ var ui = {
       className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700, // only applies to hover.
-      build: ui.userContextMenu
+      build: this.userContextMenu
     };
     $.contextMenu(usermenu);
 
@@ -406,7 +403,7 @@ var ui = {
       className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700,
-      build: ui.roomContextMenu
+      build: this.roomContextMenu
     };
     $.contextMenu(roommenu);
 
@@ -426,7 +423,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
+    var c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
     var roster = xmpp.roster[xmpp.room.current]
     var userSelf = roster && roster[xmpp.nick.current];
@@ -444,13 +441,13 @@ var ui = {
         name: labels.msg,
         icon: 'msg',
         disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
-        callback: function() { chat.prefixMsg(nick); }
+        callback: () => { chat.prefixMsg(nick); }
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
         disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
-        callback: function() { chat.prefixMsg(jid, true); }
+        callback: () => { chat.prefixMsg(jid, true); }
       },
       sep1: '---',
       invite: {
@@ -458,34 +455,34 @@ var ui = {
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
         disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
-        callback: function() { chat.commands.invite({jid}); }
+        callback: () => { chat.commands.invite({jid}); }
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: function() { chat.commands.kick(nick); }
+        callback: () => { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
-        callback: function() { chat.commands.ban({jid}); }
+        callback: () => { chat.commands.ban({jid}); }
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: function() { chat.commands.whois(nick); }
+        callback: () => { chat.commands.whois(nick); }
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: function() { chat.commands.ping(nick || jid); }
+        callback: () => { chat.commands.ping(nick || jid); }
       }
     }
 
@@ -496,7 +493,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
+    var c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
     var labels = strings.label.command;
     var room = element.attr('data-room');
     var currentRoom = xmpp.room.current == room;
@@ -507,7 +504,7 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: function() { chat.commands.join({name: room}); }
+        callback: () => { chat.commands.join({name: room}); }
       },
       part: {
         name: labels.part,
@@ -519,13 +516,13 @@ var ui = {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: function() { chat.commands.configure({name: room, interactive: true}); }
+        callback: () => { chat.commands.configure({name: room, interactive: true}); }
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: function() { chat.commands.destroy({room}); }
+        callback: () => { chat.commands.destroy({room}); }
       }
     }
     return {items, autoHide: config.settings.contextmenu == 'hover'};
@@ -595,9 +592,9 @@ var ui = {
       width += parseInt(px.substring(0,px.length-2)) + 8;
     }
 
-    this.dom.chatList.animate({right : width + 'px'}, speed, function() {
-      var maxWidth = ui.dom.chatList.width() - 30;
-      var maxHeight = ui.dom.chatList.height() - 20;
+    this.dom.chatList.animate({right : width + 'px'}, speed, () => {
+      var maxWidth = this.dom.chatList.width() - 30;
+      var maxHeight = this.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
@@ -618,33 +615,32 @@ var ui = {
    */
   dataForm: function(x, submit) {
     var fields = {};
-    var input = function(field) {
+    var input = (field) => {
       return $('<input/>').attr('name', field.attr('var'));
-    }
-    fields.hidden = function(field) {
+    };
+    fields.hidden = (field) => {
       return input(field).attr('type', 'hidden')
         .attr('value', $('value', field).text());
     };
-    fields['boolean'] = function(field) {
+    fields['boolean'] = (field) => {
       return input(field).attr('type', 'checkbox')
         .prop('checked', $('value', field).text() == '1');
     };
-    fields['text-single'] = function(field) {
+    fields['text-single'] = (field) => {
       return input(field).attr('type', 'text')
         .attr('value', $('value', field).text());
     };
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
-    fields['text-multi'] = function(field) {
-      var values = [];
-      $('value', field).each(function() { values.push($(this).text()); });
+    fields['text-multi'] = (field) => {
+      var values = $.makeArray($('value', field).map(function() { return $(this).text(); }));
       return $('<textarea class="form-field">').attr('name', field.attr('var'))
         .text(values.join("\n"));
-    }
-    fields['jid-multi'] = function(field) {
+    };
+    fields['jid-multi'] = (field) => {
       return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
-    }
-    fields['list-single'] = function(field) {
+    };
+    fields['list-single'] = (field) => {
       var f = $('<select>').attr('name', field.attr('var'));
       var value = field.children('value').text();
       $('option', field).each(function() {
@@ -655,30 +651,26 @@ var ui = {
         );
       });
       return f;
-    }
-    fields['list-multi'] = function(field) {
+    };
+    fields['list-multi'] = (field) => {
       return fields['list-single'](field).prop('multiple', true);
-    }
-    fields['fixed'] = function(field) {
+    };
+    fields['fixed'] = (field) => {
       return $('<p>').text($('value', field).text());
-    }
+    };
 
-    val = function(field) { return field.val(); }
+    val = (field) => { return field.val(); };
     var values = {};
-    values['boolean'] = function(field) {
-      return field.prop('checked') ? "1" : "0";
-    }
+    values['boolean'] = (field) => { return field.prop('checked') ? "1" : "0"; };
     values.hidden = val;
     values['text-single'] = val;
     values['text-private'] = val;
     values['jid-single'] = val;
-    values['text-multi'] = function(field) {
-      return val(field).split("\n");
-    }
+    values['text-multi'] = (field) => { return val(field).split("\n"); };
     values['jid-multi'] = values['text-multi'];
     values['list-single'] = val;
     values['list-multi'] = val;
-    values['fixed'] = function() { return undefined; };
+    values['fixed'] = () => { return undefined; };
 
     var form = $('<form class="data-form">').attr('title', $('title', x).text());
     x.children('field').each(function() {
@@ -687,7 +679,7 @@ var ui = {
       var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
       form.append($('<div class="row">').append(label, field, '<br>'));
     });
-    form.submit(function(e) {
+    form.submit((e) => {
       e.preventDefault();
       var v = {};
       $('.data-form-field', form).each(function() {
@@ -814,12 +806,10 @@ var ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend: function(message) {
-    message.offset = ui.dom.chatList.prop('scrollHeight');
+    message.offset = this.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
-    $(message.html).fadeIn(function() {
-      ui.scrollDown();
-    });
+    $(message.html).fadeIn(() => { this.scrollDown(); });
     this.scrollDown();
     if (message.message.user.nick != xmpp.nick.current) {
       var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
@@ -979,7 +969,7 @@ var ui = {
         return false;
       }
       return true;
-    }
+    };
   },
 
   /**
@@ -1101,7 +1091,7 @@ var ui = {
     var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
     if (!number) return;
     var state = false;
-    this.blinker = window.setInterval(function() {
+    this.blinker = window.setInterval(() => {
       if (!number) {
         $(document).attr('title', ui.title);
         return window.clearInterval(ui.blinker);
@@ -1117,7 +1107,7 @@ var ui = {
    */
   autocomplete: function() {
     // Search algorithm for the longest common prefix of all matching strings.
-    var prefixSearch = function(prefix, words) {
+    var prefixSearch = (prefix, words) => {
       var results = [];
       for (var i in words) {
         if (words[i].substring(0, prefix.length) == prefix) {
