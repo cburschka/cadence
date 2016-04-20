@@ -152,3 +152,9 @@ submodules:
 	git submodule update --init
 
 .PHONY: all js init submodules
+
+
+.SECONDEXPANSION:
+
+js/lib/strophe.%.js: js/lib/strophe-plugins/%/strophe.$$*.js
+	$(CP) $^ $@
