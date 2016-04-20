@@ -49,6 +49,10 @@ var xmpp = {
       this.connection.ping.pong(ping);
       return true;
     });
+    this.connection.time.addTimeHandler((request) => {
+      this.connection.time.sendTime(request);
+      return true;
+    });
 
     this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
     // DEBUG: print connection stream to console:
@@ -995,46 +999,42 @@ var xmpp = {
   eventIQCallback: function(stanza) {
     if (!stanza) return true;
     stanza = $(stanza);
-    var from = stanza.attr('from');
-    var type = stanza.attr('type');
-    var response = this.iq('result').attrs({
+    const from = stanza.attr('from');
+    const type = stanza.attr('type');
+    const xmlns = stanza.children().attr('xmlns');
+    const response = this.iq('result').attrs({
       to: from,
       id: stanza.attr('id')
     });
 
     if (type == 'get') {
-      // Respond to <time> (XEP-0202).
-      if (stanza.children('time').attr('xmlns') == Strophe.NS.Cadence_TIME) {
-        return this.connection.send(response
-          .c('time', {xmlns: 'urn:xmpp:time'})
-          .c('utc', moment().toISOString())
-          .c('tzo', moment().format('Z'))
-        ) || true;
-      }
-
       // Respond to jabber:iq:version (XEP-0092).
-      if (stanza.children('query').attr('xmlns') == Strophe.NS.VERSION) {
-        return this.connection.send(response
-          .c('query', {xmlns: Strophe.NS.VERSION})
+      if (xmlns == Strophe.NS.VERSION) {
+        this.connection.send(response
+          .c('query', {xmlns})
           .c('name', {}, config.clientName)
           .c('version', {}, config.version)
           .c('os', {}, navigator.userAgent)
-        ) || true;
+        );
       }
 
       // List available features (XEP-0030).
-      if (stanza.children('query').attr('xmlns') == Strophe.NS.DISCO_INFO) {
-        response.c('query', {xmlns: Strophe.NS.DISCO_INFO})
+      else if (xmlns == Strophe.NS.DISCO_INFO) {
+        response.c('query', {xmlns})
         response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
         for (var i in config.features)
           response.c('feature', {'var': config.features[i]}).up();
-        return this.connection.send(response) || true;
+        this.connection.send(response);
       }
 
       // Send <feature-not-implemented/> for anything not recognized.
-      response.attrs({type: 'error'}).c('error', {type: 'cancel', code: 501});
-      response.c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS});
-      return this.connection.send(response) || true;
+      else if (config.features.indexOf(xmlns) < 0) {
+        this.connection.send(response
+          .attrs({type: 'error'})
+          .c('error', {type: 'cancel', code: 501})
+          .c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS})
+        );
+      }
     }
     return true;
   },
@@ -1125,6 +1125,9 @@ var xmpp = {
     return new Promise((resolve, reject) => {
       this.connection.ping.ping(jid, resolve, reject, timeout);
     });
-  }
+  },
 
+  getTime: function(jid, timeout) {
+    return this.connection.time.getTime(jid, timeout);
+  }
 }

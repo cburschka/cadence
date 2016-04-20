@@ -370,7 +370,8 @@ var ui = {
     $('#settings-dateFormat').change(function() {
       var format = $(this).val();
       $('.time').text(function() {
-        return moment($(this).attr('data-time')).format(format);
+        const t = $(this).attr('data-time');
+        return moment(t).utcOffset(t).format(format);
       });
     });
 

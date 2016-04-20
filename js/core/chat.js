@@ -537,6 +537,34 @@ var chat = {
     },
 
     /**
+     * time [<nick>|<jid>]
+     *   Send a time request and display the response.
+     */
+    time: function(arg) {
+      arg = arg.trim();
+      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      const direct = !!Strophe.getResourceFromJid(arg); // Only accept full JIDs.
+      const target = direct ? {jid: arg} : {nick: arg};
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+      const start = new Date();
+
+      xmpp.getTime(target && xmpp.jid(target)).then((stanza) => {
+        const now = new Date();
+        const tzo = $('tzo', stanza).text();
+        const utc = new Date($('utc', stanza).text());
+        const time = moment(utc).utcOffset(tzo);
+        let offset = (utc - now) + (now - start) / 2
+        if (offset > 0) offset = '+' + offset;
+        ui.messageAddInfo(strings.info.time, {user, tzo, time, offset});
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length)
+          ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        else
+          ui.messageAddInfo(strings.error.timeError, {user}, 'error');
+      });
+    },
+
+    /**
      * unban
      *   Unban a user from the current room.
      */
