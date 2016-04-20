@@ -165,12 +165,12 @@ var config = {
     Strophe.NS.DISCO_INFO,
     Strophe.NS.MUC,
     Strophe.NS.MUC + '#user',
+    Strophe.NS.PING,
     Strophe.NS.XHTML_IM,
     Strophe.NS.VERSION,
     Strophe.NS.Cadence_ATTN,
     Strophe.NS.Cadence_CAPS,
     Strophe.NS.Cadence_CONFERENCE,
-    Strophe.NS.Cadence_PING,
     Strophe.NS.Cadence_TIME
   ],
 

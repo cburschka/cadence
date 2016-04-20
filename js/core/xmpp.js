@@ -44,6 +44,12 @@ var xmpp = {
     this.connection.addHandler((stanza) => { return this.eventPresenceCallback(stanza) }, null, 'presence');
     this.connection.addHandler((stanza) => { return this.eventMessageCallback(stanza) }, null, 'message');
     this.connection.addHandler((stanza) => { return this.eventIQCallback(stanza) }, null, 'iq');
+
+    this.connection.ping.addPingHandler((ping) => {
+      this.connection.ping.pong(ping);
+      return true;
+    });
+
     this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
     // DEBUG: print connection stream to console:
     this.connection.rawInput = (data) => {
@@ -326,20 +332,6 @@ var xmpp = {
     .c('x', {xmlns: Strophe.NS.MUC + '#user'})
     .c('invite', {to: jid})
     .c('reason', text));
-  },
-
-  /**
-   * Send a ping.
-   *
-   * @param {object} target The ping target.
-   * @param {function} success The success callback.
-   * @param {function} error The error callback. This will receive an error stanza
-   *                         if the server responded, or null if the ping timed out.
-   */
-  ping: function(target, success, error) {
-    this.connection.sendIQ(this.iq('get', target || {})
-        .c('ping', {xmlns: 'urn:xmpp:ping'}),
-      success, error, 15000);
   },
 
   /**
@@ -1011,11 +1003,6 @@ var xmpp = {
     });
 
     if (type == 'get') {
-      // Respond to <ping> (XEP-0199).
-      if (stanza.children('ping').attr('xmlns') == Strophe.NS.Cadence_PING) {
-        return this.connection.send(response) || true;
-      }
-
       // Respond to <time> (XEP-0202).
       if (stanza.children('time').attr('xmlns') == Strophe.NS.Cadence_TIME) {
         return this.connection.send(response
@@ -1132,5 +1119,12 @@ var xmpp = {
       this.connection.send(this.pres(undefined, {type: 'unavailable'}));
       this.connection.disconnect();
     }
+  },
+
+  ping: function(jid, timeout) {
+    return new Promise((resolve, reject) => {
+      this.connection.ping.ping(jid, resolve, reject, timeout);
+    });
   }
+
 }
