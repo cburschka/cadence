@@ -15,7 +15,7 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
 LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
             js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
-            js/lib/strophe.ping.js \
+            js/lib/strophe.ping.js js/lib/strophe.time.js \
             js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \

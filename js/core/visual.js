@@ -173,7 +173,8 @@ visual = {
      */
     time: function(time) {
       return $('<span class="time">')
-        .attr('data-timestamp', time.getTime())
+	// Store locale-aware ISO8601 string in the attribute.
+        .attr('data-time', moment(time).format("YYYY-MM-DDTHH:mm:ss.SSSZ"))
         .text(moment(time).format(config.settings.dateFormat));
     },
 
