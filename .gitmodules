@@ -25,3 +25,6 @@
 [submodule "js/lib/replacetext"]
 	path = js/lib/replacetext
 	url = https://github.com/cburschka/jquery-replacetext
+[submodule "js/lib/strophe-plugins"]
+	path = js/lib/strophe-plugins
+	url = https://github.com/cburschka/strophejs-plugins
