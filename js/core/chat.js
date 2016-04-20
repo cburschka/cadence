@@ -475,30 +475,25 @@ var chat = {
      *   Send a ping and display the response time.
      */
     ping: function(arg) {
-      arg = arg.trim();
-      var jid = Strophe.getResourceFromJid(arg); // Only accept full JIDs.
-      var target = arg && (jid ? {jid: arg} : {nick: arg});
-      var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
-      var time = (new Date()).getTime();
+      arg = arg.trim() || undefined;
+      const direct = !!Strophe.getResourceFromJid(arg); // Only accept full JIDs.
+      const target = arg && (direct ? {jid: arg} : {nick: arg});
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+      const time = (new Date()).getTime();
 
-      xmpp.ping(target, (stanza) => {
-          var delay = ((new Date()).getTime() - time).toString();
-          ui.messageAddInfo(strings.info.pong[+!!user], {user, delay});
-        }, (error) => {
-          var delay = ((new Date()).getTime() - time).toString();
-          if (error) {
-            if ($('item-not-found', error).length != 0) {
-              ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-            }
-            else {
-              ui.messageAddInfo(strings.error.pingError, 'error');
-            }
-          }
-          else {
-            ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user, delay}, 'error');
-          }
+      xmpp.ping(target && xmpp.jid(target)).then((stanza) => {
+        const delay = ((new Date()).getTime() - time).toString();
+        ui.messageAddInfo(strings.info.pong[+!!user], {user, delay});
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length)
+          ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        else if (stanza)
+          ui.messageAddInfo(strings.error.pingError, 'error');
+        else {
+          const delay = ((new Date()).getTime() - time).toString();
+          ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user, delay}, 'error');
         }
-      );
+      });
     },
 
     /**
