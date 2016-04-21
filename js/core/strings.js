@@ -213,13 +213,16 @@ var strings = {
       'Ping timed out ({delay} ms).',
       'Ping to {user} timed out ({delay} ms).'
     ],
+    query: [
+      'Server did not respond.',
+      '{user} did not respond.'
+    ],
     roomConf: 'Failed to configure {room}.',
     roomConfDenied: 'You lack the authority to configure {room}.',
     roomConfOptions: 'The allowed values for {field} are: {options}',
     roomExists: 'Could not create {room}; it already exists.',
     roomCreateName: 'Could not create a room without a name.',
     saveEmpty: 'There are no messages to save.',
-    timeError: 'Time: {user} did not respond.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
