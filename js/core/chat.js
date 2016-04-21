@@ -374,22 +374,40 @@ var chat = {
      */
     join: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.name = arg.name || arg[0].join(" ").trim();
-      if (!arg.name) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var room = chat.getRoomFromTitle(arg.name);
-      var join = () => {
-        var room = chat.getRoomFromTitle(arg.name);
-        if (room && xmpp.room.current == room.id) {
-          return ui.messageAddInfo(strings.error.joinSame, {room}, 'error');
-        }
-        room = (room ? room.id : arg.name).toLowerCase();
-        xmpp.joinExistingRoom(room, arg.password);
-        ui.setFragment(room);
-        chat.setSetting('xmpp.room', room);
-      };
-      // If the room is known, join it now. Otherwise, refresh before joining.
-      if (room) join();
-      else xmpp.discoverRooms(join);
+      const name = arg.name || arg[0].join(" ").trim();
+      if (!name) return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      // Keep room in function scope to avoid passing it through the promises.
+      let room = false;
+
+      // Refresh room list and try to find the room.
+      return xmpp.discoverRooms()
+      .then(() => {
+        room = chat.getRoomFromTitle(name);
+        if (!room)
+          throw ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
+        else if (room.id == xmpp.room.current)
+          throw ui.messageAddInfo(strings.error.joinSame, {room}, 'error');
+      })
+      // Maybe find a registered nick, ignoring errors.
+      .then(() => {
+        if (config.settings.xmpp.registerNick)
+          return xmpp.roomRegisteredNick(room.id).catch(() => {});
+      })
+      .then((nick) => {
+        ui.messageAddInfo(strings.info.joining, {
+          room,
+          user: {
+            nick: xmpp.nick.target,
+            jid: xmpp.connection.jid
+          }
+        }, 'verbose');
+        return xmpp.joinRoom({room: room.id, nick, password: arg.password});
+      })
+      .then(() => {
+        ui.setFragment(room.id);
+        chat.setSetting('xmpp.room', room.id);
+      });
     },
 
     /**

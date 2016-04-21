@@ -248,41 +248,6 @@ var xmpp = {
   },
 
   /**
-   * Attempt to join a room after checking it exists.
-   *
-   * @param {string} The room to join.
-   */
-  joinExistingRoom: function(room, password) {
-    var joinWithReservedNick = () => {
-      this.getReservedNick(room, (nick) => {
-        if (nick && nick != this.nick.target) {
-          this.nick.target = nick;
-          ui.messageAddInfo(strings.info.nickRegistered, {nick}, 'verbose');
-        }
-        this.joinRoom(room, password);
-      });
-    };
-
-    this.getRoomInfo(room, (roomInfo) => {
-      if (!roomInfo) {
-        ui.setFragment(xmpp.room.current);
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: room}, 'error');
-      }
-      this.room.available[room] = roomInfo;
-      ui.refreshRooms(this.room.available);
-      ui.messageAddInfo(strings.info.joining, {
-      room: this.room.available[room],
-        user: {
-          nick: this.nick.target,
-          jid: this.connection.jid
-        }
-      }, 'verbose');
-      if (config.settings.xmpp.registerNick) joinWithReservedNick();
-      else this.joinRoom(room, password);
-    });
-  },
-
-  /**
    * Attempt to create a new room.
    *
    * @param {string} The room name.
@@ -320,15 +285,28 @@ var xmpp = {
   /**
    * Join a room, regardless of whether it exists.
    *
+   * Returns a promise that will resolve or reject on the returned room presence.
+   *
    * @param {string} The room name.
    */
-  joinRoom: function(room, password) {
-    this.room.target = room;
-    var presence = this.pres({room, nick: this.nick.target})
-      .c('x', {xmlns:Strophe.NS.MUC})
-      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
-    if (password) presence.up().c('password', password);
-    this.connection.send(presence);
+  joinRoom: function({room, nick, password}) {
+    return new Promise((resolve, reject) => {
+      if (room) this.room.target = room;
+      else return reject();
+      if (nick) this.nick.target = nick;
+
+      const jid = xmpp.jid({room, nick: this.nick.target});
+      const presence = this.pres({room, nick: this.nick.target})
+        .c('x', {xmlns:Strophe.NS.MUC})
+        .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
+      if (password) presence.up().c('password', password);
+      this.connection.send(presence);
+
+      this.connection.addHandler((stanza) => {
+        if ($(stanza).attr('type') == 'error') reject($('error', stanza));
+        else resolve(stanza);
+      }, null, 'presence', null, null, jid);
+    });
   },
 
   /**
