@@ -53,6 +53,14 @@ var xmpp = {
       this.connection.time.sendTime(request);
       return true;
     });
+    this.connection.version.addVersionHandler((request) => {
+      this.connection.version.sendVersion(request, {
+        name: config.clientName,
+        version: config.version,
+        os: navigator.userAgent
+      });
+      return true;
+    });
 
     this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
     // DEBUG: print connection stream to console:
@@ -1008,18 +1016,8 @@ var xmpp = {
     });
 
     if (type == 'get') {
-      // Respond to jabber:iq:version (XEP-0092).
-      if (xmlns == Strophe.NS.VERSION) {
-        this.connection.send(response
-          .c('query', {xmlns})
-          .c('name', {}, config.clientName)
-          .c('version', {}, config.version)
-          .c('os', {}, navigator.userAgent)
-        );
-      }
-
       // List available features (XEP-0030).
-      else if (xmlns == Strophe.NS.DISCO_INFO) {
+      if (xmlns == Strophe.NS.DISCO_INFO) {
         response.c('query', {xmlns})
         response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
         for (var i in config.features)
@@ -1129,5 +1127,9 @@ var xmpp = {
 
   getTime: function(jid, timeout) {
     return this.connection.time.getTime(jid, timeout);
+  },
+
+  getVersion: function(jid, timeout) {
+    return this.connection.version.getVersion(jid, timeout);
   }
 }

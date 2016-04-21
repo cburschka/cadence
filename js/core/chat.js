@@ -590,30 +590,33 @@ var chat = {
      */
     version: function(arg) {
       arg = arg.trim();
-      if (arg) {
-        var jid = Strophe.getResourceFromJid(arg);
-        var target = arg && (jid ? {jid: arg} : {nick: arg});
-        var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
-        return xmpp.getVersion((version, stanza) => {
-          if (version) ui.messageAddInfo(strings.info.versionUser, {
-            name: version.name, version: version.version, os: version.os,
-            user: user
-          });
-          else if ($('item-not-found', stanza).length != 0)
-            ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-        }, target);
-      }
-
-      ui.messageAddInfo(strings.info.versionClient, {
-        version: $('<a>')
-          .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
-          .text(config.version)
-      });
-      if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
-        xmpp.getVersion((version) => {
-          if (version) ui.messageAddInfo(strings.info.versionServer, version);
+      if (!arg || xmpp.status == 'offline') {
+        ui.messageAddInfo(strings.info.versionClient, {
+          version: $('<a>')
+            .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
+            .text(config.version)
         });
       }
+      if (xmpp.status == 'offline') return;
+
+      const direct = !!Strophe.getResourceFromJid(arg);
+      const target = arg && (direct ? {jid: arg} : {nick: arg});
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+
+      return xmpp.getVersion(target && xmpp.jid(target)).then((stanza) => {
+        const name = $('name', stanza).text();
+        const version = $('version', stanza).text();
+        const os = $('os', stanza).text();
+        if (user)
+          ui.messageAddInfo(strings.info.versionUser, {name, version, os, user});
+        else
+          ui.messageAddInfo(strings.info.versionServer, version);
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length != 0)
+          ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+        else
+          ui.messageAddInfo(strings.error.query[+!!user], {user}, 'error');
+      });
     },
 
     /**

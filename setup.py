@@ -42,6 +42,7 @@ def generate_links(cdn_url, mode, css_alt, style):
             'js/lib/strophe.js',
             'js/lib/strophe.ping.js',
             'js/lib/strophe.time.js',
+            'js/lib/strophe.version.js',
             'js/lib/moment.js',
             'js/lib/xbbcode.js',
             'js/lib/buzz.js',
