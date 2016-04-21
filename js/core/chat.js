@@ -548,7 +548,7 @@ var chat = {
       const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
       const start = new Date();
 
-      xmpp.getTime(target && xmpp.jid(target)).then((stanza) => {
+      xmpp.getTime(xmpp.jid(target)).then((stanza) => {
         const now = new Date();
         const tzo = $('tzo', stanza).text();
         const utc = new Date($('utc', stanza).text());
@@ -560,7 +560,7 @@ var chat = {
         if ($('item-not-found', stanza).length)
           ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
         else
-          ui.messageAddInfo(strings.error.timeError, {user}, 'error');
+          ui.messageAddInfo(strings.error.query[1], {user}, 'error');
       });
     },
 
