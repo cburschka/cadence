@@ -170,12 +170,27 @@ var xmpp = {
    * 110 status to assign the new nick.
    *
    * @param {string} nick The new nick to acquire.
+   *
+   * @return {Promise} A promise that will resolve to the new nickname.
    */
   changeNick: function(nick) {
-    this.nick.target = nick;
-    if (this.status == 'online')
+    return new Promise((resolve, reject) => {
+      this.nick.target = nick;
+      if (this.status != 'online') return resolve();
+
       this.connection.send(this.pres({nick}));
-    else ui.messageAddInfo(strings.info.nickPrejoin, {nick});
+      this.connection.addHandler((stanza) => {
+        // The new presence must come from our nickname, or contain a 110 status.
+        const from = stanza.getAttribute('from');
+        const newNick = Strophe.getResourceFromJid(from);
+        const type = stanza.getAttribute('type');
+        if (nick == newNick || $('x status[code="110"]', stanza).length) {
+          if (type != 'error') resolve(newNick);
+          else reject($('error', stanza));
+        }
+        else return true;
+      }, null, 'presence', null, null, xmpp.jid({nick}), {matchBare: true});
+    });
   },
 
   /**
