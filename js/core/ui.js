@@ -224,8 +224,10 @@ var ui = {
 
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
-      if (this.value) chat.commands.join({name: this.value});
-      else chat.commands.part();
+      if (this.value != xmpp.room.current) {
+        if (this.value) chat.commands.join({name: this.value});
+        else chat.commands.part();
+      }
     });
     $(window).on('hashchange', () => {
       if (this.urlFragment != window.location.hash) {
@@ -694,30 +696,35 @@ var ui = {
   /**
    * Generate a dialog from a form.
    * By default, the dialog will have three buttons: Save, Apply, and Close.
-   * Save and Apply will both trigger the form's submit() event,
-   * Save and Close will both close the dialog.
+   * Save will trigger the form's submit() event and close the dialog.
+   * Apply will trigger the form's submit() event.
+   * Close will close the dialog.
    *
    * @param form The form element.
+   * @param {cancel, apply} Extra form actions.
    */
-  formDialog: function(form) {
+  formDialog: function(form, {cancel, apply}={}) {
+    const buttons = [
+      {
+        text: strings.label.button.save,
+        click: function() { form.submit(); $(this).dialog('destroy') }
+      },
+      {
+         text: strings.label.button.close,
+         click: function() { cancel && cancel(); $(this).dialog('destroy'); }
+      }
+    ];
+
+    if (apply || apply === undefined) buttons.push({
+      text: strings.label.button.apply,
+      click: function() { form.submit(); }
+    });
+
     form.dialog({
       dialogClass: 'box dialog',
       height: 0.8*$(window).height(),
       width: Math.min(0.75*$(window).width(), 600),
-      buttons: [
-        {
-          text: strings.label.button.save,
-          click: function() { form.submit(); $(this).dialog('destroy') }
-        },
-        {
-          text: strings.label.button.apply,
-          click: function() { form.submit(); }
-        },
-        {
-          text: strings.label.button.close,
-          click: function() { $(this).dialog('destroy') }
-        }
-      ]
+      buttons
     });
   },
 

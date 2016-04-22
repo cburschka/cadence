@@ -184,7 +184,6 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
-    ui.messageAddInfo(strings.info.leave, {room: this.room.available[room]}, 'verbose');
     this.connection.send(this.pres(
       {room, nick: this.nick.current},
       {type: 'unavailable'}
@@ -230,57 +229,41 @@ var xmpp = {
 
   /**
    * Query the server for extended room information.
-   */
-  getRoomInfo: function(room, callback) {
-    this.connection.sendIQ(
-      this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO}),
-      (stanza) => {
-        var query = $('query', stanza);
-        callback({
-          id: room,
-          title: $('identity', query).attr('name'),
-          members: $('x field[var="muc#roominfo_occupants"] value').text(),
-          info: query
-        });
-      },
-      (error) => { callback(null) }
-    );
-  },
-
-  /**
-   * Attempt to create a new room.
    *
-   * @param {string} The room name.
-   * @param {object} Room configuration, passed on to xmpp.configureRoom().
+   * Returns a promise that will resolve to a room object:
+   *   id: The internal room name
+   *   title: The user-facing name
+   *   members: The number of occupants
+   *   features: An array of supported features
+   *   data: A dictionary of all extended information fields.
+   *   (http://xmpp.org/extensions/xep-0045.html#disco-roominfo)
+   *
+   * In the case of an error, the promise will reject with the <error> element.
    */
-  joinNewRoom: function(name, config) {
-    var room = name.toLowerCase();
-    config = config || {'muc#roomconfig_roomname': name};
-    ui.messageAddInfo(strings.info.creating, {
-      room: {id: room, title: config['muc#roomconfig_roomname']},
-      user: {
-        nick: this.nick.target,
-        jid: this.connection.jid
-      }
-    }, 'verbose');
-    // After creating a room, we must configure it. cadence does not support
-    // custom configuration, but it will set the natural-language title.
-    this.connection.addHandler((stanza) => {
-      var codes = $.makeArray($('status', stanza).map(function() {
-        return parseInt($(this).attr('code'));
-      }));
-      if (codes.indexOf(201) >= 0) {
-        ui.messageAddInfo(strings.code[201], {name: config['muc#roomconfig_roomname'] || name}, 'verbose');
-        this.configureRoom(room, config, null, (rooms) => {
-          // Only update the menu after the room has been titled.
-          ui.updateRoom(room, this.roster[room]);
-          ui.messageAddInfo(strings.info.joined, {room: rooms[room]}, 'verbose');
-        });
-      }
-    }, null, 'presence', null, null, this.jid({room, nick: this.nick.target}));
-    this.joinRoom(room);
+  getRoomInfo: function(room) {
+    return new Promise((resolve, reject) => {
+      this.connection.sendIQ(
+        this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO}),
+        (stanza) => {
+          const query = $('query', stanza);
+          const features = $.makeArray(query.children('feature').map(function() {
+            return $(this).attr('var')
+          }));
+          const data = {};
+          query.find('x > field').each(function() {
+            data[$(this).attr('var')] = $(this).find('value').text();
+          });
+          resolve({
+            id: room,
+            title: query.children('identity').attr('name'),
+            members: +data['muc#roominfo_occupants'],
+            features, data
+          });
+        },
+        (stanza) => { reject($('error', stanza)); }
+      );
+    });
   },
-
 
   /**
    * Join a room, regardless of whether it exists.
@@ -302,10 +285,11 @@ var xmpp = {
       if (password) presence.up().c('password', password);
       this.connection.send(presence);
 
+      // The server may alter the nickname, requiring a bare match:
       this.connection.addHandler((stanza) => {
         if ($(stanza).attr('type') == 'error') reject($('error', stanza));
-        else resolve(stanza);
-      }, null, 'presence', null, null, jid);
+        if ($('status[code=110]', stanza).length) resolve(stanza);
+      }, null, 'presence', null, null, jid, {matchBare: true});
     });
   },
 
@@ -325,89 +309,66 @@ var xmpp = {
   },
 
   /**
-   * Request a room configuration form and fill it out with the values provided.
+   * Request a room configuration form.
    *
    * See http://xmpp.org/registrar/formtypes.html#http:--jabber.org-protocol-mucroomconfig
    * for a reference on supported room configuration fields.
    *
    * @param {string} room The room name.
-   * @param {Object|function} query Either the field values to set, or a function
-   *        that will acquire the field values asynchronously. The function receives
-   *        an <x> element of type form as a jQuery object and a callback function
-   *        to transmit the field values to.
-   * @param {function} success The callback to execute after submission.
-   * @param {function} update The callback to execute after updating the room list.
+   *
+   * @return {Promise} A promise that resolves to the <x> element of the form,
+   *                   or rejects with an <error> element.
    */
-  configureRoom: function(room, query, success, update) {
-    var error = success && ((stanza) => {
-      success(stanza ? $('error', stanza).attr('code') : true);
+  roomConfig: function(room) {
+    return new Promise((resolve, reject) => {
+      this.connection.sendIQ(
+        this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'}),
+        (stanza) => { resolve($('query x', stanza)); },
+        (stanza) => { reject($('error', stanza)); }
+      );
     });
+  },
 
-    if (typeof query == 'object') {
-      var values = query;
-      query = xmpp.fillForm(values);
-    }
-
-    var submit = (values) => {
-      var form = xmpp.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
+  /**
+   * Send a room configuration form to the server.
+   *
+   * @param {string} room The room name.
+   * @param {Object} data A dictionary of form fields to send.
+   *
+   * @return {Promise} A promise that resolves when the form is acknowledged.
+   */
+  roomConfigSubmit: function(room, data) {
+    return new Promise((resolve, reject) => {
+      const form = xmpp.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
         .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
-      for (var name in values) {
-        if (values[name] === undefined) continue;
-        if (typeof values[name] === 'string') values[name] = [values[name]];
-        form.c('field', {'var': name});
-        for (var i in values[name]) {
-          form.c('value', values[name][i]).up();
+      for (let name in data) {
+        if (data[name] !== undefined) {
+          form.c('field', {'var': name});
+          const values = data[name].constructor === Array ? data[name] : [data[name]];
+          for (let value of values) form.c('value', {}, value.toString());
         }
         form.up();
       }
 
-      xmpp.connection.sendIQ(form, () => {
-        success && success();
-        // Need to refresh the room list now.
-        xmpp.discoverRooms(update);
-      }, error);
-    }
-
-    this.connection.sendIQ(
-      this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'}),
-      (stanza) => { query($('query x', stanza), submit); }, error
-    );
+      xmpp.connection.sendIQ(form, resolve, (stanza) => { reject($('error', stanza)) });
+    });
   },
 
   /**
-   * Create a non-interactive form-filling function.
+   * Cancel a room configuration.
+   * This is important when creating a room, because the server
+   * must destroy the room if the initial configuration is canceled.
+   * (Subsequent configuration requests are usually stateless.)
    *
-   * @param {Object} values The values that sh
-   * @return {function} A function that receives a DOM node and a submit function
-   *         The submit callback receives the validated form values, including
-   *         defaults for any omitted fields. Any values that do not match a
-   *         form field trigger a warning message.
+   * @param {string} room The room.
    */
-  fillForm: function(values) {
-    return (x, submit) => {
-      var toSubmit = {};
-      $('field', x).each(function() {
-        var type = $(this).attr('type');
-        var name = $(this).attr('var');
-        var value = $(this).children('value').html();
-        if (values[name] !== undefined) value = values[name];
-        if (value && type == 'list-single') {
-          var options = $.makeArray($('option value', this).map(function() { return this.innerHTML }));
-          if (options.indexOf(value) < 0)
-            return ui.messageAddInfo(strings.error.roomConfOptions,
-              {options: options.join(', '), field: name}, 'error'
-            );
-        }
-        toSubmit[name] = value;
-        delete values[name];
-      });
-      var fields = Object.keys(values);
-      if (fields.length)
-        ui.messageAddInfo(strings.error.formFields, {fields: fields.join(', ')}, 'error');
-      submit(toSubmit);
-    }
-  },
+   roomConfigCancel: function(room) {
+     const iq = this.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
+       .c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
+
+     this.connection.sendIQ(iq);
+   },
 
   /**
    * Order the server to destroy a room.
@@ -528,6 +489,15 @@ var xmpp = {
     );
   },
 
+  setRoom: function(room) {
+    if (room == this.room.current) return;
+    const oldRoom = this.room.current;
+    if (oldRoom) xmpp.leaveRoom(oldRoom);
+
+    this.room.current = room;
+    this.status = 'online';
+  },
+
   /**
    * Get user list (by affiliation or role).
    */
@@ -578,42 +548,39 @@ var xmpp = {
   },
 
   /**
-   * Query the server for rooms and execute a callback.
+   * Query the server for rooms.
    *
-   * @param {function} callback The function to execute after the server responds.
+   * @return {Promise} A promise that resolves to the list of rooms.
    */
-  discoverRooms: function(callback) {
-    this.connection.sendIQ(
-      this.iq('get', {room: null}, {xmlns:Strophe.NS.DISCO_ITEMS}),
-      (stanza) => {
-        var rooms = {};
-        $('item', stanza).each((s,t) => {
-          var room = Strophe.unescapeNode(Strophe.getNodeFromJid($(t).attr('jid')));
-          // Strip off the parenthesized number of participants in the name:
-          var name = $(t).attr('name');
-          if (name)
-            name = name.replace(/\((\d+)\)$/, '').trim();
-          else
-            name = room;
-          rooms[room] = {id: room, title: name, members: null};
-        });
-        // Preserve the current room in the list of available rooms.
-        if (this.room.current && !rooms[this.room.current])
-          rooms[this.room.current] = this.room.available[this.room.current]
-        this.room.available = rooms;
-        ui.refreshRooms(this.room.available);
-        if (callback) callback(rooms);
-      },
-      (stanza) => {
-        var type = 'default';
-        var error = $(stanza).children('error');
-        if (error.children('remote-server-not-found').length) type = 404;
-        var text = error.children('text').text();
-        text = text ? ' (' + text + ')' : '';
-        ui.messageAddInfo(strings.error.muc[type] + text, {domain: config.xmpp.mucService}, 'error');
-      }
-    );
-    return true;
+  discoverRooms: function() {
+    return new Promise((resolve, reject) => {
+      const iq = this.iq('get', {room: null}, {xmlns: Strophe.NS.DISCO_ITEMS});
+      this.connection.sendIQ(iq,
+        (stanza) => {
+          let rooms = {};
+          $('item', stanza).each((s,t) => {
+            const jid = t.getAttribute('jid');
+            const id = Strophe.unescapeNode(Strophe.getNodeFromJid(jid));
+
+            // Strip off the parenthesized number of participants in the name:
+            const name = t.getAttribute('name');
+            const title = name ? name.replace(/\((\d+)\)$/, '').trim() : id;
+
+            rooms[id] = {id, title, members: null};
+          });
+
+          // Preserve the current room in the list of available rooms.
+          // (This is because it might not be publicly listed.)
+          const current = this.room.current;
+          if (current && !rooms[current])
+            rooms[current] = this.room.available[current];
+          this.room.available = rooms;
+          ui.refreshRooms(rooms);
+          resolve(rooms);
+        },
+        (stanza) => { reject($('error', stanza)); }
+      );
+    });
   },
 
   /**
@@ -791,27 +758,7 @@ var xmpp = {
 
     // A 110-code presence reflects a presence that we sent.
     if (codes.indexOf(110) >= 0) {
-      // A 210 code indicates the server modified the nick we requested.
-      // This may happen either on joining or changing nicks.
-      if (codes.indexOf(210) >= 0) {
-        ui.messageAddInfo(strings.code[210], 'verbose')
-      }
-
-      if (room != this.room.current) {
-        var oldRoom = this.room.current;
-        this.room.current = room;
-        // We are in a different room now. Leave the old one.
-        if (oldRoom) {
-          this.leaveRoom(oldRoom);
-        }
-        this.status = 'online';
-
-        // If this room already existed, then update the menu and roster now:
-        if (this.room.available[room]) {
-          ui.updateRoom(room, this.roster[room]);
-          ui.messageAddInfo(strings.info.joined, {room: this.room.available[room]}, 'verbose');
-        }
-      }
+      this.roster[room][nick] = user;
       this.nick.current = nick;
     }
 
@@ -889,11 +836,24 @@ var xmpp = {
         return ui.messageAddInfo(strings.info.motd, {domain, text: body}, 'error');
 
       else if (muc) {
+        const codes = $.makeArray($('x status', stanza).map(function() {
+          return $(this).attr('code');
+        }));
+
+        // React to configuration updates.
+        if (codes.indexOf('104') >= 0) {
+          this.getRoomInfo(node).then((room) => {
+            this.room.available[node] = room;
+            ui.refreshRooms(this.room.available);
+            ui.messageAddInfo(strings.code[104], {room});
+          });
+        }
+
         // Accept invitations.
         var invite = $('x invite', stanza);
         if (invite.length) {
           var room = xmpp.room.available[node];
-          if (!room) xmpp.getRoomInfo(node, (data) => {
+          if (!room) xmpp.getRoomInfo(node).then((data) => {
             room = data;
             xmpp.room.available[node] = data;
           });
@@ -1031,7 +991,7 @@ var xmpp = {
       this.broadcastPresence();
       var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
-        this.discoverRooms((rooms) => {
+        this.discoverRooms().then((rooms) => {
           if (rooms[room]) chat.commands.join({name: room});
           else {
             ui.messageAddInfo(strings.error.unknownRoomAuto, {name: room});
