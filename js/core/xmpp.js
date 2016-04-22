@@ -172,7 +172,7 @@ var xmpp = {
     }
 
     static parse(jid) {
-      return new xmpp.JID({
+      return jid && new xmpp.JID({
         node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
         domain: Strophe.getDomainFromJid(jid),
         resource: Strophe.getResourceFromJid(jid)
