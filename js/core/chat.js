@@ -323,6 +323,7 @@ var chat = {
         // Request the configuration form.
         .then(() => {
           return xmpp.roomConfig(id);
+        })
         .then((conf) => {
           // Unlike /configure, this form is in the promise chain.
           // It can only be submitted once.
