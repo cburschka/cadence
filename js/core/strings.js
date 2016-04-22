@@ -42,7 +42,7 @@ var strings = {
   ],
 
   code: {
-    201: 'The room {name} has been newly created.',
+    104: 'The configuration of {room} has been altered.',
     210: 'Your nick has been modified by the server.',
   },
 
@@ -133,7 +133,8 @@ var strings = {
       'Ping to {user}: Pong ({delay} ms).'
     ],
     rejoinNick: 'Rejoining as {nick} ...',
-    roomConf: 'Room configuration of {room} has been altered.',
+    roomConf: 'Room configuration saved.',
+    roomCreated: 'The room {room} has been newly created.',
     roomsAvailable: 'Available rooms: {list}',
     sessionAuth: 'Automatically logging in as {username}',
     time: 'Time: Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}',
@@ -222,6 +223,7 @@ var strings = {
     roomConfOptions: 'The allowed values for {field} are: {options}',
     roomExists: 'Could not create {room}; it already exists.',
     roomCreateName: 'Could not create a room without a name.',
+    roomCreateCancel: 'Canceled room creation.',
     saveEmpty: 'There are no messages to save.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',

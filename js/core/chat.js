@@ -228,25 +228,38 @@ var chat = {
       arg = chat.parseArgs(arg);
       if (arg.help)
         return ui.messageAddInfo($('<div>').html(strings.help.configure));
-      if (!arg.name && arg[0]) arg.name = arg[0].join(' ');
-      var name = arg.name || xmpp.room.current;
+
+      const name = arg.name || arg[0].join(' ') || xmpp.room.current;
       if (!name)
         return ui.messageAddInfo(strings.error.noRoom, 'error');
-      if (!xmpp.room.available[name])
-        return ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
-      arg.interactive = arg.interactive || Object.keys(arg).every(
-        (e) => { return e == '0' || e == '1' || e == 'name' }
-      );
-      var room = xmpp.room.available[name];
-      var config = arg.interactive ?
-          (x, submit) => { ui.formDialog(ui.dataForm(x, submit)); }
-        : chat.roomConf(arg);
 
-      xmpp.configureRoom(name, config, (error) => {
-        if (!error) ui.messageAddInfo(strings.info.roomConf, {room});
-        else if (error == '403') ui.messageAddInfo(strings.error.roomConfDenied, {room}, 'error');
-        else ui.messageAddInfo(strings.error.roomConf, {room}, 'error');
-      });
+      const room = xmpp.room.available[name] || {id: name, title: name};
+      const error = (error) => {
+        if ($('item-not-found', error).length)
+          ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
+        else if ($('forbidden', error).length)
+          ui.messageAddInfo(strings.error.roomConfDenied, {room}, 'error');
+        else
+          ui.messageAddInfo(strings.error.roomConf, {room}, 'error');
+      };
+
+      xmpp.roomConfig(name).then(
+        (config) => {
+          const interactive = arg.interactive || Object.keys(arg).every(
+            (e) => { return e == '0' || e == '1' || e == 'name' }
+          );
+
+          // Form submission uses a callback because it can be triggered multiple times.
+          const form = ui.dataForm(config, (data) => {
+            xmpp.roomConfigSubmit(name, data).then(() => {
+              ui.messageAddInfo(strings.info.roomConf)
+            },
+              error
+            );
+          });
+          ui.formDialog(form, {cancel: () => { xmpp.roomConfigCancel(name); }});
+        }, error
+      );
     },
 
     /**
@@ -277,25 +290,87 @@ var chat = {
       arg = chat.parseArgs(arg);
       if (arg.help)
         return ui.messageAddInfo($('<div>').html(strings.help.configure));
-      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
-      if (!arg.name)
+
+      const name = arg.name || arg[0].join(' ') || arg.title;
+      const id = name.toLowerCase();
+      if (!name)
         return ui.messageAddInfo(strings.error.roomCreateName, 'error');
 
-      var config = arg.interactive ?
-          (x, submit) => { ui.formDialog(ui.dataForm(x, submit)); }
-        : chat.roomConf(arg);
+      const room = {id, title: arg.title || name};
 
-      var name = arg.name.toLowerCase();
-      var create = () => {
-        var room = chat.getRoomFromTitle(name);
-        if (room)
-          return ui.messageAddInfo(strings.error.roomExists, {room}, 'error');
-        xmpp.joinNewRoom(name, config);
-        ui.setFragment(name);
-        chat.setSetting('xmpp.room', room);
-      };
-      if (!chat.getRoomFromTitle(name)) create();
-      else xmpp.discoverRooms(create);
+      // Look for the room to make sure it doesn't exist.
+      xmpp.getRoomInfo(id)
+      .then((room) => {
+        ui.messageAddInfo(strings.error.roomExists, {room}, 'error');
+        throw 'exists' ;
+      }, (error) => {
+        // Catch only an <item-not-found> error.
+        if (!$('item-not-found', error).length) {
+          throw error;
+        }
+      })
+      .then(() => {
+        ui.messageAddInfo(strings.info.creating, {
+          room,
+          user: {
+            nick: xmpp.nick.target,
+            jid: xmpp.connection.jid
+          }
+        });
+
+        // Start a new Promise chain here, in order to abort on an "exists" error.
+        return xmpp.joinRoom({room: id})
+        // Request the configuration form.
+        .then(() => {
+          return xmpp.roomConfig(id);
+        .then((conf) => {
+          // Unlike /configure, this form is in the promise chain.
+          // It can only be submitted once.
+          return new Promise((resolve, reject) => {
+            if (arg.interactive) {
+              const form = ui.dataForm(conf, resolve);
+              ui.formDialog(form, {cancel: () => { reject('cancel'); }, apply: false});
+            }
+            // Use command-line arguments or just set the room title.
+            else resolve(chat.roomConf(arg) || {
+              'muc#roomconfig_roomname': room.title
+            });
+          });
+        })
+        .then(
+          (data) => {
+            return xmpp.roomConfigSubmit(id, data);
+          },
+          (reason) => {
+            if (reason == 'cancel') xmpp.roomConfigCancel(id);
+            throw reason;
+          }
+        )
+        .then(
+          () => {
+            chat.setSetting('xmpp.room', id);
+            xmpp.setRoom(id);
+            ui.setFragment(id);
+            ui.messageAddInfo(strings.info.roomCreated, {room});
+          },
+          (reason) => {
+            if (reason == 'cancel') {
+              // The server may not destroy the room on its own:
+              xmpp.leaveRoom(id);
+              ui.messageAddInfo(strings.error.roomCreateCancel, 'error');
+              throw reason;
+            }
+            else ui.messageAddInfo(strings.error.roomConf, {room}, 'error');
+          }
+        )
+        .then(() => { return xmpp.discoverRooms(); })
+        .then((rooms) => {
+          const room = rooms[id];
+          ui.updateRoom(id, xmpp.roster[id]);
+          ui.messageAddInfo(strings.info.joined, {room});
+        });
+      })
+      .catch(() => {});
     },
 
     destroy: function(arg) {
@@ -405,8 +480,11 @@ var chat = {
         return xmpp.joinRoom({room: room.id, nick, password: arg.password});
       })
       .then(() => {
+        xmpp.setRoom(room.id);
+        ui.updateRoom(room.id, xmpp.roster[room.id]);
         ui.setFragment(room.id);
         chat.setSetting('xmpp.room', room.id);
+        ui.messageAddInfo(strings.info.joined, {room});
       });
     },
 
@@ -428,13 +506,22 @@ var chat = {
      *   List available rooms.
      */
     list: function() {
-      xmpp.discoverRooms((rooms) => {
-        var links = {};
-        for (var room in rooms) links[room] = visual.format.room(rooms[room]);
-        if (Object.keys(links).length)
-          ui.messageAddInfo(strings.info.roomsAvailable, {list: links});
-        else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
-      });
+      xmpp.discoverRooms().then(
+        (rooms) => {
+          let links = {};
+          for (var room in rooms) links[room] = visual.format.room(rooms[room]);
+          if (Object.keys(links).length)
+            ui.messageAddInfo(strings.info.roomsAvailable, {list: links});
+          else
+            ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
+        },
+        (error) => {
+          const type = ($('remote-server-not-found', error).length) ? 404 : 'default';
+          let text = $('text', error).text();
+          text = text ? ' (' + text + ')' : '';
+          ui.messageAddInfo(strings.error.muc[type] + text, {domain: config.xmpp.mucService}, 'error');
+        }
+      );
     },
 
     /**
@@ -478,6 +565,8 @@ var chat = {
       var nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
       else ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (xmpp.status != 'online')
+        ui.messageAddInfo(strings.info.nickPrejoin, {nick});
     },
 
     /**
@@ -485,7 +574,15 @@ var chat = {
      *   Leave the current room without joining a different one.
      */
     part: function() {
-      if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+      const room = xmpp.room.current;
+      if (room) {
+        ui.setFragment(null);
+        xmpp.leaveRoom(room);
+        ui.messageAddInfo(strings.info.leave, {room: xmpp.room.available[room]}, 'verbose');
+      }
+      else {
+        ui.messageAddInfo("You're not in a room.", 'error');
+      }
     },
 
     /**
@@ -902,9 +999,11 @@ var chat = {
    * Convert arguments to room configuration form.
    */
   roomConf: function(args) {
-    var conf = {};
-    conf['muc#roomconfig_roomname'] = args.title || args.name;
+    const conf = {};
 
+    const title = args.title || args.name;
+    if (title)
+      conf['muc#roomconfig_roomname'] = args.title || args.name;
     if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
     if (args.log !== undefined)
       conf['muc#roomconfig_enablelogging'] = args.log ? '1' : '0';
@@ -920,7 +1019,7 @@ var chat = {
     }
     if (args['members-only'] !== undefined)
       conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
-    return conf;
+    if (!$.isEmptyObject(conf)) return conf;
   },
 
   /**
