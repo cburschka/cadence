@@ -715,17 +715,17 @@ var chat = {
       if (xmpp.status == 'offline') return;
 
       const direct = !!Strophe.getResourceFromJid(arg);
-      const target = arg && (direct ? {jid: arg} : {nick: arg});
-      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+      const target = arg ? (direct ? {jid: arg} : {nick: arg}) : {};
+      const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || target);
 
-      return xmpp.getVersion(target && xmpp.jid(target)).then((stanza) => {
+      return xmpp.getVersion(xmpp.jid(target)).then((stanza) => {
         const name = $('name', stanza).text();
         const version = $('version', stanza).text();
         const os = $('os', stanza).text();
         if (user)
           ui.messageAddInfo(strings.info.versionUser, {name, version, os, user});
         else
-          ui.messageAddInfo(strings.info.versionServer, version);
+          ui.messageAddInfo(strings.info.versionServer, {name, version, os});
       }, (stanza) => {
         if ($('item-not-found', stanza).length != 0)
           ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
