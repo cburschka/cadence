@@ -519,15 +519,18 @@ var xmpp = {
 
   /**
    * Set a user's role (by roomnick) or affiliation (by jid).
+   *
+   * @param {Object} item Either nick/role or jid/affiliation.
+   *
+   * @return {Promise} A promise that resolves to the server response.
    */
-  setUser: function(item, success, error) {
-    this.connection.sendIQ(
-      this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
-      success, (response) => {
-        var code = $('error', response).attr('code');
-        error(code, response);
-      }
-    );
+  setUser: function(item) {
+    return new Promise((resolve, reject) => {
+      this.connection.sendIQ(
+        this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
+        resolve, reject
+      );
+    });
   },
 
   setRoom: function(room) {
@@ -541,12 +544,18 @@ var xmpp = {
 
   /**
    * Get user list (by affiliation or role).
+   *
+   * @param {Object} query Either {affiliation} or {role}.
+   *
+   * @return {Promise} A promise that resolves to the response.
    */
-  getUsers: function(query, success, error) {
-    this.connection.sendIQ(
-      this.iq('get', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
-      success, error
-    );
+  getUsers: function(query) {
+    return new Promise((resolve, reject) => {
+      this.connection.sendIQ(
+        this.iq('get', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
+        resolve, reject
+      );
+    });
   },
 
   /**
