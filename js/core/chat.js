@@ -61,62 +61,69 @@ var chat = {
      */
     affiliate: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.type = arg.type || arg[0][0];
-      if (!arg.jid) arg.nick = arg.nick || arg[0][1];
 
-      var room = xmpp.room.available[xmpp.room.current]
-      var roster = xmpp.roster[xmpp.room.current];
-      var user = roster[arg.nick] || {jid: Strophe.getBareJidFromJid(arg.jid || arg.nick) };
-      var type = arg.type;
+      const type = arg.type || arg[0][0];
 
-      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(arg.type) < 0)
+      const nick = arg.nick || arg[0][1];
+      const jid = xmpp.JID.parse(arg.jid || arg[0][1]);
+
+      const roster = xmpp.roster[xmpp.room.current];
+      // Look up the nickname unless --jid was explicitly used.
+      const user = !arg.jid && roster[nick] || jid && {jid};
+
+      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(type) < 0)
         return ui.messageAddInfo(strings.error.affiliate.type, {type}, 'error')
 
       // List users with a specific affiliation.
-      if (!arg.jid && !arg.nick) {
-        return xmpp.getUsers({affiliation: type}, (stanza) => {
+      if (!user) {
+        return xmpp.getUsers({affiliation: type}).then((stanza) => {
           // Create a dictionary of non-occupant users:
-          var users = {};
-          $('item', stanza).each(function() {
-            var jid = $(this).attr('jid').toLowerCase();
-            users[jid] = {jid};
+          const users = {};
+          $('item', stanza).map((s,t) => {
+            return xmpp.JID.parse(t.getAttribute('jid'));
+          }).each((i,jid) => {
+            users[jid.toLowerCase()] = {jid};
           });
 
+          if ($.isEmptyObject(users)) {
+            return ui.addMessageInfo(strings.info.affiliationsEmpty, {type});
+          }
+
           // Find users who are occupants:
-          for (var nick in roster) {
-            var jid = Strophe.getBareJidFromJid(roster[nick].jid).toLowerCase();
+          for (let nick in roster) {
+            let jid = roster[nick].jid.bare().toLowerCase();
             if (jid in users) users[jid] = roster[nick];
           }
 
-          for (var jid in users) users[jid] = visual.format.user(users[jid]);
+          for (let jid in users) users[jid] = visual.format.user(users[jid]);
 
-          ui.messageAddInfo(Object.keys(users).length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
-            type, list: users
-          });
+          ui.messageAddInfo(strings.info.affiliations[type], {type, list: users});
         }, (stanza) => {
           var type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
           ui.messageAddInfo(strings.error.affiliations[type], {type}, 'error');
         });
       }
 
-      // Attempt to set a user's affiliation.
+      // User is present but anonymous:
       if (!user.jid)
         return ui.messageAddInfo(strings.error.affiliate.anon, {user}, 'error');
-      if (!Strophe.getNodeFromJid(user.jid))
+      // User is not in the room (therefore their JID is actually just a nick).
+      if (!user.jid.node)
         return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: user.jid}, 'error');
 
+      // If a JID was given, fetch the user if they're present.
       if (!user.nick)
-        for (var nick in roster)
-          if (Strophe.getBareJidFromJid(roster[nick].jid) == user.jid)
-            user = roster[nick];
+        for (let nick in roster)
+          if (roster[nick].jid.bare() == user.jid) user = roster[nick];
 
-      xmpp.setUser({jid: user.jid, affiliation: arg.type}, (iq) => {
-        if ($(iq).attr('type') == 'result')
-          ui.messageAddInfo(strings.info.affiliate, {user, room, type});
-      }, (code, iq) => {
-        var error = 'default';
-        if ($('not-allowed', iq).length) error = 'notAllowed';
-        else if ($('conflict', iq).length) error = 'conflict';
+      // Attempt to set user's affiliation.
+      xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
+        const room = xmpp.room.available[xmpp.room.current];
+        ui.messageAddInfo(strings.info.affiliate, {user, room, type});
+      }, (e) => {
+        let error = 'default';
+        if ($('not-allowed', e).length) error = 'notAllowed';
+        else if ($('conflict', e).length) error = 'conflict';
         ui.messageAddInfo(strings.error.affiliate[error], {user, type}, 'error');
       });
     },
