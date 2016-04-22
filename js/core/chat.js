@@ -474,7 +474,7 @@ var chat = {
           room,
           user: {
             nick: xmpp.nick.target,
-            jid: xmpp.connection.jid
+            jid: xmpp.currentJid
           }
         }, 'verbose');
         return xmpp.joinRoom({room: room.id, nick, password: arg.password});
