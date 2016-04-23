@@ -352,7 +352,7 @@ var xmpp = {
 
       // The server may alter the nickname, requiring a bare match:
       this.connection.addHandler((stanza) => {
-        if ($(stanza).attr('type') == 'error') reject($('error', stanza));
+        if ($(stanza).attr('type') == 'error') reject(stanza);
         else if ($('status[code=110]', stanza).length) {
           this.setRoom(room);
           resolve(stanza);
@@ -663,15 +663,15 @@ var xmpp = {
    */
   eventPresenceCallback: function(stanza) {
     if (!stanza) return true;
-    var from = this.JID.parse(stanza.getAttribute('from'));
+    const from = this.JID.parse(stanza.getAttribute('from'));
     // Discard any <presence/> that is not from the MUC domain.
     // (This client does not support direct non-MUC communication.)
     if (from.domain != config.xmpp.mucService) return true;
 
     // Find the room and nickname that the presence came from, and the type.
-    var room = from.node;
-    var nick = from.resource;
-    var type = stanza.getAttribute('type');
+    const room = from.node;
+    const nick = from.resource;
+    const type = stanza.getAttribute('type');
 
     // Initialize the room roster if it doesn't exist yet.
     if (!this.roster[room]) this.roster[room] = {};
@@ -680,8 +680,8 @@ var xmpp = {
       return this.eventPresenceError(room, nick, stanza) || true;
 
     // Find the status codes.
-    var item = $(stanza).find('item');
-    var codes = $.makeArray($('status', stanza).map(function() {
+    const item = $(stanza).find('item');
+    const codes = $.makeArray($('status', stanza).map(function() {
         return parseInt(this.getAttribute('code'));
     }));
 
@@ -710,7 +710,7 @@ var xmpp = {
       }
     }
     else if ($('not-authorized', stanza).length) {
-      var password = prompt(strings.info.joinPassword);
+      const password = prompt(strings.info.joinPassword);
       if (password) return this.joinExistingRoom(room, password);
       else ui.messageAddInfo(strings.error.joinPassword, {room: this.room.available[room]}, 'error');
     }
@@ -722,11 +722,6 @@ var xmpp = {
       ui.messageAddInfo(strings.error.badNick, {nick}, 'error');
       this.nick.target = this.nick.current;
     }
-
-    // Cancel any join attempt:
-    this.room.target = this.room.current;
-    ui.updateRoom(this.room.current);
-    ui.setFragment(this.room.current);
   },
 
   /**
@@ -736,7 +731,7 @@ var xmpp = {
     if (room == this.room.current && this.roster[room][nick]) {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
-        var newNick = item.attr('nick');
+        const newNick = item.attr('nick');
         ui.messageAddInfo(strings.info.userNick, {
           from: this.roster[room][nick],
           to: {
@@ -753,13 +748,15 @@ var xmpp = {
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
         ui.playSound('info');
       }
+
       // An `unavailable` 301 is a ban; a 307 is a kick.
       else if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
-        var type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
-        var actor = $('actor', item).attr('nick');
+        const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
+        const actor = $('actor', item).attr('nick');
         actor = actor && this.roster[room][actor];
-        var reason = $('reason', item).text();
-        var index = (actor != null) * 2 + (reason != "");
+        const reason = $('reason', item).text();
+        const index = (+!!actor) * 2 + (+!!reason);
+
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) {
           ui.messageAddInfo(strings.info.evicted[type].me[index], {
@@ -774,15 +771,16 @@ var xmpp = {
         });
         ui.playSound('leave');
       }
+
       // A <destroy> element indicates that the room has been destroyed.
       else if ($('x destroy', stanza).length) {
-        var destroy = $('x destroy', stanza);
-        var jid = destroy.attr('jid');
-        var reason = $('reason', destroy).text();
-        if (jid && Strophe.getDomainFromJid(jid) == config.xmpp.mucService){
-          var alternate = Strophe.unescapeNode(Strophe.getNodeFromJid(jid));
-          alternate = xmpp.room.available[alternate] || {id: alternate};
-        }
+        const destroy = $('x destroy', stanza);
+        const reason = $('reason', destroy).text();
+        const jid = xmpp.JID.parse(destroy.attr('jid'));
+
+        let alternate = jid.domain == config.xmpp.mucService;
+        alternate = alternate && (xmpp.room.available[jid.node] || {id: jid.node});
+
         ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {
           room: xmpp.room.available[room], alternate, reason
         }, 'error');
@@ -805,17 +803,16 @@ var xmpp = {
    * Handle presence stanzas without a type.
    */
   eventPresenceDefault: function(room, nick, codes, item, stanza) {
-    // away, dnd, xa, chat, [default].
-    var show = $('show', stanza).text() || 'default';
-    var status = $('status', stanza).text() || '';
 
     // Create the user object.
-    var user = {
+    const user = {
       nick,
       jid: this.JID.parse(item.attr('jid')) || null, // if not anonymous.
       role: item.attr('role'),
       affiliation: item.attr('affiliation'),
-      show, status
+      // away, dnd, xa, chat, [default].
+      show: $('show', stanza).text() || 'default',
+      status: $('status', stanza).text() || ''
     };
 
     // A 110-code presence reflects a presence that we sent.
@@ -838,9 +835,9 @@ var xmpp = {
         this.roster[room][nick] = user;
         this.nick.current = nick;
       }
-      var roster = this.roster[room][nick];
 
-      if (!roster) {
+      const oldUser = this.roster[room][nick];
+      if (!oldUser) {
         ui.messageAddInfo(strings.info.userIn, {user});
 
         // Play the alert sound if a watched user enters.
@@ -852,23 +849,23 @@ var xmpp = {
         }
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
-      else if (roster.show != show || roster.status != status) {
-        var msg = (show in strings.show) ? strings.show[show] : strings.showOther;
-        ui.messageAddInfo(msg[+!!status], {user, show, status});
+      else if (oldUser.show != user.show || oldUser.status != user.status) {
+        const msg = strings.show[user.show] || strings.showOther;
+        ui.messageAddInfo(msg[+!!status], {user, show: user.show, status: user.status});
         ui.playSound('info');
       }
-      else if (roster.affiliation != user.affiliation) {
+      else if (oldUser.affiliation != user.affiliation) {
         ui.messageAddInfo(strings.info.userAffiliation, {user, affiliation: user.affiliation});
         ui.playSound('info');
       }
-      else if (roster.role != user.role) {
+      else if (oldUser.role != user.role) {
         ui.messageAddInfo(strings.info.userRole, {user, role: user.role});
         ui.playSound('info');
       }
     }
 
     this.roster[room][nick] = user;
-    ui.userAdd(this.roster[room][nick]);
+    ui.userAdd(user);
   },
 
   /**
@@ -877,13 +874,13 @@ var xmpp = {
   eventMessageCallback: function(stanza) {
     if (stanza) {
       const from = this.JID.parse(stanza.getAttribute('from'));
-      const type = stanza.getAttribute('type');
+      let type = stanza.getAttribute('type');
 
       if (type == 'error')
         return this.eventMessageError(stanza, from) || true;
 
       let user = this.userFromJid({from});
-      const muc = !!user.nick;
+      const muc = !!user.room || !!user.nick;
 
       let body = $('html body p', stanza).contents();
       if (!body.length) body = $(stanza).children('body').contents();
@@ -926,7 +923,7 @@ var xmpp = {
         }
 
         // Only accept MUC messages in the current room.
-        if (from.node != this.room.current) return true;
+        if (from.node != this.room.current || !from.resource) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
         if (delay.length) {

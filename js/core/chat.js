@@ -597,7 +597,7 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = chat.parseArgs(arg);
+      const m = chat.parseArgs(arg);
       if (m[0].length) {
         m.nick = m[0][0];
         m.msg = arg.substring(m[1][0][0]).trim();
@@ -794,7 +794,7 @@ var chat = {
       return xmpp.getVersion(xmpp.jid(target)).then((stanza) => {
         const name = $('name', stanza).text();
         const version = $('version', stanza).text();
-        const os = $('os', stanza).text();
+        const os = $('os', stanza).text() || '-';
         if (user)
           ui.messageAddInfo(strings.info.versionUser, {name, version, os, user});
         else
