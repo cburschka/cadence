@@ -489,18 +489,25 @@ var chat = {
      * invite [<jid> <msg> | --room <room> --nick <nick> --msg <msg>]
      */
     invite: function(arg) {
-      var m = chat.parseArgs(arg);
-      if (m.room && m.nick) m.jid = xmpp.jid({room: m.room, nick: m.nick});
+      const m = chat.parseArgs(arg);
+      let {room, nick, jid, msg} = m;
+
+      if (room && nick)
+        jid = xmpp.jidFromRoomNick({room, nick});
+
       if (m[0] && m[0].length >= 1) {
-        m.jid = m[0][0];
-        m.msg = arg.substring(m[1][0][0]).trim();
+        jid = m[0][0];
+        msg = arg.substring(m[1][0][0]).trim();
       }
-      if (!m.jid)
+
+      if (!jid)
         return ui.messageAddInfo(strings.error.noArgument, 'error');
-      xmpp.invite(m.jid, m.msg);
-      ui.messageAddInfo(strings.info.inviteSent,
-        {jid: m.jid, room: xmpp.room.available[xmpp.room.current]}
-      );
+
+      xmpp.invite({to: jid, msg});
+
+      ui.messageAddInfo(strings.info.inviteSent, {
+        jid, room: xmpp.room.available[xmpp.room.current]
+      });
     },
 
     /**
@@ -612,7 +619,9 @@ var chat = {
         return ui.messageAddInfo(strings.error.unknownUser, {nick}, 'error');
 
       const body = chat.formatOutgoing(msg);
-      xmpp.sendMessage({body, to: xmpp.jid({nick})});
+      xmpp.sendMessage({
+        body, to: xmpp.jidFromRoomNick({nick})
+      });
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: xmpp.roster[xmpp.room.current][nick],
@@ -658,11 +667,11 @@ var chat = {
       const jid = xmpp.JID.parse(arg);
       const direct = !!jid.resource; // Only accept full JIDs.
 
-      const target = arg && (direct ? {jid} : {nick: arg});
-      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+      const target = arg && (direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
       const time = (new Date()).getTime();
 
-      xmpp.ping(target && xmpp.jid(target)).then((stanza) => {
+      xmpp.ping(target).then((stanza) => {
         const delay = ((new Date()).getTime() - time).toString();
         ui.messageAddInfo(strings.info.pong[+!!user], {user, delay});
       }, (stanza) => {
@@ -714,7 +723,7 @@ var chat = {
      */
     say: function(arg) {
       const body = chat.formatOutgoing(arg);
-      xmpp.sendMessage({body, to: xmpp.jid()});
+      xmpp.sendMessage({body, to: xmpp.jidFromRoomNick(), type: 'groupchat'});
     },
 
     /**
@@ -728,11 +737,11 @@ var chat = {
 
       const jid = xmpp.JID.parse(arg);
       const direct = !!jid.resource; // Only accept full JIDs.
-      const target = direct ? {jid} : {nick: arg};
-      const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
+      const target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
       const start = new Date();
 
-      xmpp.getTime(xmpp.jid(target)).then((stanza) => {
+      xmpp.getTime(target).then((stanza) => {
         const now = new Date();
         const tzo = $('tzo', stanza).text();
         const utc = new Date($('utc', stanza).text());
@@ -788,10 +797,14 @@ var chat = {
 
       const jid = xmpp.JID.parse(arg);
       const direct = !!jid.resource;
-      const target = arg ? (direct ? {jid} : {nick: arg}) : {};
-      const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || target);
+      let target;
+      if (arg) {
+        target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
+      }
 
-      return xmpp.getVersion(xmpp.jid(target)).then((stanza) => {
+      const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || {jid});
+
+      return xmpp.getVersion(target).then((stanza) => {
         const name = $('name', stanza).text();
         const version = $('version', stanza).text();
         const os = $('os', stanza).text() || '-';
