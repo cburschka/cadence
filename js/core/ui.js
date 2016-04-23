@@ -1032,29 +1032,30 @@ var ui = {
    * Trigger the correct message sound and desktop notification.
    * Only one sound is played, in order:
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
+   * The first applicable, enabled sound will be played.
    */
   notify: function(message) {
-    var text = message.body.text();
-    var mention = (text.indexOf(xmpp.nick.current) >= 0
+    const text = message.body.text();
+    const name = message.user.nick || message.user.jid.bare() || '';
+
+    let mention = (text.indexOf(xmpp.nick.current) >= 0
                 || text.indexOf(xmpp.user) >= 0);
-    var sender = false;
-    var name = message.user.nick || message.user.jid.bare() || '';
-    var triggers = config.settings.notifications.triggers;
-    for (var i in triggers) {
-      mention = mention || (0 <= text.indexOf(triggers[i]));
-      sender = sender || (0 <= name.indexOf(triggers[i]));
+    let sender = false;
+    for (let trigger of config.settings.notifications.triggers) {
+      mention = mention || (0 <= text.indexOf(trigger));
+      sender = sender || (0 <= name.indexOf(trigger));
     }
 
     // Any kind of alert is level 1, everything else is 2.
     this.notifyDesktop(((mention || message.type == 'chat' || sender) ? 1 : 2), message);
 
     if (mention && this.playSound('mention')) return;
-    if (message.type == 'chat' && this.playSound('msg')) return;
+    if (message.type != 'groupchat' && this.playSound('msg')) return;
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
 
     if (!message.user.jid.equals(xmpp.currentJid)) {
-      var sender = message.user.nick || message.user.jid.bare();
+      const sender = message.user.nick || message.user.jid.bare();
       this.blinkTitle(sender);
     }
   },
@@ -1070,22 +1071,23 @@ var ui = {
    */
   notifyDesktop: function(level, message) {
     if (xmpp.userStatus == 'dnd') return;
-    if (level <= config.settings.notifications.desktop && document.hidden) {
-      var body = $(message.body).text();
-      var sender = message.user.nick || message.user.jid.bare();
+    if (document.hidden) return;
+    if (level > config.settings.notifications.desktop) return;
 
-      if (message.type != 'direct') {
-        var title = xmpp.room.available[xmpp.room.current].title;
-        if (message.type != 'local') {
-          if (message.type != 'groupchat')
-            body = strings.info.whisper + ' ' + body;
-          body = sender + ': ' + body;
-        }
+    let body = $(message.body).text();
+    let sender = message.user.nick || message.user.jid.bare();
+    let title = sender;
+
+    if (message.type != 'direct') {
+      title = xmpp.room.available[xmpp.room.current].title;
+      if (message.type != 'local') {
+        if (message.type != 'groupchat')
+          body = strings.info.whisper + ' ' + body;
+        body = sender + ': ' + body;
       }
-      else title = sender;
-
-      new Notification(title, {body, tag: xmpp.room.current});
     }
+
+    return new Notification(title, {body, tag: xmpp.room.current});
   },
 
   /**
