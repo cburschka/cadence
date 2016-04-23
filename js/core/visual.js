@@ -193,10 +193,10 @@ visual = {
      *                  don't match their nickname will be parenthesized.
      */
     user: function(user) {
-      var pdn = visual.format.nick(user.nick || Strophe.getBareJidFromJid(user.jid));
+      var pdn = visual.format.nick(user.nick || user.jid.bare());
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
-        user.nick.toLowerCase() != Strophe.unescapeNode(Strophe.getNodeFromJid(user.jid).toLowerCase())))
+        user.nick.toLowerCase() != user.jid.node.toLowerCase()))
         pdn = '(' + pdn + ')';
 
       return $('<span class="user">')
