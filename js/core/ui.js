@@ -431,8 +431,7 @@ var ui = {
     var roster = xmpp.roster[xmpp.room.current]
     var userSelf = roster && roster[xmpp.nick.current];
     var nick = user.attr('data-nick');
-    var jid = user.attr('data-jid');
-    var jidBare = Strophe.getBareJidFromJid(jid);
+    var jid = xmpp.JID.parse(user.attr('data-jid'));
 
     var mod = userSelf && userSelf.role == 'moderator';
     var ranks = {none: 0, member: 1, admin: 2, owner: 3};
@@ -457,7 +456,7 @@ var ui = {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
+        disabled: !c('invite') || !jid || (nick && roster[nick] && jid.bare() == roster[nick].jid.bare()),
         callback: () => { chat.commands.invite({jid}); }
       },
       kick: {
@@ -471,7 +470,7 @@ var ui = {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jid.bare() == xmpp.currentJid.bare(),
         callback: () => { chat.commands.ban({jid}); }
       },
       sep2: '',
@@ -485,11 +484,11 @@ var ui = {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => { chat.commands.ping(nick || jid); }
+        callback: () => { chat.commands.ping(nick ? {nick} : {jid}); }
       }
     }
 
-    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+    return {items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
