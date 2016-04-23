@@ -456,59 +456,51 @@ var xmpp = {
   },
 
   /**
-   * Request a service administration command form and fill it out with the values provided.
+   * Request a service administration command form.
    *
    * @param {string} node The command node name.
-   * @param {Object|function} query Either the field values to set, or a function
-   *        that will acquire the field values asynchronously. The function receives
-   *        an <x> element of type form as a jQuery object and a callback function
-   *        to transmit the field values to.
-   * @param {function} callback The callback to execute after submission.
+   *
+   * @return {Promise} A promise that will resolve to the response stanza.
    */
-  submitCommand: function(node, query, callback) {
-    if (typeof query == 'object') {
-      var values = query;
-      query = xmpp.fillForm(values);
-    }
-
-    var submit = (sessionid) => {
-      return (values) => {
-        var form = xmpp.iq('set', {}).c('command', {
-          xmlns: 'http://jabber.org/protocol/commands',
-          node: 'http://jabber.org/protocol/admin#' + node,
-          sessionid
-        }).c('x', {xmlns: 'jabber:x:data', type: 'submit'});
-        for (var name in values) {
-          if (values[name] === undefined) continue;
-          if (typeof values[name] === 'string') values[name] = [values[name]];
-          form.c('field', {'var': name});
-          for (var i in values[name]) {
-            form.c('value', values[name][i]).up();
-          }
-          form.up();
-        }
-
-        xmpp.connection.sendIQ(form,
-          (stanza) => { callback && callback(stanza, 2); },
-          (stanza) => { callback && callback(stanza, 1); }
-        );
-      }
-    }
-
-    this.connection.sendIQ(
-      this.iq('set', {})
-      .c('command', {
+  command: function(node) {
+    return new Promise((resolve, reject) => {
+      const iq = this.iq('set', {}).c('command', {
         xmlns: 'http://jabber.org/protocol/commands',
         action: 'execute',
         node: 'http://jabber.org/protocol/admin#' + node
-      }),
-      (stanza) => {
-        var values = {};
-        var sessionid = $('command', stanza).attr('sessionid');
-        query($('command x', stanza), submit(sessionid));
-      },
-     (stanza) => { callback && callback(stanza, 0); }
-    );
+      });
+      this.connection.sendIQ(iq, resolve, reject);
+    });
+  },
+
+  /**
+   * Submit a service administration command form.
+   *
+   * @param {string} node The command node name.
+   * @param {string} sessionid The session ID of the form.
+   * @param {Object} data The form data to send.
+   *
+   * @return {Promise} A promise that resolves to the response.
+   */
+  commandSubmit: function(node, sessionid, data) {
+    return new Promise((resolve, reject) => {
+      const form = xmpp.iq('set', {}).c('command', {
+        xmlns: 'http://jabber.org/protocol/commands',
+        node: 'http://jabber.org/protocol/admin#' + node,
+        sessionid
+      });
+      form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+
+      for (let name in data) {
+        if (data[name] === undefined) continue;
+        form.c('field', {'var': name});
+
+        const values = data[name].constructor === Array ? data[name] : [data[name]];
+        for (let value of values) form.c('value', {}, String(value));
+        form.up();
+      }
+      xmpp.connection.sendIQ(form, resolve, reject);
+    });
   },
 
   /**
