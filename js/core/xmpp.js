@@ -333,7 +333,10 @@ var xmpp = {
       // The server may alter the nickname, requiring a bare match:
       this.connection.addHandler((stanza) => {
         if ($(stanza).attr('type') == 'error') reject($('error', stanza));
-        else if ($('status[code=110]', stanza).length) resolve(stanza);
+        else if ($('status[code=110]', stanza).length) {
+          this.setRoom(room);
+          resolve(stanza);
+        }
         else return true;
       }, null, 'presence', null, null, jid, {matchBare: true});
     });
