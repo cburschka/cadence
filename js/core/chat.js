@@ -705,11 +705,13 @@ var chat = {
      */
     unban: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.jid = Strophe.getBareJidFromJid(arg.jid || arg[0][0]);
+      const jid = xmpp.JID.parse(arg.jid || arg[0][0]);
 
-      xmpp.getUsers({affiliation: 'outcast'}, (stanza) => {
-        if ($('item', stanza).is(function() { return $(this).attr('jid') === arg.jid; }))
-          this.affiliate({type: 'none', jid: arg.jid});
+      xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
+        const isBanned = $('item', stanza).is(function() {
+          return this.getAttribute('jid') == jid;
+        });
+        if (isBanned) this.affiliate({type: 'none', jid});
         else
           ui.messageAddInfo(strings.error.unbanNone, 'error');
       }, (stanza) => {
