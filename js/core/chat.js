@@ -495,7 +495,7 @@ var chat = {
       // Maybe find a registered nick, ignoring errors.
       .then(() => {
         if (config.settings.xmpp.registerNick)
-          return xmpp.roomRegisteredNick(room.id).catch(() => {});
+          return xmpp.getReservedNick(room.id).catch(() => {});
       })
       .then((nick) => {
         ui.messageAddInfo(strings.info.joining, {
