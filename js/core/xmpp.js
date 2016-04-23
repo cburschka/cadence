@@ -172,12 +172,12 @@ var xmpp = {
     }
 
     static parse(jid) {
-      jid = jid || "";
-      return new xmpp.JID({
+      jid = jid && String(jid);
+      return jid ? new xmpp.JID({
         node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
         domain: Strophe.getDomainFromJid(jid),
         resource: Strophe.getResourceFromJid(jid)
-      });
+      }) : new xmpp.JID();
     }
   },
 
