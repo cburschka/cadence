@@ -1,8 +1,7 @@
 var NS = {
   ATTN: 'urn:xmpp:attention:0',
   CAPS: 'http://jabber.org/protocol/caps',
-  CONFERENCE: 'jabber:x:conference',
-  TIME: 'urn:xmpp:time'
+  CONFERENCE: 'jabber:x:conference'
 };
 for (var i in NS) Strophe.addNamespace('Cadence_' + i, NS[i]);
 
