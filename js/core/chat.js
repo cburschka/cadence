@@ -69,7 +69,7 @@ var chat = {
 
       const roster = xmpp.roster[xmpp.room.current];
       // Look up the nickname unless --jid was explicitly used.
-      const user = !arg.jid && roster[nick] || jid && {jid};
+      const user = !arg.jid && roster[nick] || String(jid) && {jid};
 
       if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(type) < 0)
         return ui.messageAddInfo(strings.error.affiliate.type, {type}, 'error')
