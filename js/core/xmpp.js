@@ -154,7 +154,7 @@ var xmpp = {
   },
 
   JID: class extends String {
-    constructor({node, domain, resource}) {
+    constructor({node, domain, resource}={}) {
       let bareJid = domain || '';
       if (node) bareJid = Strophe.escapeNode(node) + '@' + bareJid;
       const jid = resource ? (bareJid + '/' + resource) : bareJid;
@@ -216,7 +216,7 @@ var xmpp = {
         const type = stanza.getAttribute('type');
         if (nick == newNick || $('x status[code="110"]', stanza).length) {
           if (type != 'error') resolve(newNick);
-          else reject($('error', stanza));
+          else reject(stanza);
         }
         else return true;
       }, null, 'presence', null, null, xmpp.jid({nick}), {matchBare: true});
@@ -283,7 +283,7 @@ var xmpp = {
    *   data: A dictionary of all extended information fields.
    *   (http://xmpp.org/extensions/xep-0045.html#disco-roominfo)
    *
-   * In the case of an error, the promise will reject with the <error> element.
+   * In the case of an error, the promise will reject with the stanza.
    */
   getRoomInfo: function(room) {
     return new Promise((resolve, reject) => {
@@ -305,7 +305,7 @@ var xmpp = {
             features, data
           });
         },
-        (stanza) => { reject($('error', stanza)); }
+        reject
       );
     });
   },
@@ -1121,4 +1121,4 @@ var xmpp = {
   getVersion: function(jid, timeout) {
     return this.connection.version.getVersion(jid, timeout);
   }
-}
+};
