@@ -610,85 +610,132 @@ var ui = {
 
   /**
    * Create a form out of an XMPP data form stanza.
+   * @see http://xmpp.org/extensions/xep-0004.html
    *
-   * @param {jq} x The <x/> element containing the form fields.
-   * @param {function} submit The callback that the completed form values will be sent to.
-   * @return {jq} The HTML form.
+   * This function uses a callback instead of a promise to allow
+   * repeated submissions-
+   *
+   * @param {Object} stanza The XMPP stanza
+   * @param {function} submit The callback that the completed form will be sent to.
+   * @return {jQuery} The HTML form.
    */
-  dataForm: function(x, submit) {
-    var fields = {};
-    var input = (field) => {
-      return $('<input/>').attr('name', field.attr('var'));
+  dataForm: function(stanza, submit) {
+    // The standard constructor turns <field var=?> into <input name=?>.
+    const input = (field) => {
+      return $('<input>').attr('name', field.attr('var'));
     };
+
+    // These are all the field constructors, by type.
+    const fields = {};
     fields.hidden = (field) => {
-      return input(field).attr('type', 'hidden')
-        .attr('value', $('value', field).text());
+      return input(field).attr({
+        type: 'hidden',
+        value: $('value', field).text()
+      });
     };
-    fields['boolean'] = (field) => {
-      return input(field).attr('type', 'checkbox')
-        .prop('checked', $('value', field).text() == '1');
+    fields.boolean = (field) => {
+      const value = $('value', field).text();
+      return input(field).attr({
+        type: 'checkbox',
+        checked: value == '1' || value == 'true',
+      });
     };
     fields['text-single'] = (field) => {
-      return input(field).attr('type', 'text')
-        .attr('value', $('value', field).text());
+      return input(field).attr({
+        type: 'text',
+        value: $('value', field).text()
+      });
     };
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
     fields['text-multi'] = (field) => {
-      var values = $.makeArray($('value', field).map(function() { return $(this).text(); }));
-      return $('<textarea class="form-field">').attr('name', field.attr('var'))
+      const values = $.makeArray($('value', field).map(function() {
+        return $(this).text();
+      }));
+
+      return $('<textarea class="form-field">')
+        .attr('name', field.attr('var'))
         .text(values.join("\n"));
     };
     fields['jid-multi'] = (field) => {
-      return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
+      return fields['text-multi'](field)
+        .attr('title', strings.label.tip.multiline);
     };
+
     fields['list-single'] = (field) => {
-      var f = $('<select>').attr('name', field.attr('var'));
-      var value = field.children('value').text();
+      const select = $('<select>').attr('name', field.attr('var'));
+      const defaultValue = field.children('value').text();
+
       $('option', field).each(function() {
-        var v = $('value', this).text();
-        f.append($('<option></option>').attr('value', v)
-          .text($(this).attr('label'))
-          .prop('selected', value == v)
-        );
+        const value = $('value', this).text();
+        const option = $('<option>').attr({
+          value: option,
+          selected: value == option
+        });
+        option.text($(this).attr('label'));
+        select.append(option);
       });
-      return f;
+      return select;
     };
     fields['list-multi'] = (field) => {
-      return fields['list-single'](field).prop('multiple', true);
+      return fields['list-single'](field).attr('multiple', true);
     };
     fields['fixed'] = (field) => {
       return $('<p>').text($('value', field).text());
     };
 
-    val = (field) => { return field.val(); };
-    var values = {};
-    values['boolean'] = (field) => { return field.prop('checked') ? "1" : "0"; };
+    const val = (field) => { return field.val(); };
+
+    // These are all the value callbacks, by type.
+    const values = {};
     values.hidden = val;
+    values.boolean = (field) => {
+      return field.prop('checked') ? "1" : "0";
+    };
     values['text-single'] = val;
     values['text-private'] = val;
     values['jid-single'] = val;
-    values['text-multi'] = (field) => { return val(field).split("\n"); };
+    values['text-multi'] = (field) => {
+      return field.val().split("\n");
+    };
     values['jid-multi'] = values['text-multi'];
     values['list-single'] = val;
     values['list-multi'] = val;
     values['fixed'] = () => { return undefined; };
 
-    var form = $('<form class="data-form">').attr('title', $('title', x).text());
+    const x = $('x', stanza);
+    const form = $('<form class="data-form">');
+
+    form.attr('title', $('title', x).text());
+
     x.children('field').each(function() {
-      var type = $(this).attr('type');
-      var field = fields[type]($(this)).addClass('data-form-field').attr('data-type', type).uniqueId();
-      var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
-      form.append($('<div class="row">').append(label, field, '<br>'));
+      const type = $(this).attr('type');
+      const field = fields[type]($(this));
+      field.addClass('data-form-field');
+      field.attr('data-type', type);
+      field.uniqueId();
+
+      const label = $('<label>');
+      label.attr('for', field.attr('id'));
+      label.text($(this).attr('label'));
+
+      const row = $('<div class="row">');
+      row.append(label, field, '<br>');
+
+      form.append(row);
     });
-    form.submit((e) => {
-      e.preventDefault();
-      var v = {};
+
+    form.submit((event) => {
+      event.preventDefault();
+      const data = {};
       $('.data-form-field', form).each(function() {
-        v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
+        const key = $(this).attr('name');
+        const value = values[$(this).attr('data-type')]($(this));
+        data[key] = value;
       });
-      submit(v);
+      submit(data);
     });
+
     return form;
   },
 
