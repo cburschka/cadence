@@ -593,27 +593,6 @@ var xmpp = {
     );
   },
 
-
-  /**
-   * Query an entity's version.
-   *
-   * @param {function} callback The function that handles the response.
-   * @param {object} target The (optional) target to query.
-   */
-  getVersion: function(callback, target) {
-    this.connection.sendIQ(
-      this.iq('get', target || {}, {xmlns: Strophe.NS.VERSION}),
-      (stanza) => {
-        callback({
-          name: $('name', stanza).text() || '-',
-          version: $('version', stanza).text() || '-',
-          os: $('os', stanza).text() || '-'
-        }, stanza);
-      },
-      (stanza) => { callback(false, stanza); }
-    );
-  },
-
   /**
    * Query the server for rooms.
    *
