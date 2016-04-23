@@ -465,8 +465,8 @@ var chat = {
       if (!jid.node)
         return ui.messageAddInfo(strings.error.jidInvalid, {arg: jid});
 
-      var body = chat.formatOutgoing(msg);
-      xmpp.sendMessage(body, {jid});
+      const body = chat.formatOutgoing(msg);
+      xmpp.sendMessage({body, to: jid});
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
@@ -603,15 +603,19 @@ var chat = {
         m.msg = arg.substring(m[1][0][0]).trim();
       }
 
-      if (!m.nick || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      if (!(m.nick in xmpp.roster[xmpp.room.current]))
-        return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
+      const nick = m.nick;
+      const msg = m.msg;
 
-      var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, {nick: m.nick});
+      if (!nick || !msg)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
+      if (!(nick in xmpp.roster[xmpp.room.current]))
+        return ui.messageAddInfo(strings.error.unknownUser, {nick}, 'error');
+
+      const body = chat.formatOutgoing(msg);
+      xmpp.sendMessage({body, to: xmpp.jid({nick})});
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: xmpp.roster[xmpp.room.current][m.nick],
+        to: xmpp.roster[xmpp.room.current][nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
         body: body.html
       }));
@@ -709,8 +713,8 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      var body = chat.formatOutgoing(arg);
-      xmpp.sendMessage(body);
+      const body = chat.formatOutgoing(arg);
+      xmpp.sendMessage({body, to: xmpp.jid()});
     },
 
     /**

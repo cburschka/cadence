@@ -75,46 +75,42 @@ var xmpp = {
   },
 
   /**
-   * Wrapper for $iq() that fills in the sender, target and an optional <query>.
+   * Wrapper for $iq() that fills in the sender JID.
    *
-   * @param {string} type: Required; one of get, set, result, error.
-   * @param {object} target: A target object.
-   * @param {object} item: jQuery or generic object.
+   * @param {Object} attrs: Attributes of <iq>.
+   *                  - to: {JID}
+   *                  - type: (get, set, result, error)
+   *
+   * @return {Stanza}
    */
-  iq: function(type, target, item) {
-    var iq = $iq({from: this.connection.jid, to: this.jid(target), type});
-    if (item) {
-      if (item.constructor === Object) iq.c('query', item);
-      else if (item.constructor === $) iq.cnode(item[0]);
-    }
-    return iq;
+  iq: function(attrs) {
+    return $iq({from: this.connection.jid}).attrs(attrs);
   },
 
   /**
-   * Wrapper for $msg() that fills in the sender JID and the target.
+   * Wrapper for $msg() that fills in the sender JID.
    *
-   * @param {object} target: A target passed to xmpp.jid().
+   * @param {Object} attrs: Attributes of <message>.
+   *                  - to: {JID}
+   *                  - type: (chat, error, groupchat, headline, normal)
+   *
+   * @return {Stanza}
    */
-  msg: function(target) {
-    return $msg({
-      from: this.connection.jid,
-      to:   this.jid(target),
-      type: (target ? 'chat' : 'groupchat')
-    });
+  msg: function(attrs) {
+    return $msg({from: this.connection.jid}).attrs(attrs);
   },
 
   /**
-   * Wrapper for $pres() that fills in the sender JID, an optional target,
-   * and optional attributes.
+   * Wrapper for $pres() that fills in the sender JID.
    *
-   * @param {Object} target The target of the directed presence.
-   * @param {Object} attrs The attributes of the <presence/> element.
+   * @param {Object} attrs: Attributes of <presence>.
+   *                  - to: {JID}
+   *                  - type: (error, unavailable)
+   *
+   * @return {Stanza}
    */
-  pres: function(target, attrs) {
-    return $pres({
-      from: this.currentJid,
-      to: target && this.jid(target)
-    }).attrs(attrs);
+  pres: function(attrs) {
+    return $pres({from: this.connection.jid}).attrs(attrs);
   },
 
   /**
@@ -230,7 +226,10 @@ var xmpp = {
       this.nick.target = nick;
       if (this.status != 'online') return resolve();
 
-      this.connection.send(this.pres({nick}));
+      const jid = this.jid({nick});
+      const pres = this.pres({to: jid});
+      this.connection.send(pres);
+
       this.connection.addHandler((stanza) => {
         // The new presence must come from our nickname, or contain a 110 status.
         const from = this.JID.parse(stanza.getAttribute('from'));
@@ -241,7 +240,7 @@ var xmpp = {
           else reject(stanza);
         }
         else return true;
-      }, null, 'presence', null, null, xmpp.jid({nick}), {matchBare: true});
+      }, null, 'presence', null, null, jid, {matchBare: true});
     });
   },
 
@@ -251,10 +250,10 @@ var xmpp = {
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
-    this.connection.send(this.pres(
-      {room, nick: this.nick.current},
-      {type: 'unavailable'}
-    ));
+    const jid = this.jid({room, nick: this.nick.current});
+    const pres = this.pres({to: jid, type: 'unavailable'});
+    this.connection.send(pres);
+
     delete this.roster[room];
     // The server does not acknowledge the /part command, so we need to change
     // the state right here: If the room we left is the current one, enter
@@ -280,7 +279,8 @@ var xmpp = {
    */
   getReservedNick: function(room) {
     return new Promise((resolve, reject) => {
-      const iq = this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'});
+      const iq = this.iq({type: 'get', to: this.jid({room})});
+      iq.c('query', {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'});
       this.connection.sendIQ(iq, (stanza) => {
         const query = $('query', stanza);
         const nick = $('identity', query).attr('name');
@@ -305,8 +305,9 @@ var xmpp = {
    */
   getRoomInfo: function(room) {
     return new Promise((resolve, reject) => {
-      this.connection.sendIQ(
-        this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO}),
+      const iq = this.iq({type: 'get', to: this.jid({room})});
+      iq.c('query', {xmlns: Strophe.NS.DISCO_INFO});
+      this.connection.sendIQ(iq,
         (stanza) => {
           const query = $('query', stanza);
           const features = $.makeArray(query.children('feature').map(function() {
@@ -342,11 +343,12 @@ var xmpp = {
       if (nick) this.nick.target = nick;
 
       const jid = xmpp.jid({room, nick: this.nick.target});
-      const presence = this.pres({room, nick: this.nick.target})
-        .c('x', {xmlns:Strophe.NS.MUC})
-        .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
-      if (password) presence.up().c('password', password);
-      this.connection.send(presence);
+      const pres = this.pres({to: jid});
+      pres.c('x', {xmlns:Strophe.NS.MUC})
+      pres.c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
+
+      if (password) pres.up().c('password', password);
+      this.connection.send(pres);
 
       // The server may alter the nickname, requiring a bare match:
       this.connection.addHandler((stanza) => {
@@ -388,7 +390,8 @@ var xmpp = {
    */
   roomConfig: function(room) {
     return new Promise((resolve, reject) => {
-      const iq = this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'});
+      const iq = this.iq({type: 'get', to: this.jid({room})});
+      iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
       this.connection.sendIQ(iq, resolve, reject);
     });
   },
@@ -428,8 +431,9 @@ var xmpp = {
    * @param {string} room The room.
    */
    roomConfigCancel: function(room) {
-     const iq = this.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
-       .c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
+     const iq = this.iq({type: 'set', to: this.jid({room})});
+     iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+     iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
 
      this.connection.sendIQ(iq);
    },
@@ -445,7 +449,8 @@ var xmpp = {
    */
   destroyRoom: function(room, alternate, reason) {
     return new Promise((resolve, reject) => {
-      const iq = this.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'});
+      const iq = this.iq({type: 'set', to: this.jid({room})});
+      iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
       iq.c('destroy');
 
       if (alternate) iq.attrs({jid: xmpp.jid({room: alternate})});
@@ -464,7 +469,8 @@ var xmpp = {
    */
   command: function(node) {
     return new Promise((resolve, reject) => {
-      const iq = this.iq('set', {}).c('command', {
+      const iq = this.iq({type: 'set', to: this.jid({})});
+      iq.c('command', {
         xmlns: 'http://jabber.org/protocol/commands',
         action: 'execute',
         node: 'http://jabber.org/protocol/admin#' + node
@@ -511,12 +517,12 @@ var xmpp = {
    * @param {string} show This must be one of "away", "chat", "dnd", "xa" or null.
    * @param {string} status This is an arbitrary status message.
    */
-  sendStatus: function(show, status) {
-    var p = this.pres({nick: this.nick.current});
-    if (show) p.c('show', {}, show);
-    if (status) p.c('status', {}, status);
+  sendStatus: function({show, status}) {
+    const pres = this.pres({to: this.jid({nick: this.nick.current})});
+    if (show) pres.c('show', {}, show);
+    if (status) pres.c('status', {}, status);
     this.userStatus = show;
-    this.connection.send(p);
+    this.connection.send(pres);
   },
 
   /**
@@ -524,13 +530,14 @@ var xmpp = {
    *
    * @param {Object} body: An object containing both html and text strings.
    */
-  sendMessage: function(body, target) {
-    html = $('<p>' + body.html + '</p>');
-    this.connection.send(this.msg(target)
-      .c('body', body.text).up()
-      .c('html', {xmlns:Strophe.NS.XHTML_IM})
-      .c('body', {xmlns:Strophe.NS.XHTML}).cnode(html[0])
-    );
+  sendMessage: function({to, body, type}) {
+    const msg = this.msg({to, type});
+    msg.c('body', {}, body.text);
+    msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
+    msg.c('body', {xmlns: Strophe.NS.XHTML});
+    msg.cnode($('<p>').append(body.html)[0]);
+
+    this.connection.send(msg);
     ui.playSound('send');
   },
 
@@ -543,10 +550,11 @@ var xmpp = {
    */
   setUser: function(item) {
     return new Promise((resolve, reject) => {
-      this.connection.sendIQ(
-        this.iq('set', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', item),
-        resolve, reject
-      );
+      const iq = this.iq({type: 'set', to: this.jid(null)});
+      iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
+      iq.c('item', item);
+
+      this.connection.sendIQ(iq, resolve, reject);
     });
   },
 
@@ -568,29 +576,36 @@ var xmpp = {
    */
   getUsers: function(query) {
     return new Promise((resolve, reject) => {
-      this.connection.sendIQ(
-        this.iq('get', null, {xmlns: Strophe.NS.MUC + '#admin'}).c('item', query),
-        resolve, reject
-      );
+      const iq = this.iq({type: 'get', to: this.jid(null)});
+      iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
+      iq.c('item', query);
+
+      this.connection.sendIQ(iq, resolve, reject);
     });
   },
 
   /**
    * Query a room for its occupant list.
+   *
+   * @param {string} room
+   *
+   * @return {Promise} A promise that resolves to a user list.
    */
-  getOccupants: function(room, callback) {
-    this.connection.sendIQ(
-      this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_ITEMS}),
-      (stanza) => {
-        var users = {};
-        $('item', stanza).each(function() {
-          var nick = $(this).attr('name');
-          users[nick] = nick;
-        });
-        callback(users);
-      },
-      callback
-    );
+  getOccupants: function(room) {
+    return new Promise((resolve, reject) => {
+      const iq = this.iq({type: 'get', this.jid({room})});
+      iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
+
+      this.connection.sendIQ(iq,
+        (stanza) => {
+          const users = $.makeArray($('item', stanza).map(function() {
+            return this.getAttribute('name');
+          })
+          resolve(users);
+        },
+        reject
+      );
+    });
   },
 
   /**
@@ -600,7 +615,9 @@ var xmpp = {
    */
   discoverRooms: function() {
     return new Promise((resolve, reject) => {
-      const iq = this.iq('get', {room: null}, {xmlns: Strophe.NS.DISCO_ITEMS});
+      const iq = this.iq({type: 'get', to: this.jid({room: null})});
+      iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
+
       this.connection.sendIQ(iq,
         (stanza) => {
           let rooms = {};
@@ -621,10 +638,9 @@ var xmpp = {
           if (current && !rooms[current])
             rooms[current] = this.room.available[current];
           this.room.available = rooms;
-          ui.refreshRooms(rooms);
           resolve(rooms);
         },
-        (stanza) => { reject($('error', stanza)); }
+        reject
       );
     });
   },
@@ -977,7 +993,8 @@ var xmpp = {
     const from = stanza.attr('from');
     const type = stanza.attr('type');
     const xmlns = stanza.children().attr('xmlns');
-    const response = this.iq('result').attrs({
+    const response = this.iq({
+      type: 'result',
       to: from,
       id: stanza.attr('id')
     });
@@ -1068,12 +1085,13 @@ var xmpp = {
   },
 
   broadcastPresence: function() {
-    this.connection.send(this.pres().c('c', {
-        xmlns: 'http://jabber.org/protocol/caps',
-        hash: 'sha-1',
-        node: config.clientURL,
-        ver: config.capHash
-    }));
+    const pres = this.pres().c('c', {
+      xmlns: 'http://jabber.org/protocol/caps',
+      hash: 'sha-1',
+      node: config.clientURL,
+      ver: config.capHash
+    });
+    this.connection.send(pres);
   },
 
   /**
@@ -1081,7 +1099,8 @@ var xmpp = {
    */
   disconnect: function() {
     if (this.connection) {
-      this.connection.send(this.pres(undefined, {type: 'unavailable'}));
+      const pres = this.pres({type: 'unavailable'});
+      this.connection.send(pres);
       this.connection.disconnect();
     }
   },
