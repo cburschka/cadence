@@ -737,7 +737,7 @@ var chat = {
             .text(config.version)
         });
       }
-      if (xmpp.status == 'offline') {
+      if (xmpp.status == 'offline')
         return arg && ui.messageAddInfo(strings.error.cmdStatus.offline, {command: 'version'}, 'error');
 
       const jid = xmpp.JID.parse(arg);
