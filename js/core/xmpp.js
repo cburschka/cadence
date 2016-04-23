@@ -186,6 +186,28 @@ var xmpp = {
   },
 
   /**
+   * Find a user by roomnick or JID.
+   *
+   * A non-MUC "from" address will return an external user.
+   * A non-MUC "jid" address will be looked up in the roster.
+   */
+  userFromJid: function({from, jid}) {
+    from = from || jid;
+    if (from.domain == config.xmpp.mucService) {
+      const roster = this.roster[from.node];
+      if (roster && roster[from.resource])
+        return roster[from.resource];
+      return {room: from.node, nick: from.resource};
+    };
+    const roster = this.roster[this.room.current];
+    if (jid && roster) {
+      for (let nick in roster) if (roster[nick].jid.bare() == jid.bare())
+        return roster[nick];
+    }
+    return {jid: from};
+  },
+
+  /**
    * Prompt the user to enter a different nickname.
    */
   nickConflictResolve: function() {
@@ -869,25 +891,26 @@ var xmpp = {
    */
   eventMessageCallback: function(stanza) {
     if (stanza) {
-      var from = this.JID.parse(stanza.getAttribute('from'));
-      var type = stanza.getAttribute('type');
+      const from = this.JID.parse(stanza.getAttribute('from'));
+      const type = stanza.getAttribute('type');
 
       if (type == 'error')
         return this.eventMessageError(stanza, from) || true;
 
-      var muc = from.domain == config.xmpp.mucService;
+      let user = this.userFromJid({from});
+      const muc = !!user.nick;
 
-      var body = $('html body p', stanza).contents();
+      let body = $('html body p', stanza).contents();
       if (!body.length) body = $(stanza).children('body').contents();
 
-      var delay = $('delay', stanza);
-      var time = delay.attr('stamp') || (new Date()).toISOString();
+      const delay = $('delay', stanza);
+      const time = delay.attr('stamp') || (new Date()).toISOString();
 
       // Message of the Day.
       if (!from.node && !from.resource)
         return ui.messageAddInfo(strings.info.motd, {domain: from.domain, text: body}, 'error');
 
-      else if (muc) {
+      if (muc) {
         const codes = $.makeArray($('x status', stanza).map(function() {
           return $(this).attr('code');
         }));
@@ -902,67 +925,54 @@ var xmpp = {
         }
 
         // Accept invitations.
-        var invite = $('x invite', stanza);
+        const invite = $('x invite', stanza);
         if (invite.length) {
-          var room = xmpp.room.available[from.node];
+          const room = xmpp.room.available[from.node];
           if (!room) xmpp.getRoomInfo(from.node).then((data) => {
             room = data;
             xmpp.room.available[node] = data;
           });
-          var reason = $('reason', invite).text();
-          var password = $('x password', stanza).text();
+          const reason = $('reason', invite).text();
+          const password = $('x password', stanza).text();
           return ui.messageAddInfo(strings.info.inviteReceived[+!!password][+!!reason], {
             jid: this.JID.parse(invite.attr('from')),
             room, password, reason
           });
         }
+
         // Only accept MUC messages in the current room.
         if (from.node != this.room.current) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
         if (delay.length) {
-          user = {nick: resource}
-          var jid = this.JID.parse(delay.attr('from'));
           // In non-anonymous rooms, try to identify the author by JID.
+          const jid = this.JID.parse(delay.attr('from'));
           if (jid.bare() != from.bare()) {
-            user.jid = jid;
-            for (var nick in this.roster[node]) {
-              if (jid.bare() == this.roster[node][nick].jid.bare()) {
-                user = $.extend({}, this.roster[node][nick], user)
-                break;
-              }
-            }
+            // Copy the entry and fill in the old nickname.
+            user = $.extend({}, this.userFromJid({jid}));
+            user.nick = from.resource;
           }
+          // Otherwise, do not use the roster entry.
+          else user = {nick: from.resource};
         }
 
-        // Fall back on just the nick if no roster entry exists (usually an error).
-        else var user = this.roster[from.node][from.resource] || {nick: from.resource};
+        this.historyEnd[from.node] = time;
       }
 
       // Accept direct messages from other domains.
-      else {
-        var user = {jid: from};
-        type = 'direct';
-      }
-      this.historyEnd[from.node] = time;
-
-      // Process an XEP-0224 <attention> element.
-      if ($(stanza).children('attention').attr('xmlns') == Strophe.NS.Cadence_ATTN) {
-        ui.messageAddInfo(strings.info.attention, {user}, 'error');
-      }
+      else type = 'direct';
 
       // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
       if (!$(stanza).children('body').length) return true;
 
       if (delay.length) {
         ui.messageDelayed({
-          user, body, type,
-          time: delay.attr('stamp'),
+          user, body, type, time,
           room: muc && this.room.available[from.node]
         });
       }
       else {
-        var message = {user, body, type};
+        const message = {user, body, type};
         ui.messageAppend(visual.formatMessage(message));
         if (from.resource != this.nick.current) ui.notify(message);
       }
@@ -973,13 +983,12 @@ var xmpp = {
   /**
    * Handle <message> stanzas of type "error".
    *
-   * @param {object} stanza
-   * @param {string} node
-   * @param {string} domain
-   * @param {string} resource
+   * @param {Object} stanza
+   * @param {JID} from
    */
-  eventMessageError: function(stanza, node, domain, resource) {
-    var error = $('error', stanza);
+  eventMessageError: function(stanza, from) {
+    const error = $('error', stanza);
+    const {node, domain, resource} = from;
     if ($('remote-server-not-found', error).length)
       return ui.messageAddInfo(strings.error.dmsg.domain, {domain}, 'error');
     if ($('service-unavailable', error).length)
