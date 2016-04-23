@@ -274,24 +274,20 @@ var xmpp = {
   /**
    * Query the server for a reserved nickname in a room, and execute callbacks.
    *
-   * The callback will be executed regardless of success or failure. As its
-   * argument, it will receive either the nickname or {undefined}.
-   *
    * @param {string} room The room to get a nickname from.
-   * @param {function} callback The function to execute after the request is
-   *                   complete.
+   *
+   * @return {Promise} A promise that resolves to the nickname, or throws the stanza.
    */
-  getReservedNick: function(room, callback) {
-    var iqCallback = (stanza) => {
-      var nick = (
-        ($('query').attr('node') == 'x-roomuser-item') &&
-        $('identity', stanza).attr('name') || null);
-      callback(nick);
-    };
-    this.connection.sendIQ(
-      this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'}),
-      iqCallback, iqCallback
-    );
+  getReservedNick: function(room) {
+    return new Promise((resolve, reject) => {
+      const iq = this.iq('get', {room}, {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'});
+      this.connection.sendIQ(iq, (stanza) => {
+        const query = $('query', stanza);
+        const nick = $('identity', query).attr('name');
+        if (query.attr('node') == 'x-roomuser-item' && nick) resolve(nick);
+        else reject(stanza);
+      }, reject);
+    });
   },
 
   /**
