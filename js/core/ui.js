@@ -818,10 +818,6 @@ var ui = {
     this.dom.chatList.append(message.html);
     $(message.html).fadeIn(() => { this.scrollDown(); });
     this.scrollDown();
-    if (message.message.user.nick != xmpp.nick.current) {
-      var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
-      this.blinkTitle(sender);
-    }
   },
 
   /**
@@ -1042,7 +1038,7 @@ var ui = {
     var mention = (text.indexOf(xmpp.nick.current) >= 0
                 || text.indexOf(xmpp.user) >= 0);
     var sender = false;
-    var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
+    var name = message.user.nick || message.user.jid.bare() || '';
     var triggers = config.settings.notifications.triggers;
     for (var i in triggers) {
       mention = mention || (0 <= text.indexOf(triggers[i]));
@@ -1056,6 +1052,11 @@ var ui = {
     if (message.type == 'chat' && this.playSound('msg')) return;
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
+
+    if (!message.user.jid.equals(xmpp.currentJid)) {
+      var sender = message.user.nick || message.user.jid.bare();
+      this.blinkTitle(sender);
+    }
   },
 
   /**
@@ -1071,7 +1072,7 @@ var ui = {
     if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
       var body = $(message.body).text();
-      var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
+      var sender = message.user.nick || message.user.jid.bare();
 
       if (message.type != 'direct') {
         var title = xmpp.room.available[xmpp.room.current].title;
