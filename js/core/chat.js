@@ -385,18 +385,29 @@ var chat = {
 
     destroy: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.room = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
-      if (!arg.room)
+
+      const name = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
+      if (!name)
         return ui.messageAddInfo(strings.error.noRoom, 'error');
-      var room = xmpp.room.available[arg.room];
+
+      const room = xmpp.room.available[name];
       if (!room)
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
-      if (!window.confirm(visual.formatText(strings.info.destroyConfirm, {room}).text())) return;
-      xmpp.destroyRoom(arg.room, arg.alternate, arg.reason, (error) => {
-        if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room}, 'error');
-        else if (error) ui.messageAddInfo(strings.error.destroy, {room}, 'error');
-        else ui.messageAddInfo(strings.info.destroySuccess, {room});
-      });
+        return ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
+
+      const confirm = visual.formatText(strings.info.destroyConfirm, {room});
+      if (!window.confirm(confirm.text())) return;
+
+      xmpp.destroyRoom(name, arg.alternate, arg.reason).then(
+        () => {
+          ui.messageAddInfo(strings.info.destroySuccess, {room});
+        },
+        (stanza) => {
+          if ($('forbidden', stanza).length)
+            ui.messageAddInfo(strings.error.destroyDenied, {room}, 'error');
+          else
+            ui.messageAddInfo(strings.error.destroy, {room}, 'error');
+        }
+      );
     },
 
     /**
