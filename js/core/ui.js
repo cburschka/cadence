@@ -426,19 +426,19 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    var c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
-    var labels = strings.label.command;
-    var roster = xmpp.roster[xmpp.room.current]
-    var userSelf = roster && roster[xmpp.nick.current];
-    var nick = user.attr('data-nick');
-    var jid = xmpp.JID.parse(user.attr('data-jid'));
+    const c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
+    const labels = strings.label.command;
+    const roster = xmpp.roster[xmpp.room.current]
+    const userSelf = roster && roster[xmpp.nick.current];
+    const nick = user.attr('data-nick');
+    const jid = xmpp.JID.parse(user.attr('data-jid'));
 
-    var mod = userSelf && userSelf.role == 'moderator';
-    var ranks = {none: 0, member: 1, admin: 2, owner: 3};
-    var rank = userSelf && ranks[userSelf.affiliation];
-    var outranked = rank < ranks[user.attr('data-affiliation')];
+    const mod = userSelf && userSelf.role == 'moderator';
+    const ranks = {none: 0, member: 1, admin: 2, owner: 3};
+    const rank = userSelf && ranks[userSelf.affiliation];
+    const outranked = rank < ranks[user.attr('data-affiliation')];
 
-    var items = {
+    const items = {
       msg: {
         name: labels.msg,
         icon: 'msg',
