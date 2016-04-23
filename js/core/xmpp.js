@@ -155,7 +155,7 @@ var xmpp = {
 
   JID: class extends String {
     constructor({node, domain, resource}) {
-      let bareJid = domain;
+      let bareJid = domain || '';
       if (node) bareJid = Strophe.escapeNode(node) + '@' + bareJid;
       const jid = resource ? (bareJid + '/' + resource) : bareJid;
       super(jid);
@@ -171,8 +171,13 @@ var xmpp = {
       return this.bareJid;
     }
 
+    equals(x) {
+      return String(this) === String(x);
+    }
+
     static parse(jid) {
-      return jid && new xmpp.JID({
+      jid = jid || "";
+      return new xmpp.JID({
         node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
         domain: Strophe.getDomainFromJid(jid),
         resource: Strophe.getResourceFromJid(jid)
