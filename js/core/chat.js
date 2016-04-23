@@ -402,22 +402,29 @@ var chat = {
      *   Send a direct message to a user outside the chatroom.
      */
     dmsg: function(arg) {
-      var m = chat.parseArgs(arg);
+      const m = chat.parseArgs(arg);
+
+      let jid = m.jid;
+      let msg = m.msg;
       if (m[0].length) {
-        m.jid = m[0][0];
-        m.msg = arg.substring(m[1][0][0]).trim();
+        jid = jid || m[0][0];
+        msg = msg || arg.substring(m[1][0][0]).trim();
       }
 
-      if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      if (!Strophe.getNodeFromJid(m.jid))
-        return ui.messageAddInfo(strings.error.jidInvalid, {arg: m.jid});
+      if (!jid || !msg)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
 
-      var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, {jid: m.jid});
+      jid = xmpp.JID.parse(jid);
+
+      if (!jid.node)
+        return ui.messageAddInfo(strings.error.jidInvalid, {arg: jid});
+
+      var body = chat.formatOutgoing(msg);
+      xmpp.sendMessage(body, {jid});
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: {jid: m.jid},
+        to: {jid},
         user: {jid: xmpp.currentJid},
         body: body.html
       }));
