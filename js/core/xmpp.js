@@ -440,21 +440,23 @@ var xmpp = {
 
   /**
    * Order the server to destroy a room.
+   *
    * @param {string} room The room ID.
    * @param {string} alternate An alternate room ID (optional).
-   * @param {string} message The reason (optional).
-   * @param {function} success The callback to execute on completion.
+   * @param {string} reason The reason (optional).
+   *
+   * @return {Promise} A promise that resolves to the response.
    */
-  destroyRoom: function(room, alternate, message, success) {
-    var iq = this.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
-      .c('destroy');
-    if (alternate) iq.attrs({jid: new this.JID({node: alternate, domain: config.xmpp.mucService})});
-    if (message) iq.c('reason', message);
-    this.connection.sendIQ(iq, () => {
-      success && success();
-      this.discoverRooms();
-    },
-    (stanza) => { success(stanza ? $('error', stanza).attr('code') : true); });
+  destroyRoom: function(room, alternate, reason) {
+    return new Promise((resolve, reject) => {
+      const iq = this.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'});
+      iq.c('destroy');
+
+      if (alternate) iq.attrs({jid: xmpp.jid({room: alternate})});
+      if (message) iq.c('reason', reason);
+
+      this.connection.sendIQ(iq, resolve, reject);
+    });
   },
 
   /**
