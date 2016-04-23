@@ -15,43 +15,76 @@ var chat = {
      *   Execute a server admin command.
      */
     admin: function(arg) {
-      var m = chat.parseArgs(arg);
-      var defaultArgs = {
-        announce: 'body',
+      const m = chat.parseArgs(arg);
+
+      // Make single-argument commands more convenient:
+      const defaultArgs = {
+        'announce': 'body',
         'get-user-lastlogin': 'accountjid',
         'set-motd': 'body',
         'user-stats': 'accountjid',
       }
+
+      // Use first positional argument as command.
       if (m[0].length) m.cmd = m[0][0];
+      // If there is more, use the remaining text as an argument.
       if (m[0].length > 1 && m.cmd in defaultArgs)
         m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
 
-      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      const command = m.cmd;
+      if (!command)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
 
-      var arg = {};
-      for (var i in m) if (i != 'cmd' && i != 'interactive' && i*0 != 0) arg[i] = m[i];
-      m.interactive = m.interactive || Object.keys(arg).length == 0;
+      // Interactive configuration with --interactive, or with a command
+      // that contains no named arguments other than --cmd.
+      const interactive = m.interactive || Object.keys(m).every(
+        (key) => { return key*0 === 0 || key == 'cmd' }
+      );
 
-      var query = m.interactive ? (x, submit) => { ui.formDialog(ui.dataForm(x, submit)); } : arg;
-      var command = m.cmd;
+      let sessionid;
 
-      xmpp.submitCommand(command, query, (stanza, status) => {
-        if (status < 2 && stanza) {
-          if ($('forbidden', stanza).length)
-            ui.messageAddInfo(strings.error.admin.forbidden, {command}, 'error');
-          else if ($('service-unavailable', stanza).length)
-            ui.messageAddInfo(strings.error.admin.badCommand, {command}, 'error');
-          else if ($('text', stanza).length)
-            ui.messageAddInfo(strings.error.admin.generic, {command, text: $('text', stanza).text()}, 'error');
-          else ui.messageAddInfo(strings.error.admin.unknown, {command}, 'error');
-        }
-        else {
-          var result = [];
-          $('field[type!="hidden"]', stanza).each(function() {
-            result.push($('<strong>').text($(this).attr('label') + ': '), $(this).text(), $('<br>'));
-          });
-          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
-        }
+      xmpp.command(command)
+      .then((stanza) => {
+        sessionid = $('command', stanza).attr('sessionid');
+        return new Promise((resolve, reject) => {
+          if (interactive) {
+            const form = ui.dataForm(stanza, resolve);
+            ui.formDialog(form, {cancel: reject, apply: false});
+          }
+          else {
+            const args = {};
+            $('x > field', stanza).each(function() {
+              const name = $(this).attr('var');
+              const values = $.makeArray($('value', this).map(function() {
+                return $(this).text();
+              }));
+              args[name] = m[name] !== undefined ? [m[name]] : values;
+            });
+            resolve(args);
+          }
+        });
+      })
+      .then((data) => {
+        return xmpp.commandSubmit(command, sessionid, data);
+      })
+      .then((stanza) => {
+        const result = [];
+        $('field[type!="hidden"]', stanza).each(function() {
+          const label = $(this).attr('label');
+          const value = $(this).text();
+          result.push($('<strong>').text(value + ':'), ' ', value, $('<br>'));
+        });
+
+        ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
+      })
+      .catch((stanza) => {
+        if ($('forbidden', stanza).length)
+          ui.messageAddInfo(strings.error.admin.forbidden, {command}, 'error');
+        else if ($('service-unavailable', stanza).length)
+          ui.messageAddInfo(strings.error.admin.badCommand, {command}, 'error');
+        else if ($('text', stanza).length)
+          ui.messageAddInfo(strings.error.admin.generic, {command, text: $('text', stanza).text()}, 'error');
+        else ui.messageAddInfo(strings.error.admin.unknown, {command}, 'error');
       });
     },
 
