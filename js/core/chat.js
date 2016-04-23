@@ -605,9 +605,11 @@ var chat = {
      *   Send a ping and display the response time.
      */
     ping: function(arg) {
-      arg = arg.trim() || undefined;
-      const direct = !!Strophe.getResourceFromJid(arg); // Only accept full JIDs.
-      const target = arg && (direct ? {jid: arg} : {nick: arg});
+      arg = arg.trim();
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource; // Only accept full JIDs.
+
+      const target = arg && (direct ? {jid} : {nick: arg});
       const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
       const time = (new Date()).getTime();
 
@@ -672,9 +674,12 @@ var chat = {
      */
     time: function(arg) {
       arg = arg.trim();
-      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      const direct = !!Strophe.getResourceFromJid(arg); // Only accept full JIDs.
-      const target = direct ? {jid: arg} : {nick: arg};
+      if (!arg)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource; // Only accept full JIDs.
+      const target = direct ? {jid} : {nick: arg};
       const user = !direct && xmpp.roster[xmpp.room.current][arg] || target;
       const start = new Date();
 
@@ -720,17 +725,19 @@ var chat = {
      */
     version: function(arg) {
       arg = arg.trim();
-      if (!arg || xmpp.status == 'offline') {
+      if (!arg) {
         ui.messageAddInfo(strings.info.versionClient, {
           version: $('<a>')
             .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
             .text(config.version)
         });
       }
-      if (xmpp.status == 'offline') return;
+      if (xmpp.status == 'offline') {
+        return arg && ui.messageAddInfo(strings.error.cmdStatus.offline, {command: 'version'}, 'error');
 
-      const direct = !!Strophe.getResourceFromJid(arg);
-      const target = arg ? (direct ? {jid: arg} : {nick: arg}) : {};
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource;
+      const target = arg ? (direct ? {jid} : {nick: arg}) : {};
       const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || target);
 
       return xmpp.getVersion(xmpp.jid(target)).then((stanza) => {
