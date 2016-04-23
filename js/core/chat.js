@@ -360,7 +360,6 @@ var chat = {
         .then(
           () => {
             chat.setSetting('xmpp.room', id);
-            xmpp.setRoom(id);
             ui.setFragment(id);
             ui.messageAddInfo(strings.info.roomCreated, {room});
           },
@@ -498,7 +497,6 @@ var chat = {
         return xmpp.joinRoom({room: room.id, nick, password: arg.password});
       })
       .then(() => {
-        xmpp.setRoom(room.id);
         ui.updateRoom(room.id, xmpp.roster[room.id]);
         ui.setFragment(room.id);
         chat.setSetting('xmpp.room', room.id);
