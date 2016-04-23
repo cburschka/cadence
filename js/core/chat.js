@@ -241,10 +241,13 @@ var chat = {
         return ui.messageAddInfo(strings.error.noRoom, 'error');
 
       const room = xmpp.room.available[name] || {id: name, title: name};
-      const error = (error) => {
-        if ($('item-not-found', error).length)
+
+      // Define error handler separately, since it's used both on getting
+      // and submitting the form, which use distinct promise chains.
+      const error = (stanza) => {
+        if ($('item-not-found', stanza).length)
           ui.messageAddInfo(strings.error.unknownRoom, {name}, 'error');
-        else if ($('forbidden', error).length)
+        else if ($('forbidden', stanza).length)
           ui.messageAddInfo(strings.error.roomConfDenied, {room}, 'error');
         else
           ui.messageAddInfo(strings.error.roomConf, {room}, 'error');
@@ -252,17 +255,17 @@ var chat = {
 
       xmpp.roomConfig(name).then(
         (config) => {
+          // Interactive configuration with --interactive, or with a command
+          // that contains no named arguments other than --name.
           const interactive = arg.interactive || Object.keys(arg).every(
-            (e) => { return e == '0' || e == '1' || e == 'name' }
+            (key) => { return key*0 === 0 || key == 'name' }
           );
 
           // Form submission uses a callback because it can be triggered multiple times.
           const form = ui.dataForm(config, (data) => {
             xmpp.roomConfigSubmit(name, data).then(() => {
               ui.messageAddInfo(strings.info.roomConf)
-            },
-              error
-            );
+            }, error);
           });
           ui.formDialog(form, {cancel: () => { xmpp.roomConfigCancel(name); }});
         }, error

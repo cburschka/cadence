@@ -367,11 +367,8 @@ var xmpp = {
    */
   roomConfig: function(room) {
     return new Promise((resolve, reject) => {
-      this.connection.sendIQ(
-        this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'}),
-        (stanza) => { resolve($('query x', stanza)); },
-        (stanza) => { reject($('error', stanza)); }
-      );
+      const iq = this.iq('get', {room}, {xmlns: Strophe.NS.MUC + '#owner'});
+      this.connection.sendIQ(iq, resolve, reject);
     });
   },
 
@@ -392,7 +389,7 @@ var xmpp = {
         if (data[name] !== undefined) {
           form.c('field', {'var': name});
           const values = data[name].constructor === Array ? data[name] : [data[name]];
-          for (let value of values) form.c('value', {}, value.toString());
+          for (let value of values) form.c('value', {}, String(value));
         }
         form.up();
       }
