@@ -456,7 +456,7 @@ var ui = {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !c('invite') || !jid || (nick && roster[nick] && jid.matchBare(roster[nick].jid),
+        disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
         callback: () => { chat.commands.invite({jid}); }
       },
       kick: {

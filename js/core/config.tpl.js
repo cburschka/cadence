@@ -167,11 +167,9 @@ var config = {
     Strophe.NS.MUC,
     Strophe.NS.MUC + '#user',
     Strophe.NS.PING,
-    Strophe.NS.TIME
+    Strophe.NS.TIME,
     Strophe.NS.XHTML_IM,
     Strophe.NS.VERSION,
-    Strophe.NS.Cadence_ATTN,
-    Strophe.NS.Cadence_CAPS,
     Strophe.NS.Cadence_CONFERENCE,
   ],
 
