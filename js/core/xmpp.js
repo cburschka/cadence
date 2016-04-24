@@ -67,6 +67,10 @@ var xmpp = {
       return true;
     });
 
+    this.connection.disco.addIdentity('client', 'web', config.clientName);
+    for (let feature of config.features)
+      this.connection.disco.addFeature(feature);
+
     this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
 
     // DEBUG: print connection stream to console:
@@ -1013,39 +1017,30 @@ var xmpp = {
   },
 
   /**
-   * This function handles any <iq> stanzas.
+   * This function handles any unsupported <iq> namespaces.
    */
   eventIQCallback: function(stanza) {
     if (!stanza) return true;
-    stanza = $(stanza);
-    const from = stanza.attr('from');
-    const type = stanza.attr('type');
-    const xmlns = stanza.children().attr('xmlns');
-    const response = this.iq({
-      type: 'result',
-      to: from,
-      id: stanza.attr('id')
-    });
 
-    if (type == 'get') {
-      // List available features (XEP-0030).
-      if (xmlns == Strophe.NS.DISCO_INFO) {
-        response.c('query', {xmlns})
-        response.c('identity', {category: 'client', type: 'web', name: config.clientName}).up();
-        for (var i in config.features)
-          response.c('feature', {'var': config.features[i]}).up();
-        this.connection.send(response);
-      }
+    // Only respond to get/set, as per RFC-6120 8.2.3
+    const type = stanza.getAttribute('type');
+    if (type != 'get' && type != 'set') return true;
 
-      // Send <feature-not-implemented/> for anything not recognized.
-      else if (config.features.indexOf(xmlns) < 0) {
-        this.connection.send(response
-          .attrs({type: 'error'})
-          .c('error', {type: 'cancel', code: 501})
-          .c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS})
-        );
-      }
+    const xmlns = $(stanza).children().attr('xmlns');
+
+    // Send <feature-not-implemented /> for anything not recognized.
+    if (config.features.indexOf(xmlns) < 0) {
+      const response = this.iq({
+        type: 'error',
+        to: stanza.getAttribute('from'),
+        id: stanza.getAttribute('id')
+      });
+      response.c('error', {type: 'cancel', code: 501});
+      response.c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS}, '');
+
+      this.connection.sendIQ(response);
     }
+
     return true;
   },
 
