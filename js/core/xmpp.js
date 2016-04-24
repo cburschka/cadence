@@ -12,7 +12,7 @@ var xmpp = {
     target: null,
     current: null,
   },
-  currentJid: null,
+  jid: null,
   user: null,
   resource: null,
   status: 'offline',
@@ -39,7 +39,12 @@ var xmpp = {
     this.session = {};
     this.user = user;
     this.nick.target = user;
-    this.currentJid = new this.JID({node: user, domain: config.xmpp.domain, resource: this.createResourceName()});
+    this.jid = new this.JID({
+      node: user,
+      domain: config.xmpp.domain,
+      resource: this.createResourceName()
+    });
+
     this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.addHandler((stanza) => { return this.eventPresenceCallback(stanza) }, null, 'presence');
     this.connection.addHandler((stanza) => { return this.eventMessageCallback(stanza) }, null, 'message');
@@ -72,7 +77,7 @@ var xmpp = {
       if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
 
-    this.connection.connect(String(this.currentJid), pass, (status, error) => {
+    this.connection.connect(String(this.jid), pass, (status, error) => {
       return this.eventConnectCallback(status, error);
     });
   },
@@ -87,7 +92,7 @@ var xmpp = {
    * @return {Stanza}
    */
   iq: function(attrs) {
-    return $iq({from: this.connection.jid}).attrs(attrs);
+    return $iq({from: this.jid}).attrs(attrs);
   },
 
   /**
@@ -100,7 +105,7 @@ var xmpp = {
    * @return {Stanza}
    */
   msg: function(attrs) {
-    return $msg({from: this.connection.jid}).attrs(attrs);
+    return $msg({from: this.jid}).attrs(attrs);
   },
 
   /**
@@ -113,7 +118,7 @@ var xmpp = {
    * @return {Stanza}
    */
   pres: function(attrs) {
-    return $pres({from: this.connection.jid}).attrs(attrs);
+    return $pres({from: this.jid}).attrs(attrs);
   },
 
   /**
@@ -369,7 +374,7 @@ var xmpp = {
    */
   invite: function(jid, text) {
     this.connection.send($msg({
-      from: this.connection.jid,
+      from: this.jid,
       to: this.jidFromRoomNick()
     })
     .c('x', {xmlns: Strophe.NS.MUC + '#user'})

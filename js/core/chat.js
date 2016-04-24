@@ -357,7 +357,7 @@ var chat = {
           room,
           user: {
             nick: xmpp.nick.target,
-            jid: xmpp.connection.jid
+            jid: xmpp.jid
           }
         });
 
@@ -471,7 +471,7 @@ var chat = {
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
         to: {jid},
-        user: {jid: xmpp.currentJid},
+        user: {jid: xmpp.jid},
         body: body.html
       }));
     },
@@ -542,7 +542,7 @@ var chat = {
           room,
           user: {
             nick: xmpp.nick.target,
-            jid: xmpp.currentJid
+            jid: xmpp.jid
           }
         }, 'verbose');
         return xmpp.joinRoom({room: room.id, nick, password: arg.password});
