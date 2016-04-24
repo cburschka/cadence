@@ -71,7 +71,9 @@ var xmpp = {
       if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
 
-    this.connection.connect(this.currentJid, pass, (status, error) => { return this.eventConnectCallback(status, error) });
+    this.connection.connect(String(this.currentJid), pass, (status, error) => {
+      return this.eventConnectCallback(status, error);
+    });
   },
 
   /**
@@ -139,12 +141,11 @@ var xmpp = {
     });
   },
 
-  JID: class extends String {
+  JID: class {
     constructor({node, domain, resource}={}) {
       let bareJid = domain || '';
       if (node) bareJid = Strophe.escapeNode(node) + '@' + bareJid;
       const jid = resource ? (bareJid + '/' + resource) : bareJid;
-      super(jid);
 
       this.node = node;
       this.domain = domain;
@@ -159,6 +160,14 @@ var xmpp = {
 
     equals(x) {
       return String(this) === String(x);
+    }
+
+    matchBare(x) {
+      return this.bare() == x.bare();
+    }
+
+    toString() {
+      return this.jid;
     }
 
     static parse(jid) {
@@ -187,7 +196,7 @@ var xmpp = {
     };
     const roster = this.roster[this.room.current];
     if (jid && roster) {
-      for (let nick in roster) if (roster[nick].jid.bare() == jid.bare())
+      for (let nick in roster) if (roster[nick].jid.matchBare(jid))
         return roster[nick];
     }
     return {jid: from};
@@ -230,7 +239,7 @@ var xmpp = {
           else reject(stanza);
         }
         else return true;
-      }, null, 'presence', null, null, jid, {matchBare: true});
+      }, null, 'presence', null, null, String(jid), {matchBare: true});
     });
   },
 
@@ -348,7 +357,7 @@ var xmpp = {
           resolve(stanza);
         }
         else return true;
-      }, null, 'presence', null, null, jid, {matchBare: true});
+      }, null, 'presence', null, null, String(jid), {matchBare: true});
     });
   },
 
@@ -944,7 +953,7 @@ var xmpp = {
         if (delay.length) {
           // In non-anonymous rooms, try to identify the author by JID.
           const jid = this.JID.parse(delay.attr('from'));
-          if (jid.bare() != from.bare()) {
+          if (!jid.matchBare(from)) {
             // Copy the entry and fill in the old nickname.
             user = $.extend({}, this.userFromJid({jid}));
             user.nick = from.resource;
