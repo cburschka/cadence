@@ -443,13 +443,13 @@ var ui = {
         name: labels.msg,
         icon: 'msg',
         disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
-        callback: () => { chat.prefixMsg(nick); }
+        callback: () => { chat.prefixMsg({nick}); }
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
         disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
-        callback: () => { chat.prefixMsg(jid, true); }
+        callback: () => { chat.prefixMsg({jid}); }
       },
       sep1: '---',
       invite: {
@@ -484,7 +484,7 @@ var ui = {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => { chat.commands.ping(nick ? {nick} : {jid}); }
+        callback: () => { chat.commands.ping(nick || jid); }
       }
     }
 

@@ -1017,12 +1017,19 @@ var chat = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function(nick, direct) {
-    nick = nick.replace(/[\\\s"']/g, '\\$&');
-    var text = ui.dom.inputField.val();
-    var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
-    if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = (direct ? '/dmsg ' : '/msg ') + nick + ' ' + text;
+  prefixMsg: function({nick, jid}) {
+    const direct = !nick;
+
+    let target = nick || jid;
+    target = String(target).replace(/[\\\s"']/g, '\\$&');
+
+    let text = ui.dom.inputField.val();
+
+    const newPrefix = target && ((direct ? '/dmsg ' : '/msg ')  + target + ' ');
+    const [oldPrefix] = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/) || [];
+    if (oldPrefix) text = text.substring(oldPrefix.length).trimLeft();
+    text = newPrefix  + text;
+
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
