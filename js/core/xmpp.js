@@ -63,6 +63,7 @@ var xmpp = {
     });
 
     this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
+
     // DEBUG: print connection stream to console:
     this.connection.rawInput = (data) => {
       if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
@@ -285,7 +286,7 @@ var xmpp = {
         const nick = $('identity', query).attr('name');
         if (query.attr('node') == 'x-roomuser-item' && nick) resolve(nick);
         else reject(stanza);
-      }, reject);
+      }, reject, config.xmpp.timeout);
     });
   },
 
@@ -323,7 +324,7 @@ var xmpp = {
             features, data
           });
         },
-        reject
+        reject, config.xmpp.timeout
       );
     });
   },
@@ -394,7 +395,7 @@ var xmpp = {
         to: this.jidFromRoomNick({room})
       });
       iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-      this.connection.sendIQ(iq, resolve, reject);
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -420,7 +421,7 @@ var xmpp = {
         form.up();
       }
 
-      xmpp.connection.sendIQ(form, resolve, (stanza) => { reject($('error', stanza)) });
+      xmpp.connection.sendIQ(form, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -431,16 +432,20 @@ var xmpp = {
    * (Subsequent configuration requests are usually stateless.)
    *
    * @param {string} room The room.
+   *
+   * @return {Promise}
    */
    roomConfigCancel: function(room) {
-     const iq = this.iq({
-       type: 'set',
-       to: this.jidFromRoomNick({room})
-     });
-     iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-     iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
+     return new Promise((resolve, reject) => {
+       const iq = this.iq({
+         type: 'set',
+         to: this.jidFromRoomNick({room})
+       });
+       iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+       iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
 
-     this.connection.sendIQ(iq);
+       this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
+     });
    },
 
   /**
@@ -466,7 +471,7 @@ var xmpp = {
       });
       if (message) iq.c('reason', reason);
 
-      this.connection.sendIQ(iq, resolve, reject);
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -485,7 +490,7 @@ var xmpp = {
         action: 'execute',
         node: 'http://jabber.org/protocol/admin#' + node
       });
-      this.connection.sendIQ(iq, resolve, reject);
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -515,7 +520,7 @@ var xmpp = {
         for (let value of values) form.c('value', {}, String(value));
         form.up();
       }
-      xmpp.connection.sendIQ(form, resolve, reject);
+      xmpp.connection.sendIQ(form, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -569,7 +574,7 @@ var xmpp = {
       iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
       iq.c('item', item);
 
-      this.connection.sendIQ(iq, resolve, reject);
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -598,7 +603,7 @@ var xmpp = {
       iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
       iq.c('item', query);
 
-      this.connection.sendIQ(iq, resolve, reject);
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
   },
 
@@ -617,17 +622,16 @@ var xmpp = {
       });
       iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
 
-      this.connection.sendIQ(iq,
-        (stanza) => {
-          const users = $.makeArray($('item', stanza).map(function() {
-            return this.getAttribute('name');
-          }));
-          resolve(users);
-        },
-        reject
-      );
+      const success = (stanza) => {
+        resolve($.makeArray($('item', stanza).map(function() {
+          return this.getAttribute('name');
+        })));
+      };
+
+      this.connection.sendIQ(iq, success, reject, config.xmpp.timeout);
     });
   },
+
 
   /**
    * Query the server for rooms.
@@ -664,7 +668,7 @@ var xmpp = {
           this.room.available = rooms;
           resolve(rooms);
         },
-        reject
+        reject, config.xmpp.timeout
       );
     });
   },
@@ -706,7 +710,7 @@ var xmpp = {
     // Find the status codes.
     const item = $(stanza).find('item');
     const codes = $.makeArray($('status', stanza).map(function() {
-        return parseInt(this.getAttribute('code'));
+      return parseInt(this.getAttribute('code'));
     }));
 
     if (type == 'unavailable')
@@ -752,22 +756,29 @@ var xmpp = {
    * Handle presence stanzas of type `unavailable`.
    */
   eventPresenceUnavailable: function(room, nick, codes, item, stanza) {
-    if (room == this.room.current && this.roster[room][nick]) {
+    const roster = this.roster[room];
+    const user = roster[nick];
+
+    if (room == this.room.current && user) {
+      room = this.room.available[room];
+
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
         const newNick = item.attr('nick');
         ui.messageAddInfo(strings.info.userNick, {
-          from: this.roster[room][nick],
+          from: user,
           to: {
             nick: newNick,
-            jid: this.roster[room][nick].jid,
-            role: this.roster[room][nick].role,
-            affiliation: this.roster[room][nick].affiliation
+            jid: user.jid,
+            role: user.role,
+            affiliation: user.affiliation
           }
         });
         // Move the roster entry to the new nick, so the new presence
         // won't trigger a notification.
-        this.roster[room][newNick] = this.roster[room][nick];
+        // (The nickname will be set by the new presence.)
+        roster[newNick] = user;
+
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
         ui.playSound('info');
@@ -777,22 +788,15 @@ var xmpp = {
       else if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
         const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
         const actor = $('actor', item).attr('nick');
-        actor = actor && this.roster[room][actor];
+        actor = actor && roster[actor];
         const reason = $('reason', item).text();
         const index = (+!!actor) * 2 + (+!!reason);
 
         // ejabberd bug: presence does not use 110 code; check nick.
-        if (nick == xmpp.nick.current) {
-          ui.messageAddInfo(strings.info.evicted[type].me[index], {
-            actor, reason,
-            room: this.room.available[room]
-          }, 'error');
-        }
-        else ui.messageAddInfo(strings.info.evicted[type].other[index], {
-          actor, reason,
-          room: this.room.available[room],
-          user: this.roster[room][nick]
-        });
+        if (nick == xmpp.nick.current)
+          ui.messageAddInfo(strings.info.evicted[type].me[index], {actor, reason, room}, 'error');
+        else
+          ui.messageAddInfo(strings.info.evicted[type].other[index], {actor, reason, room, user});
         ui.playSound('leave');
       }
 
@@ -803,23 +807,22 @@ var xmpp = {
         const jid = this.JID.parse(destroy.attr('jid'));
 
         let alternate = jid.domain == config.xmpp.mucService;
-        alternate = alternate && (xmpp.room.available[jid.node] || {id: jid.node});
+        alternate = alternate && (this.room.available[jid.node] || {id: jid.node});
 
-        ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {
-          room: xmpp.room.available[room], alternate, reason
-        }, 'error');
+        ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {room, alternate, reason}, 'error');
       }
       // Any other `unavailable` presence indicates a logout.
       else {
-        ui.messageAddInfo(strings.info.userOut, {user: this.roster[room][nick]});
+        ui.messageAddInfo(strings.info.userOut, {user});
         ui.playSound('leave');
       }
 
+      // If this is our nickname, we're out of the room.
       if (nick == xmpp.nick.current) xmpp.prejoin();
 
       // In either case, the old nick must be removed and destroyed.
-      ui.userRemove(this.roster[room][nick]);
-      delete this.roster[room][nick];
+      ui.userRemove(user);
+      delete roster[nick];
     }
   },
 
@@ -827,11 +830,12 @@ var xmpp = {
    * Handle presence stanzas without a type.
    */
   eventPresenceDefault: function(room, nick, codes, item, stanza) {
+    const roster = this.roster[room];
 
     // Create the user object.
     const user = {
       nick,
-      jid: this.JID.parse(item.attr('jid')) || null, // if not anonymous.
+      jid: this.JID.parse(item.attr('jid')), // if not anonymous.
       role: item.attr('role'),
       affiliation: item.attr('affiliation'),
       // away, dnd, xa, chat, [default].
@@ -841,7 +845,7 @@ var xmpp = {
 
     // A 110-code presence reflects a presence that we sent.
     if (codes.indexOf(110) >= 0) {
-      this.roster[room][nick] = user;
+      roster[nick] = user;
       this.nick.current = nick;
     }
 
@@ -852,25 +856,23 @@ var xmpp = {
       // This only happens when the old nick remains logged in - copy the item.
       if (this.nick.current != this.nick.target && nick == this.nick.target) {
         ui.messageAddInfo(strings.info.userNick, {
-          from: this.roster[room][this.nick.current],
+          from: roster[this.nick.current],
           to: user
         });
         // Fill in the roster so we don't get a login message.
-        this.roster[room][nick] = user;
+        roster[nick] = user;
         this.nick.current = nick;
       }
 
-      const oldUser = this.roster[room][nick];
+      const oldUser = roster[nick];
       if (!oldUser) {
         ui.messageAddInfo(strings.info.userIn, {user});
 
         // Play the alert sound if a watched user enters.
-        var watched = false;
-        if (this.nick.current != nick) {
-          for (var i in config.settings.notifications.triggers) {
-            watched = watched || (0 <= nick.indexOf(config.settings.notifications.triggers[i]));
-          }
-        }
+        let watched = this.nick.current != nick;
+        watched = watched && config.settings.notifications.triggers.some((e) => {
+          return nick.indexOf(e) >= 0;
+        });
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
       else if (oldUser.show != user.show || oldUser.status != user.status) {
@@ -888,8 +890,8 @@ var xmpp = {
       }
     }
 
-    this.roster[room][nick] = user;
     ui.userAdd(user);
+    roster[nick] = user;
   },
 
   /**
@@ -1126,17 +1128,17 @@ var xmpp = {
     }
   },
 
-  ping: function(jid, timeout) {
+  ping: function(jid) {
     return new Promise((resolve, reject) => {
-      this.connection.ping.ping(jid, resolve, reject, timeout);
+      this.connection.ping.ping(jid, resolve, reject, config.xmpp.timeout);
     });
   },
 
-  getTime: function(jid, timeout) {
-    return this.connection.time.getTime(jid, timeout);
+  getTime: function(jid) {
+    return this.connection.time.getTime(jid, config.xmpp.timeout);
   },
 
-  getVersion: function(jid, timeout) {
-    return this.connection.version.getVersion(jid, timeout);
+  getVersion: function(jid) {
+    return this.connection.version.getVersion(jid, config.xmpp.timeout);
   }
 };
