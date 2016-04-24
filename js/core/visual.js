@@ -379,9 +379,9 @@ visual = {
     $('span.user', jq).click(function() {
       // Disabled when the context menu overrides it.
       if (config.settings.contextmenu == 'left') return;
-      var nick = $(this).attr('data-nick');
-      var jid = $(this).attr('data-jid');
-      chat.prefixMsg(nick || jid, !nick);
+      const nick = $(this).attr('data-nick');
+      const jid = $(this).attr('data-jid');
+      chat.prefixMsg({nick, jid});
     });
   },
 
