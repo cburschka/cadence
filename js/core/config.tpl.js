@@ -151,6 +151,7 @@ var config = {
     url: '@@@XMPP_URL@@@',
     mucService: '@@@XMPP_MUC@@@',
     sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
+    timeout: 5000,
   },
 
   ui: {
