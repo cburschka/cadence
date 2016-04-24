@@ -456,7 +456,7 @@ var ui = {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !c('invite') || !jid || (nick && roster[nick] && jid.bare() == roster[nick].jid.bare()),
+        disabled: !c('invite') || !jid || (nick && roster[nick] && jid.matchBare(roster[nick].jid),
         callback: () => { chat.commands.invite({jid}); }
       },
       kick: {
@@ -470,7 +470,7 @@ var ui = {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jid.bare() == xmpp.currentJid.bare(),
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
         callback: () => { chat.commands.ban({jid}); }
       },
       sep2: '',
@@ -1101,7 +1101,7 @@ var ui = {
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
 
-    if (!message.user.jid.equals(xmpp.currentJid)) {
+    if (!message.user.jid.equals(xmpp.jid)) {
       const sender = message.user.nick || message.user.jid.bare();
       this.blinkTitle(sender);
     }
