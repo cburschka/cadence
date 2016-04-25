@@ -54,7 +54,7 @@ var xmpp = {
     this.connection.attention.addAttentionHandler((stanza) => {
       const from = this.JID.parse(stanza.getAttribute('from'));
       const user = this.userFromJid({from});
-      ui.messageAddInfo(strings.info.attention, {user}, 'error');
+      ui.messageError(strings.info.attention, {user});
       return true;
     });
     this.connection.ping.addPingHandler((ping) => {
@@ -742,13 +742,13 @@ var xmpp = {
   eventPresenceError: function(room, nick, stanza) {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
-        ui.messageAddInfo(strings.error.nickConflict, {nick}, 'error');
+        ui.messageError(strings.error.nickConflict, {nick});
         return this.nick.target = this.nick.current;
       }
       else {
-        ui.messageAddInfo(strings.error.joinConflict, {nick}, 'error');
+        ui.messageError(strings.error.joinConflict, {nick});
         if (this.nickConflictResolve()) {
-          ui.messageAddInfo(strings.info.rejoinNick, {nick: this.nick.target});
+          ui.messageInfo(strings.info.rejoinNick, {nick: this.nick.target});
           return this.joinRoom(this.room.target, this.nick.target);
         }
       }
@@ -756,14 +756,14 @@ var xmpp = {
     else if ($('not-authorized', stanza).length) {
       const password = prompt(strings.info.joinPassword);
       if (password) return this.joinExistingRoom(room, password);
-      else ui.messageAddInfo(strings.error.joinPassword, {room: this.room.available[room]}, 'error');
+      else ui.messageError(strings.error.joinPassword, {room: this.room.available[room]});
     }
     else if ($('forbidden', stanza).length)
-      ui.messageAddInfo(strings.error.joinBanned, {room: this.room.available[room]}, 'error');
+      ui.messageError(strings.error.joinBanned, {room: this.room.available[room]});
     else if ($('not-allowed', stanza).length)
-      ui.messageAddInfo(strings.error.noCreate, 'error');
+      ui.messageError(strings.error.noCreate);
     else if ($('jid-malformed', stanza).length) {
-      ui.messageAddInfo(strings.error.badNick, {nick}, 'error');
+      ui.messageError(strings.error.badNick, {nick});
       this.nick.target = this.nick.current;
     }
   },
@@ -781,7 +781,7 @@ var xmpp = {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
         const newNick = item.attr('nick');
-        ui.messageAddInfo(strings.info.userNick, {
+        ui.messageInfo(strings.info.userNick, {
           from: user,
           to: {
             nick: newNick,
@@ -810,9 +810,9 @@ var xmpp = {
 
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current)
-          ui.messageAddInfo(strings.info.evicted[type].me[index], {actor, reason, room}, 'error');
+          ui.messageError(strings.info.evicted[type].me[index], {actor, reason, room});
         else
-          ui.messageAddInfo(strings.info.evicted[type].other[index], {actor, reason, room, user});
+          ui.messageInfo(strings.info.evicted[type].other[index], {actor, reason, room, user});
         ui.playSound('leave');
       }
 
@@ -825,11 +825,11 @@ var xmpp = {
         let alternate = jid.domain == config.xmpp.mucService;
         alternate = alternate && (this.room.available[jid.node] || {id: jid.node});
 
-        ui.messageAddInfo(strings.info.destroyed[+!!alternate][+!!reason], {room, alternate, reason}, 'error');
+        ui.messageError(strings.info.destroyed[+!!alternate][+!!reason], {room, alternate, reason});
       }
       // Any other `unavailable` presence indicates a logout.
       else {
-        ui.messageAddInfo(strings.info.userOut, {user});
+        ui.messageInfo(strings.info.userOut, {user});
         ui.playSound('leave');
       }
 
@@ -871,7 +871,7 @@ var xmpp = {
       // Detect nick change when neither 110 nor 303 code are sent.
       // This only happens when the old nick remains logged in - copy the item.
       if (this.nick.current != this.nick.target && nick == this.nick.target) {
-        ui.messageAddInfo(strings.info.userNick, {
+        ui.messageInfo(strings.info.userNick, {
           from: roster[this.nick.current],
           to: user
         });
@@ -882,7 +882,7 @@ var xmpp = {
 
       const oldUser = roster[nick];
       if (!oldUser) {
-        ui.messageAddInfo(strings.info.userIn, {user});
+        ui.messageInfo(strings.info.userIn, {user});
 
         // Play the alert sound if a watched user enters.
         let watched = this.nick.current != nick;
@@ -893,15 +893,15 @@ var xmpp = {
       }
       else if (oldUser.show != user.show || oldUser.status != user.status) {
         const msg = strings.show[user.show] || strings.showOther;
-        ui.messageAddInfo(msg[+!!status], {user, show: user.show, status: user.status});
+        ui.messageInfo(msg[+!!status], {user, show: user.show, status: user.status});
         ui.playSound('info');
       }
       else if (oldUser.affiliation != user.affiliation) {
-        ui.messageAddInfo(strings.info.userAffiliation, {user, affiliation: user.affiliation});
+        ui.messageInfo(strings.info.userAffiliation, {user, affiliation: user.affiliation});
         ui.playSound('info');
       }
       else if (oldUser.role != user.role) {
-        ui.messageAddInfo(strings.info.userRole, {user, role: user.role});
+        ui.messageInfo(strings.info.userRole, {user, role: user.role});
         ui.playSound('info');
       }
     }
@@ -932,7 +932,7 @@ var xmpp = {
 
       // Message of the Day.
       if (!from.node && !from.resource)
-        return ui.messageAddInfo(strings.info.motd, {domain: from.domain, text: body}, 'error');
+        return ui.messageError(strings.info.motd, {domain: from.domain, text: body});
 
       if (muc) {
         const codes = $.makeArray($('x status', stanza).map(function() {
@@ -944,7 +944,7 @@ var xmpp = {
           this.getRoomInfo(from.node).then((room) => {
             this.room.available[from.node] = room;
             ui.refreshRooms(this.room.available);
-            ui.messageAddInfo(strings.code[104], {room});
+            ui.messageInfo(strings.code[104], {room});
           });
         }
 
@@ -958,7 +958,7 @@ var xmpp = {
           });
           const reason = $('reason', invite).text();
           const password = $('x password', stanza).text();
-          return ui.messageAddInfo(strings.info.inviteReceived[+!!password][+!!reason], {
+          return ui.messageInfo(strings.info.inviteReceived[+!!password][+!!reason], {
             jid: this.JID.parse(invite.attr('from')),
             room, password, reason
           });
@@ -1014,13 +1014,13 @@ var xmpp = {
     const error = $('error', stanza);
     const {node, domain, resource} = from;
     if ($('remote-server-not-found', error).length)
-      return ui.messageAddInfo(strings.error.dmsg.domain, {domain}, 'error');
+      return ui.messageError(strings.error.dmsg.domain, {domain});
     if ($('service-unavailable', error).length)
-      return ui.messageAddInfo(strings.error.dmsg.node, {domain, node}, 'error');
+      return ui.messageError(strings.error.dmsg.node, {domain, node});
     if ($('item-not-found', error).length)
-      return ui.messageAddInfo(strings.error.unknownUser, {nick: resource}, 'error');
+      return ui.messageError(strings.error.unknownUser, {nick: resource});
     if ($('forbidden', error).length)
-      return ui.messageAddInfo(strings.error.messageDenied, {text: $('text', error).text()}, 'error');
+      return ui.messageError(strings.error.messageDenied, {text: $('text', error).text()});
   },
 
   /**
@@ -1059,7 +1059,7 @@ var xmpp = {
     status = this.readConnectionStatus(status)
     if (errorCondition) msg += ' (' + errorCondition + ')';
     if (status != this.status)
-      ui.messageAddInfo(msg, status == 'offline' ? 'error' : 'verbose');
+      ui.messageInfo(msg, {}, {error: status == 'offline'});
     this.status = status;
     ui.setStatus(this.status);
 
@@ -1071,7 +1071,7 @@ var xmpp = {
         this.discoverRooms().then((rooms) => {
           if (rooms[room]) chat.commands.join({name: room});
           else {
-            ui.messageAddInfo(strings.error.unknownRoomAuto, {name: room});
+            ui.messageError(strings.error.unknownRoomAuto, {name: room});
             xmpp.prejoin();
           }
         });

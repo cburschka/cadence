@@ -320,7 +320,6 @@ var strings = {
         colors: 'Show persistent colors',
         emoticons: 'Show emoticons as images'
       },
-      verbose: 'Display verbose messages',
       notifications: {
         desktop: {
           label: 'Desktop notifications',
