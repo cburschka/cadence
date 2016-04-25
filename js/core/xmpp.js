@@ -29,6 +29,7 @@ var xmpp = {
     for (let key in Strophe.Status) {
       this.statusConstants[Strophe.Status[key]] = key;
     }
+    this.resource = this.createResourceName();
   },
 
   /**
@@ -37,13 +38,12 @@ var xmpp = {
   newConnection: function(user, pass) {
     this.disconnect();
 
-    this.session = {};
     this.user = user;
     this.nick.target = user;
     this.jid = new this.JID({
       node: user,
       domain: config.xmpp.domain,
-      resource: this.createResourceName()
+      resource: this.resource
     });
 
     this.connection = new Strophe.Connection(config.xmpp.url);
