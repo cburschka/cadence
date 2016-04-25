@@ -50,9 +50,11 @@ var ui = {
    * Load the sound files.
    */
   loadSounds: function() {
-    for (var i in config.sounds) {
-      var sound = config.sounds[i];
-      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {formats: ['ogg', 'mp3'], preload: true});
+    for (let sound of config.sounds) {
+      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {
+        formats: ['ogg', 'mp3'],
+        preload: true
+      });
     }
   },
 
@@ -63,16 +65,16 @@ var ui = {
     this.setStyle(config.settings.activeStyle);
 
     // Build help sidebar.
-    var helpSidebar = $('#helpList');
-    var categories = strings.help.sidebar;
-    for (var category in categories) {
-      var table = $('<table>');
-      table.append($('<caption>').append($('<h4>').text(categories[category].title)));
-      var commands = categories[category].commands;
-      for (var command in commands) {
-        var row = $('<tr class="row">').append(
-          $('<td class="desc">').text(commands[command][0]),
-          $('<td class="code">').text(commands[command][1])
+    const helpSidebar = $('#helpList');
+    const categories = strings.help.sidebar;
+    for (let key in categories) {
+      const table = $('<table>');
+      table.append($('<caption>').append($('<h4>').text(categories[key].title)));
+      const commands = categories[key].commands;
+      for (let key in commands) {
+        const row = $('<tr class="row">').append(
+          $('<td class="desc">').text(commands[key][0]),
+          $('<td class="code">').text(commands[key][1])
         );
         table.append(row);
       }
@@ -80,15 +82,17 @@ var ui = {
     }
 
     // Build the navigation menu.
-    for (link in config.ui.navigation)
+    const navigation = config.ui.navigation;
+    for (let key in navigation)
       $('#navigation ul').append($('<li>').append(
-        $('<a>').attr('href', config.ui.navigation[link]).text(link)
+        $('<a>').attr('href', navigation[key]).text(key)
       ));
-    if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
+    if (navigation) $('#navigation').css('display', 'inline-block');
 
     // Build and fill the emoticon containers.
-    var bars = config.ui.emoticonSidebars
-    for (var set in bars) {
+    const bars = config.ui.emoticonSidebars
+    const emoticons = config.markup.emoticons;
+    for (let set in bars) {
       this.dom.menu['emoticon-' + set] = $('<div class="menuContainer emoticon-sidebar box"></div>')
         .attr('id', 'emoticon-' + set)
         .append($('<h3></h3>').text(bars[set].title))
@@ -101,17 +105,18 @@ var ui = {
         .attr('id', 'emoticon-' + set + 'Button')
         .attr('title', bars[set].title)
         .text(bars[set].title)
-        .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
+        .css('background-image', 'url(' + encodeURI(emoticons[set].baseURL + bars[set].icon) + ')')
         .appendTo(this.dom.emoticonTrayContainer);
     }
-    for (var set in config.markup.emoticons) {
-      var list = $('#emoticonsList-' + set);
-      for (var code in config.markup.emoticons[set].codes) {
+
+    for (let set in emoticons) {
+      const list = $('#emoticonsList-' + set);
+      for (let code in emoticons[set].codes) {
         list.append($('<a class="insert-text"></a>')
           .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
           .attr('title', code)
           .append($('<img />')
-            .attr('src', config.markup.emoticons[set].baseURL + config.markup.emoticons[set].codes[code])
+            .attr('src', emoticons[set].baseURL + emoticons[set].codes[code])
             .attr('alt', code)
           )
         );
@@ -119,21 +124,21 @@ var ui = {
     }
 
     // Build the color palette picker.
-    var palette = $('#colorCodesContainer');
-    for (var color in config.markup.colorCodes) {
-      var code = config.markup.colorCodes[color]
+    const palette = $('#colorCodesContainer');
+    const colorCodes = config.markup.colorCodes;
+    for (let code of colorCodes) {
       palette.append($('<a class="colorCode"></a>')
         .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
         .attr('title', code)
         .css('background-color', code)
       );
     }
-    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced"></button>');
+    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced">');
 
-    var sounds = [$('<option value="" class="string" data-string="label.page.none">')];
-    for (var sound in this.sounds) sounds.push(new Option(sound, sound));
+    const sounds = [$('<option value="" class="string" data-string="label.page.none">')];
+    for (let sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').append(sounds).after(function() {
-      var event = this.id.substring('settings-notifications.sounds.'.length);
+      const event = this.id.substring('settings-notifications.sounds.'.length);
       return $('<button class="icon soundTest">').click(() => { ui.playSound(event); });
     });
 
@@ -187,9 +192,9 @@ var ui = {
     visual.linkOnClick(document);
 
     // Inserting BBCode tags.
-    var insertBBCode = (tag, arg) => {
+    const insertBBCode = (tag, arg) => {
       arg = arg ? '=' + arg : '';
-      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
+      const v = ['[' + tag + arg + ']', '[/' + tag + ']'];
       chat.insertText(v);
       return true;
     };
@@ -252,7 +257,7 @@ var ui = {
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg')) {
-        var arg = prompt('This BBCode tag requires an argument:', '');
+        const arg = prompt('This BBCode tag requires an argument:', '');
         if (!arg) return;
       }
       insertBBCode(this.value.toLowerCase(), arg || '');
@@ -311,11 +316,11 @@ var ui = {
 
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
-      var value = this.type == 'checkbox' ? this.checked : this.value;
+      const value = this.type == 'checkbox' ? this.checked : this.value;
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
     $('#settings-notifications\\.triggers').change(function() {
-      var value = this.value.trim();
+      let value = this.value.trim();
       value = value ? value.split(/[\s,;]+/) : [];
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
@@ -333,9 +338,9 @@ var ui = {
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
-    var toggler = (selector) => {
+    const toggler = (selector) => {
       // Find the message at the top of the viewport...
-      var i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
+      const i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
       $(selector).toggle();
       this.updateHeights();
       if (i) {
@@ -370,7 +375,7 @@ var ui = {
 
     // Instantly apply date format.
     $('#settings-dateFormat').change(function() {
-      var format = $(this).val();
+      const format = $(this).val();
       $('.time').text(function() {
         const t = $(this).attr('data-time');
         return moment(t).utcOffset(t).format(format);
@@ -381,7 +386,7 @@ var ui = {
     $('#logoutButton').click(() => { chat.commands.quit(); });
 
     $('#audioButton').click(function() {
-      var audio = !config.settings.notifications.soundEnabled;
+      const audio = !config.settings.notifications.soundEnabled;
       chat.setSetting('notifications.soundEnabled', audio);
       $(this).toggleClass('off', !audio);
     });
@@ -392,7 +397,7 @@ var ui = {
       return true;
     });
 
-    var usermenu = {
+    const usermenu = {
       selector: '.user:not(.user-role-bot)',
       className: 'box dialog',
       trigger: config.settings.contextmenu,
@@ -401,7 +406,7 @@ var ui = {
     };
     $.contextMenu(usermenu);
 
-    var roommenu = {
+    const roommenu = {
       selector: '.xmpp-room',
       className: 'box dialog',
       trigger: config.settings.contextmenu,
@@ -495,13 +500,13 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    var c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
-    var labels = strings.label.command;
-    var room = element.attr('data-room');
-    var currentRoom = xmpp.room.current == room;
-    var self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
-    var owner = currentRoom && self.affiliation == 'owner';
-    var items = {
+    const c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
+    const labels = strings.label.command;
+    const room = element.attr('data-room');
+    const currentRoom = xmpp.room.current == room;
+    const self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
+    const owner = currentRoom && self.affiliation == 'owner';
+    const items = {
       join: {
         name: labels.join,
         icon: 'join',
@@ -584,19 +589,19 @@ var ui = {
    * Close the active sidebar and (if needed) open a different one.
    */
   toggleMenu: function(newMenu, init) {
-    var speed = init ? 0 : 'slow';
-    var oldMenu = init ? null : config.settings.activeMenu;
+    const speed = init ? 0 : 'slow';
+    const oldMenu = init ? null : config.settings.activeMenu;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
 
-    var width = 20;
+    let width = 20;
     if (oldMenu != newMenu) {
-      var px = this.dom.menu[newMenu].css('width');
+      const px = this.dom.menu[newMenu].css('width');
       width += parseInt(px.substring(0,px.length-2)) + 8;
     }
 
     this.dom.chatList.animate({right : width + 'px'}, speed, () => {
-      var maxWidth = this.dom.chatList.width() - 30;
-      var maxHeight = this.dom.chatList.height() - 20;
+      const maxWidth = this.dom.chatList.width() - 30;
+      const maxHeight = this.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
@@ -790,7 +795,7 @@ var ui = {
       classes = variables;
       variables = false;
     }
-    var error = false;
+    let error = false;
 
     // Suppress verbose messages.
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
@@ -801,8 +806,8 @@ var ui = {
       error = true;
     }
 
-    var body = visual.formatText(text, variables);
-    var message = {
+    const body = visual.formatText(text, variables);
+    let message = {
       body: body, type: 'local',
       user: config.ui.chatBotName && {
         nick: config.ui.chatBotName,
@@ -823,7 +828,7 @@ var ui = {
    * @param {Object} message. Must have user, time, room and body keys.
    */
   messageDelayed: function(message) {
-    var entry = visual.formatMessage(message);
+    const entry = visual.formatMessage(message);
     entry.html.addClass('delayed')
       .find('.dateTime').after(' ', $('<span class="log-room"></span>')
         .addClass(message.room && ('log-room-' + message.room.id))
@@ -838,18 +843,23 @@ var ui = {
    * This is only used for delayed messages.
    */
   messageInsert: function(message) {
-    var c = this.messages.length;
-    if (c == 0 || message.timestamp > this.messages[c-1].timestamp) {
+    const total = this.messages.length;
+    const time = message.timestamp;
+
+    // If there are no newer messages, just append it.
+    if (!total || time > this.messages[total-1].timestamp)
       return this.messageAppend(message);
-    }
-    for (var i = 0; i < c; i++) {
-      if (message.timestamp < this.messages[i].timestamp) {
-        message.offset = this.messages[i].offset;
-        this.messages[i].html.before(message.html);
-        this.messages.splice(i, 0, message);
+
+    // Otherwise, find the first message that is newer.
+    let i;
+    for (i = 0; i < total; i++)
+      if (time < this.messages[i].timestamp)
         break;
-      }
-    }
+
+    // Insert it before that message.
+    message.offset = this.messages[i].offset;
+    this.messages[i].html.before(message.html);
+    this.messages.splice(i, 0, message);
 
     $(message.html).css({display:'block'});
     this.updateHeights(i);
@@ -863,6 +873,8 @@ var ui = {
     message.offset = this.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
+
+    // After fade-in, scroll down again for inline images.
     $(message.html).fadeIn(() => { this.scrollDown(); });
     this.scrollDown();
   },
@@ -871,10 +883,10 @@ var ui = {
    * Refresh the room selection menu.
    */
   refreshRooms: function(rooms) {
-    var room = this.dom.roomSelection.val();
+    const room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
-    var options = [new Option('---', '')];
-    for (var id in rooms) {
+    const options = [new Option('---', '')];
+    for (let id in rooms) {
       options.push(new Option(rooms[id].title, id));
     }
     this.dom.roomSelection.html(options).val(room);
@@ -884,7 +896,7 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row">').append(
+    const userLink = $('<div class="row">').append(
       $('<span class="user-roster">').append(visual.format.user(user))
     );
 
@@ -896,7 +908,8 @@ var ui = {
     }
 
     if (!this.userLinks[user.nick]) {
-      for (var i = 0; i < this.sortedNicks.length; i++)
+      let i;
+      for (i = 0; i < this.sortedNicks.length; i++)
         if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
           break;
       if (i < this.sortedNicks.length)
@@ -917,7 +930,7 @@ var ui = {
   userRemove: function(user) {
     if (this.userLinks[user.nick]) {
       this.userLinks[user.nick].slideUp(1000).remove();
-      for (var i = 0; i < this.sortedNicks.length; i++) {
+      for (let i = 0; i < this.sortedNicks.length; i++) {
         if (this.sortedNicks[i] == user.nick) {
           this.sortedNicks.splice(i, 1);
           break;
@@ -954,19 +967,21 @@ var ui = {
     this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
     $(document).attr('title', this.title);
 
-    var self = this;
     this.dom.roomSelection.val(room);
+
     // If no roster is given, only update the menu.
     if (!roster) return;
-    this.dom.onlineList.slideUp(function() {
-      $(this).html('');
-      self.userLinks = {};
-      self.userStatus = {};
-      self.sortedNicks = [];
-      for (var nick in roster) {
-        self.userAdd(roster[nick], false);
-      }
-      $(this).slideDown();
+
+    const list = this.dom.onlineList;
+    list.slideUp(() => {
+      list.html('');
+      this.userLinks = {};
+      this.userStatus = {};
+      this.sortedNicks = [];
+      for (let nick in roster)
+        ui.userAdd(roster[nick], false);
+
+      list.slideDown();
     });
   },
 
@@ -976,8 +991,8 @@ var ui = {
    * @start (optional) the first offset to recalculate.
    */
   updateHeights: function(start) {
-    var offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
-    for (var i = start || 1; i < ui.messages.length; i++) {
+    let offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
+    for (let i = start || 1; i < ui.messages.length; i++) {
       offset += ui.messages[i].html.height();
       ui.messages[i].offset = offset;
     }
@@ -989,11 +1004,11 @@ var ui = {
    * @return the index of the first message starting after the offset.
    */
   getMessageAt: function(offset) {
-    var a = 0;
-    var b = ui.messages.length - 1;
+    let a = 0;
+    let b = ui.messages.length - 1;
     if (b < 0) return null;
     while (a + 1 < b) {
-      var c = (a + b) / 2 | 0;
+      const c = (a + b) / 2 | 0;
       if (ui.messages[c].offset < offset) a = c;
       else b = c;
     }
@@ -1008,13 +1023,13 @@ var ui = {
    * @return true if the event should be terminated.
    */
   onKeyMap: function(callbacks) {
-    return function(e) {
-      var c = e.which || e.keyCode;
-      if (callbacks[c] && callbacks[c](e, this)) {
+    return function(event) {
+      const char = event.which || event.keyCode;
+      if (callbacks[char] && callbacks[char](event, this)) {
         try {
-          e.preventDefault();
+          event.preventDefault();
         } catch(ex) {
-          e.returnValue = false;
+          event.returnValue = false;
         }
         return false;
       }
@@ -1027,9 +1042,9 @@ var ui = {
    * When a maximum length is set, count down to it.
    */
   updateMessageLengthCounter: function() {
-    var length = this.dom.inputField.val().length;
+    const length = this.dom.inputField.val().length;
     if (config.ui.maxMessageLength) {
-      var content = (config.ui.maxMessageLength - length);
+      const content = (config.ui.maxMessageLength - length);
       this.dom.messageLengthCounter.css('color', content < 0 ? 'red' : '');
       this.dom.messageLengthCounter.text(content);
     }
@@ -1056,8 +1071,14 @@ var ui = {
    */
   checkAutoScroll: function() {
     if (this.autoScrolled) return;
-    var chatListHeight = parseInt($(this.dom.chatList).css('height'));
-    var autoScroll = this.dom.chatList.scrollTop() + 1.3*chatListHeight >= this.dom.chatList.prop('scrollHeight');
+
+    const chatList = this.dom.chatList;
+    const viewHeight = parseInt(chatList.css('height'));
+    const totalHeight = chatList.prop('scrollHeight');
+    const bottom = chatList.scrollTop() + viewHeight;
+
+    const autoScroll = totalHeight - bottom <= viewHeight/3;
+
     if (this.autoScroll != autoScroll) {
       this.autoScroll = autoScroll;
       this.dom.autoScrollIcon.attr('class', autoScroll ? 'on' : 'off');
@@ -1066,12 +1087,14 @@ var ui = {
 
   /**
    * Trigger a particular sound event.
+   *
+   * @return {boolean} True if a sound was played.
    */
   playSound: function(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
     if (xmpp.userStatus == 'dnd') return;
-    var sound = config.settings.notifications.sounds[event];
+    const sound = config.settings.notifications.sounds[event];
     return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
   },
 
@@ -1143,11 +1166,14 @@ var ui = {
   blinkTitle: function(string) {
     window.clearInterval(this.blinker);
     string = string ? string + ' - ' : '';
-    var speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
-    var delay = Math.ceil(1000 / speed);
-    var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
+
+    const speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
+    const delay = Math.ceil(1000 / speed);
+
+    let number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
     if (!number) return;
-    var state = false;
+    let state = false;
+
     this.blinker = window.setInterval(() => {
       if (!number) {
         $(document).attr('title', ui.title);
@@ -1164,19 +1190,17 @@ var ui = {
    */
   autocomplete: function() {
     // Search algorithm for the longest common prefix of all matching strings.
-    var prefixSearch = (prefix, words) => {
-      var results = [];
-      for (var i in words) {
-        if (words[i].substring(0, prefix.length) == prefix) {
-          results.push(words[i]);
-        }
-      }
+    const prefixSearch = (prefix, words) => {
+      let results = words.filter((word) => {
+        return word.substring(0, prefix.length) == prefix;
+      });
+
       if (results.length > 1) {
-        var result = results[0];
+        let result = results[0];
         // For each match, cut down to the longest common prefix.
-        for (var i in results) {
-          for (var j in results[i]) {
-            if (result[j] != results[i][j]) {
+        for (let candidate of results) {
+          for (let c in candidate) {
+            if (result[c] != candidate[c]) {
               result = result.substring(0, j);
               break;
             }
@@ -1185,27 +1209,27 @@ var ui = {
         }
         results = result ? [result] : [];
       }
-      if (results.length == 1) {
-        return results[0];
-      }
+      if (results.length == 1) return results[0];
       else return '';
     };
 
-    var inputField = this.dom.inputField;
+    const inputField = this.dom.inputField;
     inputField.focus();
-    var start = inputField[0].selectionStart;
-    var end = inputField[0].selectionEnd;
+    const start = inputField[0].selectionStart;
+    const end = inputField[0].selectionEnd;
     if (start != end) return false;
-    var old = inputField.val();
-    var prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
+    const old = inputField.val();
+    const prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
 
     // Look for commands or nicknames.
+    let result;
     if (prefix[0] == '/') {
-      var result = '/' + prefixSearch(prefix.substring(1), Object.keys(chat.commands).concat(Object.keys(config.settings.macros)));
+      const searchSpace = Object.keys(chat.commands).concat(Object.keys(config.settings.macros));
+      result = '/' + prefixSearch(prefix.substring(1), searchSpace);
     }
-    else {
-      var result = prefixSearch(prefix, Object.keys(this.userLinks));
-    }
+    else
+      result = prefixSearch(prefix, Object.keys(this.userLinks));
+
     if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
@@ -1215,11 +1239,9 @@ var ui = {
   },
 
   getString: function(key) {
-    var path = key.split('.');
-    var ref = strings;
-    for (var i = 0; i < path.length; i++) {
-      ref = ref[path[i]];
-    }
+    const path = key.split('.');
+    let ref = strings;
+    for (let token of path) ref = ref[token];
     return ref;
   }
 };
