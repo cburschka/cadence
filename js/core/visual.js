@@ -7,21 +7,24 @@ visual = {
    * Initialize the emoticon regular expression.
    */
   init: function() {
-    var i = 1;
-    this.emoticonSets = [];
-    var emoticonRegs = []
-    for (var set in config.markup.emoticons) {
-      var keys = []
-      for (var code in config.markup.emoticons[set].codes) {
+    const emoticons = config.markup.emoticons;
+
+    this.emoticonSets = Object.keys(emoticons).map((set) => {
+      return emoticons[set];
+    });
+
+    const groups = this.emoticonSets.map((set) => {
+      const codes = Object.keys(set.codes).map((code) => {
         // Escape all meta-characters for regular expressions: ^$*+?.|()[]{}.
-        keys.push(code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&'));
-      }
+        return code.replace(/[\^\$\*\+\?\.\|\/\(\)\[\]\{\}\\]/g, '\\$&')
+      });
+
       // The sub-expression for the set matches any single emoticon in it.
-      emoticonRegs.push('(' + keys.join('|') + ')'),
-      this.emoticonSets.push(config.markup.emoticons[set]);
-    }
+      return '(' + codes.join('|') + ')';
+    });
+
     // The complete expression matches any single emoticon from any set.
-    this.emoticonRegex = new RegExp(emoticonRegs.join('|'), 'g');
+    this.emoticonRegex = new RegExp(groups.join('|'), 'g');
   },
 
   /**
@@ -29,6 +32,7 @@ visual = {
    * The text node must be in a direct line of first descendants of the root.
    *
    * @param {jQuery} jq The jquery node to search through.
+   *
    * @return {Text} The text node, or false.
    */
   findMe: function(jq) {
@@ -55,10 +59,10 @@ visual = {
   formatMessage: function(message) {
     message.time = message.time ? new Date(message.time) : new Date();
 
-    var body = $('<span>').append(message.body);
-    if (message.type != 'local') body = this.formatBody(body);
+    const body = $('<span>').append(message.body);
+    if (message.type != 'local') this.formatBody(body);
 
-    var html =  $('<div class="row message"><span class="hide-message"></span>'
+    const html =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime"></span> '
                   + '<span class="authorMessageContainer">'
                   + '<span class="author"></span>'
@@ -66,7 +70,7 @@ visual = {
                   + '<span class="hidden"></span></span>'
                   + '</div>');
 
-    $('span.hide-message, span.hidden', html).click(function() {
+    $('span.hide-message, span.hidden', html).click(() => {
       $('span.body, span.hidden', html).toggle('slow', function() {
         // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
         if ($(this).css('display') == 'inline-block') {
@@ -78,7 +82,8 @@ visual = {
 
     $('span.dateTime', html).append(this.format.time(message.time));
     $('span.body', html).append(body);
-    var me = message.type != 'local' && this.findMe(body);
+
+    const me = message.type != 'local' && this.findMe(body);
 
     if (message.user) {
       $('span.author', html).append(this.format.user(message.user)).after(' ');
@@ -116,7 +121,7 @@ visual = {
      *                        and an optional "attributes" object.
      * @returns {jQuery} the rendered button.
      */
-    button: function(button) {
+    button: (button) => {
       return $('<button>').text(button.label).click(button.click)
               .attr(button.attributes || {});
     },
@@ -126,7 +131,7 @@ visual = {
      *
      * This is a shortcut to formatting a non-occupant user.
      */
-    jid: function(jid) {
+    jid: (jid) => {
       return visual.format.user({jid});
     },
 
@@ -136,10 +141,10 @@ visual = {
      * @param {iterable} An object or array with values that are either strings
      *                   or jQuery objects.
      */
-    list: function(list) {
-      var keys = Object.keys(list).sort();
-      var output = [list[keys[0]]];
-      for (var i = 1; i < keys.length; i++) output.push(', ', list[keys[i]]);
+    list: (list) => {
+      const keys = Object.keys(list).sort();
+      const output = [list[keys[0]]];
+      for (let i = 1; i < keys.length; i++) output.push(', ', list[keys[i]]);
       return output;
     },
 
@@ -192,8 +197,8 @@ visual = {
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
-    user: function(user) {
-      var pdn = visual.format.nick(user.nick || user.jid.bare());
+    user: (user) => {
+      let pdn = visual.format.nick(user.nick || user.jid.bare());
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != user.jid.node.toLowerCase()))
@@ -217,15 +222,14 @@ visual = {
   /**
    * Filter a message body for output, according to settings.
    *
-   * This function acts on the node in-place. Its return value will be identical
-   * to its argument.
+   * This function acts on the node in-place.
    */
   formatBody: function(jq) {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(function() {
-      var content = $(this).contents().detach();
-      var wrapper = this.outerHTML.match(/^(.*)(<\/[\w]+>)$/);
+      const content = $(this).contents().detach();
+      const wrapper = this.outerHTML.match(/^(.*)(<\/[\w]+>)$/);
       return [
         new Text(wrapper[1]),
         content,
@@ -243,7 +247,6 @@ visual = {
     this.addEmoticons(jq);
     // Make links open in new tabs.
     this.linkOnClick(jq);
-    return jq;
   },
 
 
@@ -259,9 +262,13 @@ visual = {
    * @return {string} The rendered text.
    */
   formatText: function(text, variables) {
-    if (typeof(text) === 'string') text = $('<span>').text(text);
+    text = text || '';
+
+    if (text.constructor !== jQuery)
+      text = $('<span>').text(String(text));
+
     text.find('*').addBack() // include all descendants and the top element.
-      .replaceText(/({(?:(\w+):)?(\w+)})/g, function(rep, format, key) {
+      .replaceText(/({(?:(\w+):)?(\w+)})/g, (rep, format, key) => {
         if (variables && key in variables) {
           if ((format || key) in visual.format) {
             return visual.format[format || key](variables[key]);
@@ -291,17 +298,19 @@ visual = {
    * Find emoticon codes in the node's text and replace them with images.
    */
   addEmoticons: function(jq) {
-    var codes = this.emoticonSets;
-    var regex = this.emoticonRegex;
+    const codes = this.emoticonSets;
+    const regex = this.emoticonRegex;
     if (!regex) return;
-    var image = function() {
-      for (var i in arguments) {
-        if (arguments[i]) {
+
+    const image = (...groups) => {
+      for (let i in groups) {
+        if (groups[i]) {
           return  [$('<img class="emoticon" />').attr({
-            src: codes[i].baseURL + codes[i].codes[arguments[i]],
-            title: arguments[i],
-            alt: arguments[i]
-          }), $('<span class="emote-alt"></span>').text(arguments[i])]
+            src: codes[i].baseURL + codes[i].codes
+            [groups[i]],
+            title: groups[i],
+            alt: groups[i]
+          }), $('<span class="emote-alt"></span>').text(groups[i])]
         }
       }
     };
@@ -311,55 +320,59 @@ visual = {
     if (!config.settings.markup.emoticons) {
       jq.find('img.emoticon').css('display', 'none').next().css('display', 'inline');
     }
-    return jq;
   },
 
   /**
    * Turn URLs into links.
    */
   addLinks: function(jq) {
+    const enabled = config.settings.markup.links;
+
+    const linkRegex = /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])(\)*)/g;
+    const link = (url, closeParens) => {
+      // Allow URLs to finish with a parenthesized part.
+      let open = 0;
+      for (let c of url) {
+        if (c == '(') open++;
+        else if (open && c == ')') open--;
+      }
+      url += closeParens.substring(0, open);
+      closeParens = closeParens.substring(open);
+
+      const link = enabled ?
+          $('<a class="url-link"></a>').attr('href', url)
+        : $('<span class="url-link"></span>');
+
+      return [link.text(url), closeParens];
+    }
+
     // First discard the whole thing if it's a link,
     // then add all elements that are not links,
     // then discard all of those that have a link as a parent.
-    jq.not('a').add(':not(a)', jq).filter(function() {
+    const contexts = jq.not('a').add(':not(a)', jq).filter(function() {
       return $(this).parents('a').length < 1;
-    }).replaceText(
-      /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])(\)*)/g,
-      function(url, paren) {
-        // Allow URLs to finish with a parenthesized part.
-        var open = 0;
-        for (var i in url) {
-          if (url[i] == '(') open++;
-          else if (open && url[i] == ')') open--;
-        }
-
-        url += paren.substring(0, open);
-        paren = paren.substring(open);
-        return [
-          config.settings.markup.links ?
-            $('<a class="url-link"></a>').attr('href', url).text(url) :
-            $('<span class="url-link"></span>').text(url),
-          paren
-        ];
-      }
-    );
+    });
+    contexts.replaceText(linkRegex, link);
   },
 
   /**
    * Remove images, or add auto-scaling listeners to them
    */
   processImages: function(jq) {
-    var maxWidth = ui.dom.chatList.width() - 30;
-    var maxHeight = ui.dom.chatList.height() - 20;
+    const maxWidth = ui.dom.chatList.width() - 30;
+    const maxHeight = ui.dom.chatList.height() - 20;
 
     jq.find('img').wrap(function() {
       return $('<a></a>').attr('href', this.src);
     }).after(function() {
-      return $('<span class="image-alt"></span>').text('[image:' + visual.ellipsis(this.src, 64) + ']');
+      return $('<span class="image-alt"></span>')
+        .text('[image:' + visual.ellipsis(this.src, 64) + ']');
     });
+
     jq.find('img').addClass('rescale').load(function() {
       visual.rescale($(this), maxWidth, maxHeight);
     });
+
     if (!config.settings.markup.images) {
       jq.find('img').css('display', 'none').next().css('display', 'inline');
     }
@@ -393,13 +406,12 @@ visual = {
    * @param {int} maxHeight The maximum height.
    */
   rescale: function(img, maxWidth, maxHeight) {
-    var width = img.prop('naturalWidth');
-    var height = img.prop('naturalHeight');
+    const width = img.prop('naturalWidth');
+    const height = img.prop('naturalHeight');
     // If rescaling doesn't work, just hide it.
-    if (width * height == 0) {
-      return img.remove();
-    }
-    var scale = Math.min(maxWidth/width, maxHeight/height);
+    if (width * height == 0) return img.remove();
+
+    const scale = Math.min(maxWidth/width, maxHeight/height);
     if (scale < 1) {
       img.width(width*scale);
       img.height(height*scale);
@@ -415,11 +427,16 @@ visual = {
    * @return {string} an rgba() value.
    */
   hex2rgba: function(hex, alpha) {
-    hex = hex.substring(1);
-    if (hex.length == 3) hex = [hex[0], hex[1], hex[2]];
-    else hex = [hex.substring(0,2), hex.substring(2,4), hex.substring(4,6)];
-    dec = [parseInt(hex[0], 16), parseInt(hex[1], 16), parseInt(hex[1], 16)];
-    return 'rgba(' + dec.join(',') + ',' + alpha + ')';
+    const six = hex.match(/#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i);
+    const three = hex.match(/#?([\da-f])([\da-f])([\da-f])/i);
+
+    // A three-digit hex-code is expanded, effectively multiplying by 17.
+    const digits = (six || three || []).slice(1).map((e) => {
+      const x = parseInt(e, 16);
+      return six ? x : x * 17;
+    });
+
+    return 'rgba(' + digits.join(',') + ',' + alpha + ')';
   },
 
   /**
@@ -444,7 +461,9 @@ visual = {
    * prefix, followed by an ellipsis, followed by its suffix.
    */
   ellipsis: function(str, len) {
-    return (len && str.length > len) ? str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2) : str;
+    if (len && str.length > len)
+      return str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2);
+    else return str;
   },
 
   /**
@@ -455,16 +474,14 @@ visual = {
    * @return {string} a string containing all messages.
    */
   messagesToText: function(messages) {
-    var x = [];
-    $(messages).each(function() {
-      var jQ = this.html.clone();
+    return $.makeArray($(messages).map(function() {
+      const jQ = this.html.clone();
       jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
       jQ.find('img.emoticon').remove(); // The alt text is already in a hidden <span>.
       jQ.find('img').replaceWith(function() { return '[img]' + this.src + '[/img]'; });
       jQ.find('q').replaceWith(function() { return '"' + $(this).html() + '"'; });
-      x.push(jQ.text());
-    });
-    return x.join("\n");
+      return jQ.text();
+    })).join("\n");
   },
 
   /**
@@ -475,13 +492,11 @@ visual = {
    * @return {string} an HTML string containing all messages.
    */
   messagesToHTML: function(messages) {
-    var x = [];
-    $(messages).each(function() {
-      var jQ = this.html.clone();
+    return $.makeArray($(messages).map(function() {
+      const jQ = this.html.clone();
       jQ.find('.emote-alt, .hide-message, .hidden').remove();
-      x.push(jQ);
-    });
-    return x;
+      return jQ;
+    }));
   },
 
   /**
@@ -508,15 +523,15 @@ visual = {
    * @return {string} The space-separated class names.
    */
   jidClass: function(jid) {
-    return 'jid-node-' + this.escapeClass(jid.node.toLowerCase()) + ' '
-         + 'jid-domain-' + this.escapeClass(jid.domain) + ' '
-         + 'jid-resource-' + this.escapeClass(jid.resource);
+    return ['node', 'domain', 'resource'].map((e) => {
+      return this.escapeClass('jid-' + e + '-' + jid[e]);
+    }).join(' ');
   },
 
   escapeClass: function(text) {
-    return text ? text.replace(/[\s\0\\]/g, function(x) {
+    return String(text || '').replace(/[\s\0\\]/g, (x) => {
       return '\\' + x.charCodeAt(0).toString(16);
-    }) : '';
+    });
   },
 
   /**
@@ -527,7 +542,7 @@ visual = {
    * Only use it when working on strings.
    */
   escapeHTML: function(text) {
-    var replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
-    return text && text.replace(/[<>&"]/g, function(x) { return replacers[x]; });
+    const replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
+    return String(text || '').replace(/[<>&"]/g, (x) => { return replacers[x]; });
   }
 };
