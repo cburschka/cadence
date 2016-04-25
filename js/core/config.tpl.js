@@ -8,8 +8,6 @@ var config = {
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
-    // Whether to display verbose log messages.
-    verbose: true,
 
     // Which trigger to use for the context menu (left, right, hover, none).
     contextmenu: 'right',

@@ -785,30 +785,13 @@ var ui = {
    *
    * @param {string} text The message to display (should be in strings.js)
    * @param {Object} variables (optional) The variables to insert into the text.
-   * @param {string} classes (optional) Any classes (space-separated) to add.
-   *                 The common ones are verbose (message will be suppressed if
-   *                 verbosity is off) or error (message will be colored red).
+   * @param {Object} options (optional)
    */
-  messageAddInfo: function(text, variables, classes) {
-    // If the second argument is a string, we skipped the variables.
-    if (!classes && typeof variables == 'string') {
-      classes = variables;
-      variables = false;
-    }
-    let error = false;
-
-    // Suppress verbose messages.
-    if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
-      if (!config.settings.verbose) return;
-    }
-    else if (0 <= (' ' + classes + ' ').indexOf(' error ')) {
-      this.playSound('error');
-      error = true;
-    }
-
+  messageInfo: function(text, variables, {error}={}) {
     const body = visual.formatText(text, variables);
     let message = {
-      body: body, type: 'local',
+      type: 'local',
+      body,
       user: config.ui.chatBotName && {
         nick: config.ui.chatBotName,
         role: 'bot',
@@ -816,10 +799,24 @@ var ui = {
       }
     };
     this.notifyDesktop(error ? 1 : 3, message);
+
     message = visual.formatMessage(message, true);
-    message.html.find('.body').addClass(classes).addClass('message-bot');
+    message.html.find('.body').addClass('message-bot');
+
+    if (error) {
+      this.playSound('error');
+      message.html.find('.body').addClass('error');
+    }
+
     this.messageAppend(message);
-    return message;
+  },
+
+  /**
+   * Create an error message.
+   * This is an alias for messageInfo(text, variables, {error: true})
+   */
+  messageError: function(text, variables) {
+    this.messageInfo(text, variables, {error: true});
   },
 
   /**
