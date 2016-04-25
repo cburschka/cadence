@@ -752,8 +752,10 @@ var chat = {
       }, (stanza) => {
         if ($('item-not-found', stanza).length)
           ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-        else
-          ui.messageAddInfo(strings.error.query[1], {user}, 'error');
+        else if ($('feature-not-implemented', stanza).length)
+          ui.messageAddInfo(strings.error.feature, 'error');
+        else if (!stanza)
+          ui.messageAddInfo(strings.error.timeout, 'error');
       });
     },
 
@@ -815,8 +817,10 @@ var chat = {
       }, (stanza) => {
         if ($('item-not-found', stanza).length != 0)
           ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-        else
-          ui.messageAddInfo(strings.error.query[+!!user], {user}, 'error');
+        else if ($('feature-not-implemented', stanza).length)
+          ui.messageAddInfo(strings.error.feature, 'error');
+        else if (!stanza)
+          ui.messageAddInfo(strings.error.timeout, 'error');
       });
     },
 

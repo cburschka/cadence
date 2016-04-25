@@ -195,6 +195,7 @@ var strings = {
       406: 'You can\'t kick {nick} because they\'re not in the room.',
     },
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
+    feature: 'The remote entity does not support this feature.',
     jidInvalid: '{arg} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
@@ -214,10 +215,6 @@ var strings = {
       'Ping timed out ({delay} ms).',
       'Ping to {user} timed out ({delay} ms).'
     ],
-    query: [
-      'Server did not respond.',
-      '{user} did not respond.'
-    ],
     roomConf: 'Failed to configure {room}.',
     roomConfDenied: 'You lack the authority to configure {room}.',
     roomConfOptions: 'The allowed values for {field} are: {options}',
@@ -225,6 +222,7 @@ var strings = {
     roomCreateName: 'Could not create a room without a name.',
     roomCreateCancel: 'Canceled room creation.',
     saveEmpty: 'There are no messages to save.',
+    timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
