@@ -163,6 +163,7 @@ var config = {
   },
 
   features: [
+    Strophe.NS.ATTENTION,
     Strophe.NS.CONFERENCE,
     Strophe.NS.DISCO_INFO,
     Strophe.NS.MUC,

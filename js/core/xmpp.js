@@ -51,6 +51,12 @@ var xmpp = {
     this.connection.addHandler((stanza) => { return this.eventMessageCallback(stanza) }, null, 'message');
     this.connection.addHandler((stanza) => { return this.eventIQCallback(stanza) }, null, 'iq');
 
+    this.connection.attention.addAttentionHandler((stanza) => {
+      const from = this.JID.parse(stanza.getAttribute('from'));
+      const user = this.userFromJid({from});
+      ui.messageAddInfo(strings.info.attention, {user}, 'error');
+      return true;
+    });
     this.connection.ping.addPingHandler((ping) => {
       this.connection.ping.pong(ping);
       return true;
@@ -1132,5 +1138,10 @@ var xmpp = {
 
   getVersion: function(jid) {
     return this.connection.version.getVersion(jid, config.xmpp.timeout);
+  },
+
+  attention: function(jid) {
+    const msg = this.connection.attention.attention(jid);
+    return this.connection.send(msg);
   }
 };

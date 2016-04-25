@@ -40,6 +40,7 @@ def generate_links(cdn_url, mode, css_alt, style):
             'js/lib/cookie.js',
             'js/lib/replacetext.js',
             'js/lib/strophe.js',
+            'js/lib/strophe.attention.js',
             'js/lib/strophe.disco.js',
             'js/lib/strophe.caps.js',
             'js/lib/strophe.ping.js',

@@ -63,6 +63,7 @@ var strings = {
     aliasDelete: 'Alias /{command} deleted.',
     aliasReplace: 'Alias /{command} replaced.',
     attention: '{user} has buzzed you!',
+    buzz: 'Buzzing {user} ...',
     creating: 'Creating {room} as {user} ...',
     destroyConfirm: 'Do you really want to destroy the room {room}?',
     destroyed: [
