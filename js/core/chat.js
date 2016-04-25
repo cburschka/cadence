@@ -251,6 +251,28 @@ var chat = {
     },
 
     /**
+     * buzz <nick|jid>
+     */
+    buzz: function(arg) {
+      arg = arg.trim();
+      if (!arg)
+        return ui.messageAddInfo(strings.error.noArgument, 'error');
+
+      let jid = xmpp.JID.parse(arg);
+      const direct = !!jid.node;
+
+      const roster = xmpp.roster[xmpp.room.current];
+      if (!direct && !(arg in roster))
+        return ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+
+      const user = direct ? {jid} : roster[arg];
+
+      ui.messageAddInfo(strings.info.buzz, {user});
+
+      xmpp.attention(direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
+    },
+
+    /**
      * clear:
      *   Clear the entire chat list screen.
      */
