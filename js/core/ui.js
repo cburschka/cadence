@@ -484,7 +484,7 @@ var ui = {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => { chat.commands.ping(nick || jid); }
+        callback: () => { chat.commands.ping(nick || String(jid)); }
       }
     }
 
