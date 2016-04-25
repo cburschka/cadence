@@ -24,9 +24,9 @@ var xmpp = {
   /**
    * Create the connection object.
    */
-  initialize: function() {
+  init: function() {
     // Generate a reverse lookup table for the connection status constants.
-    for (key in Strophe.Status) {
+    for (let key in Strophe.Status) {
       this.statusConstants[Strophe.Status[key]] = key;
     }
   },
@@ -36,6 +36,7 @@ var xmpp = {
    */
   newConnection: function(user, pass) {
     this.disconnect();
+
     this.session = {};
     this.user = user;
     this.nick.target = user;
@@ -216,7 +217,7 @@ var xmpp = {
    * Prompt the user to enter a different nickname.
    */
   nickConflictResolve: function() {
-    var nick = prompt(strings.info.nickConflictResolve, this.nick.target);
+    const nick = prompt(strings.info.nickConflictResolve, this.nick.target);
     if (nick && nick != this.nick.target) return this.nick.target = nick;
   },
 
@@ -1048,8 +1049,8 @@ var xmpp = {
    * This function handles any changes in the connection state.
    */
   eventConnectCallback: function(status, errorCondition) {
-    var msg = strings.connection[this.statusConstants[status]];
-    var status = this.readConnectionStatus(status)
+    const msg = strings.connection[this.statusConstants[status]];
+    status = this.readConnectionStatus(status)
     if (errorCondition) msg += ' (' + errorCondition + ')';
     if (status != this.status)
       ui.messageAddInfo(msg, status == 'offline' ? 'error' : 'verbose');
@@ -1059,7 +1060,7 @@ var xmpp = {
     if (status == 'prejoin') {
       this.connection.send(this.pres());
 
-      var room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
+      const room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         this.discoverRooms().then((rooms) => {
           if (rooms[room]) chat.commands.join({name: room});

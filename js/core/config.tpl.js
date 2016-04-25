@@ -163,6 +163,7 @@ var config = {
   },
 
   features: [
+    Strophe.NS.CONFERENCE,
     Strophe.NS.DISCO_INFO,
     Strophe.NS.MUC,
     Strophe.NS.MUC + '#user',
@@ -170,7 +171,6 @@ var config = {
     Strophe.NS.TIME,
     Strophe.NS.XHTML_IM,
     Strophe.NS.VERSION,
-    Strophe.NS.Cadence_CONFERENCE,
   ],
 
   clientName: "cadence",
