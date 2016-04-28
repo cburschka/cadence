@@ -178,7 +178,7 @@ var config = {
     maxMessageLength: 2048,
     navigation: {
       'Forum': 'https://calref.net/',
-      'Logs': 'https://calref.net/xmpp/log/'
+      'Logs': 'https://calref.net/xmpp/log/',
       'Files': 'https://files.calref.net/'
     },
   },
