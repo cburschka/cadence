@@ -179,6 +179,7 @@ var config = {
     navigation: {
       'Forum': 'https://calref.net/',
       'Logs': 'https://calref.net/xmpp/log/'
+      'Files': 'https://files.calref.net/'
     },
   },
 
