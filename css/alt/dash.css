@@ -1,0 +1,42 @@
+/**
+ * dash.css is copyright Sylae Corell (@sylae),
+ * modified by Christoph Burschka (@cburschka) 2014
+ *
+ * @license GPLv3+
+ *
+ * Original: https://github.com/calref/AJAX-Chat/blob/cd38e0aca4f86216cabd7bf94462d7891616213d/chat/css/dash.css
+ */
+body { background: url("dash/dash-stripe.png") repeat scroll 0 0 #700070 }
+option { background: #2d002d }
+body, input, select, button, textarea { color: white }
+a { color: #88c4eb }
+h3, .ui-tabs-nav li.ui-tabs-active {
+  background: rgba(158, 219, 249, 0.5);
+  text-shadow: 1px 1px 3px white;
+}
+h3, li.ui-tabs-active a { color: #c6006f }
+.box, #emoticonsContainer, #trayContainer, .ui-tabs-nav li,
+input[type=text], input[type=password], textarea.form-field, select, button.button, .dialog button {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 4px white;
+  border: 1px solid #222;
+}
+.ui-tabs .ui-tabs-nav li {
+  border-color: #222;
+  box-shadow: 0 -1px 2px white;
+}
+.menuContainer { background: url("dash/cutie-dash.png") no-repeat bottom rgba(0, 0, 0, 0.6) }
+#headlineContainer label, #headlineContainer a {
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+}
+.row:nth-child(even) { background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5) }
+.row:nth-child(odd) { background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3) }
+.author { color: #ffc }
+.author .user-affiliation-admin,
+#onlineList .user-affiliation-admin { color: #5bbb47 }
+.author .user-affiliation-owner,
+#onlineList .user-affiliation-owner { color: #ee3f44 }
+.user-role-bot { color: #d9559f }
+.dialog { background: rgba(0, 0, 0, 0.8) }
