@@ -1,9 +1,5 @@
 /**
  * ui.js contains all functions that alter the user interface.
- *
- * @author Christoph Burschka <christoph@burschka.de>
- * @year 2014
- * @license GPL3+
  */
 var ui = {
   userLinks: {},
@@ -66,6 +62,23 @@ var ui = {
   initializePage: function() {
     this.setStyle(config.settings.activeStyle);
 
+    // Build help sidebar.
+    var helpSidebar = $('#helpList');
+    var categories = strings.help.sidebar;
+    for (var category in categories) {
+      var table = $('<table>');
+      table.append($('<caption>').append($('<h4>').text(categories[category].title)));
+      var commands = categories[category].commands;
+      for (var command in commands) {
+        var row = $('<tr class="row">').append(
+          $('<td class="desc">').text(commands[command][0]),
+          $('<td class="code">').text(commands[command][1])
+        );
+        table.append(row);
+      }
+      helpSidebar.append(table);
+    }
+
     // Build the navigation menu.
     for (link in config.ui.navigation)
       $('#navigation ul').append($('<li>').append(
@@ -115,16 +128,11 @@ var ui = {
         .css('background-color', code)
       );
     }
-    palette.append('<button class="button" id="textColorFull">Advanced</button>');
+    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced"></button>');
 
-    // Add the access key labels to the BBCode buttons.
-    $('#bbCodeContainer button').each(function() {
-      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
-    });
-
-    var sounds = [new Option('---', '')];
+    var sounds = [$('<option value="" class="string" data-string="label.page.none">')];
     for (var sound in this.sounds) sounds.push(new Option(sound, sound));
-    $('#settingsContainer select.soundSelect').html(sounds).after(function() {
+    $('#settingsContainer select.soundSelect').append(sounds).after(function() {
       var event = this.id.substring('settings-notifications.sounds.'.length);
       return $('<button class="icon soundTest">')
         .click(function() { ui.playSound(event); });
@@ -135,7 +143,7 @@ var ui = {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     this.setTextColorPicker(config.settings.textColor);
-    $('#settingsContainer input.settings[type=checkbox]').prop('checked', function() {
+    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
@@ -150,6 +158,26 @@ var ui = {
     chat.setAudioVolume(config.settings.notifications.soundVolume);
 
     $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
+
+    ui.loadStrings();
+  },
+
+  loadStrings: function() {
+    // Fill strings.
+    $('.string').text(function() {
+      return ui.getString($(this).attr('data-string'));
+    });
+    $('.string-html').html(function() {
+      return ui.getString($(this).attr('data-html'));
+    })
+    $('.string-title').attr('title', function() {
+      return ui.getString($(this).attr('data-title'));
+    });
+
+    // Add the access key labels to the BBCode buttons.
+    $('#bbCodeContainer button').each(function() {
+      if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
+    });
   },
 
   /**
@@ -203,7 +231,9 @@ var ui = {
     $(window).on('hashchange', function() {
       if (ui.urlFragment != window.location.hash) {
         ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({name: ui.urlFragment.substring(1)});
+        if (ui.urlFragment) chat.commands.join({
+          name: ui.getFragment()
+        });
         else chat.commands.part();
       }
     });
@@ -341,7 +371,7 @@ var ui = {
     $('#settings-dateFormat').change(function() {
       var format = $(this).val();
       $('.time').text(function() {
-        return moment(+$(this).attr('data-timestamp')).format(format);
+        return moment($(this).attr('data-time')).format(format);
       });
     });
 
@@ -441,7 +471,7 @@ var ui = {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.jid),
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
         callback: function() { chat.commands.ban({jid: jid}); }
       },
       sep2: '',
@@ -454,8 +484,8 @@ var ui = {
       ping: {
         name: labels.ping,
         icon: 'ping',
-        disabled: !c('ping') || !jid,
-        callback: function() { chat.commands.ping(jid); }
+        disabled: !c('ping'),
+        callback: function() { chat.commands.ping(nick || jid); }
       }
     }
 
@@ -543,7 +573,8 @@ var ui = {
   setTextColorPicker: function(color) {
     $('#textColor')
       .css('color', color || '')
-      .text(color || 'None')
+      .text(color || strings.label.settings.textColor.none)
+      .toggleClass('string', !color)
       .css('background-color', color ? visual.hex2rgba(color, 0.3) : '');
     this.dom.inputField.css('color', config.settings.markup.colors && color || '');
     $('#settings-textColor').val(color);
@@ -605,10 +636,10 @@ var ui = {
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
     fields['text-multi'] = function(field) {
-      var value = '';
+      var values = [];
       $('value', field).each(function() { values.push($(this).text()); });
       return $('<textarea class="form-field">').attr('name', field.attr('var'))
-        .text(value);
+        .text(values.join("\n"));
     }
     fields['jid-multi'] = function(field) {
       return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
@@ -626,7 +657,7 @@ var ui = {
       return f;
     }
     fields['list-multi'] = function(field) {
-      return fields['list-single'].prop('multiple', true);
+      return fields['list-single'](field).prop('multiple', true);
     }
     fields['fixed'] = function(field) {
       return $('<p>').text($('value', field).text());
@@ -713,6 +744,7 @@ var ui = {
       classes = variables;
       variables = false;
     }
+    var error = false;
 
     // Suppress verbose messages.
     if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
@@ -720,14 +752,19 @@ var ui = {
     }
     else if (0 <= (' ' + classes + ' ').indexOf(' error ')) {
       this.playSound('error');
+      error = true;
     }
 
-    text = visual.formatText(text, variables);
+    var body = visual.formatText(text, variables);
     var message = {
-      body: text, type: 'local',
-      user: {nick: config.ui.chatBotName, role: 'bot', affiliation: 'bot'}
+      body: body, type: 'local',
+      user: config.ui.chatBotName && {
+        nick: config.ui.chatBotName,
+        role: 'bot',
+        affiliation: 'bot'
+      }
     };
-    this.notifyDesktop(3, message);
+    this.notifyDesktop(error ? 1 : 3, message);
     message = visual.formatMessage(message, true);
     message.html.find('.body').addClass(classes).addClass('message-bot');
     this.messageAppend(message);
@@ -743,8 +780,8 @@ var ui = {
     var entry = visual.formatMessage(message);
     entry.html.addClass('delayed')
       .find('.dateTime').after(' ', $('<span class="log-room"></span>')
-        .addClass('log-room-' + message.room.id)
-        .text('[' + message.room.title + ']')
+        .addClass(message.room && ('log-room-' + message.room.id))
+        .text('[' + (message.room ? message.room.title : strings.label.page.offline) + ']')
       );
     this.messageInsert(entry);
   },
@@ -784,8 +821,10 @@ var ui = {
       ui.scrollDown();
     });
     this.scrollDown();
-    if (message.message.user.nick != xmpp.nick.current)
-      this.blinkTitle(message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid));
+    if (message.message.user.nick != xmpp.nick.current) {
+      var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
+      this.blinkTitle(sender);
+    }
   },
 
   /**
@@ -805,8 +844,10 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    var userLink = $('<div class="row"><span class="user-roster">'
-                    + visual.format.user(user) + '</span></div>');
+    var userLink = $('<div class="row">').append(
+      $('<span class="user-roster">').append(visual.format.user(user))
+    );
+
     visual.msgOnClick(userLink);
 
     if (user.nick == xmpp.nick.current) {
@@ -847,10 +888,22 @@ var ui = {
   },
 
   /**
-   * Update the current URL fragment.
+   * Get the room from the URL fragment.
+   *
+   * @returns {string}
    */
-  updateFragment: function(room) {
-    ui.urlFragment = '#' + (room || '');
+  getFragment: function() {
+    return decodeURIComponent(this.urlFragment.substring(1));
+  },
+
+
+  /**
+   * Set the URL fragment to a room.
+   *
+   * @param {string} room
+   */
+  setFragment: function(room) {
+    ui.urlFragment = '#' + encodeURIComponent(room || '');
     window.location.hash = ui.urlFragment;
   },
 
@@ -988,12 +1041,15 @@ var ui = {
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
    */
   notify: function(message) {
-    var mention = (message.body.indexOf(xmpp.nick.current) >= 0
-                || message.body.indexOf(xmpp.user) >= 0);
+    var text = message.body.text();
+    var mention = (text.indexOf(xmpp.nick.current) >= 0
+                || text.indexOf(xmpp.user) >= 0);
     var sender = false;
-    for (var i in config.settings.notifications.triggers) {
-      mention = mention || (0 <= message.body.indexOf(config.settings.notifications.triggers[i]));
-      sender = sender || (0 <= message.user.nick.indexOf(config.settings.notifications.triggers[i]));
+    var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
+    var triggers = config.settings.notifications.triggers;
+    for (var i in triggers) {
+      mention = mention || (0 <= text.indexOf(triggers[i]));
+      sender = sender || (0 <= name.indexOf(triggers[i]));
     }
 
     // Any kind of alert is level 1, everything else is 2.
@@ -1017,11 +1073,19 @@ var ui = {
   notifyDesktop: function(level, message) {
     if (xmpp.userStatus == 'dnd') return;
     if (level <= config.settings.notifications.desktop && document.hidden) {
-      var title = xmpp.room.available[xmpp.room.current].title;
-      var text = $('<span>' + message.body + '</span>').text();
-      if (message.type != 'groupchat' && message.type != 'local')
-        text = strings.info.whisper + ' ' + text;
-      if (message.type != 'local') text = message.user.nick + ': ' + text;
+      var text = $(message.body).text();
+      var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
+
+      if (message.type != 'direct') {
+        var title = xmpp.room.available[xmpp.room.current].title;
+        if (message.type != 'local') {
+          if (message.type != 'groupchat')
+            text = strings.info.whisper + ' ' + text;
+          text = sender + ': ' + text;
+        }
+      }
+      else title = sender;
+
       new Notification(title, {body: text, tag: xmpp.room.current});
     }
   },
@@ -1031,7 +1095,7 @@ var ui = {
    */
   blinkTitle: function(string) {
     window.clearInterval(this.blinker);
-    string = string ? ' ' + string + ' - ' : '';
+    string = string ? string + ' - ' : '';
     var speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
     var delay = Math.ceil(1000 / speed);
     var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
@@ -1042,7 +1106,7 @@ var ui = {
         $(document).attr('title', ui.title);
         return window.clearInterval(ui.blinker);
       }
-      $(document).attr('title', (state ? '[@ ]' : '[ @]') + string + ui.title);
+      $(document).attr('title', (state ? '[@ ] ' : '[ @] ') + string + ui.title);
       state = !state;
       number--;
     }, delay);
@@ -1065,9 +1129,12 @@ var ui = {
         // For each match, cut down to the longest common prefix.
         for (var i in results) {
           for (var j in results[i]) {
-            if (result[j] != results[i][j]) break;
+            if (result[j] != results[i][j]) {
+              result = result.substring(0, j);
+              break;
+            }
           }
-          result = result.substring(0, j);
+          result = result.substring(0, results[i].length);
         }
         results = result ? [result] : [];
       }
@@ -1092,11 +1159,20 @@ var ui = {
     else {
       var result = prefixSearch(prefix, Object.keys(this.userLinks));
     }
-    if (result) {
+    if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
       inputField[0].selectionEnd = inputField[0].selectionStart;
     }
     return true;
+  },
+
+  getString: function(key) {
+    var path = key.split('.');
+    var ref = strings;
+    for (var i = 0; i < path.length; i++) {
+      ref = ref[path[i]];
+    }
+    return ref;
   }
 };

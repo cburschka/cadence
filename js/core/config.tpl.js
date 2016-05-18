@@ -166,7 +166,7 @@ var config = {
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
     domain: '@@@XMPP_DOMAIN@@@',
-    boshURL: '@@@XMPP_BOSH@@@',
+    url: '@@@XMPP_URL@@@',
     mucService: '@@@XMPP_MUC@@@',
     sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
   },
@@ -181,8 +181,23 @@ var config = {
       'Logs': 'https://calref.net/xmpp/log/',
       'Files': 'https://files.calref.net/'
     },
+    welcome: ''
   },
 
+  features: [
+    Strophe.NS.DISCO_INFO,
+    Strophe.NS.MUC,
+    Strophe.NS.MUC + '#user',
+    Strophe.NS.XHTML_IM,
+    Strophe.NS.VERSION,
+    Strophe.NS.Cadence_ATTN,
+    Strophe.NS.Cadence_CAPS,
+    Strophe.NS.Cadence_CONFERENCE,
+    Strophe.NS.Cadence_PING,
+    Strophe.NS.Cadence_TIME
+  ],
+
   clientName: "cadence",
+  clientURL: "https://github.com/cburschka/cadence",
   version: '@@@VERSION@@@',
 };

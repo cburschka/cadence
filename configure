@@ -6,11 +6,13 @@ import subprocess
 
 def main():
     args = parser().parse_args()
-    args.protocol = 'http' + (args.https and 's' or '')
-    port = str(5280 + args.https)
+    args.protocol = args.protocol or ((args.websocket and 'ws' or 'http') + (args.secure and 's' or ''))
+    args.host = args.host or args.domain
+    args.path = args.path or (args.websocket and '/websocket' or '/http-bind')
+    args.port = args.port or str(5280 + args.secure)
 
     args.muc = args.muc or 'conference.' + args.domain
-    args.bosh = args.bosh or args.protocol + '://' + args.domain + ':' + port + '/http-bind/'
+    args.url = args.url or args.protocol + '://' + args.host + ':' + args.port + args.path
     args.cdn_prefix = args.cdn_prefix or args.prefix
     args.prefix = args.prefix.rstrip('/')
     args.cdn_prefix = args.cdn_prefix.rstrip('/')
@@ -19,9 +21,9 @@ def main():
     args.src_path = os.path.dirname(__file__) or '.'
     shutil.copy(os.path.realpath(args.src_path) + '/Makefile.in', os.getcwd() + '/Makefile')
 
-    args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
-        if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
-
+    if args.packs == 'auto':
+        args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
+            if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
 
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
@@ -33,8 +35,7 @@ def main():
 
     open('.config.vars', 'w+').write(
 '''TITLE={title}
-PROTOCOL={protocol}
-XMPP_BOSH={bosh}
+XMPP_URL={url}
 XMPP_DOMAIN={domain}
 XMPP_MUC={muc}
 XMPP_SESSION_AUTH={session_auth}
@@ -58,16 +59,36 @@ def parser():
     '''
       )
     parser.add_argument(
-      '-s', '--https', action='store_const',
-      help='Generate HTTPS URLs', dest='https', const=True, default=False
+      '-s', '--secure', '--https', action='store_const',
+      help='Generate secure URLs (append "s" and increment port number)', dest='secure', const=True, default=False
+      )
+    parser.add_argument(
+      '-ws', '--websocket', action='store_const',
+      help='Use websocket instead of BOSH', dest='websocket', const=True, default=False
       )
     parser.add_argument(
       '--domain', type=str,
       help='XMPP domain to log in on.', dest='domain', metavar='DOMAIN', required=True
       )
     parser.add_argument(
-      '--bosh', type=str,
-      help='BOSH URL to connect to\n[http(s)://DOMAIN:(5280|5281)/http-bind]', metavar='BOSH', dest='bosh', default=''
+      '--protocol', type=str,
+      help='Protocol\n[(ws|http)s?]', dest='protocol', metavar='PROTOCOL', default=''
+      )
+    parser.add_argument(
+      '--host', type=str,
+      help='Hostname\n[DOMAIN]', dest='host', metavar='HOST', default=''
+      )
+    parser.add_argument(
+      '--port', type=str,
+      help='Port\n[5280|5281]', dest='port', metavar='PORT', default=''
+      )
+    parser.add_argument(
+      '--path', type=str,
+      help='Path\n[/http-bind|/websocket]', dest='path', metavar='PATH', default=''
+      )
+    parser.add_argument(
+      '--url', '--bosh', type=str,
+      help='Socket URL to connect to [PROTOCOL://HOST:PORT/PATH]', metavar='URL', dest='url', default=''
       )
     parser.add_argument(
       '--session-auth', type=str,
@@ -79,11 +100,15 @@ def parser():
       )
     parser.add_argument(
       '--chatbot', type=str,
-      help='The displayed name of the virtual ChatBot. ["Info"]', metavar='CHATBOT', dest='chatbot', default='Info'
+      help='Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
       )
     parser.add_argument(
       '--title', type=str,
       help='The page title. ["cadence"]', metavar='TITLE', dest='title', default='cadence'
+      )
+    parser.add_argument(
+      '--packs', type=str,
+      help='Emoticon packs (must be inside emoticon-packs/) ["auto"].', metavar='PACKS', dest='packs', default='auto'
       )
     parser.add_argument(
       '--cdn-url', type=str,

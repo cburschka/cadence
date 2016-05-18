@@ -17,43 +17,43 @@
 <body>
   <div id="content">
     <div id="headlineContainer">
-      <label for="styleSelection">Style:</label>
+      <label for="styleSelection" class="string" data-string="label.page.style"></label>
       <select id="styleSelection">@@@CSS_OPTIONS@@@</select>
       <span id="roomContainer">
-        <label for="roomSelection">Room:</label>
+        <label for="roomSelection" class="string" data-string="label.page.room"></label>
         <select id="roomSelection"></select>
       </span>
       <form id="loginContainer">
-        <label for="loginUser">User:</label>
+        <label for="loginUser" class="string" data-string="label.page.user"></label>
         <input type="text" id="loginUser" />
-        <label for="loginPass">Password:</label>
+        <label for="loginPass" class="string" data-string="label.page.password"></label>
         <input type="password" id="loginPass" />
-        <button class="button" type="submit" id="loginButton">Log in</button>
+        <button class="button string" type="submit" id="loginButton" data-string="label.button.login"></button>
       </form>
       <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="@@@CDN_URL@@@img/logo.png" alt="Cadence logo" />cadence</a></span>
       <div id="navigation">
-        Navigation: <ul></ul>
+        <span class="string" data-string="label.page.navigation"></span> <ul></ul>
       </div>
     </div>
     <!-- / headlineContainer -->
     <div id="chatList" class="box"></div>
     <div id="inputFieldContainer" class="box">
-      <textarea id="inputField" rows="1" cols="50" title="Press SHIFT+ENTER to input a line break"></textarea>
+      <textarea id="inputField" rows="1" cols="50" class="string-title" data-title="label.tooltip.input"></textarea>
     </div>
     <div id="messageLengthContainer">
       <span id="messageLengthCounter">0</span>
     </div>
     <div id="footerContainer">
       <div id="bbCodeContainer" class="container">
-        <button class="button insert-bbcode" accesskey="b" value="b" title="Bold text: [b]text[/b]" style="font-weight:bold;">b</button>
-        <button class="button insert-bbcode" accesskey="i" value="i" title="Italic text: [i]text[/i]" style="font-style:italic;">i</button>
-        <button class="button insert-bbcode" accesskey="u" value="u" title="Underline text: [u]text[/u]" style="text-decoration:underline;">u</button>
-        <button class="button insert-bbcode" accesskey="s" value="s" title="Strike out text: [s]text[/s]" style="text-decoration:line-through;">s</button>
-        <button class="button insert-bbcode" accesskey="q" value="quote" title="Quote text: [quote]text[/quote] or [quote=author]text[/quote]">Quote</button>
-        <button class="button insert-bbcode" accesskey="c" value="code" title="Code display: [code]code[/code]">Code</button>
-        <button class="button insert-bbcode insert-bbcode-arg" accesskey="l" value="url" title="Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]">URL</button>
-        <button class="button insert-bbcode" accesskey="g" value="img" title="Insert image: [img]http://example.org/image.jpg[/img]">IMG</button>
-        <button class="button" id="colorBBCode" accesskey="o" value="color" title="Text color: [color=red]text[/color]">Color</button>
+        <button class="button insert-bbcode string-title" accesskey="b" value="b" data-title="label.tooltip.bold" style="font-weight:bold;">b</button>
+        <button class="button insert-bbcode string-title" accesskey="i" value="i" data-title="label.tooltip.italic" style="font-style:italic;">i</button>
+        <button class="button insert-bbcode string-title" accesskey="u" value="u" data-title="label.tooltip.underline" style="text-decoration:underline;">u</button>
+        <button class="button insert-bbcode string-title" accesskey="s" value="s" data-title="label.tooltip.strike" style="text-decoration:line-through;">s</button>
+        <button class="button insert-bbcode string-title" accesskey="q" value="quote" data-title="label.tooltip.quote">Quote</button>
+        <button class="button insert-bbcode string-title" accesskey="c" value="code" data-title="label.tooltip.code">Code</button>
+        <button class="button insert-bbcode insert-bbcode-arg string-title" accesskey="l" value="url" data-title="label.tooltip.url">URL</button>
+        <button class="button insert-bbcode string-title" accesskey="g" value="img" data-title="label.tooltip.img">IMG</button>
+        <button class="button string-title" id="colorBBCode" accesskey="o" value="color" data-title="label.tooltip.color">Color</button>
       </div>
       <!-- / bbCodeContainer -->
       <div id="emoticonsContainer" class="container">
@@ -61,12 +61,12 @@
       </div>
       <div id="colorCodesContainer" class="box container" dir="ltr"></div>
       <div id="trayContainer" class="container">
-        <button class="tray icon" id="logoutButton" title="Logout">Logout</button>
-        <button class="tray icon toggleMenu" id="helpButton" title="Show/hide help">Help</button>
+        <button class="tray icon string string-title" id="logoutButton" data-title="label.button.logout" data-string="label.button.logout"></button>
+        <button class="tray icon toggleMenu string string-title" id="helpButton" data-title="label.tooltip.help" data-string="label.button.help"></button>
         <span id="emoticonTrayContainer"></span>
-        <button class="tray icon toggleMenu" id="settingsButton" title="Show/hide settings">Settings</button>
-        <button class="tray icon toggleMenu" id="onlineListButton" title="Show/hide online list">Users</button>
-        <button class="tray icon" id="audioButton" title="Sound on/off">Sound</button>
+        <button class="tray icon toggleMenu string string-title" id="settingsButton" data-title="label.tooltip.settings" data-string="label.button.settings"></button>
+        <button class="tray icon toggleMenu string string-title" id="onlineListButton" data-title="label.tooltip.roster" data-string="label.button.roster"></button>
+        <button class="tray icon string string-title" id="audioButton" data-title="label.tooltip.sound" data-string="label.button.sound"></button>
         <div id="statusIcon" class="offline"></div>
         <div id="autoScrollIcon" class="on"></div>
       </div>
@@ -74,166 +74,51 @@
     </div>
     <!-- / footerContainer -->
     <div id="onlineListContainer" class="menuContainer box">
-      <h3>Online users</h3>
+      <h3 class="string" data-string="label.page.roster"></h3>
       <div id="onlineList"></div>
     </div>
     <div id="helpContainer" class="menuContainer box">
-      <h3>Help</h3>
-      <div id="helpList">
-        <table>
-          <caption><h4>Chat commands</h4></caption>
-          <tr class="row">
-            <td class="desc">Create a macro:</td>
-            <td class="code">/alias &lt;cmd&gt; /a; /b</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Set away status:</td>
-            <td class="code">/away &lt;message&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Remove away status:</td>
-            <td class="code">/back</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Clear all messages:</td>
-            <td class="code">/clear</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Configure an existing room:</td>
-            <td class="code">/configure [--help] [&lt;options&gt;]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Connect:</td>
-            <td class="code">/connect &lt;user&gt; &lt;pass&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Create a new room:</td>
-            <td class="code">/create [--help] &lt;name&gt; [&lt;options&gt;]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Join a room:</td>
-            <td class="code">/join &lt;room&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">List available rooms:</td>
-            <td class="code">/list</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Describe action:</td>
-            <td class="code">/me &lt;text&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Private message:</td>
-            <td class="code">/msg &lt;nick&gt; ...</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Describe action in private message:</td>
-            <td class="code">/msg &lt;nick&gt; /me ...</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Change nickname:</td>
-            <td class="code">/nick &lt;nickname&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Leave the room:</td>
-            <td class="code">/part</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Ping:</td>
-            <td class="code">/ping [&lt;nick&gt;|&lt;JID&gt;]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Disconnect:</td>
-            <td class="code">/quit</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Save history as text:</td>
-            <td class="code">/save [html]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Say something:</td>
-            <td class="code">[/say] ...</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Print version:</td>
-            <td class="code">/version</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">List users in the current room:</td>
-            <td class="code">/who</td>
-          </tr>
-        </table>
-        <table>
-          <caption><h4>Administration commands</h4></caption>
-          <tr class="row">
-            <td class="desc">Server command:</td>
-            <td class="code">/admin &lt;cmd&gt; ...</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Change privileges:</td>
-            <td class="code">/affiliate &lt;type&gt; &lt;user&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Ban a user:</td>
-            <td class="code">/ban &lt;user&gt;</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">List active bans:</td>
-            <td class="code">/bans</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Destroy a room:</td>
-            <td class="code">/destroy [&lt;room&gt;]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Kick a user:</td>
-            <td class="code">/kick &lt;nickname&gt; [&lt;reason&gt;]</td>
-          </tr>
-          <tr class="row">
-            <td class="desc">Unban a user:</td>
-            <td class="code">/unban &lt;JID&gt;</td>
-          </tr>
-        </table>
-      </div>
+      <h3 class="string" data-string="label.page.help"></h3>
+      <div id="helpList"></div>
       <!-- / helpList -->
     </div>
     <!-- / helpContainer -->
     <div id="emoticonSidebarContainer">
     </div>
     <div id="settingsContainer" class="menuContainer box">
-      <h3>Settings</h3>
+      <h3 class="string" data-string="label.page.settings.main"></h3>
       <div id="settingsList">
         <ul>
-          <li><a href="#settingsGeneral">General</a></li>
-          <li><a href="#settingsDisplay">Display</a></li>
-          <li><a href="#settingsNotifications">Notifications</a></li>
+          <li><a href="#settingsGeneral" class="string" data-string="label.page.settings.general"></a></li>
+          <li><a href="#settingsDisplay" class="string" data-string="label.page.settings.display"></a></li>
+          <li><a href="#settingsNotifications" class="string" data-string="label.page.settings.notifications"></a></li>
         </ul>
         <section id="settingsGeneral">
         <table>
           <tr class="row">
-            <td><label for="settings-xmpp.sessionAuth">Log in with forum session:</label></td>
+            <td><label for="settings-xmpp.sessionAuth" class="string" data-string="label.settings.xmpp.sessionAuth"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.sessionAuth" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-xmpp.autoJoin">Join room on login:</label></td>
+            <td><label for="settings-xmpp.autoJoin" class="string" data-string="label.settings.xmpp.autoJoin"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-contextmenu">Show context menu on:</label></td>
+            <td><label for="settings-contextmenu" class="string" data-string="label.settings.contextmenu.label"></label></td>
             <td class="setting">
               <select class="settings" id="settings-contextmenu">
-                <option value="hover">Hover</option>
-                <option value="left">Left click</option>
-                <option value="right">Right click</option>
-                <option value="none">---</option>
+                <option value="hover" class="string" data-string="label.settings.contextmenu.hover"></option>
+                <option value="left" class="string" data-string="label.settings.contextmenu.left"></option>
+                <option value="right" class="string" data-string="label.settings.contextmenu.right"></option>
+                <option value="none" class="string" data-string="label.page.none"></option>
               </select>
             </td>
           </tr>
           <tr class="row">
-            <td><label for="textColor">Text color:</label></td>
+            <td><label for="textColor" class="string" data-string="label.settings.textColor.label"></label></td>
             <td class="setting">
-              <button class="button" id="textColor">None</button>
-              <button class="button" id="textColorClear">Clear</button>
+              <button class="button string" id="textColor" data-string="label.settings.textColor.none"></button>
+              <button class="button string" id="textColorClear" data-string="label.settings.textColor.clear"></button>
               <input type="color" class="settings" id="settings-textColor" />
             </td>
           </tr>
@@ -242,31 +127,31 @@
         <section id="settingsDisplay">
         <table>
           <tr class="row">
-            <td><label for="settings-dateFormat">Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>):</label></td>
+            <td><label for="settings-dateFormat" class="string-html" data-html="label.settings.dateFormat"></label></td>
             <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-markup.html">Show HTML markup:</label></td>
+            <td><label for="settings-markup.html" class="string" data-string="label.settings.markup.html"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.html" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-markup.images">Show images in-line:</label></td>
+            <td><label for="settings-markup.images" class="string" data-string="label.settings.markup.images"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.images" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-markup.links">Make URLs clickable:</label></td>
+            <td><label for="settings-markup.links" class="string" data-string="label.settings.markup.links"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.links" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-markup.colors">Show persistent colors <a title="To turn off inline colors, disable HTML.">[note]</a>:</label></td>
+            <td><label for="settings-markup.colors" class="string" data-string="label.settings.markup.colors"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.colors" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-markup.emoticons">Show emoticons as images:</label></td>
+            <td><label for="settings-markup.emoticons" class="string" data-string="label.settings.markup.emoticons"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.emoticons" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-verbose">Display verbose messages:</label></td>
+            <td><label for="settings-verbose" class="string" data-string="label.settings.verbose"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
         </table>
@@ -274,66 +159,66 @@
         <section id="settingsNotifications">
         <table>
           <tr class="row">
-            <td><label for="settings-notifications.desktop">Desktop notifications:</label></td>
+            <td><label for="settings-notifications.desktop" class="string" data-string="label.settings.notifications.desktop.label"></label></td>
             <td class="setting">
               <select class="settings" id="settings-notifications.desktop">
-                <option value="0">None</option>
-                <option value="1">Alerts</option>
-                <option value="2">All messages</option>
-                <option value="3">Everything</option>
+                <option value="0" class="string" data-string="label.settings.notifications.desktop.0"></option>
+                <option value="1" class="string" data-string="label.settings.notifications.desktop.1"></option>
+                <option value="2" class="string" data-string="label.settings.notifications.desktop.2"></option>
+                <option value="3" class="string" data-string="label.settings.notifications.desktop.3"></option>
               </select>
             </td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.triggers">Alert keywords:</label></td>
+            <td><label for="settings-notifications.triggers" class="string" data-string="label.settings.notifications.triggers"></label></td>
             <td class="setting"><input type="text" id="settings-notifications.triggers" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.soundVolume">Sound volume:</label></td>
+            <td><label for="settings-notifications.soundVolume" class="string" data-string="label.settings.notifications.soundVolume"></label></td>
             <td class="setting"><input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.receive">Receive sound:</label></td>
+            <td><label for="settings-notifications.sounds.receive" class="string" data-string="label.settings.notifications.sounds.receive"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.receive"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.send">Send sound:</label></td>
+            <td><label for="settings-notifications.sounds.send" class="string" data-string="label.settings.notifications.sounds.send"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.send"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.enter">Enter sound:</label></td>
+            <td><label for="settings-notifications.sounds.enter" class="string" data-string="label.settings.notifications.sounds.enter"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.enter"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.leave">Leave sound:</label></td>
+            <td><label for="settings-notifications.sounds.leave" class="string" data-string="label.settings.notifications.sounds.leave"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.leave"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.info">Info sound:</label></td>
+            <td><label for="settings-notifications.sounds.info" class="string" data-string="label.settings.notifications.sounds.info"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.info"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.error">Error sound:</label></td>
+            <td><label for="settings-notifications.sounds.error" class="string" data-string="label.settings.notifications.sounds.error"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.mention">Mention sound:</label></td>
+            <td><label for="settings-notifications.sounds.mention" class="string" data-string="label.settings.notifications.sounds.mention"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.mention"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.sounds.msg">Private message sound:</label></td>
+            <td><label for="settings-notifications.sounds.msg" class="string" data-string="label.settings.notifications.sounds.msg"></label></td>
             <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.msg"></select></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.leavePage">Warn before closing:</label></td>
+            <td><label for="settings-notifications.leavePage" class="string" data-string="label.settings.notifications.leavePage"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-notifications.leavePage" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.blinkSpeed">Blink speed:</label></td>
+            <td><label for="settings-notifications.blinkSpeed" class="string" data-string="label.settings.notifications.blinkSpeed"></label></td>
             <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkSpeed" min="1" max="10" step="0.5" /></td>
           </tr>
           <tr class="row">
-            <td><label for="settings-notifications.blinkLength">Blink length:</label></td>
+            <td><label for="settings-notifications.blinkLength" class="string" data-string="label.settings.notifications.blinkLength">Blink length:</label></td>
             <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" /></td>
           </tr>
         </table>
