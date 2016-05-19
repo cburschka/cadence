@@ -1,0 +1,82 @@
+1.11.0 - Nightmare (generic)
+============================
+
+This release fixes a long list of bugs, adds support for several XMPP features,
+and improves markup rendering in the interface.
+
+Features
+--------
+
+- #286: Show room ID in hover text.
+- #287: Added markup (context menus, flairs, etc.) to JIDs.
+- #289: Smarter URL parsing, allowing closing parentheses at the end of URLs.
+- #290: Added XEP-0202 (Entity Time) support for incoming queries.
+- #291: Added XEP-0030 (Service Discovery) support for incoming queries.
+- #303: Added support for /ping <nick> and /ping without arguments
+- #304: Added XEP-0092 (Software Version) support for incoming queries.
+- #305: Added support for /version <nick|jid>.
+- #314: Added XEP-0224 (Attention) support for incoming messages.
+- #317: Added XEP-0115 (Entity Capabilities) support.
+- #320: Added websocket support in ./configure and README
+- #324: Added a visual.format.button() renderer.
+- #336: Added support for an offline welcome message.
+- #343: Allow explicitly choosing emoticon packs with ./configure --packs
+- #349: Attributing internal messages to a "bot" is now optional (default: off).
+
+Major changes
+-------------
+
+- #234: Rewrote text formatting to use DOM objects.
+- #292: Rewrote target JID generation, add xmpp.jid() function.
+- #307: Remove translateable strings from static markup, load them dynamically.
+- Switched cadence to the MIT license (formerly GPL3+).
+
+
+Bugfixes
+--------
+
+- #285: Reversed logic so that internal messages are exempt from truncation.
+- #293: Fixed several crashes from non-occupant messages (with undefined nicks)
+- #294: Now encoding/decoding window.location.hash values.
+- #295: Fixed off-by-one error in command autocompletion.
+- #297: Fixed a bug that made ping/time support only work once.
+- #299: When escaping forbidden markup elements, leave their contents intact.
+- #300: Now wrapping HTML log output (/save html) in document tags.
+- #301: Now escaping apostrophe characters as &apos; in format.plain()
+- #302: Now only calling eventIQCallback on "get" type <iq>.
+- #309: Blocked bare JID in /ping or /version
+- #310: Added an error when sending messages to non-existant users or domains.
+- #311: Stopped formatting invalid JIDs as JIDS in the error message.
+- #313: Stopped showing message stanzas that have no <body>.
+- #315: Fixed a crash from non-MUC offline message delivery.
+- #316: Stopped autojoining an empty room with a "#" URL fragment.
+- #318: Fixed a markup bug (from #234) in ui.notifyDesktop.
+- #319: Improved desktop notifications for direct messages.
+- #321: Fixed an undefined variable error in visual.formatText().
+- #322: Now showing error messages if the MUC server is down.
+- #330: Fixed a roster entry bug (resulting from #234).
+- Fixed some old bugs in the XMPP disconnect functions.
+- #331: Fixed a crash on servers that send <actor> with their kick/bans.
+- #338: Converted destroy-confirmation message to string (resulting from #234).
+- #339: Fixed translateable strings with markup (resulting from #234).
+- #340: Now consistently accepting backslashed quotes in command arguments.
+- #341: Now escaping all quotes in nicks in chat.prefixMsg().
+- #342: Fixed a crash in XMPP forms with list-multi/text-multi fields.
+- #357: /admin now correctly reports failure of commands.
+
+Other changes
+-------------
+
+- The /ping timeout error now includes the unit (ms).
+- Ignore custom.css and config.custom.js files.
+- Add color to debug XMPP traffic. Incoming is blue, outgoing is red.
+- #296: Switch data-time attribute from timestamp to ISO string.
+- #298: Use hexadecimal \HEX escape sequences in JID classnames.
+- #306: Remove strings.init(), move that stuff to xmpp.init().
+- Split up setup.py tasks to avoid rebuilding too many files.
+- #325: Register namespaces with Strophe.
+- Alphabetize button label strings.
+- Update library list in README
+- Fixed some of the copyright/license information.
+- #350: Removed dash theme from the main branch.
+- #356: Upgraded jquery library from 2.1.4 to 2.2.3

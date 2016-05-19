@@ -12,3 +12,12 @@ js/lib/*.js
 js/lib.js
 js/core.js
 css/global/all.css
+
+# Installed files
+img/emoticons/packs
+config.custom.js
+custom.css
+
+# Project files
+nbproject
+.patch/

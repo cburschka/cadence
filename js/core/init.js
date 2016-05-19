@@ -1,7 +1,16 @@
+var NS = {
+  ATTN: 'urn:xmpp:attention:0',
+  CAPS: 'http://jabber.org/protocol/caps',
+  CONFERENCE: 'jabber:x:conference',
+  PING: 'urn:xmpp:ping',
+  TIME: 'urn:xmpp:time'
+};
+for (var i in NS) Strophe.addNamespace('Cadence_' + i, NS[i]);
+
 $(document).ready(function() {
   init.loadSettings();
   init.loadEmoticons();
-  strings.init();
+  config.capHash = init.capHash();
   ui.init();
   visual.init();
   xmpp.initialize();
@@ -12,10 +21,12 @@ $(document).ready(function() {
       return strings.info.leavePage;
   }});
   $(window).unload(function() { init.shutDown(); });
-  if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
-    chat.sessionAuth(config.xmpp.sessionAuthURL);
-  }
-  else ui.setStatus('offline');
+  chat.sessionAuth(config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL, function() {
+    ui.setStatus('offline');
+    if (config.ui.welcome) {
+      ui.messageAddInfo(config.ui.welcome);
+    }
+  });
 });
 
 init = {
@@ -43,6 +54,19 @@ init = {
     for (pack in emoticons.sidebars) {
       config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
+  },
+
+  /**
+   * Generate a verification string according to XEP-0115 Section 5.1
+   *
+   * @returns {string}
+   */
+  capHash: function() {
+    var s = 'client/web//' + config.clientName + '<';
+    for (i in config.features.sort()) {
+      s += config.features[i] + '<';
+    }
+    return SHA1.b64_sha1(s);
   },
 
   shutDown: function() {

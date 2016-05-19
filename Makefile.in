@@ -6,13 +6,11 @@ ifndef CP
   CP=cp
 endif
 
-include ${SRC_PATH}/VERSION
-
 VPATH = ${SRC_PATH}
 
 CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
-             js/core/ui.js js/core/visual.js js/core/config.js \
-             js/core/emoticons.js js/core/init.js
+             js/core/ui.js js/core/visual.js js/core/init.js \
+             js/core/config.js js/core/emoticons.js
 
 LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
@@ -35,6 +33,7 @@ ifeq (${MODE},minify)
   CSS_FILES = css/global/all.min.css
 endif
 ifeq (${MODE},debug)
+  JS_FILES = ${CORE_FILES} ${LIB_FILES}
   CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 endif
 
@@ -46,7 +45,9 @@ init:
 
 clean:
 	rm -f index.html js/core/config.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
-	rmdir -p --ignore-fail-on-non-empty js/core/ js/lib/ css/global/
+	for dir in "js/core/ js/lib/ css/global/"; do\
+	  if [ -d "$$dir" ]; then rmdir --ignore-fail-on-non-empty $$dir; fi;\
+	done
 
 distclean: clean
 	rm .config.vars
@@ -89,18 +90,18 @@ install-css-global: ${CSS_FILES}
 	mkdir -p "${CDN_PREFIX}/css/global"
 	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
 
-templates:
+js/core/config.js: js/core/config.tpl.js .config.vars
 	VERSION=${VERSION}
 	if [ -d "${SRC_PATH}/.git" ]; then \
 	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always`; \
 	fi; \
-	"${SRC_PATH}/setup.py" $$VERSION
+	"${SRC_PATH}/setup.py" $@ $$VERSION
 
-index.html: index.tpl.html js/core/config.tpl.js .config.vars
-	make templates
+index.html: index.tpl.html .config.vars
+	"${SRC_PATH}/setup.py" $@
 
-js/core/config.js: index.html .config.vars
-js/core/emoticons.js: index.html .config.vars
+js/core/emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
+	"${SRC_PATH}/setup.py" $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@
