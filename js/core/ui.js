@@ -674,8 +674,8 @@ var ui = {
       $('option', field).each(function() {
         const value = $('value', this).text();
         const option = $('<option>').attr({
-          value: option,
-          selected: value == option
+          value,
+          selected: value == defaultValue
         });
         option.text($(this).attr('label'));
         select.append(option);
