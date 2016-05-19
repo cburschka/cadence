@@ -682,6 +682,7 @@ var xmpp = {
           if (current && !rooms[current])
             rooms[current] = this.room.available[current];
           this.room.available = rooms;
+          ui.refreshRooms(rooms);
           resolve(rooms);
         },
         reject, config.xmpp.timeout
