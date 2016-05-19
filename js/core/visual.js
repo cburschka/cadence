@@ -328,7 +328,7 @@ visual = {
   addLinks: function(jq) {
     const enabled = config.settings.markup.links;
 
-    const linkRegex = /\b((?:https?|s?ftp|mailto):\/\/[^\s"']+[\-=\w\/])(\)*)/g;
+    const linkRegex = /\b((?:https?|s?ftp):\/\/[^\s"']+[^\s.,;:()"'>])(\)*)/g;
     const link = (url, closeParens) => {
       // Allow URLs to finish with a parenthesized part.
       let open = 0;
