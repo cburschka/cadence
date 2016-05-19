@@ -201,6 +201,7 @@ var strings = {
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinPassword: 'A password is required to enter {room}.',
+    joinRegister: 'Membership is required to enter {room}.',
     joinSame: 'You are already in {room}.',
     messageDenied: 'You lack the authority to send this message ({text}).',
     muc: {

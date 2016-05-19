@@ -569,6 +569,10 @@ var chat = {
         ui.setFragment(room.id);
         chat.setSetting('xmpp.room', room.id);
         ui.messageInfo(strings.info.joined, {room});
+      })
+      .catch((stanza) => {
+        if ($('registration-required', stanza).length)
+          ui.messageError(strings.error.joinRegister, {room});
       });
     },
 
