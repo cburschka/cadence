@@ -22,12 +22,8 @@ def generate_files(src_path, var):
     for src, dest in files:
         generate_file(src_path + '/' + src, dest, var)
 
-def generate_links(cdn_url, mode, css_alt, style):
-    if mode == 'minify':
-        css = 'css/global/all.min.css'
-        lib = ['js/lib.min.js']
-        core = ['js/core.min.js']
-    elif mode == 'aggregate':
+def generate_links(cdn_url, aggregate, css_alt, style):
+    if aggregate == 'True':
         css = 'css/global/all.css'
         lib = ['js/lib.js']
         core = ['js/core.js']
@@ -109,7 +105,7 @@ def main(target, version=None):
     if (version):
         variables['VERSION'] = version
     css_alt = variables['CSS_ALT'].split()
-    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt, variables['STYLE'])
+    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['AGGREGATE'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
