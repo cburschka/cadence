@@ -30,8 +30,6 @@ def generate_links(cdn_url, aggregate, css_alt, style):
     else:
         css = 'css/global/import.css'
         lib = [
-            'js/lib/jquery.js',
-            'js/lib/jquery-ui.js',
             'js/lib/contextmenu.js',
             'js/lib/cookie.js',
             'js/lib/replacetext.js',

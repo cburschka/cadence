@@ -12,8 +12,8 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
              js/core/ui.js js/core/visual.js js/core/init.js \
              js/core/config.js js/core/emoticons.js
 
-LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
-            js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
+LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
+            js/lib/filesaver.js js/lib/cookie.js \
             js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
             js/lib/strophe.attention.js js/lib/strophe.caps.js \
             js/lib/strophe.disco.js js/lib/strophe.ping.js \
@@ -107,12 +107,6 @@ js/lib/contextmenu.js: js/lib/contextmenu/src/jquery.contextMenu.js
 	$(CP) $^ $@
 
 js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
-	$(CP) $^ $@
-
-js/lib/jquery.js: js/lib/jquery/jquery.js
-	$(CP) $^ $@
-
-js/lib/jquery-ui.js: js/lib/jquery-ui/jquery-ui.js
 	$(CP) $^ $@
 
 js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
