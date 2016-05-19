@@ -132,7 +132,7 @@ var chat = {
 
           ui.messageInfo(strings.info.affiliations[type], {type, list: users});
         }, (stanza) => {
-          var type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
+          const type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
           ui.messageError(strings.error.affiliations[type], {type});
         });
       }
@@ -168,40 +168,35 @@ var chat = {
     alias: function(arg) {
       arg = arg.trim();
       if (!arg) {
-        var out = '';
-        for (var macro in config.settings.macros) {
-          out += '    /' + macro + ' - ' + config.settings.macros[macro].join('; ') + '\n';
-        }
-        if (out) return ui.messageInfo($('<div>').html(strings.info.macros), {
-          macros: out
-        });
+        const macros = $.map(config.settings.macros, (value, key) => {
+          return '    /' + key + ' - ' + value.join('; ');
+        }).join('\n');
+        if (out) return ui.messageInfo($('<div>').html(strings.info.macros), {macros});
         else return ui.messageError(strings.error.noMacros);
       }
-      var m = arg.match(/^\/*(\S+)/);
+      const m = arg.match(/^\/*(\S+)/); /**/
       if (!m) return ui.messageError($('<div>').html(strings.error.aliasFormat));
-      var command = m[1];
+      const command = m[1];
       if (chat.commands[command]) return ui.messageError(strings.error.aliasConflict, {command});
-      var macro = arg.substring(m[0].length).trim();
-      if (!macro) {
+      const data = arg.substring(m[0].length).trim();
+      if (!data) {
         delete config.settings.macros[command];
         chat.saveSettings();
         return ui.messageInfo(strings.info.aliasDelete, {command});
       }
-      macro = macro.split(';');
-      for (var i in macro) {
-        macro[i] = macro[i].trim();
-      }
+      const macro = data.split(';').map((command) => { return command.trim(); });
       if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
 
-      var search = (c, t) => {
-        if (c) for (var i in c) {
-          var m = c[i].match(/^\/(\S+)/);
-          var u = m && ((m[1] == command && t.concat([m[1]])) || search(config.settings.macros[m[1]], t.concat([m[1]])));
-          if (u) return u;
+      const search = (commands, path) => {
+        if (commands) for (let cmd of commands) {
+          let match = cmd.match(/^\/(\S+)/);
+          match = match && match[1];
+          const recursion = (match == command && path.concat([match])) || search(config.settings.macros[match], path.concat([match]));
+          if (recursion) return recursion;
         }
         return false;
       };
-      var rec = search(macro, [command]);
+      const rec = search(macro, [command]);
       if (rec) return ui.messageError(strings.error.aliasRecursion, {
         command, path: rec.join(' -> ')
       });
@@ -333,7 +328,7 @@ var chat = {
      *   Open a connection and authenticate.
      */
     connect: function(arg) {
-      var fail = () => { return ui.messageError(strings.error.userpass) };
+      const fail = () => { return ui.messageError(strings.error.userpass) };
       arg = chat.parseArgs(arg);
       if (arg[0]) {
         arg.user = arg.user || arg[0][0];
@@ -584,7 +579,7 @@ var chat = {
      *   server's job.
      */
     kick: function(arg) {
-      var nick = arg.trim();
+      const nick = arg.trim();
       xmpp.setUser({nick, role: 'none'}, () => {}, (errorCode) => {
         ui.messageError(strings.error.kick[errorCode], {nick});
       });
@@ -597,8 +592,7 @@ var chat = {
     list: function() {
       xmpp.discoverRooms().then(
         (rooms) => {
-          let links = {};
-          for (var room in rooms) links[room] = visual.format.room(rooms[room]);
+          const links = $.map(rooms, visual.format.room);
           if (Object.keys(links).length)
             ui.messageInfo(strings.info.roomsAvailable, {list: links});
           else
@@ -657,7 +651,7 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = arg.trim();
+      const nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
       else ui.messageError(strings.error.noArgument);
       if (xmpp.status != 'online')
@@ -720,9 +714,10 @@ var chat = {
     save: function(arg) {
       if (ui.messages.length == 0)
         return ui.messageError(strings.error.saveEmpty);
-      var type = arg.trim();
-      var data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
-      var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+      const type = arg.trim();
+      const timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+
+      let data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
       if (type == 'html') {
         data = '<!DOCTYPE html>' + $('<html>')
              .append($('<head>').append($('<title>').text(
@@ -731,8 +726,8 @@ var chat = {
              .append($('<body>').append(data))
              .html();
       }
-      var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
-      var suffix = type == 'html' ? 'html' : 'log';
+      const blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
+      const suffix = type == 'html' ? 'html' : 'log';
       saveAs(blob, xmpp.room.current + '-' + timestamp + '.' + suffix);
     },
 
@@ -849,26 +844,19 @@ var chat = {
      */
     who: function(arg) {
       arg = arg.trim();
-      var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
+      const room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
       if (!room)
         return ui.messageError(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
       if (room.id != xmpp.room.current) {
         xmpp.getOccupants(room.id, (users) => {
-          var list = {};
-          for (var nick in users) list[nick] = visual.format.nick(nick);
-          if (links.length) ui.messageInfo(strings.info.usersInRoom, {
-            room: room,
-            list: list
-          });
+          const list = $.map(users, (user, nick) => { return visual.format.nick(nick); });
+          if (links.length) ui.messageInfo(strings.info.usersInRoom, {room, list});
           else ui.messageInfo(strings.info.noUsers, {room});
         })
       }
       else {
-        var list = {};
-        var roster = xmpp.roster[xmpp.room.current];
-        for (var nick in roster) {
-          list[nick] = visual.format.user(roster[nick]);
-        }
+        const roster = xmpp.roster[xmpp.room.current];
+        const list = $.map(roster, visual.format.user);
         ui.messageInfo(strings.info.usersInThisRoom, {list});
       }
     },
@@ -880,7 +868,7 @@ var chat = {
     whois: function(arg) {
       arg = arg.trim();
       if (!arg) return ui.messageError(strings.error.noArgument);
-      var user = xmpp.roster[xmpp.room.current][arg];
+      const user = xmpp.roster[xmpp.room.current][arg];
       if (user) {
         ui.messageInfo(strings.info.whois, {
           user,
@@ -897,10 +885,10 @@ var chat = {
    * Validate the current command by xmpp.status.
    */
   cmdAvailableStatus: function(command, silent) {
-    var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
-    var offline = ['connect'];
-    var waiting = ['quit'];
+    const always = ['alias', 'clear', 'nick', 'save', 'version'];
+    const chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
+    const offline = ['connect'];
+    const waiting = ['quit'];
 
     // always allow these commands (hence the name).
     if (always.indexOf(command) >= 0) return true;
@@ -938,10 +926,10 @@ var chat = {
     if (!text) return;
 
     // Without commands, execute /say.
-    var command = 'say';
+    let command = 'say';
 
     // Execute /command, but turn //command into /say /command.
-    var m = /^\/(\/?)(\S+)/.exec(text);
+    const m = /^\/(\/?)(\S+)/.exec(text);
     if (m) {
       if (!m[1]) {
         command = m[2];
@@ -966,8 +954,8 @@ var chat = {
    * @param {string} text: A string to replace $ with in the command array.
    */
   executeMacro: function(macro, text) {
-    for (var i in macro) {
-      this.executeInput(macro[i].replace(/\$/g, text.trim()), true);
+    for (let statement of macro) {
+      this.executeInput(statement.replace(/\$/g, text.trim()), true);
     }
   },
 
@@ -980,7 +968,7 @@ var chat = {
    */
   formatOutgoing: function(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    var html = bbcode.render(visual.escapeHTML(text));
+    let html = bbcode.render(visual.escapeHTML(text));
     if (config.settings.textColor) {
       html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
@@ -1023,12 +1011,12 @@ var chat = {
    */
   insertText: function(text) {
     ui.dom.inputField.focus();
-    var inputFieldJQ = ui.dom.inputField;
-    var inputField = inputFieldJQ[0]
-    var start = inputField.selectionStart;
-    var end = inputField.selectionEnd;
-    var old = inputFieldJQ.val();
-    rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
+    const inputFieldJQ = ui.dom.inputField;
+    const inputField = inputFieldJQ[0]
+    const old = inputFieldJQ.val();
+    let start = inputField.selectionStart;
+    let end = inputField.selectionEnd;
+    const rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
     inputFieldJQ.val(old.substring(0, start) + rep + old.substring(end));
     start += (start < end || rep == text) ? rep.length : text[0].length;
     end = start;
@@ -1062,7 +1050,7 @@ var chat = {
    */
   getRoomFromTitle: function(title) {
     if (xmpp.room.available[title]) return xmpp.room.available[title];
-    for (var room in xmpp.room.available) {
+    for (let room in xmpp.room.available) {
       if (xmpp.room.available[room].title == title)
         return xmpp.room.available[room];
     }
@@ -1079,20 +1067,20 @@ var chat = {
    */
   parseArgs: function(text) {
     if (typeof text !== 'string') return text;
-    var key = /(?:--([a-z-]+))/;
+    const key = /(?:--([a-z-]+))/;
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
     // All literal backslashes must also be escaped.
-    var value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
+    const value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
-    var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
-    var re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
-    var arguments = {0:[], 1:{0:[]}};
-    for (var match; match = re.exec(text); ) {
+    const keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
+    const re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
+    const arguments = {0:[], 1:{0:[]}};
+    for (let match; match = re.exec(text); ) {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
-        var v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
+        let v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
         if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
         arguments[match[1]] = v;
         arguments[1][match[1]] = re.lastIndex;
@@ -1142,7 +1130,7 @@ var chat = {
    * Attempt to authenticate using an existing web session.
    */
   sessionAuth: function(url, callback) {
-    var salt = (new Date().getTime()) + Math.random();
+    const salt = (new Date().getTime()) + Math.random();
     $.post(url, {salt}, ({user, secret}) => {
       if (user && secret) {
         ui.messageInfo(strings.info.sessionAuth, {username: user});
@@ -1167,9 +1155,9 @@ var chat = {
    * in the settings dictionary.
    */
   getSetting: function(key) {
-    var path = key.split('.');
-    var ref = config.settings;
-    for (var i = 0; i < path.length; i++) {
+    const path = key.split('.');
+    let ref = config.settings;
+    for (let i = 0; i < path.length; i++) {
       ref = ref[path[i]];
     }
     return ref;
@@ -1180,9 +1168,9 @@ var chat = {
    * given value. Immediately saves.
    */
   setSetting: function(key, val) {
-    var path = key.split('.');
-    var ref = config.settings;
-    for (var i = 0; i < path.length - 1; i++) {
+    const path = key.split('.');
+    let ref = config.settings;
+    for (let i = 0; i < path.length - 1; i++) {
       ref = ref[path[i]];
     }
     ref[path[path.length-1]] = val;
