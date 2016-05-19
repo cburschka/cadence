@@ -198,7 +198,7 @@ visual = {
      *                  don't match their nickname will be parenthesized.
      */
     user: (user) => {
-      let pdn = visual.format.nick(user.nick || user.jid.bare());
+      let pdn = visual.format.nick(user.nick || user.jid && user.jid.bare());
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != user.jid.node.toLowerCase()))

@@ -53,7 +53,7 @@ var xmpp = {
 
     this.connection.attention.addAttentionHandler((stanza) => {
       const from = this.JID.parse(stanza.getAttribute('from'));
-      const user = this.userFromJid({from});
+      const user = this.userFromJid(from);
       ui.messageError(strings.info.attention, {user});
       return true;
     });
@@ -200,23 +200,26 @@ var xmpp = {
   /**
    * Find a user by roomnick or JID.
    *
-   * A non-MUC "from" address will return an external user.
-   * A non-MUC "jid" address will be looked up in the roster.
+   * A non-MUC address will be looked up in the roster of the given room.
+   *
+   * @param {JID} jid
+   * @param {String} room
+   *
+   * @return {User}
    */
-  userFromJid: function({from, jid}) {
-    from = from || jid;
-    if (from.domain == config.xmpp.mucService) {
-      const roster = this.roster[from.node];
-      if (roster && roster[from.resource])
-        return roster[from.resource];
-      return {room: from.node, nick: from.resource};
+  userFromJid: function(jid, room) {
+    if (jid.domain == config.xmpp.mucService) {
+      const roster = this.roster[jid.node];
+      if (roster && roster[jid.resource])
+        return roster[jid.resource];
+      return {room: jid.node, nick: jid.resource};
     };
-    const roster = this.roster[this.room.current];
-    if (jid && roster) {
+    const roster = room && this.roster[room];
+    if (roster) {
       for (let nick in roster) if (roster[nick].jid.matchBare(jid))
         return roster[nick];
     }
-    return {jid: from};
+    return {jid};
   },
 
   /**
@@ -370,7 +373,6 @@ var xmpp = {
       this.connection.addHandler((stanza) => {
         if ($(stanza).attr('type') == 'error') reject(stanza);
         else if ($('status[code=110]', stanza).length) {
-          this.setRoom(room);
           resolve(stanza);
         }
         else return true;
@@ -922,7 +924,7 @@ var xmpp = {
       if (type == 'error')
         return this.eventMessageError(stanza, from) || true;
 
-      let user = this.userFromJid({from});
+      let user = this.userFromJid(from);
       const muc = !!user.room || !!user.nick;
 
       let body = $('html body p', stanza).contents();
@@ -965,8 +967,7 @@ var xmpp = {
           });
         }
 
-        // Only accept MUC messages in the current room.
-        if (from.node != this.room.current || !from.resource) return true;
+        if (!from.resource) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
         if (delay.length) {
@@ -974,7 +975,7 @@ var xmpp = {
           const jid = this.JID.parse(delay.attr('from'));
           if (!jid.matchBare(from)) {
             // Copy the entry and fill in the old nickname.
-            user = $.extend({}, this.userFromJid({jid}));
+            user = $.extend({}, this.userFromJid(jid, from.node));
             user.nick = from.resource;
           }
           // Otherwise, do not use the roster entry.

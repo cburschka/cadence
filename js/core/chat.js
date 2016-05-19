@@ -352,10 +352,10 @@ var chat = {
         return ui.messageInfo($('<div>').html(strings.help.configure));
 
       const name = arg.name || arg[0].join(' ') || arg.title;
-      const id = name.toLowerCase();
       if (!name)
         return ui.messageError(strings.error.roomCreateName);
 
+      const id = name.toLowerCase();
       const room = {id, title: arg.title || name};
 
       // Look for the room to make sure it doesn't exist.
@@ -409,8 +409,9 @@ var chat = {
         )
         .then(
           () => {
-            chat.setSetting('xmpp.room', id);
             ui.setFragment(id);
+            chat.setSetting('xmpp.room', id);
+            xmpp.setRoom(id);
             ui.messageInfo(strings.info.roomCreated, {room});
           },
           (reason) => {
@@ -568,6 +569,7 @@ var chat = {
         ui.updateRoom(room.id, xmpp.roster[room.id]);
         ui.setFragment(room.id);
         chat.setSetting('xmpp.room', room.id);
+        xmpp.setRoom(room.id);
         ui.messageInfo(strings.info.joined, {room});
       })
       .catch((stanza) => {
