@@ -3,3 +3,36 @@
 
 This version is under development.
 
+Features
+--------
+
+- #361: /time command allows querying the local time of other users.
+
+
+Major changes
+-------------
+
+- #353: Callbacks have been replaced with JS Promise objects where possible.
+- #355: Started using Strophe plugins.
+- #363: Replace xmpp.jid() method with xmpp.JID() class.
+
+
+Bugfixes
+--------
+
+- #361: Fixed incorrect nesting of XEP-0202 (Entity Time) XML response.
+
+
+Other changes
+-------------
+
+- #328: Replace "var" declarations with let/const.
+- #358: Use short-hand object notation where possible.
+- #359: Define anonymous functions with arrow syntax.
+- #360: Moved XEP-0199 (Ping) to Strophe plugin.
+- #361: Moved XEP-0202 (Entity Time) to Strophe plugin.
+- #362: Moved XEP-0092 (Software Version) to Strophe plugin.
+- Moved XEP-0224 (Attention) to Strophe plugin.
+- Moved XEP-0030 (Service Discovery) to Strophe plugin.
+- Moved XEP-0115 (Entity Capabilities) to Strophe plugin.
+- Only set the resource name once on page load.
