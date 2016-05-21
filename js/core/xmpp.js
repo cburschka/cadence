@@ -850,6 +850,7 @@ var xmpp = {
    */
   eventPresenceDefault: function(room, nick, codes, item, stanza) {
     const roster = this.roster[room];
+    const oldUser = roster[nick];
 
     // Create the user object.
     const user = {
@@ -864,7 +865,6 @@ var xmpp = {
 
     // A 110-code presence reflects a presence that we sent.
     if (codes.indexOf(110) >= 0) {
-      roster[nick] = user;
       this.nick.current = nick;
     }
 
@@ -878,34 +878,34 @@ var xmpp = {
           from: roster[this.nick.current],
           to: user
         });
-        // Fill in the roster so we don't get a login message.
-        roster[nick] = user;
         this.nick.current = nick;
       }
 
-      const oldUser = roster[nick];
-      if (!oldUser) {
+      if (oldUser) {
+        let sound = false;
+        if (oldUser.show != user.show || oldUser.status != user.status) {
+          const msg = strings.show[user.show] || strings.showOther;
+          sound = true;
+          ui.messageInfo(msg[+!!user.status], {user, show: user.show, status: user.status});
+        }
+        if (oldUser.affiliation != user.affiliation) {
+          sound = true;
+          ui.messageInfo(strings.info.userAffiliation, {user, affiliation: user.affiliation});
+        }
+        if (oldUser.role != user.role) {
+          sound = true;
+          ui.messageInfo(strings.info.userRole, {user, role: user.role});
+        }
+        if (sound) ui.playSound('info');
+      }
+      else if (this.nick.current != nick) {
         ui.messageInfo(strings.info.userIn, {user});
-
         // Play the alert sound if a watched user enters.
         let watched = this.nick.current != nick;
         watched = watched && config.settings.notifications.triggers.some((e) => {
           return nick.indexOf(e) >= 0;
         });
         watched ? ui.playSound('mention') : ui.playSound('enter');
-      }
-      else if (oldUser.show != user.show || oldUser.status != user.status) {
-        const msg = strings.show[user.show] || strings.showOther;
-        ui.messageInfo(msg[+!!status], {user, show: user.show, status: user.status});
-        ui.playSound('info');
-      }
-      else if (oldUser.affiliation != user.affiliation) {
-        ui.messageInfo(strings.info.userAffiliation, {user, affiliation: user.affiliation});
-        ui.playSound('info');
-      }
-      else if (oldUser.role != user.role) {
-        ui.messageInfo(strings.info.userRole, {user, role: user.role});
-        ui.playSound('info');
       }
     }
 
