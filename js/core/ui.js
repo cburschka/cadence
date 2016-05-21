@@ -28,7 +28,7 @@ var ui = {
       chatList: $('#chatList'),
       onlineList: $('#onlineList'),
       roomSelection: $('#roomSelection'),
-      statusIcon: $('#statusIcon'),
+      statusButton: $('#statusButton'),
       autoScrollIcon: $('#autoScrollIcon'),
       messageLengthCounter: $('#messageLengthCounter'),
       menu: {
@@ -424,6 +424,38 @@ var ui = {
       $.contextMenu(roommenu);
     });
     $('#settingsList').tabs();
+
+    $.contextMenu({
+      selector: '#statusButton',
+      className: 'box dialog',
+      trigger: 'left',
+      build: () => {
+        const labels = strings.label.status;
+        const online = xmpp.status == 'online';
+        const offline = xmpp.status == 'offline';
+        const status = xmpp.userStatus || 'available';
+        const c = (show) => chat.commands[show]();
+        const items = {available: {
+          name: labels.available,
+          icon: 'available',
+          disabled: online ? status == 'available' : !offline,
+          callback: online ? () => { chat.commands.back(); } : chat.commands.connect,
+        }};
+        for (let show of ['away', 'xa', 'dnd']) items[show] = {
+          name: labels[show],
+          icon: show,
+          disabled: !online || status == show,
+          callback: c,
+        }
+        items.offline = {
+          name: labels.offline,
+          icon: 'offline',
+          disabled: offline,
+          callback: chat.commands.quit
+        };
+        return {items};
+      }
+    });
   },
 
   /**
@@ -554,9 +586,17 @@ var ui = {
     // status options are: online, waiting, offline, prejoin.
     if (status != 'online') ui.updateRoom('', {});
     if (status == 'prejoin') status = 'online';
-    this.dom.statusIcon.attr('class', status).attr('title');
+    this.setUserStatus(status != 'offline' ? xmpp.userStatus : 'offline');
     this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
     this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
+  },
+
+  /**
+   * Change the user status.
+   */
+  setUserStatus: function(show) {
+    this.dom.statusButton.removeClass('available away dnd xa offline')
+      .addClass(show || 'available');
   },
 
   /**
