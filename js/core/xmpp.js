@@ -1085,6 +1085,7 @@ var xmpp = {
       this.connection = null;
       this.nick.current = null;
       this.room.current = null;
+      this.userStatus = null;
       this.roster = {};
       ui.refreshRooms({});
       ui.updateRoom();

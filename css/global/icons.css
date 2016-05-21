@@ -2,8 +2,9 @@
 #trayContainer button {
   background-repeat:no-repeat;
 }
-#logoutButton {
-  background-image:url('../../img/logout.png');
+#statusButton {
+  background-image:url('../../img/tray/status.png');
+  background-position: 0px -96px;
 }
 #helpButton {
   background-image:url('../../img/help.png');
@@ -26,16 +27,22 @@
 }
 
 /* Status icon */
-#statusIcon {
-  background-image: url('../../img/loading-sprite.gif');
-  background-position: 0px -44px;
-}
-#statusIcon.online {
+#statusButton.available {
   background-position: 0px 0px;
 }
-#statusIcon.waiting {
-  background-position: 0px -22px;
+#statusButton.away {
+  background-position: 0px -24px;
 }
+#statusButton.xa {
+  background-position: 0px -48px;
+}
+#statusButton.dnd {
+  background-position: 0px -72px;
+}
+#statusButton.offline {
+  background-position: 0px -96px;
+}
+
 
 /* Scroll icon */
 #autoScrollIcon {
@@ -46,7 +53,7 @@
   background-position: 0px 100%;
 }
 
-#statusIcon,
+#statusButton,
 #audioButton,
 #autoScrollIcon {
   -moz-transition-duration: 0.5s;
@@ -99,3 +106,9 @@ span.hide-message {
 .context-menu-item.icon-msg { background-image: url(../../img/chat.png); }
 .context-menu-item.icon-ping { background-image: url(../../img/ping.png); }
 .context-menu-item.icon-whois { background-image: url(../../img/whois.png); }
+
+.context-menu-item.icon-available { background-image: url(../../img/status/available.png); }
+.context-menu-item.icon-away { background-image: url(../../img/status/away.png); }
+.context-menu-item.icon-xa { background-image: url(../../img/status/xa.png); }
+.context-menu-item.icon-dnd { background-image: url(../../img/status/dnd.png); }
+.context-menu-item.icon-offline { background-image: url(../../img/status/offline.png); }

@@ -214,16 +214,18 @@ var chat = {
      *   Send a room presence with <show/> set to "away" and
      *   <status/> to "msg".
      */
-    away: function(arg) {
-      xmpp.sendStatus('away', arg.trim());
+    away: function(arg = '') {
+      xmpp.sendStatus({show: 'away', status: arg.trim()});
+      ui.setUserStatus('away');
     },
 
     /**
      * back <msg>:
      *   Send an empty room presence that unsets <show/> and <status/>.
      */
-    back: function(arg) {
-      xmpp.sendStatus(null, arg.trim() || null);
+    back: function(arg = '') {
+      xmpp.sendStatus({status: arg.trim()});
+      ui.setUserStatus('available');
     },
 
     /**
@@ -499,8 +501,9 @@ var chat = {
      *   Send a room presence with <show/> set to "dnd" and
      *   <status/> to "msg".
      */
-    dnd: function(arg) {
-      xmpp.sendStatus('dnd', arg.trim());
+    dnd: function(arg = '') {
+      xmpp.sendStatus({show: 'dnd', status: arg.trim()});
+      ui.setUserStatus('dnd');
     },
 
     /**
@@ -884,6 +887,16 @@ var chat = {
         });
       }
       else ui.messageError(strings.error.unknownUser, {nick: arg});
+    },
+
+    /**
+     * xa <msg>:
+     *   Send a room presence with <show/> set to "xa" and
+     *   <status/> to "msg".
+     */
+    xa: function(arg = '') {
+      xmpp.sendStatus({show: 'xa', status: arg.trim()});
+      ui.setUserStatus('xa');
     }
   },
 

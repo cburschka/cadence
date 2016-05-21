@@ -258,7 +258,6 @@ var strings = {
       close: 'Close',
       help: 'Help',
       login: 'Log in',
-      logout: 'Log out',
       roster: 'Users',
       save: 'Save',
       settings: 'Settings',
@@ -279,6 +278,13 @@ var strings = {
         notifications: 'Notifications'
       },
       none: '---',
+      offline: 'Offline'
+    },
+    status: {
+      available: 'Available',
+      away: 'Away',
+      xa: 'Extended away',
+      dnd: 'Do not disturb',
       offline: 'Offline'
     },
     tooltip: {
