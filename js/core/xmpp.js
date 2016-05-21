@@ -66,11 +66,11 @@ var xmpp = {
       return true;
     });
     this.connection.version.addVersionHandler((request) => {
-      this.connection.version.sendVersion(request, {
-        name: config.clientName,
-        version: config.version,
-        os: navigator.userAgent
-      });
+      this.connection.version.sendVersion(request,
+        config.clientName,
+        config.version,
+        navigator.userAgent
+      );
       return true;
     });
 
