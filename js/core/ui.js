@@ -938,6 +938,7 @@ var ui = {
    */
   userAdd: function(user, animate) {
     const userLink = $('<div class="row">').append(
+      $('<div class="user-show-icon">').addClass(user.show),
       $('<span class="user-roster">').append(visual.format.user(user))
     );
 

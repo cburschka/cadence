@@ -19,21 +19,21 @@ var strings = {
   },
 
   show: {
+    available: [
+      '{user} has returned.',
+      '{user} has returned ({status}).',
+    ],
     away: [
       '{user} is away.',
       '{user} is away ({status}).',
     ],
     xa: [
-      '{user} is away.',
-      '{user} is away ({status}).',
+      '{user} is extendedly away.',
+      '{user} is extendedly away ({status}).',
     ],
     dnd: [
       '{user} is busy.',
       '{user} is busy ({status}).',
-    ],
-    'default': [
-      '{user} has returned.',
-      '{user} has returned ({status}).',
     ],
   },
   showOther: [
