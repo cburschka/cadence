@@ -7,23 +7,20 @@
   background-position: 0px -88px;
 }
 #helpButton {
-  background-image:url('../../img/help.png');
+  background-image:url('../../img/tray/help.png');
 }
 #settingsButton {
-  background-image:url('../../img/settings.png');
+  background-image:url('../../img/tray/settings.png');
 }
 #onlineListButton {
-  background-image:url('../../img/users.png');
+  background-image:url('../../img/tray/users.png');
 }
 #audioButton {
-  background-image:url('../../img/audio.png');
+  background-image:url('../../img/tray/audio.png');
   background-position: 0px 0px;
 }
 #audioButton.off {
   background-position: 0px 100%;
-}
-#settingsList input.playback {
-  background-image:url('../../img/playback.png');
 }
 
 /* Status icon */
@@ -46,7 +43,7 @@
 
 /* Scroll icon */
 #autoScrollIcon {
-  background-image:url('../../img/autoscroll.png');
+  background-image:url('../../img/tray/autoscroll.png');
   background-position: 0px 0px
 }
 #autoScrollIcon.off {
