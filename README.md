@@ -10,9 +10,6 @@ Requirements
 * An XMPP server with Multi-User Chat and either BOSH or WebSocket
   support is required to run cadence.
 * Python 2.7+ (or 3+) and GNU Make are required in the build process.
-* Optional JS and CSS compression uses the YUI Compressor utility.
-  Install it using your distribution's package manager or download
-  it here: https://github.com/yui/yuicompressor/releases
 
 Building
 --------
@@ -36,15 +33,13 @@ These arguments are supported:
   --path                The socket path on the server to connect to [/http-bind or /websocket].
   --session-auth AUTH   The URL to use for session authentication.
   --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
-  --chatbot CHATBOT     The displayed name of the virtual ChatBot. ["Info"]
   --title TITLE         The page title. ["cadence"]
   --style STYLE         The default style. ["Stygium"]
   --cdn-url CDN_URL     Base URL for resources. (Optional)
   --prefix PREFIX       Directory to install cadence to ["."]
   --cdn-prefix CDN_PREFIX
                         Directory to install resources to [PREFIX]
-  --mode debug|aggregate|minify
-                        Whether to optimize JS/CSS files ["minify"]
+  --aggregate           Aggregate JS and CSS files when possible.
 ```
 
 * Only `--domain` is strictly required. `--muc` and `--url` are required if
@@ -54,7 +49,7 @@ These arguments are supported:
   system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
   the public URL of the `rpc.php` script in that software's session authentication plugin.
 
-* `--chatbot` and `--title` merely affect the client branding.
+* `--title` merely affects the client branding.
 
 * The `--prefix` is required to cleanly deploy the application to a directory.
   (An in-source build is a functional installation, but an out-of-source build must
@@ -65,9 +60,6 @@ These arguments are supported:
   (You can also use the CDN for index.html file with `--prefix`, but this will make
   the application harder to find, and will break session-authentication due to
   cross-site security policies.
-
-The `--mode` determines whether to aggregate and minify the scripts and stylesheets.
-For development, "debug" is recommended.
 
 ### Make
 
