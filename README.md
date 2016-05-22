@@ -61,9 +61,6 @@ These arguments are supported:
   the application harder to find, and will break session-authentication due to
   cross-site security policies.
 
-The `--mode` determines whether to aggregate and minify the scripts and stylesheets.
-For development, "debug" is recommended.
-
 ### Make
 
 Then simply execute the Makefile.
