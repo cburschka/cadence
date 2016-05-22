@@ -856,7 +856,7 @@ var xmpp = {
       role: item.attr('role'),
       affiliation: item.attr('affiliation'),
       // away, dnd, xa, chat, [default].
-      show: $('show', stanza).text() || 'default',
+      show: $('show', stanza).text() || 'available',
       status: $('status', stanza).text() || ''
     };
 

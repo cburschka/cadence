@@ -167,7 +167,13 @@ h3 {
   vertical-align: middle;
 }
 
-#onlineList a { display:block }
+#onlineList .user-show-icon {
+  height: 16px;
+  width: 16px;
+  display: inline;
+  background-repeat: no-repeat;
+}
+
 #helpList td, #settingsList td {
   padding: 4px 10px;
   vertical-align: top;

@@ -208,11 +208,11 @@ visual = {
         .addClass('user-role-' + user.role)
         .addClass('user-affiliation-' + user.affiliation)
         .addClass(user.jid && visual.jidClass(user.jid))
-        .addClass('user-show-' + (visual.escapeClass(user.show) || 'default'))
         .attr({
           'data-affiliation': user.affiliation,
           'data-jid': user.jid,
           'data-nick': user.nick,
+          'data-role': user.role,
           'title': user.jid,
         })
         .text(pdn);

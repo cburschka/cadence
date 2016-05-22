@@ -50,6 +50,7 @@
   background-position: 0px 100%;
 }
 
+.user-show-icon,
 #statusButton,
 #audioButton,
 #autoScrollIcon {
@@ -60,21 +61,23 @@
 }
 
 /* User status icons */
-#onlineList .user-show-away {
-  background: url(../../img/away.png) center right no-repeat;
-  padding-right: 20px;
+.user-show-icon {
+  background-image:url('../../img/status/status.png');
 }
-#onlineList .user-show-dnd {
-  background: url(../../img/dnd.png) center right no-repeat;
-  padding-right: 20px;
+.user-show-icon.available {
+  background-position: 0px 0px;
 }
-#onlineList .user-show-xa {
-  background: url(../../img/xa.png) center right no-repeat;
-  padding-right: 20px;
+.user-show-icon.away {
+  background-position: 0px -16px;
 }
-#onlineList .user-show-chat {
-  background: url(../../img/chat.png) center right no-repeat;
-  padding-right: 20px;
+.user-show-icon.xa {
+  background-position: 0px -32px;
+}
+.user-show-icon.dnd {
+  background-position: 0px -48px;
+}
+.user-show-icon.offline {
+  background-position: 0px -64px;
 }
 
 span.hide-message {
