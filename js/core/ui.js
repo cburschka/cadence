@@ -257,7 +257,7 @@ var ui = {
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       if ($(this).hasClass('insert-bbcode-arg')) {
-        const arg = prompt('This BBCode tag requires an argument:', '');
+        const arg = prompt(strings.info.promptBBCodeArg);
         if (!arg) return;
       }
       insertBBCode(this.value.toLowerCase(), arg || '');

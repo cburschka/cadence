@@ -226,7 +226,7 @@ var xmpp = {
    * Prompt the user to enter a different nickname.
    */
   nickConflictResolve: function() {
-    const nick = prompt(strings.info.nickConflictResolve, this.nick.target);
+    const nick = prompt(strings.info.promptNickConflict, this.nick.target);
     if (nick && nick != this.nick.target) return this.nick.target = nick;
   },
 
@@ -757,7 +757,7 @@ var xmpp = {
       }
     }
     else if ($('not-authorized', stanza).length) {
-      const password = prompt(strings.info.joinPassword);
+      const password = prompt(strings.info.promptRoomPassword);
       if (password) return this.joinExistingRoom(room, password);
       else ui.messageError(strings.error.joinPassword, {room: this.room.available[room]});
     }
