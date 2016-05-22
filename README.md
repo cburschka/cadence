@@ -10,9 +10,6 @@ Requirements
 * An XMPP server with Multi-User Chat and either BOSH or WebSocket
   support is required to run cadence.
 * Python 2.7+ (or 3+) and GNU Make are required in the build process.
-* Optional JS and CSS compression uses the YUI Compressor utility.
-  Install it using your distribution's package manager or download
-  it here: https://github.com/yui/yuicompressor/releases
 
 Building
 --------
@@ -43,8 +40,7 @@ These arguments are supported:
   --prefix PREFIX       Directory to install cadence to ["."]
   --cdn-prefix CDN_PREFIX
                         Directory to install resources to [PREFIX]
-  --mode debug|aggregate|minify
-                        Whether to optimize JS/CSS files ["minify"]
+  --aggregate           Aggregate JS and CSS files when possible.
 ```
 
 * Only `--domain` is strictly required. `--muc` and `--url` are required if
