@@ -94,7 +94,7 @@ def parser():
       )
     parser.add_argument(
       '--chatbot', type=str,
-      help='Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
+      help='[Deprecated] Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
       )
     parser.add_argument(
       '--title', type=str,

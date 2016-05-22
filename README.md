@@ -33,7 +33,6 @@ These arguments are supported:
   --path                The socket path on the server to connect to [/http-bind or /websocket].
   --session-auth AUTH   The URL to use for session authentication.
   --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
-  --chatbot CHATBOT     The displayed name of the virtual ChatBot. ["Info"]
   --title TITLE         The page title. ["cadence"]
   --style STYLE         The default style. ["Stygium"]
   --cdn-url CDN_URL     Base URL for resources. (Optional)
@@ -50,7 +49,7 @@ These arguments are supported:
   system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
   the public URL of the `rpc.php` script in that software's session authentication plugin.
 
-* `--chatbot` and `--title` merely affect the client branding.
+* `--title` merely affects the client branding.
 
 * The `--prefix` is required to cleanly deploy the application to a directory.
   (An in-source build is a functional installation, but an out-of-source build must
