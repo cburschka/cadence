@@ -425,37 +425,41 @@ var ui = {
     });
     $('#settingsList').tabs();
 
-    $.contextMenu({
+    for (let trigger of ['left', 'right']) $.contextMenu({
       selector: '#statusButton',
       className: 'box dialog',
-      trigger: 'left',
-      build: () => {
-        const labels = strings.label.status;
-        const online = xmpp.status == 'online';
-        const offline = xmpp.status == 'offline';
-        const status = xmpp.userStatus || 'available';
-        const c = (show) => chat.commands[show]();
-        const items = {available: {
-          name: labels.available,
-          icon: 'available',
-          disabled: online ? status == 'available' : !offline,
-          callback: online ? () => { chat.commands.back(); } : chat.commands.connect,
-        }};
-        for (let show of ['away', 'xa', 'dnd']) items[show] = {
-          name: labels[show],
-          icon: show,
-          disabled: !online || status == show,
-          callback: c,
-        }
-        items.offline = {
-          name: labels.offline,
-          icon: 'offline',
-          disabled: offline,
-          callback: chat.commands.quit
-        };
-        return {items};
-      }
+      trigger,
+      build: this.contextMenuStatus
     });
+  },
+
+  contextMenuStatus: function(_, {button}) {
+    const labels = strings.label.status;
+    const online = xmpp.status == 'online';
+    const offline = xmpp.status == 'offline';
+    const status = xmpp.userStatus || 'available';
+    const cmd = (show) => chat.commands[show](
+      button == 2 && prompt(strings.info.promptStatus) || ''
+    );
+    const items = {back: {
+      name: labels.available,
+      icon: 'available',
+      disabled: online ? status == 'available' : !offline,
+      callback: online ? cmd : chat.commands.connect,
+    }};
+    for (let show of ['away', 'xa', 'dnd']) items[show] = {
+      name: labels[show],
+      icon: show,
+      disabled: !online || status == show,
+      callback: cmd
+    }
+    items.offline = {
+      name: labels.offline,
+      icon: 'offline',
+      disabled: offline,
+      callback: chat.commands.quit
+    };
+    return {items};
   },
 
   /**

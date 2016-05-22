@@ -133,6 +133,7 @@ var strings = {
       'Ping: Pong ({delay} ms).',
       'Ping to {user}: Pong ({delay} ms).'
     ],
+    promptStatus: 'Status message:',
     rejoinNick: 'Rejoining as {nick} ...',
     roomConf: 'Room configuration saved.',
     roomCreated: 'The room {room} has been newly created.',
@@ -303,6 +304,7 @@ var strings = {
        settings: 'Show/hide settings',
        roster: 'Show/hide online list',
        sound: 'Sound on/off',
+       status: 'Status (right-click for status message)',
     },
     settings: {
       xmpp: {
