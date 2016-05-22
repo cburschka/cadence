@@ -937,8 +937,10 @@ var ui = {
    * Add a user to the online list.
    */
   userAdd: function(user, animate) {
-    const userLink = $('<div class="row">').append(
-      $('<div class="user-show-icon">').addClass(user.show),
+    const icon = $('<div class="user-show-icon">')
+      .addClass(user.show)
+      .attr('title', strings.label.status[user.show] || strings.label.status.available);
+    const userLink = $('<div class="row">').append(icon,
       $('<span class="user-roster">').append(visual.format.user(user))
     );
 
