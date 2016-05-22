@@ -262,6 +262,7 @@ var strings = {
       save: 'Save',
       settings: 'Settings',
       sound: 'Sound',
+      status: 'Status',
     },
     page: {
       style: 'Style:',
