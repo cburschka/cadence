@@ -4,7 +4,7 @@
 }
 #statusButton {
   background-image:url('../../img/tray/status.png');
-  background-position: 0px -96px;
+  background-position: 0px -88px;
 }
 #helpButton {
   background-image:url('../../img/help.png');
@@ -31,16 +31,16 @@
   background-position: 0px 0px;
 }
 #statusButton.away {
-  background-position: 0px -24px;
+  background-position: 0px -22px;
 }
 #statusButton.xa {
-  background-position: 0px -48px;
+  background-position: 0px -44px;
 }
 #statusButton.dnd {
-  background-position: 0px -72px;
+  background-position: 0px -66px;
 }
 #statusButton.offline {
-  background-position: 0px -96px;
+  background-position: 0px -88px;
 }
 
 
