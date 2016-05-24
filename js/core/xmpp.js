@@ -180,7 +180,8 @@ var xmpp = {
     }
 
     matchBare(x) {
-      return this.bare() == x.bare();
+      if (!x || !x.bare) x = xmpp.JID.parse(x);
+      return this.bare().toLowerCase() == x.bare().toLowerCase();
     }
 
     toString() {

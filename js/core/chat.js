@@ -94,6 +94,7 @@ var chat = {
      */
     affiliate: function(arg) {
       arg = chat.parseArgs(arg);
+      arg[0] = arg[0] || [];
 
       const type = arg.type || arg[0][0];
 
@@ -115,7 +116,7 @@ var chat = {
           $('item', stanza).map((s,t) => {
             return xmpp.JID.parse(t.getAttribute('jid'));
           }).each((i,jid) => {
-            users[jid.toLowerCase()] = {jid};
+            users[String(jid).toLowerCase()] = {jid};
           });
 
           if ($.isEmptyObject(users)) {
@@ -233,10 +234,8 @@ var chat = {
      *   Shortcut for "/affiliate outcast <nick|jid>".
      */
     ban: function(arg) {
-      arg = chat.parseArgs(arg);
-      arg.type = 'outcast';
-      if (arg[0]) arg[0].unshift('outcast');
-      this.affiliate(arg);
+      arg = arg.jid || String(arg).trim();
+      this.affiliate({0: ['outcast', arg]});
     },
 
     /**
@@ -244,7 +243,7 @@ var chat = {
      *   Shortcut for "/affiliate outcast".
      */
     bans: function() {
-      this.affiliate({0: ['outcast']});
+      this.affiliate({type: 'outcast'});
     },
 
     /**
@@ -788,12 +787,11 @@ var chat = {
      *   Unban a user from the current room.
      */
     unban: function(arg) {
-      arg = chat.parseArgs(arg);
-      const jid = xmpp.JID.parse(arg.jid || arg[0][0]);
+      const jid = xmpp.JID.parse(arg.trim());
 
       xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
         const isBanned = $('item', stanza).is(function() {
-          return this.getAttribute('jid') == jid;
+          return jid.matchBare(this.getAttribute('jid'));
         });
         if (isBanned) this.affiliate({type: 'none', jid});
         else
