@@ -50,6 +50,7 @@
   background-position: 0px 100%;
 }
 
+.user-show-icon,
 #statusButton,
 #audioButton,
 #autoScrollIcon {
@@ -60,20 +61,23 @@
 }
 
 /* User status icons */
+.user-show-icon {
+  background-image:url('../../img/status/status.png');
+}
 .user-show-icon.available {
-  background-image:url('../../img/status/available.png');
+  background-position: 0px 0px;
 }
 .user-show-icon.away {
-  background-image:url('../../img/status/away.png');
+  background-position: 0px -16px;
 }
 .user-show-icon.xa {
-  background-image:url('../../img/status/xa.png');
+  background-position: 0px -32px;
 }
 .user-show-icon.dnd {
-  background-image:url('../../img/status/dnd.png');
+  background-position: 0px -48px;
 }
 .user-show-icon.offline {
-  background-image:url('../../img/status/offline.png');
+  background-position: 0px -64px;
 }
 
 span.hide-message {
