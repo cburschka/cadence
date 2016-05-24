@@ -942,7 +942,7 @@ var ui = {
   rosterInsert: function(user, {nick, animate}={}) {
     nick = nick || user.nick;
     if (animate === undefined) animate = true;
-    const label = strings.label.status[user.show] || strings.label.status.available;
+    const label = user.status || strings.label.status[user.show] || user.show;
     const exists = !!this.roster[nick];
     const entry = this.roster[nick] || $('<div class="row">').append(
       $('<div class="user-show-icon">').addClass(user.show).attr('title', label),
