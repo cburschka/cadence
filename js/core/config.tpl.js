@@ -2,7 +2,7 @@ var config = {
   // Settings which can be modified by users:
   defaultSettings: {
     // Which option container is open when the page loads.
-    activeMenu: 'onlineList',
+    activeMenu: 'roster',
     // Which stylesheet is selected when the page loads.
     activeStyle: '@@@STYLE@@@',
 
