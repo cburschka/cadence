@@ -205,14 +205,15 @@ visual = {
         pdn = '(' + pdn + ')';
 
       return $('<span class="user">')
-        .addClass('user-role-' + user.role)
         .addClass('user-affiliation-' + user.affiliation)
+        .addClass('user-role-' + user.role)
         .addClass(user.jid && visual.jidClass(user.jid))
         .attr({
           'data-affiliation': user.affiliation,
           'data-jid': user.jid,
           'data-nick': user.nick,
           'data-role': user.role,
+          'data-show': user.show,
           'title': user.jid,
         })
         .text(pdn);

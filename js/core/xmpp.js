@@ -781,27 +781,26 @@ var xmpp = {
       // An `unavailable` 303 is a nick change to <item nick="{new}"/>
       if (codes.indexOf(303) >= 0) {
         const newNick = item.attr('nick');
+        const newUser = $.extend({}, user, {nick: newNick});
         ui.messageInfo(strings.info.userNick, {
           from: user,
-          to: {
-            nick: newNick,
-            jid: user.jid,
-            role: user.role,
-            affiliation: user.affiliation
-          }
+          to: newUser,
         });
-        // Move the roster entry to the new nick, so the new presence
-        // won't trigger a notification.
-        // (The nickname will be set by the new presence.)
-        roster[newNick] = user;
+
+        // Update the roster entry.
+        roster[newNick] = newUser;
+        ui.rosterInsert(newUser, {nick: user.nick});
 
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
         ui.playSound('info');
       }
 
+      // Otherwise, the roster entry must be removed.
+      else ui.rosterRemove(user.nick);
+
       // An `unavailable` 301 is a ban; a 307 is a kick.
-      else if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
+      if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
         const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
         const actor = $('actor', item).attr('nick');
         actor = actor && roster[actor];
@@ -837,7 +836,6 @@ var xmpp = {
       if (nick == xmpp.nick.current) xmpp.prejoin();
 
       // In either case, the old nick must be removed and destroyed.
-      ui.userRemove(user);
       delete roster[nick];
     }
   },
@@ -904,9 +902,9 @@ var xmpp = {
         });
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
+      ui.rosterInsert(user);
     }
 
-    ui.userAdd(user);
     roster[nick] = user;
   },
 
