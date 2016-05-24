@@ -934,54 +934,85 @@ var ui = {
   },
 
   /**
-   * Add a user to the online list.
+   * Update a roster entry.
+   *
+   * @param {String} user - The new user object.
+   * @param {String} nick - The last known nickname of the user.
    */
-  userAdd: function(user, animate) {
-    const icon = $('<div class="user-show-icon">')
-      .addClass(user.show)
-      .attr('title', strings.label.status[user.show] || strings.label.status.available);
-    const userLink = $('<div class="row">').append(icon,
-      $('<span class="user-roster">').append(visual.format.user(user))
+  rosterInsert: function(user, {nick, animate}={}) {
+    nick = nick || user.nick;
+    if (animate === undefined) animate = true;
+    const label = strings.label.status[user.show] || strings.label.status.available;
+    const exists = !!this.userLinks[nick];
+    const entry = this.userLinks[nick] || $('<div class="row">').append(
+      $('<div class="user-show-icon">').addClass(user.show).attr('title', label),
+      visual.format.user(user)
     );
+    const link = $('.user', entry);
 
-    visual.msgOnClick(userLink);
+    // If the entry already exists:
+    if (exists) {
+      // Update entry.
+      $('.user-show-icon', entry).attr({
+        class: 'user-show-icon ' + user.show,
+        title: label
+      });
+      link.attr({
+        'data-affiliation': user.affiliation,
+        'data-jid': user.jid,
+        'data-nick': user.nick,
+        'data-role': user.role,
+        'title': user.jid,
+      }).removeClass(
+        (_, css) => css.match(/(jid|user-(affiliation|role))-/g).join(' ')
+      ).addClass([
+        'user-affiliation-' + user.affiliation,
+        'user-role-' + user.role
+      ].concat(user.jid && visual.jidClass(user.jid)).join(' '));
 
-    if (user.nick == xmpp.nick.current) {
-      $('span.user-roster', userLink).addClass('user-self');
-      this.dom.onlineList.find('span.user-self').removeClass('user-self');
+      // If the nickname has changed:
+      if (nick && nick != user.nick) {
+        link.text(user.nick);
+        // Remove the old nickname from the index.
+        const oldIndex = this.sortedNicks.indexOf(nick);
+        this.sortedNicks.splice(oldIndex, 1);
+      }
+    }
+    else {
+      this.userLinks[nick] = entry;
+      visual.msgOnClick(link);
+      link.toggleClass('user-self', user.nick == xmpp.nick.current);
+      animate ? entry.slideDown(1000) : entry.show();
     }
 
-    if (!this.userLinks[user.nick]) {
-      let i;
-      for (i = 0; i < this.sortedNicks.length; i++)
-        if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
-          break;
-      if (i < this.sortedNicks.length)
-        userLink.insertBefore(this.userLinks[this.sortedNicks[i]]);
-      else
-        userLink.appendTo(this.dom.onlineList);
-      this.sortedNicks.splice(i, 0, user.nick);
-      if (animate) userLink.slideDown(1000);
+    // If the nick is still in the sorted index, we're done.
+    if (~this.sortedNicks.indexOf(nick)) return;
+
+    // Find the (case-insensitive) alphabetical successor of this entry:
+    const _lower = user.nick.toLowerCase();
+    const newIndex = this.sortedNicks.findIndex(value => _lower < value.toLowerCase());
+
+    if (~newIndex) {
+      entry.insertBefore(this.userLinks[this.sortedNicks[newIndex]]);
+      this.sortedNicks.splice(newIndex, 0, user.nick);
     }
-    else userLink.replaceAll(this.userLinks[user.nick])
-    userLink.css('display', 'block');
-    this.userLinks[user.nick] = userLink;
+    else {
+      entry.appendTo(this.dom.onlineList);
+      this.sortedNicks.push(user.nick);
+    }
   },
 
   /**
    * Remove a user from the online list.
    */
-  userRemove: function(user) {
-    if (this.userLinks[user.nick]) {
-      this.userLinks[user.nick].slideUp(1000).remove();
-      for (let i = 0; i < this.sortedNicks.length; i++) {
-        if (this.sortedNicks[i] == user.nick) {
-          this.sortedNicks.splice(i, 1);
-          break;
-        }
-      }
-      delete this.userLinks[user.nick];
-    }
+  rosterRemove: function(nick) {
+    const index = this.sortedNicks.indexOf(nick);
+    if (~index) this.sortedNicks.splice(index, 1);
+
+    const entry = this.userLinks[nick];
+    if (entry) entry.slideUp(1000, () => entry.remove());
+
+    delete this.userLinks[nick];
   },
 
   /**
@@ -1023,7 +1054,7 @@ var ui = {
       this.userStatus = {};
       this.sortedNicks = [];
       for (let nick in roster)
-        ui.userAdd(roster[nick], false);
+        this.rosterInsert(roster[nick], {animate: false});
 
       list.slideDown();
     });
