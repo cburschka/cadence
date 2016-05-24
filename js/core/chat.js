@@ -676,6 +676,7 @@ var chat = {
       if (room) {
         ui.setFragment(null);
         xmpp.leaveRoom(room);
+        xmpp.prejoin();
         ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
       }
     },

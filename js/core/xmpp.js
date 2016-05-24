@@ -266,6 +266,8 @@ var xmpp = {
   /**
    * Send an unavailable presence to a specified room.
    *
+   * This does not alter client state, which must be done by the caller.
+   *
    * @param {string} room The room to leave.
    */
   leaveRoom: function(room) {
@@ -274,11 +276,6 @@ var xmpp = {
     this.connection.send(pres);
 
     delete this.roster[room];
-    // The server does not acknowledge the /part command, so we need to change
-    // the state right here: If the room we left is the current one, enter
-    // prejoin status and list the rooms again.
-    if (room == this.room.current) this.prejoin();
-    else this.discoverRooms();
   },
 
   prejoin: function() {
