@@ -1004,15 +1004,21 @@ var ui = {
 
   /**
    * Remove a user from the online list.
+   *
+   * The user will remain visible as "offline" for a short time.
    */
   rosterRemove: function(nick) {
-    const index = this.sortedNicks.indexOf(nick);
-    if (~index) this.sortedNicks.splice(index, 1);
-
     const entry = this.roster[nick];
-    if (entry) entry.slideUp(1000, () => entry.remove());
 
-    delete this.roster[nick];
+    if (entry) {
+      this.rosterInsert({nick, show: 'offline'});
+      setTimeout(() => {
+        entry.slideUp(() => entry.remove());
+        delete this.roster[nick];
+        const index = this.sortedNicks.indexOf(nick);
+        if (~index) this.sortedNicks.splice(index, 1);
+      }, 1500);
+    }
   },
 
   /**
