@@ -802,8 +802,7 @@ var xmpp = {
       // An `unavailable` 301 is a ban; a 307 is a kick.
       if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
         const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
-        const actor = $('actor', item).attr('nick');
-        actor = actor && roster[actor];
+        const actor = roster[$('actor', item).attr('nick')];
         const reason = $('reason', item).text();
         const index = (+!!actor) * 2 + (+!!reason);
 
