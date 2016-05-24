@@ -2,7 +2,7 @@
  * ui.js contains all functions that alter the user interface.
  */
 var ui = {
-  userLinks: {},
+  roster: {},
   sortedNicks: [],
   dom: null,
   userStatus: {},
@@ -26,14 +26,14 @@ var ui = {
       inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
-      onlineList: $('#onlineList'),
+      roster: $('#roster'),
       roomSelection: $('#roomSelection'),
       statusButton: $('#statusButton'),
       autoScrollIcon: $('#autoScrollIcon'),
       messageLengthCounter: $('#messageLengthCounter'),
       menu: {
         help: $('#helpContainer'),
-        onlineList: $('#onlineListContainer'),
+        roster: $('#rosterContainer'),
         settings: $('#settingsContainer'),
       },
       emoticonSidebarContainer: $('#emoticonSidebarContainer'),
@@ -154,7 +154,7 @@ var ui = {
 
     // Open the last active sidebar.
     if (!this.dom.menu[config.settings.activeMenu]) {
-      config.settings.activeMenu = 'onlineList';
+      config.settings.activeMenu = 'roster';
     }
     this.toggleMenu(config.settings.activeMenu, true);
 
@@ -943,8 +943,8 @@ var ui = {
     nick = nick || user.nick;
     if (animate === undefined) animate = true;
     const label = strings.label.status[user.show] || strings.label.status.available;
-    const exists = !!this.userLinks[nick];
-    const entry = this.userLinks[nick] || $('<div class="row">').append(
+    const exists = !!this.roster[nick];
+    const entry = this.roster[nick] || $('<div class="row">').append(
       $('<div class="user-show-icon">').addClass(user.show).attr('title', label),
       visual.format.user(user)
     );
@@ -979,7 +979,7 @@ var ui = {
       }
     }
     else {
-      this.userLinks[nick] = entry;
+      this.roster[nick] = entry;
       visual.msgOnClick(link);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
       animate ? entry.slideDown(1000) : entry.show();
@@ -993,11 +993,11 @@ var ui = {
     const newIndex = this.sortedNicks.findIndex(value => _lower < value.toLowerCase());
 
     if (~newIndex) {
-      entry.insertBefore(this.userLinks[this.sortedNicks[newIndex]]);
+      entry.insertBefore(this.roster[this.sortedNicks[newIndex]]);
       this.sortedNicks.splice(newIndex, 0, user.nick);
     }
     else {
-      entry.appendTo(this.dom.onlineList);
+      entry.appendTo(this.dom.roster);
       this.sortedNicks.push(user.nick);
     }
   },
@@ -1009,10 +1009,10 @@ var ui = {
     const index = this.sortedNicks.indexOf(nick);
     if (~index) this.sortedNicks.splice(index, 1);
 
-    const entry = this.userLinks[nick];
+    const entry = this.roster[nick];
     if (entry) entry.slideUp(1000, () => entry.remove());
 
-    delete this.userLinks[nick];
+    delete this.roster[nick];
   },
 
   /**
@@ -1047,10 +1047,10 @@ var ui = {
     // If no roster is given, only update the menu.
     if (!roster) return;
 
-    const list = this.dom.onlineList;
+    const list = this.dom.roster;
     list.slideUp(() => {
       list.html('');
-      this.userLinks = {};
+      this.roster = {};
       this.userStatus = {};
       this.sortedNicks = [];
       for (let nick in roster)
@@ -1303,7 +1303,7 @@ var ui = {
       result = '/' + prefixSearch(prefix.substring(1), searchSpace);
     }
     else
-      result = prefixSearch(prefix, Object.keys(this.userLinks));
+      result = prefixSearch(prefix, this.sortedNicks);
 
     if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));

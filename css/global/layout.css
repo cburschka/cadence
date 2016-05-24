@@ -13,7 +13,7 @@ h3 { white-space: nowrap }
 #roomContainer,
 .menuContainer,
 #chatList .row,
-#onlineList .row,
+#roster .row,
 #settings-textColor, #textColorClear { display: none }
 
 #chatList { word-wrap: break-word }
@@ -101,13 +101,13 @@ h3 {
   margin: auto;
   bottom: 0;
 }
-#onlineList div, .emoticon-list-sidebar {
+#roster div, .emoticon-list-sidebar {
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 2px;
 }
 .emoticon-list-sidebar { width: 280px }
-#onlineListContainer { width: 200px }
+#rosterContainer { width: 200px }
 .emoticon-sidebar { width: 340px }
 #helpContainer,
 #settingsContainer { width: 360px }
@@ -167,7 +167,7 @@ h3 {
   vertical-align: middle;
 }
 
-#onlineList .user-show-icon {
+#roster .user-show-icon {
   height: 16px;
   width: 16px;
   display: inline;
