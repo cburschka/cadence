@@ -1125,9 +1125,7 @@ var xmpp = {
   },
 
   ping: function(jid) {
-    return new Promise((resolve, reject) => {
-      this.connection.ping.ping(jid, resolve, reject, config.xmpp.timeout);
-    });
+    return this.connection.ping.ping(jid, config.xmpp.timeout);
   },
 
   getTime: function(jid) {
