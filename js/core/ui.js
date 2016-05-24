@@ -982,7 +982,6 @@ var ui = {
       this.roster[nick] = entry;
       visual.msgOnClick(link);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
-      animate ? entry.slideDown(1000) : entry.show();
     }
 
     // If the nick is still in the sorted index, we're done.
@@ -1000,6 +999,9 @@ var ui = {
       entry.appendTo(this.dom.roster);
       this.sortedNicks.push(user.nick);
     }
+
+    // The new item becomes visible after being added to the DOM.
+    if (!exists) animate ? entry.slideDown() : entry.show();
   },
 
   /**
