@@ -980,7 +980,7 @@ var ui = {
     }
     else {
       this.roster[nick] = entry;
-      visual.msgOnClick(link);
+      visual.msgOnClick(entry);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
     }
 
