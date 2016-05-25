@@ -939,12 +939,14 @@ var ui = {
     nick = nick || user.nick;
     if (animate === undefined) animate = true;
     const label = user.status || strings.label.status[user.show] || user.show;
-    const exists = !!this.roster[nick];
     const entry = this.roster[nick] || $('<div class="row">').append(
       $('<div class="user-show-icon">').addClass(user.show).attr('title', label),
       visual.format.user(user)
     );
     const link = $('.user', entry);
+
+    const exists = !!this.roster[nick];
+    this.roster[user.nick] = entry;
 
     // If the entry already exists:
     if (exists) {
@@ -972,10 +974,10 @@ var ui = {
         // Remove the old nickname from the index.
         const oldIndex = this.sortedNicks.indexOf(nick);
         this.sortedNicks.splice(oldIndex, 1);
+        delete this.roster[nick];
       }
     }
     else {
-      this.roster[nick] = entry;
       visual.msgOnClick(entry);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
     }
