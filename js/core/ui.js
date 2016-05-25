@@ -1017,7 +1017,7 @@ var ui = {
         delete this.roster[nick];
         const index = this.sortedNicks.indexOf(nick);
         if (~index) this.sortedNicks.splice(index, 1);
-      }, 1500);
+      }, 5000);
     }
   },
 
