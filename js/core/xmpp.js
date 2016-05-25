@@ -779,28 +779,29 @@ var xmpp = {
     // Delete the old roster entry.
     delete roster[nick];
 
-    if (room == this.room.current && user) {
-      room = this.room.available[room];
+    // Ignore things that happen outside the current room or to missing users.
+    if (room != this.room.current || !user) return;
 
-      // An `unavailable` 303 is a nick change to <item nick="{new}"/>
-      if (codes.indexOf(303) >= 0) {
-        const newNick = item.attr('nick');
-        const newUser = $.extend({}, user, {nick: newNick});
-        ui.messageInfo(strings.info.userNick, {
-          from: user,
-          to: newUser,
-        });
+    room = this.room.available[room];
 
-        // Update the roster entry.
-        roster[newNick] = newUser;
-        ui.rosterInsert(newUser, {nick: user.nick});
+    // An `unavailable` 303 is a nick change to <item nick="{new}"/>
+    if (codes.indexOf(303) >= 0) {
+      const newNick = item.attr('nick');
+      const newUser = $.extend({}, user, {nick: newNick});
+      ui.messageInfo(strings.info.userNick, {
+        from: user,
+        to: newUser,
+      });
 
-        // ejabberd bug: presence does not use 110 code; check nick.
-        if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
-        ui.playSound('info');
-        return;
-      }
+      // Update the roster entry.
+      roster[newNick] = newUser;
+      ui.rosterInsert(newUser, {nick: user.nick});
 
+      // ejabberd bug: presence does not use 110 code; check nick.
+      if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
+      ui.playSound('info');
+    }
+    else {
       // An `unavailable` 301 is a ban; a 307 is a kick.
       if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
         const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick';
