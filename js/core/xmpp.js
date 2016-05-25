@@ -776,6 +776,9 @@ var xmpp = {
     const roster = this.roster[room];
     const user = roster[nick];
 
+    // Delete the old roster entry.
+    delete roster[nick];
+
     if (room == this.room.current && user) {
       room = this.room.available[room];
 
@@ -795,15 +798,15 @@ var xmpp = {
         // ejabberd bug: presence does not use 110 code; check nick.
         if (nick == xmpp.nick.current) xmpp.nick.current = newNick;
         ui.playSound('info');
+        return;
       }
-
-      // Otherwise, the roster entry must be removed.
-      else ui.rosterRemove(user.nick);
 
       // An `unavailable` 301 is a ban; a 307 is a kick.
       if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
-        const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick'
-        const actor = roster[$('actor', item).attr('nick')];
+        const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick';
+        const actorNick = $('actor', item).attr('nick');
+        // For a self-kick, the actor is already out of the roster.
+        const actor = actorNick == nick ? user : roster[nick];
         const reason = $('reason', item).text();
         const index = (+!!actor) * 2 + (+!!reason);
 
@@ -834,9 +837,7 @@ var xmpp = {
 
       // If this is our nickname, we're out of the room.
       if (nick == xmpp.nick.current) xmpp.prejoin();
-
-      // In either case, the old nick must be removed and destroyed.
-      delete roster[nick];
+      ui.rosterRemove(user.nick);
     }
   },
 
