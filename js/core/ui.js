@@ -192,10 +192,10 @@ var ui = {
     visual.linkOnClick(document);
 
     // Inserting BBCode tags.
-    const insertBBCode = (tag, arg) => {
-      arg = arg ? '=' + arg : '';
-      const v = ['[' + tag + arg + ']', '[/' + tag + ']'];
-      chat.insertText(v);
+    const insertBBCode = (tag, arg='') => {
+      const open = '[' + tag + (arg && '=' + arg) + ']';
+      const close = '[/' + tag + ']';
+      chat.insertText([open, close]);
       return true;
     };
 
@@ -256,11 +256,12 @@ var ui = {
     // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
+      const tag = this.value.toLowerCase();
       if ($(this).hasClass('insert-bbcode-arg')) {
         const arg = prompt(strings.info.promptBBCodeArg);
-        if (!arg) return;
+        if (arg) insertBBCode(tag, arg);
       }
-      insertBBCode(this.value.toLowerCase(), arg || '');
+      else insertBBCode(tag);
     });
 
     // Open the color tray.
