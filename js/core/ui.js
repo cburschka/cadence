@@ -202,26 +202,21 @@ var ui = {
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        //  9: <tab>
-         9: () => { return this.autocomplete(); },
-        // 13: <return> (unless shift is down)
-        13: (e,x) => {
+        TAB: () => { return this.autocomplete(); },
+        RETURN: (e,x) => {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
             $(x).val('');
             return true;
           }
         },
-        // 38: <arrow-up> (if the field is empty, or ctrl is down)
-        38: (e,x) => { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
-        // 40: <arrow-down> (if ctrl is down)
-        40: (e) => { return e.ctrlKey && chat.historyDown(); },
+        UP: (e,x) => { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
+        DOWN: (e) => { return e.ctrlKey && chat.historyDown(); },
 
-        // 98, 105, 117, 117: b,i,s,u
-        98: (e) => { return e.ctrlKey && insertBBCode('b'); },
-        105: (e) => { return e.ctrlKey && insertBBCode('i'); },
-        115: (e) => { return e.ctrlKey && insertBBCode('s'); },
-        117: (e) => { return e.ctrlKey && insertBBCode('u'); },
+        b: (e) => { return e.ctrlKey && insertBBCode('b'); },
+        i: (e) => { return e.ctrlKey && insertBBCode('i'); },
+        s: (e) => { return e.ctrlKey && insertBBCode('s'); },
+        u: (e) => { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
       keyup: () => { this.updateMessageLengthCounter(); }
@@ -1106,7 +1101,13 @@ var ui = {
    *                 Should return true if the event should be terminated.
    * @return true if the event should be terminated.
    */
-  onKeyMap: function(callbacks) {
+  onKeyMap: function(map) {
+    // Compile a lookup table from KeyEvent.DOM_VK_* constants or charcodes.
+    const callbacks = {};
+    for (let key in map) {
+      const index = KeyEvent["DOM_VK_" + key] || key.charCodeAt(0);
+      callbacks[index] = map[key];
+    }
     return function(event) {
       const char = event.which || event.keyCode;
       if (callbacks[char] && callbacks[char](event, this)) {
