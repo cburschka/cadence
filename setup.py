@@ -38,6 +38,7 @@ def generate_links(cdn_url, aggregate, css_alt, style):
             'js/lib/strophe.disco.js',
             'js/lib/strophe.caps.js',
             'js/lib/strophe.ping.js',
+            'js/lib/strophe.storage.js',
             'js/lib/strophe.time.js',
             'js/lib/strophe.version.js',
             'js/lib/moment.js',
