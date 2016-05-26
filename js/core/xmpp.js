@@ -1151,7 +1151,7 @@ var xmpp = {
   loadSettings: function() {
     const name = config.clientName;
     const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
-    const decodeValue = (node) => {
+    const decodeValue = node => {
       node = $(node);
       switch (node.attr('type')) {
         case 'object': return decodeObject(node);
@@ -1163,8 +1163,8 @@ var xmpp = {
         default: return node.text();
       }
     };
-    const decodeArray = (node) => $.map(node.children(), decodeValue);
-    const decodeObject = (node) => {
+    const decodeArray = node => $.map(node.children(), decodeValue);
+    const decodeObject = node => {
       const obj = {};
       node.children().each(function() {
         obj[$(this).attr('name')] = decodeValue(this);
@@ -1202,8 +1202,8 @@ var xmpp = {
       }
       query.up();
     }
-    const encodeArray = (arr) => { for (let val of arr) encodeValue(val) };
-    const encodeObject = (obj) => { for (let key in obj) encodeValue(obj[key], key) };
+    const encodeArray = arr => { for (let val of arr) encodeValue(val) };
+    const encodeObject = obj => { for (let key in obj) encodeValue(obj[key], key) };
 
     encodeValue(data);
     return query.send(config.xmpp.timeout);
