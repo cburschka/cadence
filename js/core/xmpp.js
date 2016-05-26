@@ -30,21 +30,6 @@ var xmpp = {
       this.statusConstants[Strophe.Status[key]] = key;
     }
     this.resource = this.createResourceName();
-  },
-
-  /**
-   * Open a new connection and authenticate.
-   */
-  newConnection: function(user, pass) {
-    this.disconnect();
-
-    this.user = user;
-    this.nick.target = user;
-    this.jid = new this.JID({
-      node: user,
-      domain: config.xmpp.domain,
-      resource: this.resource
-    });
 
     this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.addHandler((stanza) => { return this.eventPresenceCallback(stanza) }, null, 'presence');
@@ -87,7 +72,21 @@ var xmpp = {
     this.connection.rawOutput = (data) => {
       if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
+  },
 
+  /**
+   * Open a new connection and authenticate.
+   */
+  connect: function(user, pass) {
+    this.disconnect();
+
+    this.user = user;
+    this.nick.target = user;
+    this.jid = new this.JID({
+      node: user,
+      domain: config.xmpp.domain,
+      resource: this.resource
+    });
     this.connection.connect(String(this.jid), pass, (status, error) => {
       return this.eventConnectCallback(status, error);
     });
@@ -1078,8 +1077,7 @@ var xmpp = {
       else this.prejoin();
     }
     else if (status == 'offline') {
-      // The connection is closed and cannot be reused.
-      this.connection = null;
+      this.connection.reset();
       this.nick.current = null;
       this.room.current = null;
       this.userStatus = null;

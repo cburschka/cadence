@@ -340,7 +340,7 @@ var chat = {
           return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
         else return fail();
       }
-      xmpp.newConnection(arg.user, arg.pass);
+      xmpp.connect(arg.user, arg.pass);
     },
 
     /**
