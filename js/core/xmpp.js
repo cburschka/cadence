@@ -1143,37 +1143,69 @@ var xmpp = {
     return this.connection.send(msg);
   },
 
+  /**
+   * Load settings from XML storage.
+   *
+   * This will load settings stored under <cadence xmlns="cadence:settings">.
+   */
+  loadSettings: function() {
+    const name = config.clientName;
+    const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
+    const decodeValue = (node) => {
+      node = $(node);
+      switch (node.attr('type')) {
+        case 'object': return decodeObject(node);
+        case 'array': return decodeArray(node);
+        case 'number': return parseFloat(node.text());
+        case 'boolean': return node.text() === 'true';
+        case 'undefined': return undefined;
+        case 'null': return null;
+        default: return node.text();
+      }
+    };
+    const decodeArray = (node) => $.map(node.children(), decodeValue);
+    const decodeObject = (node) => {
+      const obj = {};
+      node.children().each(function() {
+        obj[$(this).attr('name')] = decodeValue(this);
+      });
+      return obj;
+    };
+    return query.then((stanza) => {
+      return decodeValue($('query > ' + name + ' > data', stanza));
+    });
+  },
+
+  /**
+   * Store settings in XML storage.
+   *
+   * This will store settings in <cadence xmlns="cadence:settings">.
+   */
   storeSettings: function(data, modified) {
     const name = config.clientName;
     const query = this.connection.storage.set(name, name + ':settings');
     query.attrs({modified});
-    const encodeVal = (val, name) => {
+    const encodeValue = (val, name) => {
       query.c('data', {name});
       if (typeof val !== 'object') {
         query.attrs({type: typeof val});
-        query.t(String(val));
+        if (val !== undefined) query.t(String(val));
       }
       else if (val.constructor === Array) {
         query.attrs({type: 'array'});
         encodeArray(val);
       }
+      else if (val === null) query.attrs({type: 'null'});
       else {
         query.attrs({type: 'object'});
         encodeObject(val);
       }
       query.up();
     }
-    const encodeArray = (arr) => { for (val of arr) encodeVal(val) };
-    const encodeObject = (obj) => { for (key in obj) encodeVal(obj[key], key) };
+    const encodeArray = (arr) => { for (let val of arr) encodeValue(val) };
+    const encodeObject = (obj) => { for (let key in obj) encodeValue(obj[key], key) };
 
-    encodeVal(data, 'settings');
+    encodeValue(data);
     return query.send(config.xmpp.timeout);
-  }
-
-  loadSettings: function() {
-    const name = config.clientName;
-    const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
-    const decodeVal = (node) => { };
-    return query.then((stanza) => decodeVal($('query > ' + name, stanza)[0]));
   }
 };
