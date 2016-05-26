@@ -29,28 +29,29 @@ var xmpp = {
     for (let key in Strophe.Status) {
       this.statusConstants[Strophe.Status[key]] = key;
     }
+    // Generate a unique resource name for this session.
     this.resource = this.createResourceName();
 
+    // Initialize the connection object and attach the event handlers.
     this.connection = new Strophe.Connection(config.xmpp.url);
-    this.connection.addHandler((stanza) => { return this.eventPresenceCallback(stanza) }, null, 'presence');
-    this.connection.addHandler((stanza) => { return this.eventMessageCallback(stanza) }, null, 'message');
-    this.connection.addHandler((stanza) => { return this.eventIQCallback(stanza) }, null, 'iq');
-
-    this.connection.attention.addAttentionHandler((stanza) => {
+    this.connection.addHandler(stanza => this.eventPresenceCallback(stanza), null, 'presence');
+    this.connection.addHandler(stanza => this.eventMessageCallback(stanza), null, 'message');
+    this.connection.addHandler(stanza => this.eventIQCallback(stanza), null, 'iq');
+    this.connection.attention.addAttentionHandler(stanza => {
       const from = this.JID.parse(stanza.getAttribute('from'));
       const user = this.userFromJid(from);
       ui.messageError(strings.info.attention, {user});
       return true;
     });
-    this.connection.ping.addPingHandler((ping) => {
+    this.connection.ping.addPingHandler(ping => {
       this.connection.ping.pong(ping);
       return true;
     });
-    this.connection.time.addTimeHandler((request) => {
+    this.connection.time.addTimeHandler(request => {
       this.connection.time.sendTime(request);
       return true;
     });
-    this.connection.version.addVersionHandler((request) => {
+    this.connection.version.addVersionHandler(request => {
       this.connection.version.sendVersion(request,
         config.clientName,
         config.version,
@@ -63,13 +64,13 @@ var xmpp = {
     for (let feature of config.features)
       this.connection.disco.addFeature(feature);
 
-    this.connection.addTimedHandler(30, () => { return this.discoverRooms() } );
+    this.connection.addTimedHandler(30, () => this.discoverRooms());
 
     // DEBUG: print connection stream to console:
-    this.connection.rawInput = (data) => {
+    this.connection.rawInput = data => {
       if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
     };
-    this.connection.rawOutput = (data) => {
+    this.connection.rawOutput = data => {
       if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
     };
   },
