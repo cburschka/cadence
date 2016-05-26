@@ -1119,11 +1119,7 @@ var xmpp = {
    * Close the connection, first sending an `unavailable` presence.
    */
   disconnect: function() {
-    if (this.connection) {
-      const pres = this.pres({type: 'unavailable'});
-      this.connection.send(pres);
-      this.connection.disconnect();
-    }
+    if (this.connection) this.connection.disconnect();
   },
 
   ping: function(jid) {
