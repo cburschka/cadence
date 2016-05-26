@@ -88,8 +88,19 @@ var xmpp = {
       domain: config.xmpp.domain,
       resource: this.resource
     });
-    this.connection.connect(String(this.jid), pass, (status, error) => {
-      return this.eventConnectCallback(status, error);
+
+    return new Promise(resolve => {
+      this.connection.connect(String(this.jid), pass, (status, error) => {
+        switch (status) {
+          case Strophe.Status.ERROR:
+          case Strophe.Status.CONNFAIL:
+          case Strophe.Status.AUTHFAIL:
+            throw {status, error}; break;
+          case Strophe.Status.CONNECTED:
+            resolve();
+        }
+        return this.eventConnectCallback(status, error);
+      });
     });
   },
 
