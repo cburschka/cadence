@@ -1143,9 +1143,10 @@ var xmpp = {
     return this.connection.send(msg);
   },
 
-  storeSettings: function(data) {
+  storeSettings: function(data, modified) {
     const name = config.clientName;
     const query = this.connection.storage.set(name, name + ':settings');
+    query.attrs({modified});
     const encodeVal = (val, name) => {
       query.c('data', {name});
       if (typeof val !== 'object') {
@@ -1167,5 +1168,12 @@ var xmpp = {
 
     encodeVal(data, 'settings');
     return query.send(config.xmpp.timeout);
+  }
+
+  loadSettings: function() {
+    const name = config.clientName;
+    const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
+    const decodeVal = (node) => { };
+    return query.then((stanza) => decodeVal($('query > ' + name, stanza)[0]));
   }
 };
