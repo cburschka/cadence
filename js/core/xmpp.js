@@ -1141,5 +1141,31 @@ var xmpp = {
   attention: function(jid) {
     const msg = this.connection.attention.attention(jid);
     return this.connection.send(msg);
+  },
+
+  storeSettings: function(data) {
+    const name = config.clientName;
+    const query = this.connection.storage.set(name, name + ':settings');
+    const encodeVal = (val, name) => {
+      query.c('data', {name});
+      if (typeof val !== 'object') {
+        query.attrs({type: typeof val});
+        query.t(String(val));
+      }
+      else if (val.constructor === Array) {
+        query.attrs({type: 'array'});
+        encodeArray(val);
+      }
+      else {
+        query.attrs({type: 'object'});
+        encodeObject(val);
+      }
+      query.up();
+    }
+    const encodeArray = (arr) => { for (val of arr) encodeVal(val) };
+    const encodeObject = (obj) => { for (key in obj) encodeVal(obj[key], key) };
+
+    encodeVal(data, 'settings');
+    return query.send(config.xmpp.timeout);
   }
 };
