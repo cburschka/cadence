@@ -312,7 +312,9 @@ var ui = {
 
     // Instantly save changed settings in the cookie.
     $('#settingsContainer .settings').change(function() {
-      const value = this.type == 'checkbox' ? this.checked : this.value;
+      let value = this.value;
+      if (this.type == 'checkbox') value = this.checked;
+      else if ((this.type == 'range' || this.type == 'select') && value === String(parseFloat(value))) value = parseFloat(value);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
     $('#settings-notifications\\.triggers').change(function() {

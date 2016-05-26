@@ -1191,8 +1191,11 @@ var chat = {
     for (let i = 0; i < path.length - 1; i++) {
       ref = ref[path[i]];
     }
-    ref[path[path.length-1]] = val;
-    this.saveSettings();
+    if (ref[path[path.length-1]] !== val) {
+      ref[path[path.length-1]] = val;
+      config.settings.modified = (new Date()).toISOString();
+      this.saveSettings();
+    }
   },
 
   /**
