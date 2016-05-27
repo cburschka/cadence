@@ -13,7 +13,6 @@ var xmpp = {
     current: null,
   },
   jid: null,
-  user: null,
   resource: null,
   show: null,
   roster: {},
@@ -89,8 +88,10 @@ var xmpp = {
       // Attach all the event handlers (they're removed when disconnecting).
       this.setupHandlers();
 
-      // Set the target nickname and JID.
-      this.nick.target = user;
+      // Apply custom nickname, but only if it was set on the same account.
+      const nick = (user == config.settings.xmpp.user) && config.settings.xmpp.nick || user;
+      this.nick.target = nick;
+
       this.jid = new this.JID({
         node: user,
         domain: config.xmpp.domain,

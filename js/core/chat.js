@@ -699,8 +699,10 @@ var chat = {
      */
     nick: function(arg) {
       const nick = arg.trim();
-      if (nick) xmpp.changeNick(nick);
-      else ui.messageError(strings.error.noArgument);
+      if (!nick) return ui.messageError(strings.error.noArgument);
+      chat.setSetting('xmpp.user', xmpp.jid.node);
+      chat.setSetting('xmpp.nick', nick);
+      xmpp.changeNick(nick);
       if (!xmpp.room.current)
         ui.messageInfo(strings.info.nickPrejoin, {nick});
     },
