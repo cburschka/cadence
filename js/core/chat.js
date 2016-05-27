@@ -345,10 +345,10 @@ var chat = {
         if (arg.anonymous) return resolve({user: '', pass: ''});
 
         // Reuse authentication for the rest of the session:
-        if (arg && arg.user && arg.pass) {
-          chat.auth = {user: arg.user, pass: arg.pass};
-        }
+        if (arg && arg.user && arg.pass) chat.auth = {user: arg.user, pass: arg.pass};
         if (chat.auth) return resolve(chat.auth);
+
+        // Next, attempt session authentication.
         if (config.settings.xmpp.sessionAuth) {
           const url = config.xmpp.sessionAuthURL;
           if (url) return chat.sessionAuth(url).then(auth => {
@@ -356,7 +356,8 @@ var chat = {
             resolve(auth);
           });
         }
-        reject({status: 'no-credentials'});
+        // Only complain about missing credentials on a manual invocation.
+        reject(arg && ui.messageError(strings.error.connection.auth));
       })
       // Then use them to connect.
       .then(({user, pass}) => {
@@ -378,18 +379,15 @@ var chat = {
       ({status, error}) => {
         ui.setConnectionStatus(false);
         switch (status) {
-          case 'no-credentials':
-            // Only complain about missing credentials on a manual invocation.
-            throw arg && ui.messageError(strings.error.userpass);
           case Strophe.Status.AUTHFAIL:
-            throw ui.messageError(strings.error.connection.authfail);
+            return ui.messageError(strings.error.connection.authfail);
           case Strophe.Status.CONNFAIL:
             if (error == 'x-strophe-bad-non-anon-jid') {
-              throw ui.messageError(strings.error.connection.anonymous)
+              return ui.messageError(strings.error.connection.anonymous)
             }
-            throw ui.messageError(strings.error.connection.connfail);
+            return ui.messageError(strings.error.connection.connfail);
           case Strophe.Status.ERROR:
-            throw ui.messageError(strings.error.connection.other);
+            return ui.messageError(strings.error.connection.other);
         }
       });
     },

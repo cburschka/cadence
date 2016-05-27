@@ -188,6 +188,7 @@ var strings = {
     },
     connection: {
       anonymous: 'This server does not support anonymous login.',
+      authmissing: 'User and password are required.',
       authfail: 'Authentication failed.',
       connfail: 'Connection failed.',
       other: 'An error has occurred.',
@@ -239,7 +240,6 @@ var strings = {
     timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
-    userpass: 'User and password are required.',
     unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
     unknownUser: 'User {nick} not found.',
