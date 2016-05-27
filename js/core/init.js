@@ -12,14 +12,12 @@
     bbcode = XBBCode(config.markup.bbcode);
     bbcodeMD = XBBCode(config.markup.bbcodeMD);
 
-    $(window).on({beforeunload : () => {
-      if (xmpp.status != 'offline' && config.settings.notifications.leavePage)
-        return strings.info.leavePage;
-    }});
-
-    $(window).unload(() => {
-      xmpp.disconnect();
+    $(window).on({beforeunload : () =>
+      xmpp.connection.connected &&
+      config.settings.notifications.leavePage &&
+      strings.info.leavePage
     });
+    $(window).unload(() => xmpp.connection.disconnect());
 
     const welcome = () => {
       if (config.ui.welcome) ui.messageInfo(config.ui.welcome);
