@@ -1011,10 +1011,13 @@ var ui = {
     if (entry) {
       this.rosterInsert({nick, show: 'offline'});
       setTimeout(() => {
-        entry.slideUp(() => entry.remove());
-        delete this.roster[nick];
-        const index = this.sortedNicks.indexOf(nick);
-        if (~index) this.sortedNicks.splice(index, 1);
+        // Ensure the user is still offline.
+        if (entry.attr('data-show') == 'offline') {
+          delete this.roster[nick];
+          entry.slideUp(() => entry.remove());
+          const index = this.sortedNicks.indexOf(nick);
+          if (~index) this.sortedNicks.splice(index, 1);
+        }
       }, 5000);
     }
   },
