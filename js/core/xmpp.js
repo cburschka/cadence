@@ -986,6 +986,18 @@ var xmpp = {
       // Accept direct messages from other domains.
       else type = 'direct';
 
+      // Accept direct invitations:
+      const invite = $('x[xmlns="' + Strophe.NS.CONFERENCE + '"]', stanza);
+      if (invite.length) {
+        const room = xmpp.userFromJid(this.JID.parse(invite.attr('jid'))).room;
+        const password = invite.attr('password');
+        const reason = invite.attr('reason');
+        if (room) return ui.messageInfo(
+          strings.info.inviteReceived[+!!password][+!!reason],
+          {jid: from, room, password, reason}
+        );
+      }
+
       // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
       if (!$(stanza).children('body').length) return true;
 
