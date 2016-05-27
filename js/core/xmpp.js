@@ -433,10 +433,7 @@ var xmpp = {
    */
   roomConfig: function(room) {
     return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'get',
-        to: this.jidFromRoomNick({room})
-      });
+      const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
       iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
       this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
     });
@@ -452,9 +449,9 @@ var xmpp = {
    */
   roomConfigSubmit: function(room, data) {
     return new Promise((resolve, reject) => {
-      const form = xmpp.iq('set', {room}, {xmlns: Strophe.NS.MUC + '#owner'})
-        .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
-
+      const form = xmpp.iq({type: 'set', to: this.jidFromRoomNick({room})});
+      form.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+      form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
       for (let name in data) {
         if (data[name] !== undefined) {
           form.c('field', {'var': name});

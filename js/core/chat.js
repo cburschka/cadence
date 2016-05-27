@@ -405,16 +405,16 @@ var chat = {
       const room = {id, title: arg.title || name};
 
       // Look for the room to make sure it doesn't exist.
-      xmpp.getRoomInfo(id)
-      .then((room) => {
-        ui.messageError(strings.error.roomExists, {room});
-        throw 'exists' ;
-      }, (error) => {
-        // Catch only an <item-not-found> error.
-        if (!$('item-not-found', error).length) {
-          throw error;
+      xmpp.getRoomInfo(id).then(
+        room => {
+          ui.messageError(strings.error.roomExists, {room});
+          throw 'exists' ;
+        },
+        error => {
+          // Catch only an <item-not-found> error.
+          if (!$('item-not-found', error).length) throw error;
         }
-      })
+      )
       .then(() => {
         ui.messageInfo(strings.info.creating, {
           room,
@@ -427,10 +427,8 @@ var chat = {
         // Start a new Promise chain here, in order to abort on an "exists" error.
         return xmpp.joinRoom({room: id})
         // Request the configuration form.
-        .then(() => {
-          return xmpp.roomConfig(id);
-        })
-        .then((conf) => {
+        .then(() => xmpp.roomConfig(id))
+        .then(conf => {
           // Unlike /configure, this form is in the promise chain.
           // It can only be submitted once.
           return new Promise((resolve, reject) => {
@@ -439,28 +437,24 @@ var chat = {
               ui.formDialog(form, {cancel: () => { reject('cancel'); }, apply: false});
             }
             // Use command-line arguments or just set the room title.
-            else resolve(chat.roomConf(arg) || {
-              'muc#roomconfig_roomname': room.title
-            });
+            else resolve(chat.roomConf(arg) || {'muc#roomconfig_roomname': room.title});
           });
         })
         .then(
-          (data) => {
-            return xmpp.roomConfigSubmit(id, data);
-          },
-          (reason) => {
+          data => xmpp.roomConfigSubmit(id, data),
+          reason => {
             if (reason == 'cancel') xmpp.roomConfigCancel(id);
             throw reason;
           }
         )
         .then(
           () => {
-            ui.updateRoom(id);
-            chat.setSetting('xmpp.room', id);
             xmpp.setRoom(id);
+            chat.setSetting('xmpp.room', id);
             ui.messageInfo(strings.info.roomCreated, {room});
+            return xmpp.discoverRooms();
           },
-          (reason) => {
+          reason => {
             // The server may not destroy the room on its own:
             xmpp.leaveRoom(id);
             if (reason == 'cancel') {
@@ -470,8 +464,7 @@ var chat = {
             else throw ui.messageError(strings.error.roomConf, {room});
           }
         )
-        .then(() => { return xmpp.discoverRooms(); })
-        .then((rooms) => {
+        .then(rooms => {
           const room = rooms[id];
           ui.updateRoom(id, xmpp.roster[id]);
           ui.messageInfo(strings.info.joined, {room});
