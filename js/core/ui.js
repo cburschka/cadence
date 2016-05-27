@@ -61,8 +61,6 @@ var ui = {
    * Create dynamic page elements.
    */
   initializePage: function() {
-    this.setStyle(config.settings.activeStyle);
-
     // Build help sidebar.
     const helpSidebar = $('#helpList');
     const categories = strings.help.sidebar;
@@ -141,28 +139,8 @@ var ui = {
       return $('<button class="icon soundTest">').click(() => { ui.playSound(event); });
     });
 
-    // Set the form values.
-    $('#settingsContainer .settings').val(function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
-    });
-    this.setTextColorPicker(config.settings.textColor);
-    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
-    });
-    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
-
-    // Open the last active sidebar.
-    if (!this.dom.menu[config.settings.activeMenu]) {
-      config.settings.activeMenu = 'roster';
-    }
-    this.toggleMenu(config.settings.activeMenu, true);
-
-    // Set the volume.
-    chat.setAudioVolume(config.settings.notifications.soundVolume);
-
-    $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
-
     ui.loadStrings();
+    ui.loadSettings();
   },
 
   loadStrings: function() {
@@ -181,6 +159,31 @@ var ui = {
     $('#bbCodeContainer button').each(function() {
       if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
     });
+  },
+
+  loadSettings: function() {
+    this.setStyle(config.settings.activeStyle);
+
+    // Set the form values.
+    $('#settingsContainer .settings').val(function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
+
+    this.setTextColorPicker(config.settings.textColor);
+
+    // Open the last active sidebar.
+    if (!this.dom.menu[config.settings.activeMenu]) {
+      config.settings.activeMenu = 'roster';
+    }
+    this.toggleMenu(config.settings.activeMenu, true);
+
+    // Set the volume.
+    chat.setAudioVolume(config.settings.notifications.soundVolume);
+    $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
   },
 
   /**
