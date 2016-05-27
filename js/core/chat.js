@@ -178,7 +178,7 @@ var chat = {
       const m = arg.match(/^\/*(\S+)/); /**/
       if (!m) return ui.messageError($('<div>').html(strings.error.aliasFormat));
       const command = m[1];
-      if (chat.commands[command]) return ui.messageError(strings.error.aliasConflict, {command});
+      if (this[command]) return ui.messageError(strings.error.aliasConflict, {command});
       const data = arg.substring(m[0].length).trim();
       if (!data) {
         delete config.settings.macros[command];
@@ -295,7 +295,7 @@ var chat = {
 
       // Define error handler separately, since it's used both on getting
       // and submitting the form, which use distinct promise chains.
-      const error = (stanza) => {
+      const error = stanza => {
         if ($('item-not-found', stanza).length)
           ui.messageError(strings.error.unknownRoom, {name});
         else if ($('forbidden', stanza).length)
@@ -304,23 +304,21 @@ var chat = {
           ui.messageError(strings.error.roomConf, {room});
       };
 
-      xmpp.roomConfig(name).then(
-        (config) => {
-          // Interactive configuration with --interactive, or with a command
-          // that contains no named arguments other than --name.
-          const interactive = arg.interactive || Object.keys(arg).every(
-            (key) => { return key*0 === 0 || key == 'name' }
-          );
+      xmpp.roomConfig(name).then(config => {
+        // Interactive configuration with --interactive, or with a command
+        // that contains no named arguments other than --name.
+        const interactive = arg.interactive || Object.keys(arg).every(
+          key => key*0 === 0 || key == 'name'
+        );
 
-          // Form submission uses a callback because it can be triggered multiple times.
-          const form = ui.dataForm(config, (data) => {
-            xmpp.roomConfigSubmit(name, data).then(() => {
-              ui.messageInfo(strings.info.roomConf)
-            }, error);
-          });
-          ui.formDialog(form, {cancel: () => { xmpp.roomConfigCancel(name); }});
-        }, error
-      );
+        // Form submission uses a callback because it can be triggered multiple times.
+        const form = ui.dataForm(config, data =>
+          xmpp.roomConfigSubmit(name, data).then(() =>
+            ui.messageInfo(strings.info.roomConf), error
+          )
+        );
+        ui.formDialog(form, {cancel: () => xmpp.roomConfigCancel(name)});
+      }, error);
     },
 
     /**
