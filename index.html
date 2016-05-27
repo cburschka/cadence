@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Calamity Refuge</title>
+  <link id="global-style" rel="stylesheet" type="text/css" href="css/global/import.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Carbon" type="text/css" href="css/alt/Carbon.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Helium" type="text/css" href="css/alt/Helium.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Mercury" type="text/css" href="css/alt/Mercury.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Plum" type="text/css" href="css/alt/Plum.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Selenium" type="text/css" href="css/alt/Selenium.css" />
+<link class="alternate-style" rel="stylesheet" title="Stygium" type="text/css" href="css/alt/Stygium.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Sulfur" type="text/css" href="css/alt/Sulfur.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Technetium" type="text/css" href="css/alt/Technetium.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="Uranium" type="text/css" href="css/alt/Uranium.css" />
+<link class="alternate-style" rel="alternate stylesheet" title="dash" type="text/css" href="css/alt/dash.css" />
+  <link rel="stylesheet" type="text/css" href="custom.css" />
+
+  <!-- libraries -->
+  <script
+    src="https://code.jquery.com/jquery-2.2.4.min.js"
+    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+    integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
+    crossorigin="anonymous"></script>
+  <script src="js/lib/contextmenu.js"></script>
+<script src="js/lib/cookie.js"></script>
+<script src="js/lib/replacetext.js"></script>
+<script src="js/lib/strophe.js"></script>
+<script src="js/lib/strophe.attention.js"></script>
+<script src="js/lib/strophe.disco.js"></script>
+<script src="js/lib/strophe.caps.js"></script>
+<script src="js/lib/strophe.ping.js"></script>
+<script src="js/lib/strophe.storage.js"></script>
+<script src="js/lib/strophe.time.js"></script>
+<script src="js/lib/strophe.version.js"></script>
+<script src="js/lib/moment.js"></script>
+<script src="js/lib/xbbcode.js"></script>
+<script src="js/lib/buzz.js"></script>
+<script src="js/lib/filesaver.js"></script>
+  <!-- core -->
+  <script src="js/core/strings.js"></script>
+<script src="js/core/chat.js"></script>
+<script src="js/core/xmpp.js"></script>
+<script src="js/core/ui.js"></script>
+<script src="js/core/visual.js"></script>
+<script src="js/core/init.js"></script>
+<script src="js/core/config.js"></script>
+<script src="js/core/emoticons.js"></script>
+  <script src="config.custom.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <div id="headlineContainer">
+      <label for="settings-activeStyle" class="string" data-string="label.page.style"></label>
+      <select class="settings" id="settings-activeStyle"><option value="Carbon">Carbon</option>
+<option value="Helium">Helium</option>
+<option value="Mercury">Mercury</option>
+<option value="Plum">Plum</option>
+<option value="Selenium">Selenium</option>
+<option value="Stygium">Stygium</option>
+<option value="Sulfur">Sulfur</option>
+<option value="Technetium">Technetium</option>
+<option value="Uranium">Uranium</option>
+<option value="dash">dash</option></select>
+      <span id="roomContainer">
+        <label for="roomSelection" class="string" data-string="label.page.room"></label>
+        <select id="roomSelection"></select>
+      </span>
+      <form id="loginContainer">
+        <label for="loginUser" class="string" data-string="label.page.user"></label>
+        <input type="text" id="loginUser" />
+        <label for="loginPass" class="string" data-string="label.page.password"></label>
+        <input type="password" id="loginPass" />
+        <button class="button string" type="submit" id="loginButton" data-string="label.button.login"></button>
+      </form>
+      <span id="logo"><a href="https://github.com/cburschka/cadence"><img src="img/logo.png" alt="Cadence logo" />cadence</a></span>
+      <div id="navigation">
+        <span class="string" data-string="label.page.navigation"></span> <ul></ul>
+      </div>
+    </div>
+    <!-- / headlineContainer -->
+    <div id="chatList" class="box"></div>
+    <div id="inputFieldContainer" class="box">
+      <textarea id="inputField" rows="1" cols="50" class="string-title" data-title="label.tooltip.input"></textarea>
+    </div>
+    <div id="messageLengthContainer">
+      <span id="messageLengthCounter">0</span>
+    </div>
+    <div id="footerContainer">
+      <div id="bbCodeContainer" class="container">
+        <button class="button insert-bbcode string-title" accesskey="b" value="b" data-title="label.tooltip.bold" style="font-weight:bold;">b</button>
+        <button class="button insert-bbcode string-title" accesskey="i" value="i" data-title="label.tooltip.italic" style="font-style:italic;">i</button>
+        <button class="button insert-bbcode string-title" accesskey="u" value="u" data-title="label.tooltip.underline" style="text-decoration:underline;">u</button>
+        <button class="button insert-bbcode string-title" accesskey="s" value="s" data-title="label.tooltip.strike" style="text-decoration:line-through;">s</button>
+        <button class="button insert-bbcode string-title" accesskey="q" value="quote" data-title="label.tooltip.quote">Quote</button>
+        <button class="button insert-bbcode string-title" accesskey="c" value="code" data-title="label.tooltip.code">Code</button>
+        <button class="button insert-bbcode insert-bbcode-arg string-title" accesskey="l" value="url" data-title="label.tooltip.url">URL</button>
+        <button class="button insert-bbcode string-title" accesskey="g" value="img" data-title="label.tooltip.img">IMG</button>
+        <button class="button string-title" id="colorBBCode" accesskey="o" value="color" data-title="label.tooltip.color">Color</button>
+      </div>
+      <!-- / bbCodeContainer -->
+      <div id="emoticonsContainer" class="container">
+        <span id="emoticonsList-general" dir="ltr"></span>
+      </div>
+      <div id="colorCodesContainer" class="box container" dir="ltr"></div>
+      <div id="trayContainer" class="container">
+        <button class="tray icon string string-title" id="statusButton" data-title="label.tooltip.status" data-string="label.button.status"></button>
+        <button class="tray icon toggleMenu string string-title" id="helpButton" data-title="label.tooltip.help" data-string="label.button.help"></button>
+        <span id="emoticonTrayContainer"></span>
+        <button class="tray icon toggleMenu string string-title" id="settingsButton" data-title="label.tooltip.settings" data-string="label.button.settings"></button>
+        <button class="tray icon toggleMenu string string-title" id="rosterButton" data-title="label.tooltip.roster" data-string="label.button.roster"></button>
+        <button class="tray icon string string-title" id="audioButton" data-title="label.tooltip.sound" data-string="label.button.sound"></button>
+        <div id="autoScrollIcon" class="on"></div>
+      </div>
+      <!-- / trayContainer -->
+    </div>
+    <!-- / footerContainer -->
+    <div id="rosterContainer" class="menuContainer box">
+      <h3 class="string" data-string="label.page.roster"></h3>
+      <div id="roster"></div>
+    </div>
+    <div id="helpContainer" class="menuContainer box">
+      <h3 class="string" data-string="label.page.help"></h3>
+      <div id="helpList"></div>
+      <!-- / helpList -->
+    </div>
+    <!-- / helpContainer -->
+    <div id="emoticonSidebarContainer">
+    </div>
+    <div id="settingsContainer" class="menuContainer box">
+      <h3 class="string" data-string="label.page.settings.main"></h3>
+      <div id="settingsList">
+        <ul>
+          <li><a href="#settingsGeneral" class="string" data-string="label.page.settings.general"></a></li>
+          <li><a href="#settingsDisplay" class="string" data-string="label.page.settings.display"></a></li>
+          <li><a href="#settingsNotifications" class="string" data-string="label.page.settings.notifications"></a></li>
+        </ul>
+        <section id="settingsGeneral">
+        <table>
+          <tr class="row">
+            <td><label for="settings-xmpp.sessionAuth" class="string" data-string="label.settings.xmpp.sessionAuth"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.sessionAuth" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-xmpp.autoJoin" class="string" data-string="label.settings.xmpp.autoJoin"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-contextmenu" class="string" data-string="label.settings.contextmenu.label"></label></td>
+            <td class="setting">
+              <select class="settings" id="settings-contextmenu">
+                <option value="hover" class="string" data-string="label.settings.contextmenu.hover"></option>
+                <option value="left" class="string" data-string="label.settings.contextmenu.left"></option>
+                <option value="right" class="string" data-string="label.settings.contextmenu.right"></option>
+                <option value="none" class="string" data-string="label.page.none"></option>
+              </select>
+            </td>
+          </tr>
+          <tr class="row">
+            <td><label for="textColor" class="string" data-string="label.settings.textColor.label"></label></td>
+            <td class="setting">
+              <button class="button string" id="textColor" data-string="label.settings.textColor.none"></button>
+              <button class="button string" id="textColorClear" data-string="label.settings.textColor.clear"></button>
+              <input type="color" class="settings" id="settings-textColor" />
+            </td>
+          </tr>
+        </table>
+        </section>
+        <section id="settingsDisplay">
+        <table>
+          <tr class="row">
+            <td><label for="settings-dateFormat" class="string-html" data-html="label.settings.dateFormat"></label></td>
+            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-markup.html" class="string" data-string="label.settings.markup.html"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.html" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-markup.images" class="string" data-string="label.settings.markup.images"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.images" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-markup.links" class="string" data-string="label.settings.markup.links"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.links" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-markup.colors" class="string" data-string="label.settings.markup.colors"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.colors" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-markup.emoticons" class="string" data-string="label.settings.markup.emoticons"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.emoticons" /></td>
+          </tr>
+        </table>
+        </section>
+        <section id="settingsNotifications">
+        <table>
+          <tr class="row">
+            <td><label for="settings-notifications.desktop" class="string" data-string="label.settings.notifications.desktop.label"></label></td>
+            <td class="setting">
+              <select class="settings" id="settings-notifications.desktop">
+                <option value="0" class="string" data-string="label.settings.notifications.desktop.0"></option>
+                <option value="1" class="string" data-string="label.settings.notifications.desktop.1"></option>
+                <option value="2" class="string" data-string="label.settings.notifications.desktop.2"></option>
+                <option value="3" class="string" data-string="label.settings.notifications.desktop.3"></option>
+              </select>
+            </td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.triggers" class="string" data-string="label.settings.notifications.triggers"></label></td>
+            <td class="setting"><input type="text" id="settings-notifications.triggers" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.soundVolume" class="string" data-string="label.settings.notifications.soundVolume"></label></td>
+            <td class="setting"><input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.receive" class="string" data-string="label.settings.notifications.sounds.receive"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.receive"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.send" class="string" data-string="label.settings.notifications.sounds.send"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.send"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.enter" class="string" data-string="label.settings.notifications.sounds.enter"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.enter"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.leave" class="string" data-string="label.settings.notifications.sounds.leave"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.leave"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.info" class="string" data-string="label.settings.notifications.sounds.info"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.info"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.error" class="string" data-string="label.settings.notifications.sounds.error"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.mention" class="string" data-string="label.settings.notifications.sounds.mention"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.mention"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.sounds.msg" class="string" data-string="label.settings.notifications.sounds.msg"></label></td>
+            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.msg"></select></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.leavePage" class="string" data-string="label.settings.notifications.leavePage"></label></td>
+            <td class="setting"><input type="checkbox" class="settings" id="settings-notifications.leavePage" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.blinkSpeed" class="string" data-string="label.settings.notifications.blinkSpeed"></label></td>
+            <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkSpeed" min="1" max="10" step="0.5" /></td>
+          </tr>
+          <tr class="row">
+            <td><label for="settings-notifications.blinkLength" class="string" data-string="label.settings.notifications.blinkLength">Blink length:</label></td>
+            <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" /></td>
+          </tr>
+        </table>
+        </section>
+      </div>
+      <!-- / settingsList -->
+    </div>
+    <!-- / settingsContainer-->
+  </div>
+</body>
+</html>
