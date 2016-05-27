@@ -181,7 +181,7 @@ var strings = {
     aliasRecursion: 'Failed to define {command}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
     badNick: 'The nickname {nick} is invalid.',
-    cmdStatus: {
+    cmdState: {
       online: '/{command}: You are already online.',
       offline: '/{command}: You are offline.',
       prejoin: '/{command}: You need to join a room first.',
