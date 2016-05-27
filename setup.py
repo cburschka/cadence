@@ -22,24 +22,25 @@ def generate_files(src_path, var):
     for src, dest in files:
         generate_file(src_path + '/' + src, dest, var)
 
-def generate_links(cdn_url, mode, css_alt, style):
-    if mode == 'minify':
-        css = 'css/global/all.min.css'
-        lib = ['js/lib.min.js']
-        core = ['js/core.min.js']
-    elif mode == 'aggregate':
+def generate_links(cdn_url, aggregate, css_alt, style):
+    if aggregate == 'True':
         css = 'css/global/all.css'
         lib = ['js/lib.js']
         core = ['js/core.js']
     else:
         css = 'css/global/import.css'
         lib = [
-            'js/lib/jquery.js',
-            'js/lib/jquery-ui.js',
             'js/lib/contextmenu.js',
             'js/lib/cookie.js',
             'js/lib/replacetext.js',
             'js/lib/strophe.js',
+            'js/lib/strophe.attention.js',
+            'js/lib/strophe.disco.js',
+            'js/lib/strophe.caps.js',
+            'js/lib/strophe.ping.js',
+            'js/lib/strophe.storage.js',
+            'js/lib/strophe.time.js',
+            'js/lib/strophe.version.js',
             'js/lib/moment.js',
             'js/lib/xbbcode.js',
             'js/lib/buzz.js',
@@ -103,7 +104,7 @@ def main(target, version=None):
     if (version):
         variables['VERSION'] = version
     css_alt = variables['CSS_ALT'].split()
-    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['MODE'], css_alt, variables['STYLE'])
+    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['AGGREGATE'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs

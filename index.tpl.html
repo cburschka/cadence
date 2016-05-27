@@ -7,8 +7,15 @@
   <link rel="stylesheet" type="text/css" href="custom.css" />
 
   <!-- libraries -->
+  <script
+    src="https://code.jquery.com/jquery-2.2.4.min.js"
+    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+    integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
+    crossorigin="anonymous"></script>
   @@@JS_LINKS_LIB@@@
-
   <!-- core -->
   @@@JS_LINKS_CORE@@@
   <script src="config.custom.js"></script>
@@ -17,8 +24,8 @@
 <body>
   <div id="content">
     <div id="headlineContainer">
-      <label for="styleSelection" class="string" data-string="label.page.style"></label>
-      <select id="styleSelection">@@@CSS_OPTIONS@@@</select>
+      <label for="settings-activeStyle" class="string" data-string="label.page.style"></label>
+      <select class="settings" id="settings-activeStyle">@@@CSS_OPTIONS@@@</select>
       <span id="roomContainer">
         <label for="roomSelection" class="string" data-string="label.page.room"></label>
         <select id="roomSelection"></select>
@@ -61,21 +68,20 @@
       </div>
       <div id="colorCodesContainer" class="box container" dir="ltr"></div>
       <div id="trayContainer" class="container">
-        <button class="tray icon string string-title" id="logoutButton" data-title="label.button.logout" data-string="label.button.logout"></button>
+        <button class="tray icon string string-title" id="statusButton" data-title="label.tooltip.status" data-string="label.button.status"></button>
         <button class="tray icon toggleMenu string string-title" id="helpButton" data-title="label.tooltip.help" data-string="label.button.help"></button>
         <span id="emoticonTrayContainer"></span>
         <button class="tray icon toggleMenu string string-title" id="settingsButton" data-title="label.tooltip.settings" data-string="label.button.settings"></button>
-        <button class="tray icon toggleMenu string string-title" id="onlineListButton" data-title="label.tooltip.roster" data-string="label.button.roster"></button>
+        <button class="tray icon toggleMenu string string-title" id="rosterButton" data-title="label.tooltip.roster" data-string="label.button.roster"></button>
         <button class="tray icon string string-title" id="audioButton" data-title="label.tooltip.sound" data-string="label.button.sound"></button>
-        <div id="statusIcon" class="offline"></div>
         <div id="autoScrollIcon" class="on"></div>
       </div>
       <!-- / trayContainer -->
     </div>
     <!-- / footerContainer -->
-    <div id="onlineListContainer" class="menuContainer box">
+    <div id="rosterContainer" class="menuContainer box">
       <h3 class="string" data-string="label.page.roster"></h3>
-      <div id="onlineList"></div>
+      <div id="roster"></div>
     </div>
     <div id="helpContainer" class="menuContainer box">
       <h3 class="string" data-string="label.page.help"></h3>
@@ -149,10 +155,6 @@
           <tr class="row">
             <td><label for="settings-markup.emoticons" class="string" data-string="label.settings.markup.emoticons"></label></td>
             <td class="setting"><input type="checkbox" class="settings" id="settings-markup.emoticons" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-verbose" class="string" data-string="label.settings.verbose"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-verbose" /></td>
           </tr>
         </table>
         </section>

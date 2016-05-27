@@ -2,10 +2,9 @@
  * ui.js contains all functions that alter the user interface.
  */
 var ui = {
-  userLinks: {},
+  roster: {},
   sortedNicks: [],
   dom: null,
-  userStatus: {},
   messages: [],
   colorPicker: null,
   autoScroll: true,
@@ -26,14 +25,14 @@ var ui = {
       inputField: $('#inputField'),
       content: $('#content'),
       chatList: $('#chatList'),
-      onlineList: $('#onlineList'),
+      roster: $('#roster'),
       roomSelection: $('#roomSelection'),
-      statusIcon: $('#statusIcon'),
+      statusButton: $('#statusButton'),
       autoScrollIcon: $('#autoScrollIcon'),
       messageLengthCounter: $('#messageLengthCounter'),
       menu: {
         help: $('#helpContainer'),
-        onlineList: $('#onlineListContainer'),
+        roster: $('#rosterContainer'),
         settings: $('#settingsContainer'),
       },
       emoticonSidebarContainer: $('#emoticonSidebarContainer'),
@@ -50,9 +49,11 @@ var ui = {
    * Load the sound files.
    */
   loadSounds: function() {
-    for (var i in config.sounds) {
-      var sound = config.sounds[i];
-      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {formats: ['ogg', 'mp3'], preload: true});
+    for (let sound of config.sounds) {
+      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {
+        formats: ['ogg', 'mp3'],
+        preload: true
+      });
     }
   },
 
@@ -60,19 +61,17 @@ var ui = {
    * Create dynamic page elements.
    */
   initializePage: function() {
-    this.setStyle(config.settings.activeStyle);
-
     // Build help sidebar.
-    var helpSidebar = $('#helpList');
-    var categories = strings.help.sidebar;
-    for (var category in categories) {
-      var table = $('<table>');
-      table.append($('<caption>').append($('<h4>').text(categories[category].title)));
-      var commands = categories[category].commands;
-      for (var command in commands) {
-        var row = $('<tr class="row">').append(
-          $('<td class="desc">').text(commands[command][0]),
-          $('<td class="code">').text(commands[command][1])
+    const helpSidebar = $('#helpList');
+    const categories = strings.help.sidebar;
+    for (let key in categories) {
+      const table = $('<table>');
+      table.append($('<caption>').append($('<h4>').text(categories[key].title)));
+      const commands = categories[key].commands;
+      for (let key in commands) {
+        const row = $('<tr class="row">').append(
+          $('<td class="desc">').text(commands[key][0]),
+          $('<td class="code">').text(commands[key][1])
         );
         table.append(row);
       }
@@ -80,15 +79,17 @@ var ui = {
     }
 
     // Build the navigation menu.
-    for (link in config.ui.navigation)
+    const navigation = config.ui.navigation;
+    for (let key in navigation)
       $('#navigation ul').append($('<li>').append(
-        $('<a>').attr('href', config.ui.navigation[link]).text(link)
+        $('<a>').attr('href', navigation[key]).text(key)
       ));
-    if (config.ui.navigation) $('#navigation').css('display', 'inline-block');
+    if (navigation) $('#navigation').css('display', 'inline-block');
 
     // Build and fill the emoticon containers.
-    var bars = config.ui.emoticonSidebars
-    for (var set in bars) {
+    const bars = config.ui.emoticonSidebars
+    const emoticons = config.markup.emoticons;
+    for (let set in bars) {
       this.dom.menu['emoticon-' + set] = $('<div class="menuContainer emoticon-sidebar box"></div>')
         .attr('id', 'emoticon-' + set)
         .append($('<h3></h3>').text(bars[set].title))
@@ -101,17 +102,18 @@ var ui = {
         .attr('id', 'emoticon-' + set + 'Button')
         .attr('title', bars[set].title)
         .text(bars[set].title)
-        .css('background-image', 'url(' + encodeURI(config.markup.emoticons[set].baseURL + bars[set].icon) + ')')
-        .appendTo(ui.dom.emoticonTrayContainer);
+        .css('background-image', 'url(' + encodeURI(emoticons[set].baseURL + bars[set].icon) + ')')
+        .appendTo(this.dom.emoticonTrayContainer);
     }
-    for (var set in config.markup.emoticons) {
-      var list = $('#emoticonsList-' + set);
-      for (var code in config.markup.emoticons[set].codes) {
+
+    for (let set in emoticons) {
+      const list = $('#emoticonsList-' + set);
+      for (let code in emoticons[set].codes) {
         list.append($('<a class="insert-text"></a>')
           .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
           .attr('title', code)
           .append($('<img />')
-            .attr('src', config.markup.emoticons[set].baseURL + config.markup.emoticons[set].codes[code])
+            .attr('src', emoticons[set].baseURL + emoticons[set].codes[code])
             .attr('alt', code)
           )
         );
@@ -119,47 +121,26 @@ var ui = {
     }
 
     // Build the color palette picker.
-    var palette = $('#colorCodesContainer');
-    for (var color in config.markup.colorCodes) {
-      var code = config.markup.colorCodes[color]
+    const palette = $('#colorCodesContainer');
+    const colorCodes = config.markup.colorCodes;
+    for (let code of colorCodes) {
       palette.append($('<a class="colorCode"></a>')
         .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
         .attr('title', code)
         .css('background-color', code)
       );
     }
-    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced"></button>');
+    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced">');
 
-    var sounds = [$('<option value="" class="string" data-string="label.page.none">')];
-    for (var sound in this.sounds) sounds.push(new Option(sound, sound));
+    const sounds = [$('<option value="" class="string" data-string="label.page.none">')];
+    for (let sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').append(sounds).after(function() {
-      var event = this.id.substring('settings-notifications.sounds.'.length);
-      return $('<button class="icon soundTest">')
-        .click(function() { ui.playSound(event); });
+      const event = this.id.substring('settings-notifications.sounds.'.length);
+      return $('<button class="icon soundTest">').click(() => { ui.playSound(event); });
     });
-
-    // Set the form values.
-    $('#settingsContainer .settings').val(function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
-    });
-    this.setTextColorPicker(config.settings.textColor);
-    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
-    });
-    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
-
-    // Open the last active sidebar.
-    if (!this.dom.menu[config.settings.activeMenu]) {
-      config.settings.activeMenu = 'onlineList';
-    }
-    this.toggleMenu(config.settings.activeMenu, true);
-
-    // Set the volume.
-    chat.setAudioVolume(config.settings.notifications.soundVolume);
-
-    $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
 
     ui.loadStrings();
+    ui.loadSettings();
   },
 
   loadStrings: function() {
@@ -180,6 +161,31 @@ var ui = {
     });
   },
 
+  loadSettings: function() {
+    this.setStyle(config.settings.activeStyle);
+
+    // Set the form values.
+    $('.settings').val(function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    $('input.settings[type="checkbox"]').prop('checked', function() {
+      return chat.getSetting(this.id.substring('settings-'.length));
+    });
+    $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
+
+    this.setTextColorPicker(config.settings.textColor);
+
+    // Open the last active sidebar.
+    if (!this.dom.menu[config.settings.activeMenu]) {
+      config.settings.activeMenu = 'roster';
+    }
+    this.toggleMenu(config.settings.activeMenu, true);
+
+    // Set the volume.
+    chat.setAudioVolume(config.settings.notifications.soundVolume);
+    $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
+  },
+
   /**
    * Initialize the event listeners.
    */
@@ -188,58 +194,55 @@ var ui = {
     visual.linkOnClick(document);
 
     // Inserting BBCode tags.
-    var insertBBCode = function(tag, arg) {
-      arg = arg ? '=' + arg : '';
-      var v = ['[' + tag + arg + ']', '[/' + tag + ']'];
-      chat.insertText(v);
+    const insertBBCode = (tag, arg='') => {
+      const open = '[' + tag + (arg && '=' + arg) + ']';
+      const close = '[/' + tag + ']';
+      chat.insertText([open, close]);
       return true;
     };
 
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        //  9: <tab>
-         9: function() { return ui.autocomplete(); },
-        // 13: <return> (unless shift is down)
-        13: function(e,x) {
+        TAB: () => { return this.autocomplete(); },
+        RETURN: (e,x) => {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
             $(x).val('');
             return true;
           }
         },
-        // 38: <arrow-up> (if the field is empty, or ctrl is down)
-        38: function(e,x) { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
-        // 40: <arrow-down> (if ctrl is down)
-        40: function(e) { return e.ctrlKey && chat.historyDown(); },
+        UP: (e,x) => { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
+        DOWN: (e) => { return e.ctrlKey && chat.historyDown(); },
 
-        // 98, 105, 117, 117: b,i,s,u
-        98: function(e) { return e.ctrlKey && insertBBCode('b'); },
-        105: function(e) { return e.ctrlKey && insertBBCode('i'); },
-        115: function(e) { return e.ctrlKey && insertBBCode('s'); },
-        117: function(e) { return e.ctrlKey && insertBBCode('u'); },
+        b: (e) => { return e.ctrlKey && insertBBCode('b'); },
+        i: (e) => { return e.ctrlKey && insertBBCode('i'); },
+        s: (e) => { return e.ctrlKey && insertBBCode('s'); },
+        u: (e) => { return e.ctrlKey && insertBBCode('u'); },
       }),
       // after any keystroke, update the message length counter.
-      keyup: function() { ui.updateMessageLengthCounter(); }
+      keyup: () => { this.updateMessageLengthCounter(); }
     });
 
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
-      if (this.value) chat.commands.join({name: this.value});
-      else chat.commands.part();
+      if (this.value != xmpp.room.current) {
+        if (this.value) chat.commands.join({name: this.value});
+        else chat.commands.part();
+      }
     });
-    $(window).on('hashchange', function() {
-      if (ui.urlFragment != window.location.hash) {
-        ui.urlFragment = window.location.hash;
-        if (ui.urlFragment) chat.commands.join({
-          name: ui.getFragment()
+    $(window).on('hashchange', () => {
+      if (this.urlFragment != window.location.hash) {
+        this.urlFragment = window.location.hash;
+        if (this.urlFragment) chat.commands.join({
+          name: this.getFragment()
         });
         else chat.commands.part();
       }
     });
 
     // Log in with the button or pressing enter.
-    this.dom.loginContainer.submit(function(e) {
+    this.dom.loginContainer.submit((e) => {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
@@ -250,27 +253,28 @@ var ui = {
     // BBCode buttons.
     $('.insert-text').click(function() { chat.insertText(this.title); });
     $('.insert-bbcode').click(function() {
+      const tag = this.value.toLowerCase();
       if ($(this).hasClass('insert-bbcode-arg')) {
-        var arg = prompt('This BBCode tag requires an argument:', '');
-        if (!arg) return;
+        const arg = prompt(strings.info.promptBBCodeArg);
+        if (arg) insertBBCode(tag, arg);
       }
-      insertBBCode(this.value.toLowerCase(), arg || '');
+      else insertBBCode(tag);
     });
 
     // Open the color tray.
-    $('#colorBBCode').click(function() {
-      ui.colorPicker = ui.colorPicker != 'bbcode' ? 'bbcode' : null;
+    $('#colorBBCode').click(() => {
+      this.colorPicker = this.colorPicker != 'bbcode' ? 'bbcode' : null;
       $('#textColorFull').css('display', 'none');
-      ui.dom.colorCodesContainer[ui.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
+      this.dom.colorCodesContainer[this.colorPicker == 'bbcode' ? 'fadeIn' : 'fadeOut'](500);
     });
-    $('#textColor').click(function() {
+    $('#textColor').click(() => {
       $('#textColorFull').css('display', 'block');
       if (config.settings.fullColor && config.settings.textColor != '') {
         $('#settings-textColor').click();
       }
       else {
-        ui.colorPicker = ui.colorPicker != 'setting' ? 'setting' : null;
-        ui.dom.colorCodesContainer[ui.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
+        this.colorPicker = this.colorPicker != 'setting' ? 'setting' : null;
+        this.dom.colorCodesContainer[this.colorPicker == 'setting' ? 'fadeIn' : 'fadeOut'](500);
       }
     });
 
@@ -288,33 +292,35 @@ var ui = {
     });
 
     // Toggle the full RGB color setting.
-    $('#textColorFull').click(function() {
+    $('#textColorFull').click(() => {
       $('#textColor').click();
       config.settings.fullColor = true;
       $('#settings-textColor').click();
     });
     // Clear the text color setting.
-    $('#textColorClear').click(function() {
+    $('#textColorClear').click(() => {
       config.settings.fullColor = false;
       chat.setSetting('textColor', '');
-      ui.setTextColorPicker('');
+      this.setTextColorPicker('');
     });
     $('#settings-textColor').change(function() {
       ui.setTextColorPicker($(this).val())
     });
 
     // Listen for changes in the style menu.
-    $('#styleSelection').change(
-      function() { ui.setStyle($(this).val()); }
-    ).val(config.settings.activeStyle);
+    $('#settings-activeStyle').change(function() {
+      ui.setStyle($(this).val());
+    });
 
     // Instantly save changed settings in the cookie.
-    $('#settingsContainer .settings').change(function() {
-      var value = this.type == 'checkbox' ? this.checked : this.value;
+    $('.settings').change(function() {
+      let value = this.value;
+      if (this.type == 'checkbox') value = this.checked;
+      else if ((this.type == 'range' || this.type == 'select') && value === String(parseFloat(value))) value = parseFloat(value);
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
     $('#settings-notifications\\.triggers').change(function() {
-      var value = this.value.trim();
+      let value = this.value.trim();
       value = value ? value.split(/[\s,;]+/) : [];
       chat.setSetting(this.id.substring('settings-'.length), value);
     });
@@ -323,30 +329,30 @@ var ui = {
     $('#settings-notifications\\.desktop').change(function() {
       if (this.value == 0) return;
       if (Notification.permission == 'default')
-        Notification.requestPermission(function(permission) {
+        Notification.requestPermission((permission) => {
           // If denied, revert the setting.
           if (permission != 'granted') $(this).val(0).change();
-        }.bind(this));
+        });
       else if (Notification.permission == 'denied')
         $(this).val(0).change();
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
-    var toggler = function(selector) {
+    const toggler = (selector) => {
       // Find the message at the top of the viewport...
-      var i = ui.getMessageAt(ui.dom.chatList.prop('scrollTop'));
+      const i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
       $(selector).toggle();
-      ui.updateHeights();
+      this.updateHeights();
       if (i) {
         // ... and scroll to it again (snap to bottom if appropriate).
-        ui.dom.chatList.prop('scrollTop', ui.messages[i].offset);
-        ui.scrollDown();
+        this.dom.chatList.prop('scrollTop', this.messages[i].offset);
+        this.scrollDown();
       }
-    }
-    $('#settings-markup\\.images').change(function() {
+    };
+    $('#settings-markup\\.images').change(() => {
       toggler('img.rescale, span.image-alt');
     });
-    $('#settings-markup\\.emoticons').change(function() {
+    $('#settings-markup\\.emoticons').change(() => {
       toggler('img.emoticon, span.emote-alt');
     });
     $('#settings-markup\\.colors').change(function() {
@@ -369,44 +375,43 @@ var ui = {
 
     // Instantly apply date format.
     $('#settings-dateFormat').change(function() {
-      var format = $(this).val();
+      const format = $(this).val();
       $('.time').text(function() {
-        return moment($(this).attr('data-time')).format(format);
+        const t = $(this).attr('data-time');
+        return moment(t).utcOffset(t).format(format);
       });
     });
 
     // /quit button.
-    $('#logoutButton').click(function() {
-      chat.commands.quit();
-    });
+    $('#logoutButton').click(() => { chat.commands.quit(); });
 
     $('#audioButton').click(function() {
-      var audio = !config.settings.notifications.soundEnabled;
+      const audio = !config.settings.notifications.soundEnabled;
       chat.setSetting('notifications.soundEnabled', audio);
       $(this).toggleClass('off', !audio);
     });
 
     // scrolling up the chat list turns off auto-scrolling.
-    this.dom.chatList.scroll(function() {
-      ui.checkAutoScroll();
+    this.dom.chatList.scroll(() => {
+      this.checkAutoScroll();
       return true;
     });
 
-    var usermenu = {
+    const usermenu = {
       selector: '.user:not(.user-role-bot)',
       className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700, // only applies to hover.
-      build: ui.userContextMenu
+      build: this.userContextMenu
     };
     $.contextMenu(usermenu);
 
-    var roommenu = {
+    const roommenu = {
       selector: '.xmpp-room',
       className: 'box dialog',
       trigger: config.settings.contextmenu,
       delay: 700,
-      build: ui.roomContextMenu
+      build: this.roomContextMenu
     };
     $.contextMenu(roommenu);
 
@@ -419,6 +424,42 @@ var ui = {
       $.contextMenu(roommenu);
     });
     $('#settingsList').tabs();
+
+    for (let trigger of ['left', 'right']) $.contextMenu({
+      selector: '#statusButton',
+      className: 'box dialog',
+      trigger,
+      build: this.contextMenuStatus
+    });
+  },
+
+  contextMenuStatus: function(_, {button}) {
+    const labels = strings.label.status;
+    const joined = !!xmpp.room.current;
+    const online = xmpp.connection.connected;
+    const status = xmpp.show || 'available';
+    const cmd = (show) => chat.commands[show](
+      button == 2 && prompt(strings.info.promptStatus) || ''
+    );
+    const items = {back: {
+      name: labels.available,
+      icon: 'available',
+      disabled: joined ? status == 'available' : online,
+      callback: joined ? cmd : chat.commands.connect,
+    }};
+    for (let show of ['away', 'xa', 'dnd']) items[show] = {
+      name: labels[show],
+      icon: show,
+      disabled: !joined || status == show,
+      callback: cmd
+    }
+    items.offline = {
+      name: labels.offline,
+      icon: 'offline',
+      disabled: !online,
+      callback: chat.commands.quit
+    };
+    return {items};
   },
 
   /**
@@ -426,88 +467,87 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
-    var labels = strings.label.command;
-    var roster = xmpp.roster[xmpp.room.current]
-    var userSelf = roster && roster[xmpp.nick.current];
-    var nick = user.attr('data-nick');
-    var jid = user.attr('data-jid');
-    var jidBare = Strophe.getBareJidFromJid(jid);
+    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
+    const labels = strings.label.command;
+    const roster = xmpp.roster[xmpp.room.current]
+    const userSelf = roster && roster[xmpp.nick.current];
+    const nick = user.attr('data-nick');
+    const jid = xmpp.JID.parse(user.attr('data-jid'));
 
-    var mod = userSelf && userSelf.role == 'moderator';
-    var ranks = {none: 0, member: 1, admin: 2, owner: 3};
-    var rank = userSelf && ranks[userSelf.affiliation];
-    var outranked = rank < ranks[user.attr('data-affiliation')];
+    const mod = userSelf && userSelf.role == 'moderator';
+    const ranks = {none: 0, member: 1, admin: 2, owner: 3};
+    const rank = userSelf && ranks[userSelf.affiliation];
+    const outranked = rank < ranks[user.attr('data-affiliation')];
 
-    var items = {
+    const items = {
       msg: {
         name: labels.msg,
         icon: 'msg',
         disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
-        callback: function() { chat.prefixMsg(nick); }
+        callback: () => { chat.prefixMsg({nick}); }
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
         disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
-        callback: function() { chat.prefixMsg(jid, true); }
+        callback: () => { chat.prefixMsg({jid}); }
       },
       sep1: '---',
       invite: {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !c('invite') || !jid || (nick && roster[nick] && jidBare == Strophe.getBareJidFromJid(roster[nick].jid)),
-        callback: function() { chat.commands.invite({jid:jid}); }
+        disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
+        callback: () => { chat.commands.invite({jid}); }
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: function() { chat.commands.kick(nick); }
+        callback: () => { chat.commands.kick(nick); }
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jidBare == Strophe.getBareJidFromJid(xmpp.currentJid),
-        callback: function() { chat.commands.ban({jid: jid}); }
+        disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
+        callback: () => { chat.commands.ban({jid}); }
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: function() { chat.commands.whois(nick); }
+        callback: () => { chat.commands.whois(nick); }
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: function() { chat.commands.ping(nick || jid); }
+        callback: () => { chat.commands.ping(nick || String(jid)); }
       }
     }
 
-    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+    return {items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
    * Build the context menu for a room.
    */
-  roomContextMenu: function(room) {
-    var c = function(cmd) { return chat.cmdAvailableStatus(cmd, true) };
-    var labels = strings.label.command;
-    var id = room.attr('data-room');
-    var currentRoom = xmpp.room.current == id;
-    var self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
-    var owner = currentRoom && self.affiliation == 'owner';
-    var items = {
+  roomContextMenu: function(element) {
+    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
+    const labels = strings.label.command;
+    const room = element.attr('data-room');
+    const currentRoom = xmpp.room.current == room;
+    const self = xmpp.roster[xmpp.room.current] && xmpp.roster[xmpp.room.current][xmpp.nick.current];
+    const owner = currentRoom && self.affiliation == 'owner';
+    const items = {
       join: {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: function() { chat.commands.join({name: id}); }
+        callback: () => { chat.commands.join({name: room}); }
       },
       part: {
         name: labels.part,
@@ -519,16 +559,16 @@ var ui = {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: function() { chat.commands.configure({name: id, interactive: true}); }
+        callback: () => { chat.commands.configure({name: room, interactive: true}); }
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: function() { chat.commands.destroy({room: id}); }
+        callback: () => { chat.commands.destroy({room}); }
       }
     }
-    return {items: items, autoHide: config.settings.contextmenu == 'hover'};
+    return {items, autoHide: config.settings.contextmenu == 'hover'};
   },
 
   /**
@@ -546,25 +586,30 @@ var ui = {
    * - change the status icon.
    * - toggle between login form and room selection menu.
    */
-  setStatus: function(status) {
-    // status options are: online, waiting, offline, prejoin.
-    if (status != 'online') ui.updateRoom('', {});
-    if (status == 'prejoin') status = 'online';
-    this.dom.statusIcon.attr('class', status).attr('title');
-    this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
-    this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
+  setConnectionStatus: function(online) {
+    // status options are: online, waiting, offline
+    if (!online) this.updateRoom();
+    this.setUserStatus(online ? xmpp.show : 'offline');
+    this.dom.loginContainer[online ? 'fadeOut' : 'fadeIn'](500);
+    this.dom.roomContainer[online ? 'fadeIn' : 'fadeOut'](500);
+  },
+
+  /**
+   * Change the user status.
+   */
+  setUserStatus: function(show) {
+    this.dom.statusButton.removeClass('available away dnd xa offline')
+      .addClass(show || 'available');
   },
 
   /**
    * Change the active stylesheet.
    */
   setStyle: function(style) {
-    config.settings.activeStyle = style;
     this.dom.styleSheets.prop('disabled', 'disabled');
     this.dom.styleSheets
       .filter(function() { return this.title == style; })
       .removeAttr('disabled');
-    chat.saveSettings();
   },
 
   /**
@@ -585,19 +630,19 @@ var ui = {
    * Close the active sidebar and (if needed) open a different one.
    */
   toggleMenu: function(newMenu, init) {
-    var speed = init ? 0 : 'slow';
-    var oldMenu = init ? null : config.settings.activeMenu;
+    const speed = init ? 0 : 'slow';
+    const oldMenu = init ? null : config.settings.activeMenu;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
 
-    var width = 20;
+    let width = 20;
     if (oldMenu != newMenu) {
-      var px = this.dom.menu[newMenu].css('width');
+      const px = this.dom.menu[newMenu].css('width');
       width += parseInt(px.substring(0,px.length-2)) + 8;
     }
 
-    this.dom.chatList.animate({right : width + 'px'}, speed, function() {
-      var maxWidth = ui.dom.chatList.width() - 30;
-      var maxHeight = ui.dom.chatList.height() - 20;
+    this.dom.chatList.animate({right : width + 'px'}, speed, () => {
+      const maxWidth = this.dom.chatList.width() - 30;
+      const maxHeight = this.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
@@ -611,120 +656,167 @@ var ui = {
 
   /**
    * Create a form out of an XMPP data form stanza.
+   * @see http://xmpp.org/extensions/xep-0004.html
    *
-   * @param {jq} x The <x/> element containing the form fields.
-   * @param {function} submit The callback that the completed form values will be sent to.
-   * @return {jq} The HTML form.
+   * This function uses a callback instead of a promise to allow
+   * repeated submissions-
+   *
+   * @param {Object} stanza The XMPP stanza
+   * @param {function} submit The callback that the completed form will be sent to.
+   * @return {jQuery} The HTML form.
    */
-  dataForm: function(x, submit) {
-    var fields = {};
-    var input = function(field) {
-      return $('<input/>').attr('name', field.attr('var'));
-    }
-    fields.hidden = function(field) {
-      return input(field).attr('type', 'hidden')
-        .attr('value', $('value', field).text());
+  dataForm: function(stanza, submit) {
+    // The standard constructor turns <field var=?> into <input name=?>.
+    const input = (field) => {
+      return $('<input>').attr('name', field.attr('var'));
     };
-    fields['boolean'] = function(field) {
-      return input(field).attr('type', 'checkbox')
-        .prop('checked', $('value', field).text() == '1');
+
+    // These are all the field constructors, by type.
+    const fields = {};
+    fields.hidden = (field) => {
+      return input(field).attr({
+        type: 'hidden',
+        value: $('value', field).text()
+      });
     };
-    fields['text-single'] = function(field) {
-      return input(field).attr('type', 'text')
-        .attr('value', $('value', field).text());
+    fields.boolean = (field) => {
+      const value = $('value', field).text();
+      return input(field).attr({
+        type: 'checkbox',
+        checked: value == '1' || value == 'true',
+      });
+    };
+    fields['text-single'] = (field) => {
+      return input(field).attr({
+        type: 'text',
+        value: $('value', field).text()
+      });
     };
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
-    fields['text-multi'] = function(field) {
-      var values = [];
-      $('value', field).each(function() { values.push($(this).text()); });
-      return $('<textarea class="form-field">').attr('name', field.attr('var'))
-        .text(values.join("\n"));
-    }
-    fields['jid-multi'] = function(field) {
-      return fields['text-multi'](field).attr('title', strings.label.tip.multiline);
-    }
-    fields['list-single'] = function(field) {
-      var f = $('<select>').attr('name', field.attr('var'));
-      var value = field.children('value').text();
-      $('option', field).each(function() {
-        var v = $('value', this).text();
-        f.append($('<option></option>').attr('value', v)
-          .text($(this).attr('label'))
-          .prop('selected', value == v)
-        );
-      });
-      return f;
-    }
-    fields['list-multi'] = function(field) {
-      return fields['list-single'](field).prop('multiple', true);
-    }
-    fields['fixed'] = function(field) {
-      return $('<p>').text($('value', field).text());
-    }
+    fields['text-multi'] = (field) => {
+      const values = $.makeArray($('value', field).map(function() {
+        return $(this).text();
+      }));
 
-    val = function(field) { return field.val(); }
-    var values = {};
-    values['boolean'] = function(field) {
-      return field.prop('checked') ? "1" : "0";
-    }
+      return $('<textarea class="form-field">')
+        .attr('name', field.attr('var'))
+        .text(values.join("\n"));
+    };
+    fields['jid-multi'] = (field) => {
+      return fields['text-multi'](field)
+        .attr('title', strings.label.tip.multiline);
+    };
+
+    fields['list-single'] = (field) => {
+      const select = $('<select>').attr('name', field.attr('var'));
+      const defaultValue = field.children('value').text();
+
+      $('option', field).each(function() {
+        const value = $('value', this).text();
+        const option = $('<option>').attr({
+          value,
+          selected: value == defaultValue
+        });
+        option.text($(this).attr('label'));
+        select.append(option);
+      });
+      return select;
+    };
+    fields['list-multi'] = (field) => {
+      return fields['list-single'](field).attr('multiple', true);
+    };
+    fields['fixed'] = (field) => {
+      return $('<p>').text($('value', field).text());
+    };
+
+    const val = (field) => { return field.val(); };
+
+    // These are all the value callbacks, by type.
+    const values = {};
     values.hidden = val;
+    values.boolean = (field) => {
+      return field.prop('checked') ? "1" : "0";
+    };
     values['text-single'] = val;
     values['text-private'] = val;
     values['jid-single'] = val;
-    values['text-multi'] = function(field) {
-      return val(field).split("\n");
-    }
+    values['text-multi'] = (field) => {
+      return field.val().split("\n");
+    };
     values['jid-multi'] = values['text-multi'];
     values['list-single'] = val;
     values['list-multi'] = val;
-    values['fixed'] = function() { return undefined; };
+    values['fixed'] = () => { return undefined; };
 
-    var form = $('<form class="data-form">').attr('title', $('title', x).text());
+    const x = $('x', stanza);
+    const form = $('<form class="data-form">');
+
+    form.attr('title', $('title', x).text());
+
     x.children('field').each(function() {
-      var type = $(this).attr('type');
-      var field = fields[type]($(this)).addClass('data-form-field').attr('data-type', type).uniqueId();
-      var label = $('<label>').attr('for', field.attr('id')).text($(this).attr('label'));
-      form.append($('<div class="row">').append(label, field, '<br>'));
+      const type = $(this).attr('type');
+      const field = fields[type]($(this));
+      field.addClass('data-form-field');
+      field.attr('data-type', type);
+      field.uniqueId();
+
+      const label = $('<label>');
+      label.attr('for', field.attr('id'));
+      label.text($(this).attr('label'));
+
+      const row = $('<div class="row">');
+      row.append(label, field, '<br>');
+
+      form.append(row);
     });
-    form.submit(function(e) {
-      e.preventDefault();
-      var v = {};
+
+    form.submit((event) => {
+      event.preventDefault();
+      const data = {};
       $('.data-form-field', form).each(function() {
-        v[$(this).attr('name')] = values[$(this).attr('data-type')]($(this));
+        const key = $(this).attr('name');
+        const value = values[$(this).attr('data-type')]($(this));
+        data[key] = value;
       });
-      submit(v);
+      submit(data);
     });
+
     return form;
   },
 
   /**
    * Generate a dialog from a form.
    * By default, the dialog will have three buttons: Save, Apply, and Close.
-   * Save and Apply will both trigger the form's submit() event,
-   * Save and Close will both close the dialog.
+   * Save will trigger the form's submit() event and close the dialog.
+   * Apply will trigger the form's submit() event.
+   * Close will close the dialog.
    *
    * @param form The form element.
+   * @param {cancel, apply} Extra form actions.
    */
-  formDialog: function(form) {
+  formDialog: function(form, {cancel, apply}={}) {
+    const buttons = [
+      {
+        text: strings.label.button.save,
+        click: function() { form.submit(); $(this).dialog('destroy') }
+      },
+      {
+         text: strings.label.button.close,
+         click: function() { cancel && cancel(); $(this).dialog('destroy'); }
+      }
+    ];
+
+    if (apply || apply === undefined) buttons.push({
+      text: strings.label.button.apply,
+      click: function() { form.submit(); }
+    });
+
     form.dialog({
       dialogClass: 'box dialog',
       height: 0.8*$(window).height(),
       width: Math.min(0.75*$(window).width(), 600),
-      buttons: [
-        {
-          text: strings.label.button.save,
-          click: function() { form.submit(); $(this).dialog('destroy') }
-        },
-        {
-          text: strings.label.button.apply,
-          click: function() { form.submit(); }
-        },
-        {
-          text: strings.label.button.close,
-          click: function() { $(this).dialog('destroy') }
-        }
-      ]
+      buttons
     });
   },
 
@@ -734,30 +826,13 @@ var ui = {
    *
    * @param {string} text The message to display (should be in strings.js)
    * @param {Object} variables (optional) The variables to insert into the text.
-   * @param {string} classes (optional) Any classes (space-separated) to add.
-   *                 The common ones are verbose (message will be suppressed if
-   *                 verbosity is off) or error (message will be colored red).
+   * @param {Object} options (optional)
    */
-  messageAddInfo: function(text, variables, classes) {
-    // If the second argument is a string, we skipped the variables.
-    if (!classes && typeof variables == 'string') {
-      classes = variables;
-      variables = false;
-    }
-    var error = false;
-
-    // Suppress verbose messages.
-    if (0 <= (' ' + classes + ' ').indexOf(' verbose ')) {
-      if (!config.settings.verbose) return;
-    }
-    else if (0 <= (' ' + classes + ' ').indexOf(' error ')) {
-      this.playSound('error');
-      error = true;
-    }
-
-    var body = visual.formatText(text, variables);
-    var message = {
-      body: body, type: 'local',
+  messageInfo: function(text, variables, {error}={}) {
+    const body = visual.formatText(text, variables);
+    let message = {
+      type: 'local',
+      body,
       user: config.ui.chatBotName && {
         nick: config.ui.chatBotName,
         role: 'bot',
@@ -765,10 +840,24 @@ var ui = {
       }
     };
     this.notifyDesktop(error ? 1 : 3, message);
+
     message = visual.formatMessage(message, true);
-    message.html.find('.body').addClass(classes).addClass('message-bot');
+    message.html.find('.body').addClass('message-bot');
+
+    if (error) {
+      this.playSound('error');
+      message.html.find('.body').addClass('error');
+    }
+
     this.messageAppend(message);
-    return message;
+  },
+
+  /**
+   * Create an error message.
+   * This is an alias for messageInfo(text, variables, {error: true})
+   */
+  messageError: function(text, variables) {
+    this.messageInfo(text, variables, {error: true});
   },
 
   /**
@@ -777,7 +866,7 @@ var ui = {
    * @param {Object} message. Must have user, time, room and body keys.
    */
   messageDelayed: function(message) {
-    var entry = visual.formatMessage(message);
+    const entry = visual.formatMessage(message);
     entry.html.addClass('delayed')
       .find('.dateTime').after(' ', $('<span class="log-room"></span>')
         .addClass(message.room && ('log-room-' + message.room.id))
@@ -792,18 +881,23 @@ var ui = {
    * This is only used for delayed messages.
    */
   messageInsert: function(message) {
-    var c = this.messages.length;
-    if (c == 0 || message.timestamp > this.messages[c-1].timestamp) {
+    const total = this.messages.length;
+    const time = message.timestamp;
+
+    // If there are no newer messages, just append it.
+    if (!total || time > this.messages[total-1].timestamp)
       return this.messageAppend(message);
-    }
-    for (var i = 0; i < c; i++) {
-      if (message.timestamp < this.messages[i].timestamp) {
-        message.offset = this.messages[i].offset;
-        this.messages[i].html.before(message.html);
-        this.messages.splice(i, 0, message);
+
+    // Otherwise, find the first message that is newer.
+    let i;
+    for (i = 0; i < total; i++)
+      if (time < this.messages[i].timestamp)
         break;
-      }
-    }
+
+    // Insert it before that message.
+    message.offset = this.messages[i].offset;
+    this.messages[i].html.before(message.html);
+    this.messages.splice(i, 0, message);
 
     $(message.html).css({display:'block'});
     this.updateHeights(i);
@@ -814,76 +908,121 @@ var ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend: function(message) {
-    message.offset = ui.dom.chatList.prop('scrollHeight');
+    message.offset = this.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
-    $(message.html).fadeIn(function() {
-      ui.scrollDown();
-    });
+
+    // After fade-in, scroll down again for inline images.
+    $(message.html).fadeIn(() => { this.scrollDown(); });
     this.scrollDown();
-    if (message.message.user.nick != xmpp.nick.current) {
-      var sender = message.message.user.nick || Strophe.getBareJidFromJid(message.message.user.jid);
-      this.blinkTitle(sender);
-    }
   },
 
   /**
    * Refresh the room selection menu.
    */
   refreshRooms: function(rooms) {
-    var room = this.dom.roomSelection.val();
+    const room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
-    var options = [new Option('---', '')];
-    for (var id in rooms) {
+    const options = [new Option('---', '')];
+    for (let id in rooms) {
       options.push(new Option(rooms[id].title, id));
     }
     this.dom.roomSelection.html(options).val(room);
   },
 
   /**
-   * Add a user to the online list.
+   * Update a roster entry.
+   *
+   * @param {String} user - The new user object.
+   * @param {String} nick - The last known nickname of the user.
    */
-  userAdd: function(user, animate) {
-    var userLink = $('<div class="row">').append(
-      $('<span class="user-roster">').append(visual.format.user(user))
+  rosterInsert: function(user, {nick, animate}={}) {
+    nick = nick || user.nick;
+    if (animate === undefined) animate = true;
+    const label = user.status || strings.label.status[user.show] || user.show;
+    const entry = this.roster[nick] || $('<div class="row">').append(
+      $('<div class="user-show-icon">').addClass(user.show).attr('title', label),
+      visual.format.user(user)
     );
+    const link = $('.user', entry);
 
-    visual.msgOnClick(userLink);
+    const exists = !!this.roster[nick];
+    this.roster[user.nick] = entry;
 
-    if (user.nick == xmpp.nick.current) {
-      $('span.user-roster', userLink).addClass('user-self');
-      this.dom.onlineList.find('span.user-self').removeClass('user-self');
+    // If the entry already exists:
+    if (exists) {
+      // Update entry.
+      $('.user-show-icon', entry).attr({
+        class: 'user-show-icon ' + user.show,
+        title: label
+      });
+      link.attr({
+        'data-affiliation': user.affiliation,
+        'data-jid': user.jid,
+        'data-nick': user.nick,
+        'data-role': user.role,
+        'data-show': user.show,
+        'title': user.jid,
+      }).removeClass(
+        (_, css) => css.match(/(jid|user-(affiliation|role))-/g).join(' ')
+      ).addClass([
+        'user-affiliation-' + user.affiliation,
+        'user-role-' + user.role
+      ].concat(user.jid && visual.jidClass(user.jid)).join(' '));
+
+      // If the nickname has changed:
+      if (nick && nick != user.nick) {
+        link.text(user.nick);
+        // Remove the old nickname from the index.
+        const oldIndex = this.sortedNicks.indexOf(nick);
+        this.sortedNicks.splice(oldIndex, 1);
+        delete this.roster[nick];
+      }
+    }
+    else {
+      visual.msgOnClick(entry);
+      link.toggleClass('user-self', user.nick == xmpp.nick.current);
     }
 
-    if (!this.userLinks[user.nick]) {
-      for (var i = 0; i < this.sortedNicks.length; i++)
-        if (user.nick.toLowerCase() < this.sortedNicks[i].toLowerCase())
-          break;
-      if (i < this.sortedNicks.length)
-        userLink.insertBefore(this.userLinks[this.sortedNicks[i]]);
-      else
-        userLink.appendTo(this.dom.onlineList);
-      this.sortedNicks.splice(i, 0, user.nick);
-      if (animate) userLink.slideDown(1000);
+    // If the nick is still in the sorted index, we're done.
+    if (~this.sortedNicks.indexOf(nick)) return;
+
+    // Find the (case-insensitive) alphabetical successor of this entry:
+    const _lower = user.nick.toLowerCase();
+    const newIndex = this.sortedNicks.findIndex(value => _lower < value.toLowerCase());
+
+    if (~newIndex) {
+      entry.insertBefore(this.roster[this.sortedNicks[newIndex]]);
+      this.sortedNicks.splice(newIndex, 0, user.nick);
     }
-    else userLink.replaceAll(this.userLinks[user.nick])
-    userLink.css('display', 'block');
-    this.userLinks[user.nick] = userLink;
+    else {
+      entry.appendTo(this.dom.roster);
+      this.sortedNicks.push(user.nick);
+    }
+
+    // The new item becomes visible after being added to the DOM.
+    if (!exists) animate ? entry.slideDown() : entry.show();
   },
 
   /**
    * Remove a user from the online list.
+   *
+   * The user will remain visible as "offline" for a short time.
    */
-  userRemove: function(user) {
-    if (this.userLinks[user.nick]) {
-      this.userLinks[user.nick].slideUp(1000).remove();
-      for (var i = 0; i < this.sortedNicks.length; i++) {
-        if (this.sortedNicks[i] == user.nick) {
-          this.sortedNicks.splice(i, 1);
-          break;
+  rosterRemove: function(nick) {
+    const entry = this.roster[nick];
+
+    if (entry) {
+      this.rosterInsert({nick, show: 'offline'});
+      setTimeout(() => {
+        // Ensure the user is still offline.
+        if ($('.user[data-show=offline]', entry).length) {
+          delete this.roster[nick];
+          entry.slideUp(() => entry.remove());
+          const index = this.sortedNicks.indexOf(nick);
+          if (~index) this.sortedNicks.splice(index, 1);
         }
-      }
-      delete this.userLinks[user.nick];
+      }, 5000);
     }
   },
 
@@ -910,23 +1049,24 @@ var ui = {
   /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
-  updateRoom: function(room, roster) {
+  updateRoom: function(room, roster={}) {
+    const list = this.dom.roster;
+
     this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
     $(document).attr('title', this.title);
 
-    var self = this;
     this.dom.roomSelection.val(room);
-    // If no roster is given, only update the menu.
-    if (!roster) return;
-    this.dom.onlineList.slideUp(function() {
-      $(this).html('');
-      self.userLinks = {};
-      self.userStatus = {};
-      self.sortedNicks = [];
-      for (var nick in roster) {
-        self.userAdd(roster[nick], false);
-      }
-      $(this).slideDown();
+    this.setFragment(room);
+    this.setUserStatus('available');
+
+    list.slideUp(() => {
+      list.html('');
+      this.roster = {};
+      this.sortedNicks = [];
+      for (let nick in roster)
+        this.rosterInsert(roster[nick], {animate: false});
+
+      list.slideDown();
     });
   },
 
@@ -936,8 +1076,8 @@ var ui = {
    * @start (optional) the first offset to recalculate.
    */
   updateHeights: function(start) {
-    var offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
-    for (var i = start || 1; i < ui.messages.length; i++) {
+    let offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
+    for (let i = start || 1; i < ui.messages.length; i++) {
       offset += ui.messages[i].html.height();
       ui.messages[i].offset = offset;
     }
@@ -949,11 +1089,11 @@ var ui = {
    * @return the index of the first message starting after the offset.
    */
   getMessageAt: function(offset) {
-    var a = 0;
-    var b = ui.messages.length - 1;
+    let a = 0;
+    let b = ui.messages.length - 1;
     if (b < 0) return null;
     while (a + 1 < b) {
-      var c = (a + b) / 2 | 0;
+      const c = (a + b) / 2 | 0;
       if (ui.messages[c].offset < offset) a = c;
       else b = c;
     }
@@ -967,19 +1107,25 @@ var ui = {
    *                 Should return true if the event should be terminated.
    * @return true if the event should be terminated.
    */
-  onKeyMap: function(callbacks) {
-    return function(e) {
-      var c = e.which || e.keyCode;
-      if (callbacks[c] && callbacks[c](e, this)) {
+  onKeyMap: function(map) {
+    // Compile a lookup table from KeyEvent.DOM_VK_* constants or charcodes.
+    const callbacks = {};
+    for (let key in map) {
+      const index = KeyEvent["DOM_VK_" + key] || key.charCodeAt(0);
+      callbacks[index] = map[key];
+    }
+    return function(event) {
+      const char = event.which || event.keyCode;
+      if (callbacks[char] && callbacks[char](event, this)) {
         try {
-          e.preventDefault();
+          event.preventDefault();
         } catch(ex) {
-          e.returnValue = false;
+          event.returnValue = false;
         }
         return false;
       }
       return true;
-    }
+    };
   },
 
   /**
@@ -987,9 +1133,9 @@ var ui = {
    * When a maximum length is set, count down to it.
    */
   updateMessageLengthCounter: function() {
-    var length = this.dom.inputField.val().length;
+    const length = this.dom.inputField.val().length;
     if (config.ui.maxMessageLength) {
-      var content = (config.ui.maxMessageLength - length);
+      const content = (config.ui.maxMessageLength - length);
       this.dom.messageLengthCounter.css('color', content < 0 ? 'red' : '');
       this.dom.messageLengthCounter.text(content);
     }
@@ -1016,8 +1162,14 @@ var ui = {
    */
   checkAutoScroll: function() {
     if (this.autoScrolled) return;
-    var chatListHeight = parseInt($(this.dom.chatList).css('height'));
-    var autoScroll = this.dom.chatList.scrollTop() + 1.3*chatListHeight >= this.dom.chatList.prop('scrollHeight');
+
+    const chatList = this.dom.chatList;
+    const viewHeight = parseInt(chatList.css('height'));
+    const totalHeight = chatList.prop('scrollHeight');
+    const bottom = chatList.scrollTop() + viewHeight;
+
+    const autoScroll = totalHeight - bottom <= viewHeight/3;
+
     if (this.autoScroll != autoScroll) {
       this.autoScroll = autoScroll;
       this.dom.autoScrollIcon.attr('class', autoScroll ? 'on' : 'off');
@@ -1026,12 +1178,14 @@ var ui = {
 
   /**
    * Trigger a particular sound event.
+   *
+   * @return {boolean} True if a sound was played.
    */
   playSound: function(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
-    if (xmpp.userStatus == 'dnd') return;
-    var sound = config.settings.notifications.sounds[event];
+    if (xmpp.show == 'dnd') return;
+    const sound = config.settings.notifications.sounds[event];
     return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
   },
 
@@ -1039,26 +1193,32 @@ var ui = {
    * Trigger the correct message sound and desktop notification.
    * Only one sound is played, in order:
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
+   * The first applicable, enabled sound will be played.
    */
   notify: function(message) {
-    var text = message.body.text();
-    var mention = (text.indexOf(xmpp.nick.current) >= 0
-                || text.indexOf(xmpp.user) >= 0);
-    var sender = false;
-    var name = message.user.nick || Strophe.getBareJidFromJid(message.user.jid) || '';
-    var triggers = config.settings.notifications.triggers;
-    for (var i in triggers) {
-      mention = mention || (0 <= text.indexOf(triggers[i]));
-      sender = sender || (0 <= name.indexOf(triggers[i]));
+    const text = message.body.text();
+    const name = message.user.nick || message.user.jid.bare() || '';
+
+    let mention = (text.indexOf(xmpp.nick.current) >= 0
+                || text.indexOf(xmpp.jid.node) >= 0);
+    let sender = false;
+    for (let trigger of config.settings.notifications.triggers) {
+      mention = mention || (0 <= text.indexOf(trigger));
+      sender = sender || (0 <= name.indexOf(trigger));
     }
 
     // Any kind of alert is level 1, everything else is 2.
     this.notifyDesktop(((mention || message.type == 'chat' || sender) ? 1 : 2), message);
 
     if (mention && this.playSound('mention')) return;
-    if (message.type == 'chat' && this.playSound('msg')) return;
+    if (message.type != 'groupchat' && this.playSound('msg')) return;
     if (sender && this.playSound('mention')) return;
     this.playSound('receive');
+
+    if (!message.user.jid.equals(xmpp.jid)) {
+      const sender = message.user.nick || message.user.jid.bare();
+      this.blinkTitle(sender);
+    }
   },
 
   /**
@@ -1071,23 +1231,24 @@ var ui = {
    * @param {Object} message: The message object.
    */
   notifyDesktop: function(level, message) {
-    if (xmpp.userStatus == 'dnd') return;
-    if (level <= config.settings.notifications.desktop && document.hidden) {
-      var text = $(message.body).text();
-      var sender = message.user.nick || Strophe.getBareJidFromJid(message.user.jid);
+    if (xmpp.show == 'dnd') return;
+    if (document.hidden) return;
+    if (level > config.settings.notifications.desktop) return;
 
-      if (message.type != 'direct') {
-        var title = xmpp.room.available[xmpp.room.current].title;
-        if (message.type != 'local') {
-          if (message.type != 'groupchat')
-            text = strings.info.whisper + ' ' + text;
-          text = sender + ': ' + text;
-        }
+    let body = $(message.body).text();
+    let sender = message.user.nick || message.user.jid.bare();
+    let title = sender;
+
+    if (message.type != 'direct') {
+      title = xmpp.room.available[xmpp.room.current].title;
+      if (message.type != 'local') {
+        if (message.type != 'groupchat')
+          body = strings.info.whisper + ' ' + body;
+        body = sender + ': ' + body;
       }
-      else title = sender;
-
-      new Notification(title, {body: text, tag: xmpp.room.current});
     }
+
+    return new Notification(title, {body, tag: xmpp.room.current});
   },
 
   /**
@@ -1096,12 +1257,15 @@ var ui = {
   blinkTitle: function(string) {
     window.clearInterval(this.blinker);
     string = string ? string + ' - ' : '';
-    var speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
-    var delay = Math.ceil(1000 / speed);
-    var number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
+
+    const speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
+    const delay = Math.ceil(1000 / speed);
+
+    let number = Math.ceil(1000 * config.settings.notifications.blinkLength / delay);
     if (!number) return;
-    var state = false;
-    this.blinker = window.setInterval(function() {
+    let state = false;
+
+    this.blinker = window.setInterval(() => {
       if (!number) {
         $(document).attr('title', ui.title);
         return window.clearInterval(ui.blinker);
@@ -1117,19 +1281,17 @@ var ui = {
    */
   autocomplete: function() {
     // Search algorithm for the longest common prefix of all matching strings.
-    var prefixSearch = function(prefix, words) {
-      var results = [];
-      for (var i in words) {
-        if (words[i].substring(0, prefix.length) == prefix) {
-          results.push(words[i]);
-        }
-      }
+    const prefixSearch = (prefix, words) => {
+      let results = words.filter((word) => {
+        return word.substring(0, prefix.length) == prefix;
+      });
+
       if (results.length > 1) {
-        var result = results[0];
+        let result = results[0];
         // For each match, cut down to the longest common prefix.
-        for (var i in results) {
-          for (var j in results[i]) {
-            if (result[j] != results[i][j]) {
+        for (let candidate of results) {
+          for (let c in candidate) {
+            if (result[c] != candidate[c]) {
               result = result.substring(0, j);
               break;
             }
@@ -1138,27 +1300,27 @@ var ui = {
         }
         results = result ? [result] : [];
       }
-      if (results.length == 1) {
-        return results[0];
-      }
+      if (results.length == 1) return results[0];
       else return '';
     };
 
-    var inputField = this.dom.inputField;
+    const inputField = this.dom.inputField;
     inputField.focus();
-    var start = inputField[0].selectionStart;
-    var end = inputField[0].selectionEnd;
+    const start = inputField[0].selectionStart;
+    const end = inputField[0].selectionEnd;
     if (start != end) return false;
-    var old = inputField.val();
-    var prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
+    const old = inputField.val();
+    const prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
 
     // Look for commands or nicknames.
+    let result;
     if (prefix[0] == '/') {
-      var result = '/' + prefixSearch(prefix.substring(1), Object.keys(chat.commands).concat(Object.keys(config.settings.macros)));
+      const searchSpace = Object.keys(chat.commands).concat(Object.keys(config.settings.macros));
+      result = '/' + prefixSearch(prefix.substring(1), searchSpace);
     }
-    else {
-      var result = prefixSearch(prefix, Object.keys(this.userLinks));
-    }
+    else
+      result = prefixSearch(prefix, this.sortedNicks);
+
     if (result.length > prefix.length) {
       inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
       inputField[0].selectionStart = start - prefix.length + result.length;
@@ -1168,11 +1330,9 @@ var ui = {
   },
 
   getString: function(key) {
-    var path = key.split('.');
-    var ref = strings;
-    for (var i = 0; i < path.length; i++) {
-      ref = ref[path[i]];
-    }
+    const path = key.split('.');
+    let ref = strings;
+    for (let token of path) ref = ref[token];
     return ref;
   }
 };

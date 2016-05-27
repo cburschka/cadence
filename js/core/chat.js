@@ -15,48 +15,76 @@ var chat = {
      *   Execute a server admin command.
      */
     admin: function(arg) {
-      var m = chat.parseArgs(arg);
-      var defaultArgs = {
-        announce: 'body',
+      const m = chat.parseArgs(arg);
+
+      // Make single-argument commands more convenient:
+      const defaultArgs = {
+        'announce': 'body',
         'get-user-lastlogin': 'accountjid',
         'set-motd': 'body',
         'user-stats': 'accountjid',
       }
+
+      // Use first positional argument as command.
       if (m[0].length) m.cmd = m[0][0];
+      // If there is more, use the remaining text as an argument.
       if (m[0].length > 1 && m.cmd in defaultArgs)
         m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
 
-      if (!m.cmd) return ui.messageAddInfo(strings.error.noArgument, 'error');
+      const command = m.cmd;
+      if (!command)
+        return ui.messageError(strings.error.noArgument);
 
-      var arg = {};
-      for (var i in m) if (i != 'cmd' && i != 'interactive' && i*0 != 0) arg[i] = m[i];
-      m.interactive = m.interactive || Object.keys(arg).length == 0;
+      // Interactive configuration with --interactive, or with a command
+      // that contains no named arguments other than --cmd.
+      const interactive = m.interactive || Object.keys(m).every(
+        (key) => { return key*0 === 0 || key == 'cmd' }
+      );
 
-      var query = m.interactive ?
-          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
-        : arg;
+      let sessionid;
 
-      xmpp.submitCommand(m.cmd, query, function(stanza, status) {
-        if (status < 2 && stanza) {
-          if ($('forbidden', stanza).length)
-            ui.messageAddInfo(strings.error.admin.forbidden, {command: m.cmd}, 'error');
-          else if ($('service-unavailable', stanza).length)
-            ui.messageAddInfo(strings.error.admin.badCommand, {command: m.cmd}, 'error');
-          else if ($('text', stanza).length) ui.messageAddInfo(strings.error.admin.generic, {
-            command: m.cmd, text: $('text', stanza).text()
-          }, 'error');
-          else ui.messageAddInfo(strings.error.admin.unknown, {command: m.cmd}, 'error');
-        }
-        else {
-          var result = [];
-          $('field[type!="hidden"]', stanza).each(function() {
-            result.push($('<strong>').text($(this).attr('label') + ': '), $(this).text(), $('<br>'));
-          });
-          ui.messageAddInfo(strings.info.admin[result.length ? 'result' : 'completed'], {
-            command: m.cmd,
-            result: result
-          });
-        }
+      xmpp.command(command)
+      .then((stanza) => {
+        sessionid = $('command', stanza).attr('sessionid');
+        return new Promise((resolve, reject) => {
+          if (interactive) {
+            const form = ui.dataForm(stanza, resolve);
+            ui.formDialog(form, {cancel: reject, apply: false});
+          }
+          else {
+            const args = {};
+            $('x > field', stanza).each(function() {
+              const name = $(this).attr('var');
+              const values = $.makeArray($('value', this).map(function() {
+                return $(this).text();
+              }));
+              args[name] = m[name] !== undefined ? [m[name]] : values;
+            });
+            resolve(args);
+          }
+        });
+      })
+      .then((data) => {
+        return xmpp.commandSubmit(command, sessionid, data);
+      })
+      .then((stanza) => {
+        const result = [];
+        $('field[type!="hidden"]', stanza).each(function() {
+          const label = $(this).attr('label');
+          const value = $(this).text();
+          result.push($('<strong>').text(value + ':'), ' ', value, $('<br>'));
+        });
+
+        ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
+      })
+      .catch((stanza) => {
+        if ($('forbidden', stanza).length)
+          ui.messageError(strings.error.admin.forbidden, {command});
+        else if ($('service-unavailable', stanza).length)
+          ui.messageError(strings.error.admin.badCommand, {command});
+        else if ($('text', stanza).length)
+          ui.messageError(strings.error.admin.generic, {command, text: $('text', stanza).text()});
+        else ui.messageError(strings.error.admin.unknown, {command});
       });
     },
 
@@ -66,67 +94,71 @@ var chat = {
      */
     affiliate: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.type = arg.type || arg[0][0];
-      if (!arg.jid) arg.nick = arg.nick || arg[0][1];
+      arg[0] = arg[0] || [];
 
-      var room = xmpp.room.available[xmpp.room.current]
-      var roster = xmpp.roster[xmpp.room.current];
-      var user = roster[arg.nick] || {jid: Strophe.getBareJidFromJid(arg.jid || arg.nick) };
+      const type = arg.type || arg[0][0];
 
-      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(arg.type) < 0)
-        return ui.messageAddInfo(strings.error.affiliate.type, {type: arg.type}, 'error')
+      const nick = arg.nick || arg[0][1];
+      const jid = xmpp.JID.parse(arg.jid || arg[0][1]);
+
+      const roster = xmpp.roster[xmpp.room.current];
+      // Look up the nickname unless --jid was explicitly used.
+      const user = !arg.jid && roster[nick] || String(jid) && {jid};
+
+      if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
+        return ui.messageError(strings.error.affiliate.type, {type})
 
       // List users with a specific affiliation.
-      if (!arg.jid && !arg.nick) {
-        return xmpp.getUsers({affiliation: arg.type}, function(stanza) {
+      if (!user) {
+        return xmpp.getUsers({affiliation: type}).then((stanza) => {
           // Create a dictionary of non-occupant users:
-          var users = {};
-          $('item', stanza).each(function() {
-            var jid = $(this).attr('jid').toLowerCase();
-            users[jid] = {jid: jid};
+          const users = {};
+          $('item', stanza).map((s,t) => {
+            return xmpp.JID.parse(t.getAttribute('jid'));
+          }).each((i,jid) => {
+            users[String(jid).toLowerCase()] = {jid};
           });
 
+          if ($.isEmptyObject(users)) {
+            return ui.addMessageInfo(strings.info.affiliationsEmpty, {type});
+          }
+
           // Find users who are occupants:
-          for (var nick in roster) {
-            var jid = Strophe.getBareJidFromJid(roster[nick].jid).toLowerCase();
+          for (let nick in roster) {
+            let jid = roster[nick].jid.bare().toLowerCase();
             if (jid in users) users[jid] = roster[nick];
           }
 
-          for (var jid in users) users[jid] = visual.format.user(users[jid]);
+          for (let jid in users) users[jid] = visual.format.user(users[jid]);
 
-          ui.messageAddInfo(Object.keys(users).length ? strings.info.affiliations[arg.type] : strings.info.affiliationsEmpty, {
-            type: arg.type,
-            list: users
-          });
-        }, function(stanza) {
-          var type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
-          ui.messageAddInfo(strings.error.affiliations[type], {type: arg.type}, 'error');
+          ui.messageInfo(strings.info.affiliations[type], {type, list: users});
+        }, (stanza) => {
+          const type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
+          ui.messageError(strings.error.affiliations[type], {type});
         });
       }
 
-      // Attempt to set a user's affiliation.
+      // User is present but anonymous:
       if (!user.jid)
-        return ui.messageAddInfo(strings.error.affiliate.anon, {user: user}, 'error');
-      if (!Strophe.getNodeFromJid(user.jid))
-        return ui.messageAddInfo(strings.error.affiliate.unknown, {nick: user.jid}, 'error');
+        return ui.messageError(strings.error.affiliate.anon, {user});
+      // User is not in the room (therefore their JID is actually just a nick).
+      if (!user.jid.node)
+        return ui.messageError(strings.error.affiliate.unknown, {nick: user.jid});
 
+      // If a JID was given, fetch the user if they're present.
       if (!user.nick)
-        for (var nick in roster)
-          if (Strophe.getBareJidFromJid(roster[nick].jid) == user.jid)
-            user = roster[nick];
+        for (let nick in roster)
+          if (roster[nick].jid.bare() == user.jid) user = roster[nick];
 
-      xmpp.setUser({jid: user.jid, affiliation: arg.type}, function(iq) {
-        if ($(iq).attr('type') == 'result')
-          ui.messageAddInfo(strings.info.affiliate, {
-            user: user,
-            room: room,
-            type: arg.type
-          });
-      }, function(code, iq) {
-        var error = 'default';
-        if ($('not-allowed', iq).length) error = 'notAllowed';
-        else if ($('conflict', iq).length) error = 'conflict';
-        ui.messageAddInfo(strings.error.affiliate[error], {user: user, type: arg.type}, 'error');
+      // Attempt to set user's affiliation.
+      xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
+        const room = xmpp.room.available[xmpp.room.current];
+        ui.messageInfo(strings.info.affiliate, {user, room, type});
+      }, (e) => {
+        let error = 'default';
+        if ($('not-allowed', e).length) error = 'notAllowed';
+        else if ($('conflict', e).length) error = 'conflict';
+        ui.messageError(strings.error.affiliate[error], {user, type});
       });
     },
 
@@ -137,51 +169,44 @@ var chat = {
     alias: function(arg) {
       arg = arg.trim();
       if (!arg) {
-        var out = '';
-        for (var macro in config.settings.macros) {
-          out += '    /' + macro + ' - ' + config.settings.macros[macro].join('; ') + '\n';
-        }
-        if (out) return ui.messageAddInfo($('<div>').html(strings.info.macros), {
-          macros: out
-        });
-        else return ui.messageAddInfo(strings.error.noMacros, 'error');
+        const macros = $.map(config.settings.macros, (value, key) => {
+          return '    /' + key + ' - ' + value.join('; ');
+        }).join('\n');
+        if (out) return ui.messageInfo($('<div>').html(strings.info.macros), {macros});
+        else return ui.messageError(strings.error.noMacros);
       }
-      var m = arg.match(/^\/*(\S+)/);
-      if (!m) return ui.messageAddInfo($('<div>').html(strings.error.aliasFormat), 'error');
-      var cmd = m[1];
-      if (chat.commands[cmd]) return ui.messageAddInfo(strings.error.aliasConflict, {
-        cmd: cmd
-      }, 'error');
-      var macro = arg.substring(m[0].length).trim();
-      if (!macro) {
-        delete config.settings.macros[cmd];
+      const m = arg.match(/^\/*(\S+)/); /**/
+      if (!m) return ui.messageError($('<div>').html(strings.error.aliasFormat));
+      const command = m[1];
+      if (this[command]) return ui.messageError(strings.error.aliasConflict, {command});
+      const data = arg.substring(m[0].length).trim();
+      if (!data) {
+        delete config.settings.macros[command];
         chat.saveSettings();
-        return ui.messageAddInfo(strings.info.aliasDelete, {cmd: cmd});
+        return ui.messageInfo(strings.info.aliasDelete, {command});
       }
-      macro = macro.split(';');
-      for (var i in macro) {
-        macro[i] = macro[i].trim();
-      }
+      const macro = data.split(';').map((command) => { return command.trim(); });
       if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
 
-      var search = function(c, t) {
-        if (c) for (var i in c) {
-          var m = c[i].match(/^\/(\S+)/);
-          var u = m && ((m[1] == cmd && t.concat([m[1]])) || search(config.settings.macros[m[1]], t.concat([m[1]])));
-          if (u) return u;
+      const search = (commands, path) => {
+        if (commands) for (let cmd of commands) {
+          let match = cmd.match(/^\/(\S+)/);
+          match = match && match[1];
+          const recursion = (match == command && path.concat([match])) || search(config.settings.macros[match], path.concat([match]));
+          if (recursion) return recursion;
         }
         return false;
-      }
-      var rec = search(macro, [cmd]);
-      if (rec) return ui.messageAddInfo(strings.error.aliasRecursion, {
-        cmd: cmd, path: rec.join(' -> ')
-      }, 'error');
+      };
+      const rec = search(macro, [command]);
+      if (rec) return ui.messageError(strings.error.aliasRecursion, {
+        command, path: rec.join(' -> ')
+      });
 
-      if (config.settings.macros[cmd]) {
-        ui.messageAddInfo(strings.info.aliasReplace, {cmd: cmd});
+      if (config.settings.macros[command]) {
+        ui.messageInfo(strings.info.aliasReplace, {command});
       }
-      else ui.messageAddInfo(strings.info.aliasAdd, {cmd: cmd});
-      config.settings.macros[cmd] = macro;
+      else ui.messageInfo(strings.info.aliasAdd, {command});
+      config.settings.macros[command] = macro;
       chat.saveSettings();
     },
 
@@ -190,16 +215,18 @@ var chat = {
      *   Send a room presence with <show/> set to "away" and
      *   <status/> to "msg".
      */
-    away: function(arg) {
-      xmpp.sendStatus('away', arg.trim());
+    away: function(arg = '') {
+      xmpp.sendStatus({show: 'away', status: arg.trim()});
+      ui.setUserStatus('away');
     },
 
     /**
      * back <msg>:
      *   Send an empty room presence that unsets <show/> and <status/>.
      */
-    back: function(arg) {
-      xmpp.sendStatus(null, arg.trim() || null);
+    back: function(arg = '') {
+      xmpp.sendStatus({status: arg.trim()});
+      ui.setUserStatus('available');
     },
 
     /**
@@ -207,10 +234,8 @@ var chat = {
      *   Shortcut for "/affiliate outcast <nick|jid>".
      */
     ban: function(arg) {
-      arg = chat.parseArgs(arg);
-      arg.type = 'outcast';
-      if (arg[0]) arg[0].unshift('outcast');
-      this.affiliate(arg);
+      arg = arg.jid || String(arg).trim();
+      this.affiliate({0: ['outcast', arg]});
     },
 
     /**
@@ -218,7 +243,29 @@ var chat = {
      *   Shortcut for "/affiliate outcast".
      */
     bans: function() {
-      this.affiliate({0: ['outcast']});
+      this.affiliate({type: 'outcast'});
+    },
+
+    /**
+     * buzz <nick|jid>
+     */
+    buzz: function(arg) {
+      arg = arg.trim();
+      if (!arg)
+        return ui.messageError(strings.error.noArgument);
+
+      let jid = xmpp.JID.parse(arg);
+      const direct = !!jid.node;
+
+      const roster = xmpp.roster[xmpp.room.current];
+      if (!direct && !(arg in roster))
+        return ui.messageError(strings.error.unknownUser, {nick: arg});
+
+      const user = direct ? {jid} : roster[arg];
+
+      ui.messageInfo(strings.info.buzz, {user});
+
+      xmpp.attention(direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
     },
 
     /**
@@ -227,8 +274,8 @@ var chat = {
      */
     clear: function() {
       ui.clearMessages();
-      this.history = [];
-      this.historyIndex = 0;
+      chat.history = [];
+      chat.historyIndex = 0;
     },
 
     /**
@@ -238,26 +285,40 @@ var chat = {
     configure: function(arg) {
       arg = chat.parseArgs(arg);
       if (arg.help)
-        return ui.messageAddInfo($('<div>').html(strings.help.configure));
-      if (!arg.name && arg[0]) arg.name = arg[0].join(' ');
-      var name = arg.name || xmpp.room.current;
-      if (!name)
-        return ui.messageAddInfo(strings.error.noRoom, 'error');
-      if (!xmpp.room.available[name])
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: name}, 'error');
-      arg.interactive = arg.interactive || Object.keys(arg).every(
-        function(e) { return e == '0' || e == '1' || e == 'name' }
-      );
-      var room = xmpp.room.available[name];
-      var config = arg.interactive ?
-          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
-        : chat.roomConf(arg);
+        return ui.messageInfo($('<div>').html(strings.help.configure));
 
-      xmpp.configureRoom(name, config, function(error) {
-        if (!error) ui.messageAddInfo(strings.info.roomConf, {room: room});
-        else if (error == '403') ui.messageAddInfo(strings.error.roomConfDenied, {room: room}, 'error');
-        else ui.messageAddInfo(strings.error.roomConf, {room: room}, 'error');
-      });
+      const name = arg.name || arg[0].join(' ') || xmpp.room.current;
+      if (!name)
+        return ui.messageError(strings.error.noRoom);
+
+      const room = xmpp.room.available[name] || {id: name, title: name};
+
+      // Define error handler separately, since it's used both on getting
+      // and submitting the form, which use distinct promise chains.
+      const error = stanza => {
+        if ($('item-not-found', stanza).length)
+          ui.messageError(strings.error.unknownRoom, {name});
+        else if ($('forbidden', stanza).length)
+          ui.messageError(strings.error.roomConfDenied, {room});
+        else
+          ui.messageError(strings.error.roomConf, {room});
+      };
+
+      xmpp.roomConfig(name).then(config => {
+        // Interactive configuration with --interactive, or with a command
+        // that contains no named arguments other than --name.
+        const interactive = arg.interactive || Object.keys(arg).every(
+          key => key*0 === 0 || key == 'name'
+        );
+
+        // Form submission uses a callback because it can be triggered multiple times.
+        const form = ui.dataForm(config, data =>
+          xmpp.roomConfigSubmit(name, data).then(() =>
+            ui.messageInfo(strings.info.roomConf), error
+          )
+        );
+        ui.formDialog(form, {cancel: () => xmpp.roomConfigCancel(name)});
+      }, error);
     },
 
     /**
@@ -266,18 +327,63 @@ var chat = {
      *   Open a connection and authenticate.
      */
     connect: function(arg) {
-      var fail = function() { return ui.messageAddInfo(strings.error.userpass, 'error') };
       arg = chat.parseArgs(arg);
-      if (arg[0]) {
+      if (arg && arg[0]) {
         arg.user = arg.user || arg[0][0];
         arg.pass = arg.pass || arg[0][1];
       }
-      if (!arg.user || !arg.pass) {
-        if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL)
-          return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
-        else return fail();
+
+      // This is a callback, because it happens after the promise is resolved.
+      const disconnect = () => {
+        ui.setConnectionStatus(false);
+        ui.messageError(strings.info.connection.disconnected);
       }
-      xmpp.newConnection(arg.user, arg.pass);
+
+      // First acquire the credentials.
+      return new Promise((resolve, reject) => {
+        if (arg && arg.user && arg.pass) {
+          return resolve({user: arg.user, pass: arg.pass});
+        }
+        if (config.settings.xmpp.sessionAuth) {
+          const url = config.xmpp.sessionAuthURL;
+          if (url) return chat.sessionAuth(url).then(auth => {
+            ui.messageInfo(strings.info.sessionAuth, {username: auth.user});
+            resolve(auth);
+          });
+        }
+        reject({status: 'no-credentials'});
+      })
+      // Then use them to connect.
+      .then(({user, pass}) => {
+        ui.messageInfo(strings.info.connection.connecting);
+        return xmpp.connect(user, pass, disconnect);
+      })
+      // Then either join a room or list the available rooms.
+      .then(() => {
+        ui.setConnectionStatus(true);
+        ui.messageInfo(strings.info.connection.connected);
+        // A room in the URL fragment (even an empty one) overrides autojoin.
+        if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
+          const name = ui.getFragment() || config.settings.xmpp.room;
+          this.join({name});
+        }
+        else this.list();
+      },
+      // Notify user of connection failures.
+      ({status}) => {
+        ui.setConnectionStatus(false);
+        switch (status) {
+          case 'no-credentials':
+            // Only complain about missing credentials on a manual invocation.
+            throw arg && ui.messageError(strings.error.userpass);
+          case Strophe.Status.AUTHFAIL:
+            throw ui.messageError(strings.error.connection.authfail);
+          case Strophe.Status.CONNFAIL:
+            throw ui.messageError(strings.error.connection.connfail);
+          case Strophe.Status.ERROR:
+            throw ui.messageError(strings.error.connection.other);
+        }
+      });
     },
 
     /**
@@ -287,42 +393,109 @@ var chat = {
     create: function(arg) {
       arg = chat.parseArgs(arg);
       if (arg.help)
-        return ui.messageAddInfo($('<div>').html(strings.help.configure));
-      if (!arg.name) arg.name = arg[0].join(' ') || arg.title;
-      if (!arg.name)
-        return ui.messageAddInfo(strings.error.roomCreateName, 'error');
+        return ui.messageInfo($('<div>').html(strings.help.configure));
 
-      var config = arg.interactive ?
-          function(x, submit) { ui.formDialog(ui.dataForm(x, submit)) }
-        : chat.roomConf(arg);
+      const name = arg.name || arg[0].join(' ') || arg.title;
+      if (!name)
+        return ui.messageError(strings.error.roomCreateName);
 
-      var name = arg.name.toLowerCase();
-      var create = function() {
-        var room = chat.getRoomFromTitle(name);
-        if (room)
-          return ui.messageAddInfo(strings.error.roomExists, {room: room}, 'error');
-        xmpp.joinNewRoom(name, config);
-        ui.setFragment(name);
-        chat.setSetting('xmpp.room', room);
-      };
-      if (!chat.getRoomFromTitle(name)) create();
-      else xmpp.discoverRooms(create);
+      const id = name.toLowerCase();
+      const room = {id, title: arg.title || name};
+
+      // Look for the room to make sure it doesn't exist.
+      xmpp.getRoomInfo(id).then(
+        room => {
+          ui.messageError(strings.error.roomExists, {room});
+          throw 'exists' ;
+        },
+        error => {
+          // Catch only an <item-not-found> error.
+          if (!$('item-not-found', error).length) throw error;
+        }
+      )
+      .then(() => {
+        ui.messageInfo(strings.info.creating, {
+          room,
+          user: {
+            nick: xmpp.nick.target,
+            jid: xmpp.jid
+          }
+        });
+
+        // Start a new Promise chain here, in order to abort on an "exists" error.
+        return xmpp.joinRoom({room: id})
+        // Request the configuration form.
+        .then(() => xmpp.roomConfig(id))
+        .then(conf => {
+          // Unlike /configure, this form is in the promise chain.
+          // It can only be submitted once.
+          return new Promise((resolve, reject) => {
+            if (arg.interactive) {
+              const form = ui.dataForm(conf, resolve);
+              ui.formDialog(form, {cancel: () => { reject('cancel'); }, apply: false});
+            }
+            // Use command-line arguments or just set the room title.
+            else resolve(chat.roomConf(arg) || {'muc#roomconfig_roomname': room.title});
+          });
+        })
+        .then(
+          data => xmpp.roomConfigSubmit(id, data),
+          reason => {
+            if (reason == 'cancel') xmpp.roomConfigCancel(id);
+            throw reason;
+          }
+        )
+        .then(
+          () => {
+            xmpp.setRoom(id);
+            chat.setSetting('xmpp.room', id);
+            ui.messageInfo(strings.info.roomCreated, {room});
+            return xmpp.discoverRooms();
+          },
+          reason => {
+            // The server may not destroy the room on its own:
+            xmpp.leaveRoom(id);
+            if (reason == 'cancel') {
+              ui.messageError(strings.error.roomCreateCancel);
+              throw reason;
+            }
+            else throw ui.messageError(strings.error.roomConf, {room});
+          }
+        )
+        .then(rooms => {
+          const room = rooms[id];
+          ui.updateRoom(id, xmpp.roster[id]);
+          ui.messageInfo(strings.info.joined, {room});
+        });
+      })
+      .catch(() => {});
     },
 
     destroy: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.room = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
-      if (!arg.room)
-        return ui.messageAddInfo(strings.error.noRoom, 'error');
-      var room = xmpp.room.available[arg.room];
+
+      const name = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
+      if (!name)
+        return ui.messageError(strings.error.noRoom);
+
+      const room = xmpp.room.available[name];
       if (!room)
-        return ui.messageAddInfo(strings.error.unknownRoom, {name: arg.room}, 'error');
-      if (!window.confirm(visual.formatText(strings.info.destroyConfirm, {name: room.title}).text())) return;
-      xmpp.destroyRoom(arg.room, arg.alternate, arg.reason, function(error) {
-        if (error == '403') ui.messageAddInfo(strings.error.destroyDenied, {room: room}, 'error');
-        else if (error) ui.messageAddInfo(strings.error.destroy, {room: room}, 'error');
-        else ui.messageAddInfo(strings.info.destroySuccess, {room: room});
-      });
+        return ui.messageError(strings.error.unknownRoom, {name});
+
+      const confirm = visual.formatText(strings.info.destroyConfirm, {room});
+      if (!window.confirm(confirm.text())) return;
+
+      xmpp.destroyRoom(name, arg.alternate, arg.reason).then(
+        () => {
+          ui.messageInfo(strings.info.destroySuccess, {room});
+        },
+        (stanza) => {
+          if ($('forbidden', stanza).length)
+            ui.messageError(strings.error.destroyDenied, {room});
+          else
+            ui.messageError(strings.error.destroy, {room});
+        }
+      );
     },
 
     /**
@@ -330,23 +503,30 @@ var chat = {
      *   Send a direct message to a user outside the chatroom.
      */
     dmsg: function(arg) {
-      var m = chat.parseArgs(arg);
+      const m = chat.parseArgs(arg);
+
+      let jid = m.jid;
+      let msg = m.msg;
       if (m[0].length) {
-        m.jid = m[0][0];
-        m.msg = arg.substring(m[1][0][0]).trim();
+        jid = jid || m[0][0];
+        msg = msg || arg.substring(m[1][0][0]).trim();
       }
 
-      if (!m.jid || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      if (!Strophe.getNodeFromJid(m.jid))
-        return ui.messageAddInfo(strings.error.jidInvalid, {arg: m.jid});
+      if (!jid || !msg)
+        return ui.messageError(strings.error.noArgument);
 
-      var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, {jid: m.jid});
+      jid = xmpp.JID.parse(jid);
+
+      if (!jid.node)
+        return ui.messageError(strings.error.jidInvalid, {arg: jid});
+
+      const body = chat.formatOutgoing(msg);
+      xmpp.sendMessage({body, to: jid});
 
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: {jid: m.jid},
-        user: {jid: xmpp.currentJid},
+        to: {jid},
+        user: {jid: xmpp.jid},
         body: body.html
       }));
     },
@@ -356,26 +536,34 @@ var chat = {
      *   Send a room presence with <show/> set to "dnd" and
      *   <status/> to "msg".
      */
-    dnd: function(arg) {
-      xmpp.sendStatus('dnd', arg.trim());
+    dnd: function(arg = '') {
+      xmpp.sendStatus({show: 'dnd', status: arg.trim()});
+      ui.setUserStatus('dnd');
     },
 
     /**
      * invite [<jid> <msg> | --room <room> --nick <nick> --msg <msg>]
      */
     invite: function(arg) {
-      var m = chat.parseArgs(arg);
-      if (m.room && m.nick) m.jid = xmpp.jid({room: m.room, nick: m.nick});
+      const m = chat.parseArgs(arg);
+      let {room, nick, jid, msg} = m;
+
+      if (room && nick)
+        jid = xmpp.jidFromRoomNick({room, nick});
+
       if (m[0] && m[0].length >= 1) {
-        m.jid = m[0][0]
-        m.msg = arg.substring(m[1][0][0]).trim();
+        jid = m[0][0];
+        msg = arg.substring(m[1][0][0]).trim();
       }
-      if (!m.jid)
-        return ui.messageAddInfo(strings.error.noArgument, 'error');
-      xmpp.invite(m.jid, m.msg);
-      ui.messageAddInfo(strings.info.inviteSent,
-        {jid: m.jid, room: xmpp.room.available[xmpp.room.current]}
-      );
+
+      if (!jid)
+        return ui.messageError(strings.error.noArgument);
+
+      xmpp.invite({to: jid, msg});
+
+      ui.messageInfo(strings.info.inviteSent, {
+        jid, room: xmpp.room.available[xmpp.room.current]
+      });
     },
 
     /**
@@ -385,22 +573,47 @@ var chat = {
      */
     join: function(arg) {
       arg = chat.parseArgs(arg);
-      arg.name = arg.name || arg[0].join(" ").trim();
-      if (!arg.name) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var room = chat.getRoomFromTitle(arg.name);
-      var join = function() {
-        var room = chat.getRoomFromTitle(arg.name);
-        if (room && xmpp.room.current == room.id) {
-          return ui.messageAddInfo(strings.error.joinSame, {room: room}, 'error');
-        }
-        room = (room ? room.id : arg.name).toLowerCase();
-        xmpp.joinExistingRoom(room, arg.password);
-        ui.setFragment(room);
-        chat.setSetting('xmpp.room', room);
-      };
-      // If the room is known, join it now. Otherwise, refresh before joining.
-      if (room) join();
-      else xmpp.discoverRooms(join);
+      const name = arg.name || arg[0].join(" ").trim();
+      if (!name) return ui.messageError(strings.error.noArgument);
+
+      // Keep room in function scope to avoid passing it through the promises.
+      let room = false;
+
+      // Refresh room list and try to find the room.
+      return xmpp.discoverRooms()
+      .then(() => {
+        room = chat.getRoomFromTitle(name);
+        if (!room)
+          throw ui.messageError(strings.error.unknownRoom, {name});
+        else if (room.id == xmpp.room.current)
+          throw ui.messageError(strings.error.joinSame, {room});
+      })
+      // Maybe find a registered nick, ignoring errors.
+      .then(() => {
+        if (config.settings.xmpp.registerNick)
+          return xmpp.getReservedNick(room.id).catch(() => {});
+      })
+      .then((nick) => {
+        ui.messageInfo(strings.info.joining, {
+          room,
+          user: {
+            nick: xmpp.nick.target,
+            jid: xmpp.jid
+          }
+        });
+        return xmpp.joinRoom({room: room.id, nick, password: arg.password});
+      })
+      .then(() => {
+        ui.updateRoom(room.id, xmpp.roster[room.id]);
+        chat.setSetting('xmpp.room', room.id);
+        xmpp.setRoom(room.id);
+        ui.messageInfo(strings.info.joined, {room});
+      })
+      .catch((stanza) => {
+        ui.setFragment(xmpp.room.current);
+        if ($('registration-required', stanza).length)
+          ui.messageError(strings.error.joinRegister, {room});
+      });
     },
 
     /**
@@ -410,9 +623,12 @@ var chat = {
      *   server's job.
      */
     kick: function(arg) {
-      var nick = arg.trim();
-      xmpp.setUser({nick: nick, role: 'none'}, function() {}, function(errorCode) {
-        ui.messageAddInfo(strings.error.kick[errorCode], {nick: nick}, 'error');
+      const nick = arg.trim();
+      xmpp.setUser({nick, role: 'none'}).catch(stanza => {
+        if ($('not-acceptable', stanza).length)
+          return ui.messageError(strings.error.kick['not-acceptable'], {nick});
+        if ($('not-allowed', stanza).length)
+          return ui.messageError(strings.error.kick['not-allowed'], {nick});
       });
     },
 
@@ -421,13 +637,21 @@ var chat = {
      *   List available rooms.
      */
     list: function() {
-      xmpp.discoverRooms(function(rooms) {
-        var links = {};
-        for (var room in rooms) links[room] = visual.format.room(rooms[room]);
-        if (Object.keys(links).length)
-          ui.messageAddInfo(strings.info.roomsAvailable, {list: links});
-        else ui.messageAddInfo(strings.error.noRoomsAvailable, 'error');
-      });
+      xmpp.discoverRooms().then(
+        (rooms) => {
+          const links = $.map(rooms, visual.format.room);
+          if (Object.keys(links).length)
+            ui.messageInfo(strings.info.roomsAvailable, {list: links});
+          else
+            ui.messageError(strings.error.noRoomsAvailable);
+        },
+        (error) => {
+          const type = ($('remote-server-not-found', error).length) ? 404 : 'default';
+          let text = $('text', error).text();
+          text = text ? ' (' + text + ')' : '';
+          ui.messageError(strings.error.muc[type] + text, {domain: config.xmpp.mucService});
+        }
+      );
     },
 
     /**
@@ -443,21 +667,27 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      var m = chat.parseArgs(arg);
+      const m = chat.parseArgs(arg);
       if (m[0].length) {
         m.nick = m[0][0];
         m.msg = arg.substring(m[1][0][0]).trim();
       }
 
-      if (!m.nick || !m.msg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      if (!(m.nick in xmpp.roster[xmpp.room.current]))
-        return ui.messageAddInfo(strings.error.unknownUser, {nick: m.nick}, 'error');
+      const nick = m.nick;
+      const msg = m.msg;
 
-      var body = chat.formatOutgoing(m.msg);
-      xmpp.sendMessage(body, {nick: m.nick});
+      if (!nick || !msg)
+        return ui.messageError(strings.error.noArgument);
+      if (!(nick in xmpp.roster[xmpp.room.current]))
+        return ui.messageError(strings.error.unknownUser, {nick});
+
+      const body = chat.formatOutgoing(msg);
+      xmpp.sendMessage({
+        body, to: xmpp.jidFromRoomNick({nick})
+      });
       ui.messageAppend(visual.formatMessage({
         type: 'chat',
-        to: xmpp.roster[xmpp.room.current][m.nick],
+        to: xmpp.roster[xmpp.room.current][nick],
         user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
         body: body.html
       }));
@@ -468,9 +698,11 @@ var chat = {
      *   Ask XMPP to change the nick in the current room.
      */
     nick: function(arg) {
-      var nick = arg.trim();
+      const nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
-      else ui.messageAddInfo(strings.error.noArgument, 'error');
+      else ui.messageError(strings.error.noArgument);
+      if (!xmpp.room.current)
+        ui.messageInfo(strings.info.nickPrejoin, {nick});
     },
 
     /**
@@ -478,7 +710,13 @@ var chat = {
      *   Leave the current room without joining a different one.
      */
     part: function() {
-      if (xmpp.room.current) xmpp.leaveRoom(xmpp.room.current);
+      const room = xmpp.room.current;
+      if (!room) return;
+
+      ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
+      ui.updateRoom();
+      xmpp.leaveRoom(room);
+      this.list();
     },
 
     /**
@@ -487,29 +725,26 @@ var chat = {
      */
     ping: function(arg) {
       arg = arg.trim();
-      var jid = Strophe.getResourceFromJid(arg); // Only accept full JIDs.
-      var target = arg && (jid ? {jid: arg} : {nick: arg});
-      var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
-      var time = (new Date()).getTime();
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource; // Only accept full JIDs.
 
-      xmpp.ping(target, function(stanza) {
-          var elapsed = ((new Date()).getTime() - time).toString();
-          ui.messageAddInfo(strings.info.pong[+!!user], {user: user, delay: elapsed});
-        }, function(error) {
-          var elapsed = ((new Date()).getTime() - time).toString();
-          if (error) {
-            if ($('item-not-found', error).length != 0) {
-              ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-            }
-            else {
-              ui.messageAddInfo(strings.error.pingError, 'error');
-            }
-          }
-          else {
-            ui.messageAddInfo(strings.error.pingTimeout[+!!user], {user: user, delay: elapsed}, 'error');
-          }
+      const target = arg && (direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
+      const time = (new Date()).getTime();
+
+      xmpp.ping(target).then((stanza) => {
+        const delay = ((new Date()).getTime() - time).toString();
+        ui.messageInfo(strings.info.pong[+!!user], {user, delay});
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length)
+          ui.messageError(strings.error.unknownUser, {nick: arg});
+        else if (stanza)
+          ui.messageError(strings.error.pingError);
+        else {
+          const delay = ((new Date()).getTime() - time).toString();
+          ui.messageError(strings.error.pingTimeout[+!!user], {user, delay});
         }
-      );
+      });
     },
 
     /**
@@ -517,7 +752,8 @@ var chat = {
      *   Ask XMPP to disconnect.
      */
     quit: function() {
-      xmpp.disconnect();
+      ui.messageInfo(strings.info.connection.disconnecting);
+      xmpp.connection.disconnect();
     },
 
     /**
@@ -526,10 +762,11 @@ var chat = {
      */
     save: function(arg) {
       if (ui.messages.length == 0)
-        return ui.messageAddInfo(strings.error.saveEmpty, 'error');
-      var type = arg.trim();
-      var data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
-      var timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+        return ui.messageError(strings.error.saveEmpty);
+      const type = arg.trim();
+      const timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
+
+      let data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
       if (type == 'html') {
         data = '<!DOCTYPE html>' + $('<html>')
              .append($('<head>').append($('<title>').text(
@@ -538,8 +775,8 @@ var chat = {
              .append($('<body>').append(data))
              .html();
       }
-      var blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
-      var suffix = type == 'html' ? 'html' : 'log';
+      const blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
+      const suffix = type == 'html' ? 'html' : 'log';
       saveAs(blob, xmpp.room.current + '-' + timestamp + '.' + suffix);
     },
 
@@ -548,8 +785,56 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      var body = chat.formatOutgoing(arg);
-      xmpp.sendMessage(body);
+      const body = chat.formatOutgoing(arg);
+      xmpp.sendMessage({body, to: xmpp.jidFromRoomNick(), type: 'groupchat'});
+    },
+
+    /**
+     * Synchronize settings with the server.
+     */
+    sync: function(arg) {
+      arg = arg.trim();
+      const account = config.settings.sync.account;
+
+      // We're already synchronized with another account.
+      if (account && account != xmpp.jid.node)
+        if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
+          return ui.messageError(strings.error.sync.canceled, {account: xmpp.jid.node});
+
+      chat.synchronizeSettings(arg);
+    },
+
+    /**
+     * time [<nick>|<jid>]
+     *   Send a time request and display the response.
+     */
+    time: function(arg) {
+      arg = arg.trim();
+      if (!arg)
+        return ui.messageError(strings.error.noArgument);
+
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource; // Only accept full JIDs.
+      const target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
+      const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
+      const start = new Date();
+
+      xmpp.getTime(target).then((stanza) => {
+        const now = new Date();
+        const tzo = $('tzo', stanza).text();
+        const utc = new Date($('utc', stanza).text());
+        const time = moment(utc).utcOffset(tzo);
+        let offset = (utc - now) + (now - start) / 2
+        if (offset > 0) offset = '+' + offset;
+        ui.messageInfo(strings.info.time, {user, tzo, time, offset});
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length)
+          ui.messageError(strings.error.unknownUser, {nick: arg});
+        else if ($('feature-not-implemented', stanza).length)
+          ui.messageError(strings.error.feature);
+        else if (!stanza)
+          ui.messageError(strings.error.timeout);
+      });
     },
 
     /**
@@ -557,18 +842,19 @@ var chat = {
      *   Unban a user from the current room.
      */
     unban: function(arg) {
-      arg = chat.parseArgs(arg);
-      arg.jid = Strophe.getBareJidFromJid(arg.jid || arg[0][0]);
+      const jid = xmpp.JID.parse(arg.trim());
 
-      xmpp.getUsers({affiliation: 'outcast'}, function(stanza) {
-        if ($('item', stanza).is(function() { return $(this).attr('jid') === arg.jid; }))
-          this.affiliate({type: 'none', jid: arg.jid});
+      xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
+        const isBanned = $('item', stanza).is(function() {
+          return jid.matchBare(this.getAttribute('jid'));
+        });
+        if (isBanned) this.affiliate({type: 'none', jid});
         else
-          ui.messageAddInfo(strings.error.unbanNone, 'error');
-      }.bind(this), function(stanza) {
+          ui.messageError(strings.error.unbanNone);
+      }, (stanza) => {
         if ($('forbidden', iq).length)
-          ui.messageAddInfo(strings.error.banList.forbidden, 'error');
-        else ui.messageAddInfo(strings.error.banList['default'], 'error');
+          ui.messageError(strings.error.banList.forbidden);
+        else ui.messageError(strings.error.banList.default);
       });
     },
 
@@ -578,30 +864,42 @@ var chat = {
      */
     version: function(arg) {
       arg = arg.trim();
-      if (arg) {
-        var jid = Strophe.getResourceFromJid(arg);
-        var target = arg && (jid ? {jid: arg} : {nick: arg});
-        var user = !jid && xmpp.roster[xmpp.room.current][arg] || target;
-        return xmpp.getVersion(function(version, stanza) {
-          if (version) ui.messageAddInfo(strings.info.versionUser, {
-            name: version.name, version: version.version, os: version.os,
-            user: user
-          });
-          else if ($('item-not-found', stanza).length != 0)
-            ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
-        }, target);
-      }
-
-      ui.messageAddInfo(strings.info.versionClient, {
-        version: $('<a>')
-          .attr('href', 'https://github.com/calref/cadence/tree/' + config.version)
-          .text(config.version)
-      });
-      if (xmpp.status == 'online' || xmpp.status == 'prejoin') {
-        xmpp.getVersion(function(version) {
-          if (version) ui.messageAddInfo(strings.info.versionServer, version);
+      if (!arg) {
+        ui.messageInfo(strings.info.versionClient, {
+          version: $('<a>')
+            .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
+            .text(config.version)
         });
       }
+
+      // Only show client version when offline.
+      if (!xmpp.connection.connected) {
+        return arg && ui.messageError(strings.error.cmdStatus.offline, {command: 'version'});
+      }
+
+      const jid = xmpp.JID.parse(arg);
+      const direct = !!jid.resource;
+      let target;
+      if (arg) target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
+
+      const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || {jid});
+
+      return xmpp.getVersion(target).then((stanza) => {
+        const name = $('name', stanza).text();
+        const version = $('version', stanza).text();
+        const os = $('os', stanza).text() || '-';
+        if (user)
+          ui.messageInfo(strings.info.versionUser, {name, version, os, user});
+        else
+          ui.messageInfo(strings.info.versionServer, {name, version, os});
+      }, (stanza) => {
+        if ($('item-not-found', stanza).length != 0)
+          ui.messageError(strings.error.unknownUser, {nick: arg});
+        else if ($('feature-not-implemented', stanza).length)
+          ui.messageError(strings.error.feature);
+        else if (!stanza)
+          ui.messageError(strings.error.timeout);
+      });
     },
 
     /**
@@ -610,27 +908,20 @@ var chat = {
      */
     who: function(arg) {
       arg = arg.trim();
-      var room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
+      const room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
       if (!room)
-        return ui.messageAddInfo(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg}, 'error');
+        return ui.messageError(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
       if (room.id != xmpp.room.current) {
-        xmpp.getOccupants(room.id, function(users) {
-          var list = {};
-          for (var nick in users) list[nick] = visual.format.nick(nick);
-          if (links.length) ui.messageAddInfo(strings.info.usersInRoom, {
-            room: room,
-            list: list
-          });
-          else ui.messageAddInfo(strings.info.noUsers, {room: room});
+        xmpp.getOccupants(room.id, (users) => {
+          const list = $.map(users, (user, nick) => { return visual.format.nick(nick); });
+          if (links.length) ui.messageInfo(strings.info.usersInRoom, {room, list});
+          else ui.messageInfo(strings.info.noUsers, {room});
         })
       }
       else {
-        var list = {};
-        var roster = xmpp.roster[xmpp.room.current];
-        for (var nick in roster) {
-          list[nick] = visual.format.user(roster[nick]);
-        }
-        ui.messageAddInfo(strings.info.usersInThisRoom, {list: list});
+        const roster = xmpp.roster[xmpp.room.current];
+        const list = $.map(roster, visual.format.user);
+        ui.messageInfo(strings.info.usersInThisRoom, {list});
       }
     },
 
@@ -640,51 +931,65 @@ var chat = {
      */
     whois: function(arg) {
       arg = arg.trim();
-      if (!arg) return ui.messageAddInfo(strings.error.noArgument, 'error');
-      var user = xmpp.roster[xmpp.room.current][arg];
+      if (!arg) return ui.messageError(strings.error.noArgument);
+      const user = xmpp.roster[xmpp.room.current][arg];
       if (user) {
-        ui.messageAddInfo(strings.info.whois, {
-          user: user,
+        ui.messageInfo(strings.info.whois, {
+          user,
           jid: user.jid || '---',
           privilege: user.role + '/' + user.affiliation,
           status: user.show + (user.status ? ' (' + user.status + ')' : '')
         });
       }
-      else ui.messageAddInfo(strings.error.unknownUser, {nick: arg}, 'error');
+      else ui.messageError(strings.error.unknownUser, {nick: arg});
+    },
+
+    /**
+     * xa <msg>:
+     *   Send a room presence with <show/> set to "xa" and
+     *   <status/> to "msg".
+     */
+    xa: function(arg = '') {
+      xmpp.sendStatus({show: 'xa', status: arg.trim()});
+      ui.setUserStatus('xa');
     }
   },
 
   /**
-   * Validate the current command by xmpp.status.
+   * Validate the current command by client state.
    */
-  cmdAvailableStatus: function(command, silent) {
-    var always = ['alias', 'clear', 'nick', 'save', 'version'];
-    var chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
-    var offline = ['connect'];
-    var waiting = ['quit'];
+  cmdAvailableState: function(command, silent) {
+    const always = ['alias', 'clear', 'nick', 'save', 'version'];
+    const chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
+    const offline = ['connect'];
 
-    // always allow these commands (hence the name).
-    if (always.indexOf(command) >= 0) return true;
+    // Always allow these commands (hence the name).
+    if (always.includes(command)) return true;
 
-    switch (xmpp.status) {
-      case 'prejoin':
-        // do not allow chat commands in prejoin.
-        if (chat.indexOf(command) >= 0)
-          return !silent && ui.messageAddInfo(strings.error.cmdStatus.prejoin, {cmd:command}, 'error') && false;
-      case 'online':
-        // do not allow offline commands in prejoin or in rooms.
-        if (offline.indexOf(command) >= 0)
-          return !silent && ui.messageAddInfo(strings.error.cmdStatus.online, {cmd:command}, 'error') && false;
-        return true;
-
-      // switch from blacklist to whitelist here.
-      case 'waiting':
-        if (waiting.indexOf(command) >= 0) return true;
-      case 'offline':
-        // allow offline commands while waiting or offline.
-        if (offline.indexOf(command) >= 0) return true;
-        return !silent && ui.messageAddInfo(strings.error.cmdStatus.offline, {cmd:command}, 'error') && false;
+    // When offline, only allow offline commands.
+    if (!xmpp.connection.connected) {
+      if (!silent && !offline.includes(command)) {
+        ui.messageError(strings.error.cmdState.offline, {command});
+      }
+      return offline.includes(command);
     }
+
+    // When online, forbid offline commands.
+    if (offline.includes(command)) {
+      if (!silent) ui.messageError(strings.error.cmdState.online, {command});
+      return false;
+    }
+
+    // When not in a room, forbid chat commands.
+    if (!xmpp.room.current) {
+      if (!silent && chat.includes(command)) {
+        ui.messageError(strings.error.cmdState.prejoin, {command});
+      }
+      return !chat.includes(command);
+    }
+
+    // Allow everything else.
+    return true;
   },
 
   /**
@@ -699,25 +1004,25 @@ var chat = {
     if (!text) return;
 
     // Without commands, execute /say.
-    var cmd = 'say';
+    let command = 'say';
 
-    // Execute /cmd, but turn //cmd into /say /cmd.
-    var m = /^\/(\/?)(\S+)/.exec(text);
+    // Execute /command, but turn //command into /say /command.
+    const m = /^\/(\/?)(\S+)/.exec(text);
     if (m) {
       if (!m[1]) {
-        cmd = m[2];
+        command = m[2];
         text = text.substring(m[0].length);
       }
       else text = text.substring(1);
     }
 
-    if (this.commands[cmd]) {
-      if (this.cmdAvailableStatus(cmd)) this.commands[cmd](text);
+    if (this.commands[command]) {
+      if (this.cmdAvailableState(command)) this.commands[command](text);
     }
-    else if (config.settings.macros[cmd])
-      this.executeMacro(config.settings.macros[cmd], text);
+    else if (config.settings.macros[command])
+      this.executeMacro(config.settings.macros[command], text);
     else
-      ui.messageAddInfo(strings.error.cmdUnknown, {cmd:cmd}, 'error');
+      ui.messageError(strings.error.cmdUnknown, {command});
   },
 
   /**
@@ -727,9 +1032,8 @@ var chat = {
    * @param {string} text: A string to replace $ with in the command array.
    */
   executeMacro: function(macro, text) {
-    for (var i in macro) {
-      this.executeInput(macro[i].replace(/\$/g, text.trim()), true);
-    }
+    text = text.trim();
+    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text, true)));
   },
 
   /**
@@ -741,11 +1045,11 @@ var chat = {
    */
   formatOutgoing: function(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    var html = bbcode.render(visual.escapeHTML(text));
+    let html = bbcode.render(visual.escapeHTML(text));
     if (config.settings.textColor) {
       html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
-    return {html: html, text: bbcodeMD.render(text)};
+    return {html, text: bbcodeMD.render(text)};
   },
 
   /**
@@ -784,12 +1088,12 @@ var chat = {
    */
   insertText: function(text) {
     ui.dom.inputField.focus();
-    var inputFieldJQ = ui.dom.inputField;
-    var inputField = inputFieldJQ[0]
-    var start = inputField.selectionStart;
-    var end = inputField.selectionEnd;
-    var old = inputFieldJQ.val();
-    rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
+    const inputFieldJQ = ui.dom.inputField;
+    const inputField = inputFieldJQ[0]
+    const old = inputFieldJQ.val();
+    let start = inputField.selectionStart;
+    let end = inputField.selectionEnd;
+    const rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
     inputFieldJQ.val(old.substring(0, start) + rep + old.substring(end));
     start += (start < end || rep == text) ? rep.length : text[0].length;
     end = start;
@@ -801,12 +1105,19 @@ var chat = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function(nick, direct) {
-    nick = nick.replace(/[\\\s"']/g, '\\$&');
-    var text = ui.dom.inputField.val();
-    var m = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/);
-    if (m) text = text.substring(m[0].length).trimLeft();
-    if (nick) text = (direct ? '/dmsg ' : '/msg ') + nick + ' ' + text;
+  prefixMsg: function({nick, jid}) {
+    const direct = !nick;
+
+    let target = nick || jid;
+    target = String(target).replace(/[\\\s"']/g, '\\$&');
+
+    let text = ui.dom.inputField.val();
+
+    const newPrefix = target && ((direct ? '/dmsg ' : '/msg ')  + target + ' ');
+    const [oldPrefix] = text.match(/\/d?msg\s+((\\[\\\s]|[^\\\s])+)/) || [];
+    if (oldPrefix) text = text.substring(oldPrefix.length).trimLeft();
+    text = newPrefix  + text;
+
     ui.dom.inputField.val(text);
     ui.dom.inputField.focus();
   },
@@ -815,11 +1126,9 @@ var chat = {
    * Find a room by its title.
    */
   getRoomFromTitle: function(title) {
-    if (xmpp.room.available[title]) return xmpp.room.available[title];
-    for (var room in xmpp.room.available) {
-      if (xmpp.room.available[room].title == title)
-        return xmpp.room.available[room];
-    }
+    const rooms = xmpp.room.available;
+    if (rooms[title]) return rooms[title];
+    return $.map(rooms, x => x).find(room => room.title == title);
   },
 
   /**
@@ -833,21 +1142,21 @@ var chat = {
    */
   parseArgs: function(text) {
     if (typeof text !== 'string') return text;
-    var key = /(?:--([a-z-]+))/;
+    const key = /(?:--([a-z-]+))/;
     // Values can be single- or double-quoted. Quoted values can contain spaces.
     // All spaces and conflicting quotes can be escaped with backslashes.
     // All literal backslashes must also be escaped.
-    var value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
+    const value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
-    var keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
-    var re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
-    var arguments = {0:[], 1:{0:[]}};
-    for (var match; match = re.exec(text); ) {
+    const keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
+    const re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
+    const arguments = {0:[], 1:{0:[]}};
+    for (let match; match = re.exec(text); ) {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
-        var v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
-        if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
+        let v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
+        if (['0', 'no', 'off', 'false'].includes(v)) v = false;
         arguments[match[1]] = v;
         arguments[1][match[1]] = re.lastIndex;
       }
@@ -869,9 +1178,11 @@ var chat = {
    * Convert arguments to room configuration form.
    */
   roomConf: function(args) {
-    var conf = {};
-    conf['muc#roomconfig_roomname'] = args.title || args.name;
+    const conf = {};
 
+    const title = args.title || args.name;
+    if (title)
+      conf['muc#roomconfig_roomname'] = args.title || args.name;
     if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
     if (args.log !== undefined)
       conf['muc#roomconfig_enablelogging'] = args.log ? '1' : '0';
@@ -887,25 +1198,26 @@ var chat = {
     }
     if (args['members-only'] !== undefined)
       conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
-    return conf;
+    if (!$.isEmptyObject(conf)) return conf;
   },
 
   /**
-   * Attempt to authenticate using an existing web session.
+   * Attempt to get authentication data through an existing web session.
+   *
+   * @param {String} url - The URL to post a request to.
+   *
+   * @return {Promise} A promise that resolves to the temporary credentials.
    */
-  sessionAuth: function(url, callback) {
-    var salt = (new Date().getTime()) + Math.random();
-    $.post(url, {salt: salt}, function(data) {
-      if (!data) return;
-      if (data.user && data.secret) {
-        ui.messageAddInfo(strings.info.sessionAuth, {username:data.user});
-        chat.commands.connect({user:data.user, pass:data.secret});
-      }
-      else {
-        ui.setStatus('offline');
-        if (callback) callback();
-      }
-    }, 'json').fail(callback);
+  sessionAuth: function(url) {
+    const salt = SHA1.b64_sha1((new Date().getTime()) + Math.random());
+    return new Promise((resolve, reject) => {
+      $.post(url, {salt})
+      .done(({user, secret}) => {
+        if (user && secret) resolve({user, pass: secret});
+        else reject();
+      })
+      .fail(reject);
+    });
   },
 
   /**
@@ -920,9 +1232,9 @@ var chat = {
    * in the settings dictionary.
    */
   getSetting: function(key) {
-    var path = key.split('.');
-    var ref = config.settings;
-    for (var i = 0; i < path.length; i++) {
+    const path = key.split('.');
+    let ref = config.settings;
+    for (let i = 0; i < path.length; i++) {
       ref = ref[path[i]];
     }
     return ref;
@@ -933,13 +1245,16 @@ var chat = {
    * given value. Immediately saves.
    */
   setSetting: function(key, val) {
-    var path = key.split('.');
-    var ref = config.settings;
-    for (var i = 0; i < path.length - 1; i++) {
+    const path = key.split('.');
+    let ref = config.settings;
+    for (let i = 0; i < path.length - 1; i++) {
       ref = ref[path[i]];
     }
-    ref[path[path.length-1]] = val;
-    this.saveSettings();
+    if (ref[path[path.length-1]] !== val) {
+      ref[path[path.length-1]] = val;
+      config.settings.modified = (new Date()).toISOString();
+      this.saveSettings();
+    }
   },
 
   /**
@@ -952,5 +1267,41 @@ var chat = {
     else {
       Cookies.set(config.clientName + '_settings', config.settings, {expires: 365});
     }
+  },
+
+  synchronizeSettings: function(type) {
+    const settings = config.settings;
+    const local = new Date(settings.modified).getTime();
+    const sync = new Date(settings.sync.time).getTime();
+
+    const set = () => xmpp.storeSettings(settings).then(() => {
+      config.settings.sync = {account: xmpp.jid.node, time: settings.modified};
+      chat.saveSettings();
+      ui.messageInfo(strings.info.sync.set);
+    });
+
+    const get = stored => {
+      stored.sync = {account: xmpp.jid.node, time: stored.modified};
+      config.settings = stored;
+
+      ui.loadSettings(); // Apply the new settings.
+      this.saveSettings();
+      ui.messageInfo(strings.info.sync.get);
+    };
+
+    if (type === 'set') return set();
+
+    // First load the stored settings.
+    xmpp.loadSettings()
+    .then(stored => {
+      const remote = new Date(stored.modified).getTime();
+      if (local == remote) return ui.messageInfo(strings.info.sync.equal);
+      if (type == 'get' || sync == local) return get(stored);
+      if (sync == remote) return set();
+      throw 'conflict';
+    })
+    .catch(error => {
+      if (error == 'conflict') ui.messageError(strings.error.sync.conflict);
+    });
   }
 }

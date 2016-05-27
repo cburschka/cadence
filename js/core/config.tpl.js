@@ -2,14 +2,12 @@ var config = {
   // Settings which can be modified by users:
   defaultSettings: {
     // Which option container is open when the page loads.
-    activeMenu: 'onlineList',
+    activeMenu: 'roster',
     // Which stylesheet is selected when the page loads.
     activeStyle: '@@@STYLE@@@',
 
     // Format of the message timestamp.
     dateFormat: '(HH:mm:ss)',
-    // Whether to display verbose log messages.
-    verbose: true,
 
     // Which trigger to use for the context menu (left, right, hover, none).
     contextmenu: 'right',
@@ -28,10 +26,12 @@ var config = {
     },
 
     notifications: {
-      // Blinks per second.
-      blinkSpeed: 2,
-      // Minimum number of seconds to blink (rounded up to whole intervals).
-      blinkLength: 5,
+      blink: {
+        // Minimum number of seconds to blink (rounded up to whole intervals).
+        length: 5,
+        // Blinks per second.
+        speed: 2,
+      },
 
       // The sound files used for notifications.
       sounds: {
@@ -61,6 +61,11 @@ var config = {
     // Persistent font color that is displayed to other cadence users.
     textColor: '',
     fullColor: false,
+
+    sync: {
+      account: '',
+      time: 0,
+    },
 
     xmpp: {
       room: 'lounge',
@@ -169,6 +174,7 @@ var config = {
     url: '@@@XMPP_URL@@@',
     mucService: '@@@XMPP_MUC@@@',
     sessionAuthURL: '@@@XMPP_SESSION_AUTH@@@',
+    timeout: 5000,
   },
 
   ui: {
@@ -185,16 +191,15 @@ var config = {
   },
 
   features: [
+    Strophe.NS.ATTENTION,
+    Strophe.NS.CONFERENCE,
     Strophe.NS.DISCO_INFO,
     Strophe.NS.MUC,
     Strophe.NS.MUC + '#user',
+    Strophe.NS.PING,
+    Strophe.NS.TIME,
     Strophe.NS.XHTML_IM,
     Strophe.NS.VERSION,
-    Strophe.NS.Cadence_ATTN,
-    Strophe.NS.Cadence_CAPS,
-    Strophe.NS.Cadence_CONFERENCE,
-    Strophe.NS.Cadence_PING,
-    Strophe.NS.Cadence_TIME
   ],
 
   clientName: "cadence",

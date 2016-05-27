@@ -1,10 +1,10 @@
 .author .user-affiliation-owner,
-#onlineList .user-affiliation-owner,
+#roster .user-affiliation-owner,
 .body.error { color: red }
 .author .user-affiliation-admin,
-#onlineList .user-affiliation-admin { color: #0a0 }
+#roster .user-affiliation-admin { color: #0a0 }
 .author .user-role-visitor,
-#onlineList .user-role-visitor,
+#roster .user-role-visitor,
 .author .user-role-undefined,
 .row.delayed .dateTime, .row.delayed .log-room { color: gray }
 .row:nth-child(even) { background:rgba(0,0,0,0.1) }

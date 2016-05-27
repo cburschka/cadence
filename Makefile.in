@@ -12,9 +12,13 @@ CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
              js/core/ui.js js/core/visual.js js/core/init.js \
              js/core/config.js js/core/emoticons.js
 
-LIB_FILES = js/lib/jquery.js js/lib/buzz.js js/lib/contextmenu.js \
-            js/lib/filesaver.js js/lib/jquery-ui.js js/lib/cookie.js \
+LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
+            js/lib/filesaver.js js/lib/cookie.js \
             js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
+            js/lib/strophe.attention.js js/lib/strophe.caps.js \
+            js/lib/strophe.disco.js js/lib/strophe.ping.js \
+            js/lib/strophe.storage.js \
+            js/lib/strophe.time.js js/lib/strophe.version.js \
             js/lib/xbbcode.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
@@ -24,17 +28,11 @@ CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
 endif
-ifeq (${MODE},aggregate)
+JS_FILES = ${CORE_FILES} ${LIB_FILES}
+CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
+ifeq (${AGGREGATE},True)
   JS_FILES = js/lib.js js/core.js
   CSS_FILES = css/global/all.css
-endif
-ifeq (${MODE},minify)
-  JS_FILES = js/lib.min.js js/core.min.js
-  CSS_FILES = css/global/all.min.css
-endif
-ifeq (${MODE},debug)
-  JS_FILES = ${CORE_FILES} ${LIB_FILES}
-  CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 endif
 
 
@@ -73,7 +71,7 @@ install-cdn: install-init install-js install-css-global
 install-init:
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 
-ifeq (${MODE},debug)
+ifneq (${AGGREGATE},True)
 install-js: install-js-core install-js-lib
 else
 install-js: ${JS_FILES}
@@ -112,12 +110,6 @@ js/lib/contextmenu.js: js/lib/contextmenu/src/jquery.contextMenu.js
 js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
 	$(CP) $^ $@
 
-js/lib/jquery.js: js/lib/jquery/jquery.js
-	$(CP) $^ $@
-
-js/lib/jquery-ui.js: js/lib/jquery-ui/jquery-ui.js
-	$(CP) $^ $@
-
 js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
 	$(CP) $^ $@
 
@@ -139,11 +131,6 @@ js/lib.js: ${LIB_FILES}
 js/core.js: ${CORE_FILES}
 	cat $^ > $@
 
-%.min.js: %.js
-	yui-compressor $^ > $@
-%.min.css: %.css
-	yui-compressor $^ > $@
-
 css/global/all.css: ${CSS_FILES_GLOBAL}
 	cat $^ > $@
 
@@ -152,3 +139,9 @@ submodules:
 	git submodule update --init
 
 .PHONY: all js init submodules
+
+
+.SECONDEXPANSION:
+
+js/lib/strophe.%.js: js/lib/strophe-plugins/%/strophe.$$*.js
+	$(CP) $^ $@

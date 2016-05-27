@@ -6,34 +6,22 @@
  *  - Note that markup is only supported in strings that already contain it.
  */
 var strings = {
-  connection: {
-    ERROR : 'An error has occurred.',
-    CONNECTING : 'Connecting ...',
-    CONNFAIL : 'Connection failed.',
-    AUTHENTICATING : 'Authenticating...',
-    AUTHFAIL : 'Authentication failed.',
-    CONNECTED : 'You are now connected.',
-    DISCONNECTED : 'You are now disconnected.',
-    DISCONNECTING : 'Disconnecting ...',
-    ATTACHED : 'Session resumed.',
-  },
-
   show: {
+    available: [
+      '{user} has returned.',
+      '{user} has returned ({status}).',
+    ],
     away: [
       '{user} is away.',
       '{user} is away ({status}).',
     ],
     xa: [
-      '{user} is away.',
-      '{user} is away ({status}).',
+      '{user} is extendedly away.',
+      '{user} is extendedly away ({status}).',
     ],
     dnd: [
       '{user} is busy.',
       '{user} is busy ({status}).',
-    ],
-    'default': [
-      '{user} has returned.',
-      '{user} has returned ({status}).',
     ],
   },
   showOther: [
@@ -42,7 +30,7 @@ var strings = {
   ],
 
   code: {
-    201: 'The room {name} has been newly created.',
+    104: 'The configuration of {room} has been altered.',
     210: 'Your nick has been modified by the server.',
   },
 
@@ -59,12 +47,19 @@ var strings = {
       'owner': 'Owners of this room:\n{list}',
     },
     affiliationsEmpty: 'No users have the affiliation "{type}" in this room.',
-    aliasAdd: 'Alias /{cmd} added.',
-    aliasDelete: 'Alias /{cmd} deleted.',
-    aliasReplace: 'Alias /{cmd} replaced.',
+    aliasAdd: 'Alias /{command} added.',
+    aliasDelete: 'Alias /{command} deleted.',
+    aliasReplace: 'Alias /{command} replaced.',
     attention: '{user} has buzzed you!',
+    buzz: 'Buzzing {user} ...',
+    connection: {
+      connected: 'You are now connected.',
+      connecting: 'Connecting...',
+      disconnected: 'You are now disconnected.',
+      disconnecting: 'Disconnecting...',
+    },
     creating: 'Creating {room} as {user} ...',
-    destroyConfirm: 'Do you really want to destroy the room {name}?',
+    destroyConfirm: 'Do you really want to destroy the room {room}?',
     destroyed: [
       [
         '{room} has been destroyed!',
@@ -119,12 +114,10 @@ var strings = {
     inviteSent: 'Inviting {jid} to {room}.',
     joined: 'Now talking in {room}.',
     joining: 'Joining {room} as {user} ...',
-    joinPassword: 'This room requires a password.',
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
     macros: 'Macros:<br /><code>{macros}</code>',
     motd: 'Announcement from {domain}: {text}',
-    nickConflictResolve: 'This nickname is in user; enter another one.',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
     noUsers: 'No users are online in {room}.',
@@ -132,10 +125,22 @@ var strings = {
       'Ping: Pong ({delay} ms).',
       'Ping to {user}: Pong ({delay} ms).'
     ],
+    promptBBCodeArg: 'This BBCode tag requires an argument:',
+    promptNickConflict: 'This nickname is in user; enter another one:',
+    promptRoomPassword: 'This room requires a password:',
+    promptStatus: 'Status message:',
     rejoinNick: 'Rejoining as {nick} ...',
-    roomConf: 'Room configuration of {room} has been altered.',
+    roomConf: 'Room configuration saved.',
+    roomCreated: 'The room {room} has been newly created.',
     roomsAvailable: 'Available rooms: {list}',
     sessionAuth: 'Automatically logging in as {username}',
+    sync: {
+      change: 'Do you want to stop synchronizing with {old} and synchronize with {new} instead?',
+      equal: 'The settings are already synchronized.',
+      get: 'The remote settings have been downloaded.',
+      set: 'The local settings have been uploaded.',
+    },
+    time: 'Time: Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}',
     userAffiliation: 'The affiliation of {user} has been set to {affiliation}.',
     userIn: '{user} has joined the room.',
     userNick: '{user:from} is now known as {user:to}.',
@@ -172,14 +177,19 @@ var strings = {
       forbidden: 'You are not authorized to get the {type} list for this room.',
     },
     aliasFormat: 'Usage: /alias <cmd> /<...>[; /<...>]*',
-    aliasConflict: '/alias: Can\'t overwrite command /{cmd}.',
-    aliasRecursion: 'Failed to define {cmd}; recursion detected via {path}.',
+    aliasConflict: '/alias: Can\'t overwrite command /{command}.',
+    aliasRecursion: 'Failed to define {command}; recursion detected via {path}.',
     noMacros: 'No macros are defined.',
     badNick: 'The nickname {nick} is invalid.',
     cmdStatus: {
-      online: '/{cmd}: You are already online.',
-      offline: '/{cmd}: You are offline.',
-      prejoin: '/{cmd}: You need to join a room first.',
+      online: '/{command}: You are already online.',
+      offline: '/{command}: You are offline.',
+      prejoin: '/{command}: You need to join a room first.',
+    },
+    connection: {
+      authfail: 'Authentication failed.',
+      connfail: 'Connection failed.',
+      other: 'An error has occurred.',
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
@@ -189,14 +199,16 @@ var strings = {
     },
     formFields: 'The following fields could not be set: {fields}',
     kick: {
-      405: 'You lack the authority to kick {nick}.',
-      406: 'You can\'t kick {nick} because they\'re not in the room.',
+      'not-allowed': 'You lack the authority to kick {nick}.',
+      'not-acceptable': 'You can\'t kick {nick} because they\'re not in the room.',
     },
-    cmdUnknown: 'Unknown command: /{cmd}. Type "/say /{cmd}" or "//{cmd}" to say this in chat.',
+    cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
+    feature: 'The remote entity does not support this feature.',
     jidInvalid: '{arg} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
     joinPassword: 'A password is required to enter {room}.',
+    joinRegister: 'Membership is required to enter {room}.',
     joinSame: 'You are already in {room}.',
     messageDenied: 'You lack the authority to send this message ({text}).',
     muc: {
@@ -217,13 +229,18 @@ var strings = {
     roomConfOptions: 'The allowed values for {field} are: {options}',
     roomExists: 'Could not create {room}; it already exists.',
     roomCreateName: 'Could not create a room without a name.',
+    roomCreateCancel: 'Canceled room creation.',
     saveEmpty: 'There are no messages to save.',
+    sync: {
+      canceled: 'The synchronization was canceled.',
+      conflict: 'The remote settings have changed. Overwrite them with /sync set, or apply them with /sync get.',
+    },
+    timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
     userpass: 'User and password are required.',
     unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
-    unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',
     noRoomsAvailable: 'There are no rooms available.',
   },
@@ -251,11 +268,11 @@ var strings = {
       close: 'Close',
       help: 'Help',
       login: 'Log in',
-      logout: 'Log out',
       roster: 'Users',
       save: 'Save',
       settings: 'Settings',
       sound: 'Sound',
+      status: 'Status',
     },
     page: {
       style: 'Style:',
@@ -274,6 +291,13 @@ var strings = {
       none: '---',
       offline: 'Offline'
     },
+    status: {
+      available: 'Available',
+      away: 'Away',
+      xa: 'Extended away',
+      dnd: 'Do not disturb',
+      offline: 'Offline'
+    },
     tooltip: {
        input: 'Press SHIFT+ENTER to input a line break',
        bold: 'Bold text: [b]text[/b]',
@@ -289,6 +313,7 @@ var strings = {
        settings: 'Show/hide settings',
        roster: 'Show/hide online list',
        sound: 'Sound on/off',
+       status: 'Status (right-click for status message)',
     },
     settings: {
       xmpp: {
@@ -314,7 +339,6 @@ var strings = {
         colors: 'Show persistent colors',
         emoticons: 'Show emoticons as images'
       },
-      verbose: 'Display verbose messages',
       notifications: {
         desktop: {
           label: 'Desktop notifications',

@@ -27,12 +27,6 @@ def main():
 
     args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
 
-    #TODO [Python3+] subprocess.DEVNULL
-    DEVNULL = open(os.devnull, 'w')
-    if args.mode == 'minify' and subprocess.call(['which', 'yui-compressor'], stdout=DEVNULL, stderr=DEVNULL):
-        print('yui-compressor is not installed. The code will not be compressed.')
-        args.mode = 'aggregate'
-
     open('.config.vars', 'w+').write(
 '''TITLE={title}
 XMPP_URL={url}
@@ -43,7 +37,7 @@ CHATBOT={chatbot}
 PREFIX={prefix}
 CDN_PREFIX={cdn_prefix}
 CDN_URL={cdn_url}
-MODE={mode}
+AGGREGATE={aggregate}
 SRC_PATH={src_path}
 CSS_ALT={css_alt}
 STYLE={style}
@@ -100,7 +94,7 @@ def parser():
       )
     parser.add_argument(
       '--chatbot', type=str,
-      help='Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
+      help='[Deprecated] Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
       )
     parser.add_argument(
       '--title', type=str,
@@ -123,8 +117,8 @@ def parser():
       help='Directory to install resources to [PREFIX]', metavar='CDN_PREFIX', dest='cdn_prefix', default=''
       )
     parser.add_argument(
-      '--mode', type=str,
-      help='Whether to optimize JS/CSS files ["minify"]', metavar='debug|aggregate|minify', dest='mode', default='minify'
+      '--aggregate', action='store_const',
+      help='Aggregate JS/CSS files.', dest='aggregate', const=True, default=False
       )
     parser.add_argument(
       '--style', type=str,
