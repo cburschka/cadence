@@ -187,6 +187,7 @@ var strings = {
       prejoin: '/{command}: You need to join a room first.',
     },
     connection: {
+      anonymous: 'This server does not support anonymous login.',
       authfail: 'Authentication failed.',
       connfail: 'Connection failed.',
       other: 'An error has occurred.',

@@ -95,7 +95,7 @@ var xmpp = {
       this.jid = new this.JID({
         node: user,
         domain: config.xmpp.domain,
-        resource: this.resource
+        resource: user && this.resource
       });
 
       let first = true;

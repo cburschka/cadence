@@ -342,6 +342,8 @@ var chat = {
 
       // First acquire the credentials.
       return new Promise((resolve, reject) => {
+        if (arg.anonymous) return resolve({user: '', pass: ''});
+
         // Reuse authentication for the rest of the session:
         if (arg && arg.user && arg.pass) {
           chat.auth = {user: arg.user, pass: arg.pass};
@@ -373,7 +375,7 @@ var chat = {
         else this.list();
       },
       // Notify user of connection failures.
-      ({status}) => {
+      ({status, error}) => {
         ui.setConnectionStatus(false);
         switch (status) {
           case 'no-credentials':
@@ -382,6 +384,9 @@ var chat = {
           case Strophe.Status.AUTHFAIL:
             throw ui.messageError(strings.error.connection.authfail);
           case Strophe.Status.CONNFAIL:
+            if (error == 'x-strophe-bad-non-anon-jid') {
+              throw ui.messageError(strings.error.connection.anonymous)
+            }
             throw ui.messageError(strings.error.connection.connfail);
           case Strophe.Status.ERROR:
             throw ui.messageError(strings.error.connection.other);
