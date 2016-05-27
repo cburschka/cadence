@@ -83,7 +83,7 @@ var xmpp = {
   connect: function(user, pass, disconnect) {
     return new Promise(resolve => {
       // Make sure the connection isn't already open.
-      if (this.connection.connected) throw {status: Strophe.Status.CONNECTED};
+      if (this.connection.handlers.length) throw {status: Strophe.Status.CONNECTED};
 
       // Attach all the event handlers (they're removed when disconnecting).
       this.setupHandlers();
