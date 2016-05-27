@@ -624,8 +624,11 @@ var chat = {
      */
     kick: function(arg) {
       const nick = arg.trim();
-      xmpp.setUser({nick, role: 'none'}, () => {}, (errorCode) => {
-        ui.messageError(strings.error.kick[errorCode], {nick});
+      xmpp.setUser({nick, role: 'none'}).catch(stanza => {
+        if ($('not-acceptable', stanza).length)
+          return ui.messageError(strings.error.kick['not-acceptable'], {nick});
+        if ($('not-allowed', stanza).length)
+          return ui.messageError(strings.error.kick['not-allowed'], {nick});
       });
     },
 

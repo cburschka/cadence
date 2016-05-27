@@ -193,8 +193,8 @@ var strings = {
     },
     formFields: 'The following fields could not be set: {fields}',
     kick: {
-      405: 'You lack the authority to kick {nick}.',
-      406: 'You can\'t kick {nick} because they\'re not in the room.',
+      'not-allowed': 'You lack the authority to kick {nick}.',
+      'not-acceptable': 'You can\'t kick {nick} because they\'re not in the room.',
     },
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
     feature: 'The remote entity does not support this feature.',
