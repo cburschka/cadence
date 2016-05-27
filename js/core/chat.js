@@ -105,7 +105,7 @@ var chat = {
       // Look up the nickname unless --jid was explicitly used.
       const user = !arg.jid && roster[nick] || String(jid) && {jid};
 
-      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(type) < 0)
+      if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
         return ui.messageError(strings.error.affiliate.type, {type})
 
       // List users with a specific affiliation.
@@ -178,7 +178,7 @@ var chat = {
       const m = arg.match(/^\/*(\S+)/); /**/
       if (!m) return ui.messageError($('<div>').html(strings.error.aliasFormat));
       const command = m[1];
-      if (chat.commands[command]) return ui.messageError(strings.error.aliasConflict, {command});
+      if (this[command]) return ui.messageError(strings.error.aliasConflict, {command});
       const data = arg.substring(m[0].length).trim();
       if (!data) {
         delete config.settings.macros[command];
@@ -295,7 +295,7 @@ var chat = {
 
       // Define error handler separately, since it's used both on getting
       // and submitting the form, which use distinct promise chains.
-      const error = (stanza) => {
+      const error = stanza => {
         if ($('item-not-found', stanza).length)
           ui.messageError(strings.error.unknownRoom, {name});
         else if ($('forbidden', stanza).length)
@@ -304,23 +304,21 @@ var chat = {
           ui.messageError(strings.error.roomConf, {room});
       };
 
-      xmpp.roomConfig(name).then(
-        (config) => {
-          // Interactive configuration with --interactive, or with a command
-          // that contains no named arguments other than --name.
-          const interactive = arg.interactive || Object.keys(arg).every(
-            (key) => { return key*0 === 0 || key == 'name' }
-          );
+      xmpp.roomConfig(name).then(config => {
+        // Interactive configuration with --interactive, or with a command
+        // that contains no named arguments other than --name.
+        const interactive = arg.interactive || Object.keys(arg).every(
+          key => key*0 === 0 || key == 'name'
+        );
 
-          // Form submission uses a callback because it can be triggered multiple times.
-          const form = ui.dataForm(config, (data) => {
-            xmpp.roomConfigSubmit(name, data).then(() => {
-              ui.messageInfo(strings.info.roomConf)
-            }, error);
-          });
-          ui.formDialog(form, {cancel: () => { xmpp.roomConfigCancel(name); }});
-        }, error
-      );
+        // Form submission uses a callback because it can be triggered multiple times.
+        const form = ui.dataForm(config, data =>
+          xmpp.roomConfigSubmit(name, data).then(() =>
+            ui.messageInfo(strings.info.roomConf), error
+          )
+        );
+        ui.formDialog(form, {cancel: () => xmpp.roomConfigCancel(name)});
+      }, error);
     },
 
     /**
@@ -329,18 +327,63 @@ var chat = {
      *   Open a connection and authenticate.
      */
     connect: function(arg) {
-      const fail = () => { return ui.messageError(strings.error.userpass) };
       arg = chat.parseArgs(arg);
-      if (arg[0]) {
+      if (arg && arg[0]) {
         arg.user = arg.user || arg[0][0];
         arg.pass = arg.pass || arg[0][1];
       }
-      if (!arg.user || !arg.pass) {
-        if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL)
-          return chat.sessionAuth(config.xmpp.sessionAuthURL, fail);
-        else return fail();
+
+      // This is a callback, because it happens after the promise is resolved.
+      const disconnect = () => {
+        ui.setConnectionStatus(false);
+        ui.messageError(strings.info.connection.disconnected);
       }
-      xmpp.newConnection(arg.user, arg.pass);
+
+      // First acquire the credentials.
+      return new Promise((resolve, reject) => {
+        if (arg && arg.user && arg.pass) {
+          return resolve({user: arg.user, pass: arg.pass});
+        }
+        if (config.settings.xmpp.sessionAuth) {
+          const url = config.xmpp.sessionAuthURL;
+          if (url) return chat.sessionAuth(url).then(auth => {
+            ui.messageInfo(strings.info.sessionAuth, {username: auth.user});
+            resolve(auth);
+          });
+        }
+        reject({status: 'no-credentials'});
+      })
+      // Then use them to connect.
+      .then(({user, pass}) => {
+        ui.messageInfo(strings.info.connection.connecting);
+        return xmpp.connect(user, pass, disconnect);
+      })
+      // Then either join a room or list the available rooms.
+      .then(() => {
+        ui.setConnectionStatus(true);
+        ui.messageInfo(strings.info.connection.connected);
+        // A room in the URL fragment (even an empty one) overrides autojoin.
+        if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
+          const name = ui.getFragment() || config.settings.xmpp.room;
+          this.join({name});
+        }
+        else this.list();
+      },
+      // Notify user of connection failures.
+      ({status}) => {
+        ui.setConnectionStatus(false);
+        switch (status) {
+          case 'no-credentials':
+            // Only complain about missing credentials on a manual invocation.
+            throw arg && ui.messageError(strings.error.userpass);
+          case Strophe.Status.AUTHFAIL:
+            throw ui.messageError(strings.error.connection.authfail);
+          case Strophe.Status.CONNFAIL:
+            throw ui.messageError(strings.error.connection.connfail);
+          case Strophe.Status.ERROR:
+            throw ui.messageError(strings.error.connection.other);
+        }
+      });
     },
 
     /**
@@ -360,16 +403,16 @@ var chat = {
       const room = {id, title: arg.title || name};
 
       // Look for the room to make sure it doesn't exist.
-      xmpp.getRoomInfo(id)
-      .then((room) => {
-        ui.messageError(strings.error.roomExists, {room});
-        throw 'exists' ;
-      }, (error) => {
-        // Catch only an <item-not-found> error.
-        if (!$('item-not-found', error).length) {
-          throw error;
+      xmpp.getRoomInfo(id).then(
+        room => {
+          ui.messageError(strings.error.roomExists, {room});
+          throw 'exists' ;
+        },
+        error => {
+          // Catch only an <item-not-found> error.
+          if (!$('item-not-found', error).length) throw error;
         }
-      })
+      )
       .then(() => {
         ui.messageInfo(strings.info.creating, {
           room,
@@ -382,10 +425,8 @@ var chat = {
         // Start a new Promise chain here, in order to abort on an "exists" error.
         return xmpp.joinRoom({room: id})
         // Request the configuration form.
-        .then(() => {
-          return xmpp.roomConfig(id);
-        })
-        .then((conf) => {
+        .then(() => xmpp.roomConfig(id))
+        .then(conf => {
           // Unlike /configure, this form is in the promise chain.
           // It can only be submitted once.
           return new Promise((resolve, reject) => {
@@ -394,39 +435,34 @@ var chat = {
               ui.formDialog(form, {cancel: () => { reject('cancel'); }, apply: false});
             }
             // Use command-line arguments or just set the room title.
-            else resolve(chat.roomConf(arg) || {
-              'muc#roomconfig_roomname': room.title
-            });
+            else resolve(chat.roomConf(arg) || {'muc#roomconfig_roomname': room.title});
           });
         })
         .then(
-          (data) => {
-            return xmpp.roomConfigSubmit(id, data);
-          },
-          (reason) => {
+          data => xmpp.roomConfigSubmit(id, data),
+          reason => {
             if (reason == 'cancel') xmpp.roomConfigCancel(id);
             throw reason;
           }
         )
         .then(
           () => {
-            ui.setFragment(id);
-            chat.setSetting('xmpp.room', id);
             xmpp.setRoom(id);
+            chat.setSetting('xmpp.room', id);
             ui.messageInfo(strings.info.roomCreated, {room});
+            return xmpp.discoverRooms();
           },
-          (reason) => {
+          reason => {
+            // The server may not destroy the room on its own:
+            xmpp.leaveRoom(id);
             if (reason == 'cancel') {
-              // The server may not destroy the room on its own:
-              xmpp.leaveRoom(id);
               ui.messageError(strings.error.roomCreateCancel);
               throw reason;
             }
-            else ui.messageError(strings.error.roomConf, {room});
+            else throw ui.messageError(strings.error.roomConf, {room});
           }
         )
-        .then(() => { return xmpp.discoverRooms(); })
-        .then((rooms) => {
+        .then(rooms => {
           const room = rooms[id];
           ui.updateRoom(id, xmpp.roster[id]);
           ui.messageInfo(strings.info.joined, {room});
@@ -569,12 +605,12 @@ var chat = {
       })
       .then(() => {
         ui.updateRoom(room.id, xmpp.roster[room.id]);
-        ui.setFragment(room.id);
         chat.setSetting('xmpp.room', room.id);
         xmpp.setRoom(room.id);
         ui.messageInfo(strings.info.joined, {room});
       })
       .catch((stanza) => {
+        ui.setFragment(xmpp.room.current);
         if ($('registration-required', stanza).length)
           ui.messageError(strings.error.joinRegister, {room});
       });
@@ -588,8 +624,11 @@ var chat = {
      */
     kick: function(arg) {
       const nick = arg.trim();
-      xmpp.setUser({nick, role: 'none'}, () => {}, (errorCode) => {
-        ui.messageError(strings.error.kick[errorCode], {nick});
+      xmpp.setUser({nick, role: 'none'}).catch(stanza => {
+        if ($('not-acceptable', stanza).length)
+          return ui.messageError(strings.error.kick['not-acceptable'], {nick});
+        if ($('not-allowed', stanza).length)
+          return ui.messageError(strings.error.kick['not-allowed'], {nick});
       });
     },
 
@@ -662,7 +701,7 @@ var chat = {
       const nick = arg.trim();
       if (nick) xmpp.changeNick(nick);
       else ui.messageError(strings.error.noArgument);
-      if (xmpp.status != 'online')
+      if (!xmpp.room.current)
         ui.messageInfo(strings.info.nickPrejoin, {nick});
     },
 
@@ -672,12 +711,12 @@ var chat = {
      */
     part: function() {
       const room = xmpp.room.current;
-      if (room) {
-        ui.setFragment(null);
-        xmpp.leaveRoom(room);
-        xmpp.prejoin();
-        ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
-      }
+      if (!room) return;
+
+      ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
+      ui.updateRoom();
+      xmpp.leaveRoom(room);
+      this.list();
     },
 
     /**
@@ -713,7 +752,8 @@ var chat = {
      *   Ask XMPP to disconnect.
      */
     quit: function() {
-      xmpp.disconnect();
+      ui.messageInfo(strings.info.connection.disconnecting);
+      xmpp.connection.disconnect();
     },
 
     /**
@@ -816,15 +856,16 @@ var chat = {
             .text(config.version)
         });
       }
-      if (xmpp.status == 'offline')
+
+      // Only show client version when offline.
+      if (!xmpp.connection.connected) {
         return arg && ui.messageError(strings.error.cmdStatus.offline, {command: 'version'});
+      }
 
       const jid = xmpp.JID.parse(arg);
       const direct = !!jid.resource;
       let target;
-      if (arg) {
-        target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
-      }
+      if (arg) target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
 
       const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || {jid});
 
@@ -900,36 +941,40 @@ var chat = {
   },
 
   /**
-   * Validate the current command by xmpp.status.
+   * Validate the current command by client state.
    */
-  cmdAvailableStatus: function(command, silent) {
+  cmdAvailableState: function(command, silent) {
     const always = ['alias', 'clear', 'nick', 'save', 'version'];
     const chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     const offline = ['connect'];
-    const waiting = ['quit'];
 
-    // always allow these commands (hence the name).
-    if (always.indexOf(command) >= 0) return true;
+    // Always allow these commands (hence the name).
+    if (always.includes(command)) return true;
 
-    switch (xmpp.status) {
-      case 'prejoin':
-        // do not allow chat commands in prejoin.
-        if (chat.indexOf(command) >= 0)
-          return !silent && ui.messageError(strings.error.cmdStatus.prejoin, {command}) && false;
-      case 'online':
-        // do not allow offline commands in prejoin or in rooms.
-        if (offline.indexOf(command) >= 0)
-          return !silent && ui.messageError(strings.error.cmdStatus.online, {command}) && false;
-        return true;
-
-      // switch from blacklist to whitelist here.
-      case 'waiting':
-        if (waiting.indexOf(command) >= 0) return true;
-      case 'offline':
-        // allow offline commands while waiting or offline.
-        if (offline.indexOf(command) >= 0) return true;
-        return !silent && ui.messageError(strings.error.cmdStatus.offline, {command}) && false;
+    // When offline, only allow offline commands.
+    if (!xmpp.connection.connected) {
+      if (!silent && !offline.includes(command)) {
+        ui.messageError(strings.error.cmdState.offline, {command});
+      }
+      return offline.includes(command);
     }
+
+    // When online, forbid offline commands.
+    if (offline.includes(command)) {
+      if (!silent) ui.messageError(strings.error.cmdState.online, {command});
+      return false;
+    }
+
+    // When not in a room, forbid chat commands.
+    if (!xmpp.room.current) {
+      if (!silent && chat.includes(command)) {
+        ui.messageError(strings.error.cmdState.prejoin, {command});
+      }
+      return !chat.includes(command);
+    }
+
+    // Allow everything else.
+    return true;
   },
 
   /**
@@ -957,7 +1002,7 @@ var chat = {
     }
 
     if (this.commands[command]) {
-      if (this.cmdAvailableStatus(command)) this.commands[command](text);
+      if (this.cmdAvailableState(command)) this.commands[command](text);
     }
     else if (config.settings.macros[command])
       this.executeMacro(config.settings.macros[command], text);
@@ -972,9 +1017,8 @@ var chat = {
    * @param {string} text: A string to replace $ with in the command array.
    */
   executeMacro: function(macro, text) {
-    for (let statement of macro) {
-      this.executeInput(statement.replace(/\$/g, text.trim()), true);
-    }
+    text = text.trim();
+    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text, true)));
   },
 
   /**
@@ -1067,11 +1111,9 @@ var chat = {
    * Find a room by its title.
    */
   getRoomFromTitle: function(title) {
-    if (xmpp.room.available[title]) return xmpp.room.available[title];
-    for (let room in xmpp.room.available) {
-      if (xmpp.room.available[room].title == title)
-        return xmpp.room.available[room];
-    }
+    const rooms = xmpp.room.available;
+    if (rooms[title]) return rooms[title];
+    return $.map(rooms, x => x).find(room => room.title == title);
   },
 
   /**
@@ -1099,7 +1141,7 @@ var chat = {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
         let v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
-        if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
+        if (['0', 'no', 'off', 'false'].includes(v)) v = false;
         arguments[match[1]] = v;
         arguments[1][match[1]] = re.lastIndex;
       }
@@ -1145,20 +1187,22 @@ var chat = {
   },
 
   /**
-   * Attempt to authenticate using an existing web session.
+   * Attempt to get authentication data through an existing web session.
+   *
+   * @param {String} url - The URL to post a request to.
+   *
+   * @return {Promise} A promise that resolves to the temporary credentials.
    */
-  sessionAuth: function(url, callback) {
-    const salt = (new Date().getTime()) + Math.random();
-    $.post(url, {salt}, ({user, secret}) => {
-      if (user && secret) {
-        ui.messageInfo(strings.info.sessionAuth, {username: user});
-        chat.commands.connect({user, pass: secret});
-      }
-      else {
-        ui.setStatus('offline');
-        if (callback) callback();
-      }
-    }, 'json').fail(callback);
+  sessionAuth: function(url) {
+    const salt = SHA1.b64_sha1((new Date().getTime()) + Math.random());
+    return new Promise((resolve, reject) => {
+      $.post(url, {salt})
+      .done(({user, secret}) => {
+        if (user && secret) resolve({user, pass: secret});
+        else reject();
+      })
+      .fail(reject);
+    });
   },
 
   /**
