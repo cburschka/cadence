@@ -27,8 +27,7 @@ var xmpp = {
     this.resource = this.createResourceName();
     this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.disco.addIdentity('client', 'web', config.clientName);
-    for (let feature of config.features)
-      this.connection.disco.addFeature(feature);
+    config.features.forEach(x => this.connection.disco.addFeature(x));
 
     // DEBUG: print connection stream to console:
     this.connection.rawInput = data => {
@@ -246,10 +245,8 @@ var xmpp = {
       return {room: jid.node, nick: jid.resource};
     };
     const roster = room && this.roster[room];
-    if (roster) {
-      for (let nick in roster) if (roster[nick].jid.matchBare(jid))
-        return roster[nick];
-    }
+    const user = roster && $.map(roster, x => x).find(x => jid.matchBare(x.jid));
+    if (user) return user;
     return {jid};
   },
 
@@ -432,11 +429,12 @@ var xmpp = {
    *                   or rejects with an <error> element.
    */
   roomConfig: function(room) {
-    return new Promise((resolve, reject) => {
-      const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
-      iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
-    });
+    const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
+    iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -448,21 +446,22 @@ var xmpp = {
    * @return {Promise} A promise that resolves when the form is acknowledged.
    */
   roomConfigSubmit: function(room, data) {
-    return new Promise((resolve, reject) => {
-      const form = xmpp.iq({type: 'set', to: this.jidFromRoomNick({room})});
-      form.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-      form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
-      for (let name in data) {
-        if (data[name] !== undefined) {
-          form.c('field', {'var': name});
-          const values = data[name].constructor === Array ? data[name] : [data[name]];
-          for (let value of values) form.c('value', {}, String(value));
-        }
+    const form = xmpp.iq({type: 'set', to: this.jidFromRoomNick({room})});
+    form.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+    form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+
+    $.each(data, (name, values) => {
+      if (values !== undefined) {
+        form.c('field', {'var': name});
+        if (!values || values.constructor != Array) values = [values];
+        values.forEach(value => form.c('value', {}, String(value)));
         form.up();
       }
-
-      xmpp.connection.sendIQ(form, resolve, reject, config.xmpp.timeout);
     });
+
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(form, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -476,16 +475,13 @@ var xmpp = {
    * @return {Promise}
    */
    roomConfigCancel: function(room) {
-     return new Promise((resolve, reject) => {
-       const iq = this.iq({
-         type: 'set',
-         to: this.jidFromRoomNick({room})
-       });
-       iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-       iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
+     const iq = this.iq({type: 'set', to: this.jidFromRoomNick({room})});
+     iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+     iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
 
-       this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
-     });
+     return new Promise((resolve, reject) =>
+       this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+     );
    },
 
   /**
@@ -498,21 +494,16 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the response.
    */
   destroyRoom: function(room, alternate, reason) {
-    return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'set',
-        to: this.jidFromRoomNick({room})
-      });
-      iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
-      iq.c('destroy');
+    const iq = this.iq({type: 'set', to: this.jidFromRoomNick({room})});
+    iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
+    iq.c('destroy');
 
-      if (alternate) iq.attrs({
-        jid: this.jidFromRoomNick({room: alternate})
-      });
-      if (message) iq.c('reason', reason);
+    if (alternate) iq.attrs({jid: this.jidFromRoomNick({room: alternate})});
+    if (message) iq.c('reason', reason);
 
-      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
-    });
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -523,15 +514,16 @@ var xmpp = {
    * @return {Promise} A promise that will resolve to the response stanza.
    */
   command: function(node) {
-    return new Promise((resolve, reject) => {
-      const iq = this.iq({type: 'set', to: config.xmpp.domain});
-      iq.c('command', {
-        xmlns: 'http://jabber.org/protocol/commands',
-        action: 'execute',
-        node: 'http://jabber.org/protocol/admin#' + node
-      });
-      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
+    const iq = this.iq({type: 'set', to: config.xmpp.domain});
+    iq.c('command', {
+      xmlns: 'http://jabber.org/protocol/commands',
+      action: 'execute',
+      node: 'http://jabber.org/protocol/admin#' + node
     });
+
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -544,24 +536,26 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the response.
    */
   commandSubmit: function(node, sessionid, data) {
-    return new Promise((resolve, reject) => {
-      const form = xmpp.iq('set', {}).c('command', {
-        xmlns: 'http://jabber.org/protocol/commands',
-        node: 'http://jabber.org/protocol/admin#' + node,
-        sessionid
-      });
-      form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
+    const form = this.iq({type: 'set', to: config.xmpp.domain});
+    form.c('command', {
+      xmlns: 'http://jabber.org/protocol/commands',
+      node: 'http://jabber.org/protocol/admin#' + node,
+      sessionid
+    });
+    form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
-      for (let name in data) {
-        if (data[name] === undefined) continue;
+    $.each(data, (name, values) => {
+      if (values !== undefined) {
         form.c('field', {'var': name});
-
-        const values = data[name].constructor === Array ? data[name] : [data[name]];
-        for (let value of values) form.c('value', {}, String(value));
+        if (!values || values.constructor != Array) values = [values];
+        values.each(value => form.c('value', {}, String(value)));
         form.up();
       }
-      xmpp.connection.sendIQ(form, resolve, reject, config.xmpp.timeout);
     });
+
+    return new Promise((resolve, reject) =>
+      xmpp.connection.sendIQ(form, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -569,13 +563,11 @@ var xmpp = {
    * <show/> and <status/> elements.
    * Note: To return from away-mode, a presence without <show/> is sent.
    *
-   * @param {string} show This must be one of "away", "chat", "dnd", "xa" or null.
-   * @param {string} status This is an arbitrary status message.
+   * @param {String} show This must be one of "away", "chat", "dnd", "xa" or null.
+   * @param {String} status This is an arbitrary status message.
    */
   sendStatus: function({show, status}) {
-    const pres = this.pres({
-      to: this.jidFromRoomNick({nick: this.nick.current})
-    });
+    const pres = this.pres({to: this.jidFromRoomNick({nick: this.nick.current})});
     if (show) pres.c('show', {}, show);
     if (status) pres.c('status', {}, status);
     this.show = show;
@@ -585,14 +577,19 @@ var xmpp = {
   /**
    * Send a message to the room.
    *
-   * @param {Object} body: An object containing both html and text strings.
+   * @param {Object} message:
+   *                   - {JID} to
+   *                   - {Object} body
+   *                     - {String} text
+   *                     - {DOM} html (optional)
+   *                   - {String} type (optional: normal, chat, error, groupchat, headline)
    */
   sendMessage: function({to, body, type}) {
     const msg = this.msg({to, type});
     msg.c('body', {}, body.text);
     msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
     msg.c('body', {xmlns: Strophe.NS.XHTML});
-    msg.cnode($('<p>').append(body.html)[0]);
+    if (body.html) msg.cnode($('<p>').append(body.html)[0]);
 
     this.connection.send(msg);
     ui.playSound('send');
@@ -606,16 +603,13 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the server response.
    */
   setUser: function(item) {
-    return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'set',
-        to: this.jidFromRoomNick()
-      });
-      iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
-      iq.c('item', item);
+    const iq = this.iq({type: 'set', to: this.jidFromRoomNick()});
+    iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
+    iq.c('item', item);
 
-      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
-    });
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   setRoom: function(room) {
@@ -634,16 +628,13 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the response.
    */
   getUsers: function(query) {
-    return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'get',
-        to: this.jidFromRoomNick()
-      });
-      iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
-      iq.c('item', query);
+    const iq = this.iq({type: 'get', to: this.jidFromRoomNick()});
+    iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
+    iq.c('item', query);
 
-      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
-    });
+    return new Promise((resolve, reject) =>
+      this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout)
+    );
   },
 
   /**
@@ -654,19 +645,13 @@ var xmpp = {
    * @return {Promise} A promise that resolves to a user list.
    */
   getOccupants: function(room) {
+    const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
+    iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
+
     return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'get',
-        to: this.jidFromRoomNick({room})
-      });
-      iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
-
-      const success = (stanza) => {
-        resolve($.makeArray($('item', stanza).map(function() {
-          return this.getAttribute('name');
-        })));
-      };
-
+      const success = stanza => resolve($.makeArray(
+        $('item', stanza).map((_, e) => e.getAttribute('name'))
+      ));
       this.connection.sendIQ(iq, success, reject, config.xmpp.timeout);
     });
   },
@@ -678,38 +663,34 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the list of rooms.
    */
   discoverRooms: function() {
+    const iq = this.iq({type: 'get', to: config.xmpp.mucService});
+    iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
+
     return new Promise((resolve, reject) => {
-      const iq = this.iq({
-        type: 'get',
-        to: config.xmpp.mucService
-      });
-      iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
+      const success = stanza => {
+        const rooms = {};
+        $('item', stanza).each((_, item) => {
+          const jid = this.JID.parse(item.getAttribute('jid'));
+          const id = jid.node;
 
-      this.connection.sendIQ(iq,
-        (stanza) => {
-          let rooms = {};
-          $('item', stanza).each((s,t) => {
-            const jid = this.JID.parse(t.getAttribute('jid'));
-            const id = jid.node;
+          // Strip off the parenthesized number of participants in the name:
+          const name = item.getAttribute('name');
+          const title = name ? name.replace(/\((\d+)\)$/, '').trim() : id;
 
-            // Strip off the parenthesized number of participants in the name:
-            const name = t.getAttribute('name');
-            const title = name ? name.replace(/\((\d+)\)$/, '').trim() : id;
+          rooms[id] = {id, title, members: null, jid};
+        });
 
-            rooms[id] = {id, title, members: null, jid};
-          });
+        // Preserve the current room in the list of available rooms.
+        // (This is because it might not be publicly listed.)
+        const current = this.room.current;
+        if (current && !rooms[current]) rooms[current] = this.room.available[current];
+        this.room.available = rooms;
 
-          // Preserve the current room in the list of available rooms.
-          // (This is because it might not be publicly listed.)
-          const current = this.room.current;
-          if (current && !rooms[current])
-            rooms[current] = this.room.available[current];
-          this.room.available = rooms;
-          ui.refreshRooms(rooms);
-          resolve(rooms);
-        },
-        reject, config.xmpp.timeout
-      );
+        ui.refreshRooms(rooms);
+        resolve(rooms);
+      };
+
+      this.connection.sendIQ(iq, success, reject, config.xmpp.timeout);
     });
   },
 
@@ -807,13 +788,10 @@ var xmpp = {
     if (roomId != this.room.current || !user) return;
 
     // An `unavailable` 303 is a nick change to <item nick="{new}"/>
-    if (codes.indexOf(303) >= 0) {
+    if (codes.includes(303)) {
       const newNick = item.attr('nick');
       const newUser = $.extend({}, user, {nick: newNick});
-      ui.messageInfo(strings.info.userNick, {
-        from: user,
-        to: newUser,
-      });
+      ui.messageInfo(strings.info.userNick, {from: user, to: newUser});
 
       // Update the roster entry.
       roster[newNick] = newUser;
@@ -825,8 +803,8 @@ var xmpp = {
     }
     else {
       // An `unavailable` 301 is a ban; a 307 is a kick.
-      if (codes.indexOf(301) >= 0 || codes.indexOf(307) >= 0) {
-        const type = codes.indexOf(301) >= 0 ? 'ban' : 'kick';
+      if (codes.includes(301) || codes.includes(307)) {
+        const type = codes.includes(301) ? 'ban' : 'kick';
         const actorNick = $('actor', item).attr('nick');
         // For a self-kick, the actor is already out of the roster.
         const actor = actorNick == nick ? user : roster[nick];
@@ -846,9 +824,8 @@ var xmpp = {
         const destroy = $('x destroy', stanza);
         const reason = $('reason', destroy).text();
         const jid = this.JID.parse(destroy.attr('jid'));
-
-        let alternate = jid.domain == config.xmpp.mucService;
-        alternate = alternate && (this.room.available[jid.node] || {id: jid.node});
+        const alternate = jid.domain == config.xmpp.mucService
+                    && (this.room.available[jid.node] || {id: jid.node});
 
         ui.messageError(strings.info.destroyed[+!!alternate][+!!reason], {room, alternate, reason});
       }
@@ -886,9 +863,7 @@ var xmpp = {
     };
 
     // A 110-code presence reflects a presence that we sent.
-    if (codes.indexOf(110) >= 0) {
-      this.nick.current = nick;
-    }
+    if (codes.includes(110)) this.nick.current = nick;
 
     // We have fully joined this room - track the presence changes.
     if (this.room.current == room) {
@@ -923,10 +898,9 @@ var xmpp = {
       else if (this.nick.current != nick) {
         ui.messageInfo(strings.info.userIn, {user});
         // Play the alert sound if a watched user enters.
-        let watched = this.nick.current != nick;
-        watched = watched && config.settings.notifications.triggers.some((e) => {
-          return nick.indexOf(e) >= 0;
-        });
+        const watched = config.settings.notifications.triggers.some(
+          trigger => nick.includes(trigger)
+        );
         watched ? ui.playSound('mention') : ui.playSound('enter');
       }
       ui.rosterInsert(user);
@@ -961,11 +935,11 @@ var xmpp = {
 
       if (muc) {
         const codes = $.makeArray($('x status', stanza).map(function() {
-          return $(this).attr('code');
+          return parseInt($(this).attr('code'));
         }));
 
         // React to configuration updates.
-        if (codes.indexOf('104') >= 0) {
+        if (codes.includes(104)) {
           this.getRoomInfo(from.node).then((room) => {
             this.room.available[from.node] = room;
             ui.refreshRooms(this.room.available);
@@ -1060,7 +1034,7 @@ var xmpp = {
     const xmlns = $(stanza).children().attr('xmlns');
 
     // Send <feature-not-implemented /> for anything not recognized.
-    if (config.features.indexOf(xmlns) < 0) {
+    if (!config.features.includes(xmlns)) {
       const response = this.iq({
         type: 'error',
         to: stanza.getAttribute('from'),

@@ -105,7 +105,7 @@ var chat = {
       // Look up the nickname unless --jid was explicitly used.
       const user = !arg.jid && roster[nick] || String(jid) && {jid};
 
-      if (['owner', 'admin', 'member', 'outcast', 'none'].indexOf(type) < 0)
+      if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
         return ui.messageError(strings.error.affiliate.type, {type})
 
       // List users with a specific affiliation.
@@ -948,28 +948,28 @@ var chat = {
     const offline = ['connect'];
 
     // Always allow these commands (hence the name).
-    if (~always.indexOf(command)) return true;
+    if (always.includes(command)) return true;
 
     // When offline, only allow offline commands.
     if (!xmpp.connection.connected) {
-      if (!silent && !~offline.indexOf(command)) {
+      if (!silent && !offline.includes(command)) {
         ui.messageError(strings.error.cmdState.offline, {command});
       }
-      return ~offline.indexOf(command);
+      return offline.includes(command);
     }
 
     // When online, forbid offline commands.
-    if (~offline.indexOf(command)) {
+    if (offline.includes(command)) {
       if (!silent) ui.messageError(strings.error.cmdState.online, {command});
       return false;
     }
 
     // When not in a room, forbid chat commands.
     if (!xmpp.room.current) {
-      if (!silent && ~chat.indexOf(command)) {
+      if (!silent && chat.includes(command)) {
         ui.messageError(strings.error.cmdState.prejoin, {command});
       }
-      return !~chat.indexOf(command);
+      return !chat.includes(command);
     }
 
     // Allow everything else.
@@ -1016,9 +1016,8 @@ var chat = {
    * @param {string} text: A string to replace $ with in the command array.
    */
   executeMacro: function(macro, text) {
-    for (let statement of macro) {
-      this.executeInput(statement.replace(/\$/g, text.trim()), true);
-    }
+    text = text.trim();
+    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text, true)));
   },
 
   /**
@@ -1111,11 +1110,9 @@ var chat = {
    * Find a room by its title.
    */
   getRoomFromTitle: function(title) {
-    if (xmpp.room.available[title]) return xmpp.room.available[title];
-    for (let room in xmpp.room.available) {
-      if (xmpp.room.available[room].title == title)
-        return xmpp.room.available[room];
-    }
+    const rooms = xmpp.room.available;
+    if (rooms[title]) return rooms[title];
+    return $.map(rooms, x => x).find(room => room.title == title);
   },
 
   /**
@@ -1143,7 +1140,7 @@ var chat = {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
         let v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
-        if (['0', 'no', 'off', 'false'].indexOf(v) >= 0) v = false;
+        if (['0', 'no', 'off', 'false'].includes(v)) v = false;
         arguments[match[1]] = v;
         arguments[1][match[1]] = re.lastIndex;
       }
