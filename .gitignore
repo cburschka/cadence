@@ -5,18 +5,11 @@
 .config.vars
 Makefile
 *.min.*
-index.html
-js/core/config.js
-js/core/emoticons.js
-js/lib/*.js
 js/lib.js
 js/core.js
 css/global/all.css
 
 # Installed files
-img/emoticons/packs
-config.custom.js
-custom.css
 
 # Project files
 nbproject
