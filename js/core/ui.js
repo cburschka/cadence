@@ -958,6 +958,7 @@ var ui = {
         'data-jid': user.jid,
         'data-nick': user.nick,
         'data-role': user.role,
+        'data-show': user.show,
         'title': user.jid,
       }).removeClass(
         (_, css) => css.match(/(jid|user-(affiliation|role))-/g).join(' ')
@@ -1012,7 +1013,7 @@ var ui = {
       this.rosterInsert({nick, show: 'offline'});
       setTimeout(() => {
         // Ensure the user is still offline.
-        if (entry.attr('data-show') == 'offline') {
+        if ($('.user[data-show=offline]', entry).length) {
           delete this.roster[nick];
           entry.slideUp(() => entry.remove());
           const index = this.sortedNicks.indexOf(nick);
