@@ -303,17 +303,13 @@ var xmpp = {
    */
   leaveRoom: function(room) {
     delete this.roster[room];
-
-    if (room && room === this.room.current) {
-      this.room.current = null;
-      this.show = null;
-
-      // It's safe to send an unavailable presence to a room we got kicked out of,
-      // as long as it still exists.
-      if (this.room.available[room]) {
-        const jid = this.jidFromRoomNick({room, nick: this.nick.current});
-        const pres = this.pres({to: jid, type: 'unavailable'});
-        this.connection.send(pres);
+    if (room) {
+      const jid = this.jidFromRoomNick({room, nick: this.nick.current});
+      const pres = this.pres({to: jid, type: 'unavailable'});
+      this.connection.send(pres);
+      if (room == this.room.current) {
+        this.room.current = null;
+        this.show = null;
       }
     }
   },

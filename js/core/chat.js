@@ -461,13 +461,13 @@ var chat = {
             ui.messageInfo(strings.info.roomCreated, {room});
           },
           (reason) => {
+            // The server may not destroy the room on its own:
+            xmpp.leaveRoom(id);
             if (reason == 'cancel') {
-              // The server may not destroy the room on its own:
-              xmpp.leaveRoom(id);
               ui.messageError(strings.error.roomCreateCancel);
               throw reason;
             }
-            else ui.messageError(strings.error.roomConf, {room});
+            else throw ui.messageError(strings.error.roomConf, {room});
           }
         )
         .then(() => { return xmpp.discoverRooms(); })
