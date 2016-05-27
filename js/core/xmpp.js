@@ -156,8 +156,10 @@ var xmpp = {
    *
    * @return {Stanza}
    */
-  pres: function(attrs) {
-    return this.connection.caps.pres({from: this.jid}).attrs(attrs);
+  pres: function(attrs={}) {
+    // Only annotate untyped presence with a cap-hash.
+    const pres = attrs.type ? $pres() : this.connection.caps.pres();
+    return pres.attrs({from: this.jid}).attrs(attrs);
   },
 
   /**
