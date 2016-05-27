@@ -2,6 +2,7 @@
  * ui.js contains all functions that alter the user interface.
  */
 var ui = {
+  activeMenu: null,
   roster: {},
   sortedNicks: [],
   dom: null,
@@ -99,8 +100,11 @@ var ui = {
         .appendTo(this.dom.emoticonSidebarContainer);
 
       $('<button class="tray icon toggleMenu">')
-        .attr('id', 'emoticon-' + set + 'Button')
-        .attr('title', bars[set].title)
+        .attr({
+          title: bars[set].title,
+          id: 'emoticon-' + set + 'Button',
+          'data-sidebar': 'emoticon-' + set,
+        })
         .text(bars[set].title)
         .css('background-image', 'url(' + encodeURI(emoticons[set].baseURL + bars[set].icon) + ')')
         .appendTo(this.dom.emoticonTrayContainer);
@@ -140,6 +144,7 @@ var ui = {
     });
 
     ui.loadStrings();
+    ui.toggleMenu(false);
     ui.loadSettings();
   },
 
@@ -167,19 +172,14 @@ var ui = {
     // Set the form values.
     $('.settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
-    });
+    }).change();
     $('input.settings[type="checkbox"]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
-    });
+    }).change();
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     this.setTextColorPicker(config.settings.textColor);
-
-    // Open the last active sidebar.
-    if (!this.dom.menu[config.settings.activeMenu]) {
-      config.settings.activeMenu = 'roster';
-    }
-    this.toggleMenu(config.settings.activeMenu, true);
+    this.toggleMenu();
 
     // Set the volume.
     chat.setAudioVolume(config.settings.notifications.soundVolume);
@@ -247,7 +247,11 @@ var ui = {
       e.preventDefault();
     });
     $('#trayContainer button.toggleMenu').click(function() {
-      ui.toggleMenu(this.id.substring(0, this.id.length - 'Button'.length));
+      const sidebar = this.getAttribute('data-sidebar');
+      const oldMenu = config.settings.activeMenu;
+      const newMenu = sidebar == oldMenu ? null : sidebar;
+      chat.setSetting('activeMenu', newMenu);
+      ui.toggleMenu();
     });
 
     // BBCode buttons.
@@ -627,31 +631,34 @@ var ui = {
   },
 
   /**
-   * Close the active sidebar and (if needed) open a different one.
+   * Update sidebars in response to a configuration change.
+   *
+   * @param {boolean} animate Set to false to skip animation (on startup).
    */
-  toggleMenu: function(newMenu, init) {
-    const speed = init ? 0 : 'slow';
-    const oldMenu = init ? null : config.settings.activeMenu;
-    if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, 'slow');
+  toggleMenu: function(animate=true) {
+    const speed = animate ? 'slow' : 0;
+    const oldMenu = this.activeMenu;
+    const newMenu = config.settings.activeMenu;
+    // Sanity check, only toggle if the value changed.
+    if (oldMenu == newMenu) return;
+    if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, speed);
 
-    let width = 20;
-    if (oldMenu != newMenu) {
-      const px = this.dom.menu[newMenu].css('width');
-      width += parseInt(px.substring(0,px.length-2)) + 8;
-    }
+    // New menu's width, plus an 8px margin. Yay for magic hard-coded pixels.
+    const menuWidth = newMenu ? 8 + parseInt(this.dom.menu[newMenu].css('width')) : 0;
+    const width = 20 + menuWidth;
 
+    // Resize the chat pane's right margin, then rescale inline images.
     this.dom.chatList.animate({right : width + 'px'}, speed, () => {
       const maxWidth = this.dom.chatList.width() - 30;
       const maxHeight = this.dom.chatList.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
-    if (oldMenu != newMenu) {
+    if (newMenu) {
       this.dom.menu[newMenu].animate({width: 'show'}, speed);
-      config.settings.activeMenu = newMenu;
+      this.activeMenu = newMenu;
     }
-    else config.settings.activeMenu = null;
-    chat.saveSettings();
+    else this.activeMenu = null;
   },
 
   /**
