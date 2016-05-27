@@ -3,6 +3,7 @@
  * in response to user requests.
  */
 var chat = {
+  auth: undefined,
   history: [],
   historyIndex: 0,
 
@@ -341,9 +342,11 @@ var chat = {
 
       // First acquire the credentials.
       return new Promise((resolve, reject) => {
+        // Reuse authentication for the rest of the session:
         if (arg && arg.user && arg.pass) {
-          return resolve({user: arg.user, pass: arg.pass});
+          chat.auth = {user: arg.user, pass: arg.pass};
         }
+        if (chat.auth) return resolve(chat.auth);
         if (config.settings.xmpp.sessionAuth) {
           const url = config.xmpp.sessionAuthURL;
           if (url) return chat.sessionAuth(url).then(auth => {

@@ -449,7 +449,7 @@ var ui = {
       name: labels.available,
       icon: 'available',
       disabled: joined ? status == 'available' : online,
-      callback: joined ? cmd : chat.commands.connect,
+      callback: joined ? cmd : () => chat.commands.connect(),
     }};
     for (let show of ['away', 'xa', 'dnd']) items[show] = {
       name: labels[show],
@@ -461,7 +461,7 @@ var ui = {
       name: labels.offline,
       icon: 'offline',
       disabled: !online,
-      callback: chat.commands.quit
+      callback: () => chat.commands.quit()
     };
     return {items};
   },
