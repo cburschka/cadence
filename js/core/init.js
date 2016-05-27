@@ -21,12 +21,17 @@
       xmpp.disconnect();
     });
 
-    chat.sessionAuth(config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL, () => {
-      ui.setStatus('offline');
-      if (config.ui.welcome) {
-        ui.messageInfo(config.ui.welcome);
-      }
-    });
+    const welcome = () => {
+      if (config.ui.welcome) ui.messageInfo(config.ui.welcome);
+    };
+
+    if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
+      chat.commands.connect().catch(welcome);
+    }
+    else {
+      ui.setConnectionStatus(false);
+      welcome();
+    }
   });
 
   const loadSettings = () => {
@@ -74,5 +79,3 @@
   };
 
 })();
-
-

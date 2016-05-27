@@ -5,7 +5,6 @@ var ui = {
   roster: {},
   sortedNicks: [],
   dom: null,
-  userStatus: {},
   messages: [],
   colorPicker: null,
   autoScroll: true,
@@ -431,28 +430,28 @@ var ui = {
 
   contextMenuStatus: function(_, {button}) {
     const labels = strings.label.status;
-    const online = xmpp.status == 'online';
-    const offline = xmpp.status == 'offline';
-    const status = xmpp.userStatus || 'available';
+    const joined = !!xmpp.room.current;
+    const online = xmpp.connection.connected;
+    const status = xmpp.show || 'available';
     const cmd = (show) => chat.commands[show](
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
       name: labels.available,
       icon: 'available',
-      disabled: online ? status == 'available' : !offline,
-      callback: online ? cmd : chat.commands.connect,
+      disabled: joined ? status == 'available' : online,
+      callback: joined ? cmd : chat.commands.connect,
     }};
     for (let show of ['away', 'xa', 'dnd']) items[show] = {
       name: labels[show],
       icon: show,
-      disabled: !online || status == show,
+      disabled: !joined || status == show,
       callback: cmd
     }
     items.offline = {
       name: labels.offline,
       icon: 'offline',
-      disabled: offline,
+      disabled: !online,
       callback: chat.commands.quit
     };
     return {items};
@@ -463,7 +462,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    const c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
+    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
     const labels = strings.label.command;
     const roster = xmpp.roster[xmpp.room.current]
     const userSelf = roster && roster[xmpp.nick.current];
@@ -532,7 +531,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    const c = (cmd) => { return chat.cmdAvailableStatus(cmd, true) };
+    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
     const labels = strings.label.command;
     const room = element.attr('data-room');
     const currentRoom = xmpp.room.current == room;
@@ -582,13 +581,12 @@ var ui = {
    * - change the status icon.
    * - toggle between login form and room selection menu.
    */
-  setStatus: function(status) {
-    // status options are: online, waiting, offline, prejoin.
-    if (status != 'online') ui.updateRoom('', {});
-    if (status == 'prejoin') status = 'online';
-    this.setUserStatus(status != 'offline' ? xmpp.userStatus : 'offline');
-    this.dom.loginContainer[status == 'online' ? 'fadeOut' : 'fadeIn'](500);
-    this.dom.roomContainer[status == 'online' ? 'fadeIn' : 'fadeOut'](500);
+  setConnectionStatus: function(online) {
+    // status options are: online, waiting, offline
+    if (!online) this.updateRoom();
+    this.setUserStatus(online ? xmpp.show : 'offline');
+    this.dom.loginContainer[online ? 'fadeOut' : 'fadeIn'](500);
+    this.dom.roomContainer[online ? 'fadeIn' : 'fadeOut'](500);
   },
 
   /**
@@ -1044,20 +1042,19 @@ var ui = {
   /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
-  updateRoom: function(room, roster) {
+  updateRoom: function(room, roster={}) {
+    const list = this.dom.roster;
+
     this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
     $(document).attr('title', this.title);
 
     this.dom.roomSelection.val(room);
+    this.setFragment(room);
+    this.setUserStatus('available');
 
-    // If no roster is given, only update the menu.
-    if (!roster) return;
-
-    const list = this.dom.roster;
     list.slideUp(() => {
       list.html('');
       this.roster = {};
-      this.userStatus = {};
       this.sortedNicks = [];
       for (let nick in roster)
         this.rosterInsert(roster[nick], {animate: false});
@@ -1180,7 +1177,7 @@ var ui = {
   playSound: function(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
-    if (xmpp.userStatus == 'dnd') return;
+    if (xmpp.show == 'dnd') return;
     const sound = config.settings.notifications.sounds[event];
     return sound && this.sounds[sound] && (this.sounds[sound].play() || true);
   },
@@ -1196,7 +1193,7 @@ var ui = {
     const name = message.user.nick || message.user.jid.bare() || '';
 
     let mention = (text.indexOf(xmpp.nick.current) >= 0
-                || text.indexOf(xmpp.user) >= 0);
+                || text.indexOf(xmpp.jid.node) >= 0);
     let sender = false;
     for (let trigger of config.settings.notifications.triggers) {
       mention = mention || (0 <= text.indexOf(trigger));
@@ -1227,7 +1224,7 @@ var ui = {
    * @param {Object} message: The message object.
    */
   notifyDesktop: function(level, message) {
-    if (xmpp.userStatus == 'dnd') return;
+    if (xmpp.show == 'dnd') return;
     if (document.hidden) return;
     if (level > config.settings.notifications.desktop) return;
 

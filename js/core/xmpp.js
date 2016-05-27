@@ -15,9 +15,7 @@ var xmpp = {
   jid: null,
   user: null,
   resource: null,
-  status: 'offline',
-  userStatus: null,
-  statusConstants: {},
+  show: null,
   roster: {},
   historyEnd: {},
 
@@ -25,15 +23,26 @@ var xmpp = {
    * Create the connection object.
    */
   init: function() {
-    // Generate a reverse lookup table for the connection status constants.
-    for (let key in Strophe.Status) {
-      this.statusConstants[Strophe.Status[key]] = key;
-    }
     // Generate a unique resource name for this session.
     this.resource = this.createResourceName();
-
-    // Initialize the connection object and attach the event handlers.
     this.connection = new Strophe.Connection(config.xmpp.url);
+    this.connection.disco.addIdentity('client', 'web', config.clientName);
+    for (let feature of config.features)
+      this.connection.disco.addFeature(feature);
+
+    // DEBUG: print connection stream to console:
+    this.connection.rawInput = data => {
+      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
+    };
+    this.connection.rawOutput = data => {
+      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
+    };
+  },
+
+  /**
+   * Attach all the event handlers to the connection object.
+   */
+  setupHandlers: function() {
     this.connection.addHandler(stanza => this.eventPresenceCallback(stanza), null, 'presence');
     this.connection.addHandler(stanza => this.eventMessageCallback(stanza), null, 'message');
     this.connection.addHandler(stanza => this.eventIQCallback(stanza), null, 'iq');
@@ -60,46 +69,55 @@ var xmpp = {
       return true;
     });
 
-    this.connection.disco.addIdentity('client', 'web', config.clientName);
-    for (let feature of config.features)
-      this.connection.disco.addFeature(feature);
-
     this.connection.addTimedHandler(30, () => this.discoverRooms());
-
-    // DEBUG: print connection stream to console:
-    this.connection.rawInput = data => {
-      if (config.settings.debug) console.log('%cRECV ' + data, 'color:blue');
-    };
-    this.connection.rawOutput = data => {
-      if (config.settings.debug) console.log('%cSEND ' + data, 'color:red');
-    };
   },
 
   /**
-   * Open a new connection and authenticate.
+   * Connect and authenticate.
+   *
+   * @param {String} user A user on the configured domain.
+   * @param {String} pass The password.
+   * @param {function} disconnect A callback to run after disconnecting.
+   *
+   * @return {Promise} A promise that resolves when the connection is
+   *         established or has failed.
    */
-  connect: function(user, pass) {
-    this.disconnect();
-
-    this.user = user;
-    this.nick.target = user;
-    this.jid = new this.JID({
-      node: user,
-      domain: config.xmpp.domain,
-      resource: this.resource
-    });
-
+  connect: function(user, pass, disconnect) {
     return new Promise(resolve => {
+      // Make sure the connection isn't already open.
+      if (this.connection.connected) throw {status: Strophe.Status.CONNECTED};
+
+      // Attach all the event handlers (they're removed when disconnecting).
+      this.setupHandlers();
+
+      // Set the target nickname and JID.
+      this.nick.target = user;
+      this.jid = new this.JID({
+        node: user,
+        domain: config.xmpp.domain,
+        resource: this.resource
+      });
+
+      let first = true;
       this.connection.connect(String(this.jid), pass, (status, error) => {
-        switch (status) {
+        // This block resolves the promise; it can only run once.
+        if (first) switch (status) {
           case Strophe.Status.ERROR:
           case Strophe.Status.CONNFAIL:
           case Strophe.Status.AUTHFAIL:
-            throw {status, error}; break;
+            first = false; throw {status, error};
           case Strophe.Status.CONNECTED:
-            resolve();
+            // Broadcast presence.
+            this.connection.send(this.pres());
+            first = false; resolve();
         }
-        return this.eventConnectCallback(status, error);
+        else if (status === Strophe.Status.DISCONNECTED) {
+          this.nick.current = null;
+          this.room.current = null;
+          this.show = null;
+          this.roster = {};
+          disconnect();
+        }
       });
     });
   },
@@ -200,12 +218,13 @@ var xmpp = {
     }
 
     static parse(jid) {
-      jid = jid && String(jid);
-      return jid ? new xmpp.JID({
+      if (!jid) return jid;
+      jid = String(jid);
+      return new xmpp.JID({
         node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
         domain: Strophe.getDomainFromJid(jid),
         resource: Strophe.getResourceFromJid(jid)
-      }) : new xmpp.JID();
+      });
     }
   },
 
@@ -255,7 +274,7 @@ var xmpp = {
   changeNick: function(nick) {
     return new Promise((resolve, reject) => {
       this.nick.target = nick;
-      if (this.status != 'online') return resolve();
+      if (!this.connection.connected) return resolve();
 
       const jid = this.jidFromRoomNick({nick});
       const pres = this.pres({to: jid});
@@ -276,26 +295,27 @@ var xmpp = {
   },
 
   /**
-   * Send an unavailable presence to a specified room.
+   * Remove room roster and depart from the room.
    *
-   * This does not alter client state, which must be done by the caller.
+   * This will set room.current and send a presence if appropriate.
    *
-   * @param {string} room The room to leave.
+   * @param {String} room The room to leave.
    */
   leaveRoom: function(room) {
-    const jid = this.jidFromRoomNick({room, nick: this.nick.current});
-    const pres = this.pres({to: jid, type: 'unavailable'});
-    this.connection.send(pres);
-
     delete this.roster[room];
-  },
 
-  prejoin: function() {
-    this.room.current = null;
-    ui.setFragment(null);
-    this.status = 'prejoin';
-    ui.setStatus(this.status);
-    chat.commands.list();
+    if (room && room === this.room.current) {
+      this.room.current = null;
+      this.show = null;
+
+      // It's safe to send an unavailable presence to a room we got kicked out of,
+      // as long as it still exists.
+      if (this.room.available[room]) {
+        const jid = this.jidFromRoomNick({room, nick: this.nick.current});
+        const pres = this.pres({to: jid, type: 'unavailable'});
+        this.connection.send(pres);
+      }
+    }
   },
 
   /**
@@ -565,7 +585,7 @@ var xmpp = {
     });
     if (show) pres.c('show', {}, show);
     if (status) pres.c('status', {}, status);
-    this.userStatus = show;
+    this.show = show;
     this.connection.send(pres);
   },
 
@@ -611,7 +631,6 @@ var xmpp = {
     if (oldRoom) xmpp.leaveRoom(oldRoom);
 
     this.room.current = room;
-    this.status = 'online';
   },
 
   /**
@@ -783,17 +802,16 @@ var xmpp = {
   /**
    * Handle presence stanzas of type `unavailable`.
    */
-  eventPresenceUnavailable: function(room, nick, codes, item, stanza) {
-    const roster = this.roster[room];
+  eventPresenceUnavailable: function(roomId, nick, codes, item, stanza) {
+    const roster = this.roster[roomId];
     const user = roster[nick];
+    const room = this.room.available[roomId];
 
     // Delete the old roster entry.
     delete roster[nick];
 
     // Ignore things that happen outside the current room or to missing users.
-    if (room != this.room.current || !user) return;
-
-    room = this.room.available[room];
+    if (roomId != this.room.current || !user) return;
 
     // An `unavailable` 303 is a nick change to <item nick="{new}"/>
     if (codes.indexOf(303) >= 0) {
@@ -848,7 +866,10 @@ var xmpp = {
       }
 
       // If this is our nickname, we're out of the room.
-      if (nick == xmpp.nick.current) xmpp.prejoin();
+      if (nick == xmpp.nick.current) {
+        this.leaveRoom(roomId);
+        ui.updateRoom();
+      }
       ui.rosterRemove(user.nick);
     }
   },
@@ -1059,77 +1080,6 @@ var xmpp = {
     }
 
     return true;
-  },
-
-  /**
-   * This function handles any changes in the connection state.
-   */
-  eventConnectCallback: function(status, errorCondition) {
-    const msg = strings.connection[this.statusConstants[status]];
-    status = this.readConnectionStatus(status)
-    if (errorCondition) msg += ' (' + errorCondition + ')';
-    if (status != this.status)
-      ui.messageInfo(msg, {}, {error: status == 'offline'});
-    this.status = status;
-    ui.setStatus(this.status);
-
-    if (status == 'prejoin') {
-      this.connection.send(this.pres());
-
-      const room = this.room.target || ui.getFragment() || config.settings.xmpp.room;
-      if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
-        this.discoverRooms().then((rooms) => {
-          if (rooms[room]) chat.commands.join({name: room});
-          else {
-            ui.messageError(strings.error.unknownRoomAuto, {name: room});
-            xmpp.prejoin();
-          }
-        });
-      }
-      else this.prejoin();
-    }
-    else if (status == 'offline') {
-      this.connection.reset();
-      this.nick.current = null;
-      this.room.current = null;
-      this.userStatus = null;
-      this.roster = {};
-      ui.refreshRooms({});
-      ui.updateRoom();
-    }
-    return true;
-  },
-
-  /**
-   * Determine the status (online, waiting, offline) of the connection from
-   * the code.
-   *
-   * @param {int} status A Strophe status constant.
-   * @return {string} One of "offline", "waiting", or "prejoin".
-   */
-  readConnectionStatus: function(status) {
-    switch (status) {
-      case Strophe.Status.ERROR:
-      case Strophe.Status.CONNFAIL:
-      case Strophe.Status.AUTHFAIL:
-      case Strophe.Status.DISCONNECTED:
-        return 'offline';
-      case Strophe.Status.CONNECTING:
-      case Strophe.Status.AUTHENTICATING:
-        return 'waiting';
-      case Strophe.Status.DISCONNECTING:
-        return this.status == 'offline' ? 'offline' : 'waiting';
-      case Strophe.Status.CONNECTED:
-      case Strophe.Status.ATTACHED:
-        return 'prejoin';
-    }
-  },
-
-  /**
-   * Close the connection, first sending an `unavailable` presence.
-   */
-  disconnect: function() {
-    if (this.connection) this.connection.disconnect();
   },
 
   ping: function(jid) {

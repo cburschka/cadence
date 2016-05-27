@@ -6,18 +6,6 @@
  *  - Note that markup is only supported in strings that already contain it.
  */
 var strings = {
-  connection: {
-    ERROR : 'An error has occurred.',
-    CONNECTING : 'Connecting ...',
-    CONNFAIL : 'Connection failed.',
-    AUTHENTICATING : 'Authenticating...',
-    AUTHFAIL : 'Authentication failed.',
-    CONNECTED : 'You are now connected.',
-    DISCONNECTED : 'You are now disconnected.',
-    DISCONNECTING : 'Disconnecting ...',
-    ATTACHED : 'Session resumed.',
-  },
-
   show: {
     available: [
       '{user} has returned.',
@@ -64,6 +52,12 @@ var strings = {
     aliasReplace: 'Alias /{command} replaced.',
     attention: '{user} has buzzed you!',
     buzz: 'Buzzing {user} ...',
+    connection: {
+      connected: 'You are now connected.',
+      connecting: 'Connecting...',
+      disconnected: 'You are now disconnected.',
+      disconnecting: 'Disconnecting...',
+    },
     creating: 'Creating {room} as {user} ...',
     destroyConfirm: 'Do you really want to destroy the room {room}?',
     destroyed: [
@@ -186,6 +180,11 @@ var strings = {
       offline: '/{command}: You are offline.',
       prejoin: '/{command}: You need to join a room first.',
     },
+    connection: {
+      authfail: 'Authentication failed.',
+      connfail: 'Connection failed.',
+      other: 'An error has occurred.',
+    },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
     dmsg: {
@@ -232,7 +231,6 @@ var strings = {
     userpass: 'User and password are required.',
     unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
-    unknownRoomAuto: 'Cannot rejoin {name}; it doesn\'t exist.',
     unknownUser: 'User {nick} not found.',
     noRoomsAvailable: 'There are no rooms available.',
   },
