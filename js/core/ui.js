@@ -165,10 +165,10 @@ var ui = {
     this.setStyle(config.settings.activeStyle);
 
     // Set the form values.
-    $('#settingsContainer .settings').val(function() {
+    $('.settings').val(function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
-    $('#settingsContainer input.settings[type="checkbox"]').prop('checked', function() {
+    $('input.settings[type="checkbox"]').prop('checked', function() {
       return chat.getSetting(this.id.substring('settings-'.length));
     });
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
@@ -308,12 +308,12 @@ var ui = {
     });
 
     // Listen for changes in the style menu.
-    $('#styleSelection').change(
-      function() { ui.setStyle($(this).val()); }
-    ).val(config.settings.activeStyle);
+    $('#settings-activeStyle').change(function() {
+      ui.setStyle($(this).val());
+    });
 
     // Instantly save changed settings in the cookie.
-    $('#settingsContainer .settings').change(function() {
+    $('.settings').change(function() {
       let value = this.value;
       if (this.type == 'checkbox') value = this.checked;
       else if ((this.type == 'range' || this.type == 'select') && value === String(parseFloat(value))) value = parseFloat(value);
@@ -606,12 +606,10 @@ var ui = {
    * Change the active stylesheet.
    */
   setStyle: function(style) {
-    config.settings.activeStyle = style;
     this.dom.styleSheets.prop('disabled', 'disabled');
     this.dom.styleSheets
       .filter(function() { return this.title == style; })
       .removeAttr('disabled');
-    chat.saveSettings();
   },
 
   /**
