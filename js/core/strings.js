@@ -134,6 +134,12 @@ var strings = {
     roomCreated: 'The room {room} has been newly created.',
     roomsAvailable: 'Available rooms: {list}',
     sessionAuth: 'Automatically logging in as {username}',
+    sync: {
+      change: 'Do you want to stop synchronizing with {old} and synchronize with {new} instead?',
+      equal: 'The settings are already synchronized.',
+      get: 'The remote settings have been downloaded.',
+      set: 'The local settings have been uploaded.',
+    },
     time: 'Time: Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}',
     userAffiliation: 'The affiliation of {user} has been set to {affiliation}.',
     userIn: '{user} has joined the room.',
@@ -225,6 +231,10 @@ var strings = {
     roomCreateName: 'Could not create a room without a name.',
     roomCreateCancel: 'Canceled room creation.',
     saveEmpty: 'There are no messages to save.',
+    sync: {
+      canceled: 'The synchronization was canceled.',
+      conflict: 'The remote settings have changed. Overwrite them with /sync set, or apply them with /sync get.',
+    },
     timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',

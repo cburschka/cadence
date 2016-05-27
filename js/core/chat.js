@@ -790,6 +790,21 @@ var chat = {
     },
 
     /**
+     * Synchronize settings with the server.
+     */
+    sync: function(arg) {
+      arg = arg.trim();
+      const account = config.settings.sync.account;
+
+      // We're already synchronized with another account.
+      if (account && account != xmpp.jid.node)
+        if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
+          return ui.messageError(strings.error.sync.canceled, {account: xmpp.jid.node});
+
+      chat.synchronizeSettings(arg);
+    },
+
+    /**
      * time [<nick>|<jid>]
      *   Send a time request and display the response.
      */
@@ -1252,5 +1267,41 @@ var chat = {
     else {
       Cookies.set(config.clientName + '_settings', config.settings, {expires: 365});
     }
+  },
+
+  synchronizeSettings: function(type) {
+    const settings = config.settings;
+    const local = new Date(settings.modified).getTime();
+    const sync = new Date(settings.sync.time).getTime();
+
+    const set = () => xmpp.storeSettings(settings).then(() => {
+      config.settings.sync = {account: xmpp.jid.node, time: settings.modified};
+      chat.saveSettings();
+      ui.messageInfo(strings.info.sync.set);
+    });
+
+    const get = stored => {
+      stored.sync = {account: xmpp.jid.node, time: stored.modified};
+      config.settings = stored;
+
+      ui.loadSettings(); // Apply the new settings.
+      this.saveSettings();
+      ui.messageInfo(strings.info.sync.get);
+    };
+
+    if (type === 'set') return set();
+
+    // First load the stored settings.
+    xmpp.loadSettings()
+    .then(stored => {
+      const remote = new Date(stored.modified).getTime();
+      if (local == remote) return ui.messageInfo(strings.info.sync.equal);
+      if (type == 'get' || sync == local) return get(stored);
+      if (sync == remote) return set();
+      throw 'conflict';
+    })
+    .catch(error => {
+      if (error == 'conflict') ui.messageError(strings.error.sync.conflict);
+    });
   }
 }

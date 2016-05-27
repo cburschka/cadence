@@ -26,10 +26,12 @@ var config = {
     },
 
     notifications: {
-      // Blinks per second.
-      blinkSpeed: 2,
-      // Minimum number of seconds to blink (rounded up to whole intervals).
-      blinkLength: 5,
+      blink: {
+        // Minimum number of seconds to blink (rounded up to whole intervals).
+        length: 5,
+        // Blinks per second.
+        speed: 2,
+      },
 
       // The sound files used for notifications.
       sounds: {
@@ -59,6 +61,11 @@ var config = {
     // Persistent font color that is displayed to other cadence users.
     textColor: '',
     fullColor: false,
+
+    sync: {
+      account: '',
+      time: 0,
+    },
 
     xmpp: {
       room: 'lounge',
