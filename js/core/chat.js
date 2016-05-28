@@ -10,7 +10,7 @@ var Cadence = {
    * @param {string} command
    * @param {Object} arg
    */
-  execute: function(command, arg) {
+  execute(command, arg) {
     return this.commands[command](arg);
   },
 
@@ -20,14 +20,14 @@ var Cadence = {
    * @param {string} name
    * @param {function} callback
    */
-  addCommand: function(name, callback) {
+  addCommand(name, callback) {
     this.commands[name] = callback;
   },
 
   /**
    * Validate the current command by client state.
    */
-  cmdAvailableState: function(command, silent) {
+  cmdAvailableState(command, silent) {
     const always = ['alias', 'clear', 'nick', 'save', 'version'];
     const chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
     const offline = ['connect'];
@@ -64,7 +64,7 @@ var Cadence = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput: function(text, macro) {
+  executeInput(text, macro) {
     if (!macro) {
       this.history.push(text);
       this.historyIndex = this.history.length;
@@ -100,7 +100,7 @@ var Cadence = {
    * @param {[string]} macro: An array of commands.
    * @param {string} text: A string to replace $ with in the command array.
    */
-  executeMacro: function(macro, text) {
+  executeMacro(macro, text) {
     text = text.trim();
     macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text, true)));
   },
@@ -112,7 +112,7 @@ var Cadence = {
    * @return {object} An object with `html` and `text` keys, containing
    *         the html and markdown versions of the message.
    */
-  formatOutgoing: function(text) {
+  formatOutgoing(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
     let html = bbcode.render(visual.escapeHTML(text));
     if (config.settings.textColor) {
@@ -124,7 +124,7 @@ var Cadence = {
   /**
    * Go up to the previously sent message.
    */
-  historyUp: function() {
+  historyUp() {
     // Stop at the beginning.
     if (this.historyIndex <= 0) return false;
 
@@ -137,7 +137,7 @@ var Cadence = {
   /**
    * Go down to the next sent message.
    */
-  historyDown: function() {
+  historyDown() {
     // Stop at the end.
     if (this.historyIndex >= this.history.length) return false;
 
@@ -155,7 +155,7 @@ var Cadence = {
    * be moved between the tags. Otherwise it will be moved to the end
    * of the inserted text.
    */
-  insertText: function(text) {
+  insertText(text) {
     ui.dom.inputField.focus();
     const inputFieldJQ = ui.dom.inputField;
     const inputField = inputFieldJQ[0]
@@ -174,7 +174,7 @@ var Cadence = {
    * Prepend a /msg <nick> prefix.
    * This will replace any existing /msg <nick> prefix.
    */
-  prefixMsg: function({nick, jid}) {
+  prefixMsg({nick, jid}) {
     const direct = !nick;
 
     let target = nick || jid;
@@ -194,7 +194,7 @@ var Cadence = {
   /**
    * Find a room by its title.
    */
-  getRoomFromTitle: function(title) {
+  getRoomFromTitle(title) {
     const rooms = xmpp.room.available;
     if (rooms[title]) return rooms[title];
     return $.map(rooms, x => x).find(room => room.title == title);
@@ -209,7 +209,7 @@ var Cadence = {
    *         The array of positional arguments is stored in the 0 key.
    *         The 1 key stores the end position of each named or positional argument.
    */
-  parseArgs: function(text) {
+  parseArgs(text) {
     if (typeof text !== 'string') return text;
     const key = /(?:--([a-z-]+))/;
     // Values can be single- or double-quoted. Quoted values can contain spaces.
@@ -246,7 +246,7 @@ var Cadence = {
   /**
    * Convert arguments to room configuration form.
    */
-  roomConf: function(args) {
+  roomConf(args) {
     const conf = {};
 
     const title = args.title || args.name;
@@ -277,7 +277,7 @@ var Cadence = {
    *
    * @return {Promise} A promise that resolves to the temporary credentials.
    */
-  sessionAuth: function(url) {
+  sessionAuth(url) {
     const salt = SHA1.b64_sha1((new Date().getTime()) + Math.random());
     return new Promise((resolve, reject) => {
       $.post(url, {salt})
@@ -292,7 +292,7 @@ var Cadence = {
   /**
    * Set the volume.
    */
-  setAudioVolume: function(volume) {
+  setAudioVolume(volume) {
     buzz.all().setVolume(volume);
   },
 
@@ -300,7 +300,7 @@ var Cadence = {
    * Take a dotted string and return the respective value
    * in the settings dictionary.
    */
-  getSetting: function(key) {
+  getSetting(key) {
     const path = key.split('.');
     let ref = config.settings;
     for (let i = 0; i < path.length; i++) {
@@ -313,7 +313,7 @@ var Cadence = {
    * Take a dotted string and set that settings key to the
    * given value. Immediately saves.
    */
-  setSetting: function(key, val) {
+  setSetting(key, val) {
     const path = key.split('.');
     let ref = config.settings;
     for (let i = 0; i < path.length - 1; i++) {
@@ -329,7 +329,7 @@ var Cadence = {
   /**
    * Serialize the settings object and save it in the cookie.
    */
-  saveSettings: function() {
+  saveSettings() {
     if (window.localStorage) {
       localStorage.settings = JSON.stringify(config.settings);
     }
@@ -338,7 +338,7 @@ var Cadence = {
     }
   },
 
-  synchronizeSettings: function(type) {
+  synchronizeSettings(type) {
     const settings = config.settings;
     const local = new Date(settings.modified).getTime();
     const sync = new Date(settings.sync.time).getTime();
