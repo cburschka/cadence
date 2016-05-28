@@ -10,18 +10,32 @@ var Cadence = {
    * @param {string} command
    * @param {Object} arg
    */
-  execute(command, arg) {
-    return this.commands[command](arg);
+  execute(command, arg={}) {
+    return this.commands[command].callback(arg);
+  },
+
+  /**
+   * Invoke a command from the command line.
+   *
+   * @param {string} command
+   * @param {string} arg
+   */
+  invoke(command, arg='') {
+    arg = this.commands[command].parser(arg);
+    return this.execute(command, arg);
   },
 
   /**
    * Register a new command.
+   * The callback function should accept a single object argument.
+   * The optional parser argument should process a string into an acceptable object.
    *
    * @param {string} name
    * @param {function} callback
    */
-  addCommand(name, callback) {
-    this.commands[name] = callback;
+  addCommand(name, callback, parser) {
+    parser = parser || this.parseArgs;
+    this.commands[name] = {callback, parser};
   },
 
   /**
@@ -86,7 +100,7 @@ var Cadence = {
     }
 
     if (this.commands[command]) {
-      if (this.cmdAvailableState(command)) this.commands[command](text);
+      if (this.cmdAvailableState(command)) this.invoke(command, text);
     }
     else if (config.settings.macros[command])
       this.executeMacro(config.settings.macros[command], text);

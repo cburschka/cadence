@@ -511,7 +511,7 @@ var ui = {
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: () => Cadence.execute('kick', nick),
+        callback: () => Cadence.execute('kick', {nick}),
       },
       ban: {
         name: labels.ban,
@@ -525,13 +525,13 @@ var ui = {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: () => Cadence.execute('whois', nick),
+        callback: () => Cadence.execute('whois', {nick}),
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => Cadence.execute('ping', nick || String(jid)),
+        callback: () => Cadence.execute('ping', {nick, jid}),
       }
     }
 

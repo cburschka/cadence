@@ -7,30 +7,15 @@
  * admin <cmd> <msg>:
  *   Execute a server admin command.
  */
-Cadence.addCommand('admin', arg => {
-  const m = Cadence.parseArgs(arg);
-
-  // Make single-argument commands more convenient:
-  const defaultArgs = {
-    'announce': 'body',
-    'get-user-lastlogin': 'accountjid',
-    'set-motd': 'body',
-    'user-stats': 'accountjid',
-  }
-
-  // Use first positional argument as command.
-  if (m[0].length) m.cmd = m[0][0];
-  // If there is more, use the remaining text as an argument.
-  if (m[0].length > 1 && m.cmd in defaultArgs)
-    m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
-
-  const command = m.cmd;
+Cadence.addCommand('admin',
+arg => {
+  const command = arg.cmd;
   if (!command)
     return ui.messageError(strings.error.noArgument);
 
   // Interactive configuration with --interactive, or with a command
   // that contains no named arguments other than --cmd.
-  const interactive = m.interactive || Object.keys(m).every(
+  const interactive = arg.interactive || Object.keys(arg).every(
     (key) => { return key*0 === 0 || key == 'cmd' }
   );
 
@@ -51,7 +36,7 @@ Cadence.addCommand('admin', arg => {
           const values = $.makeArray($('value', this).map(function() {
             return $(this).text();
           }));
-          args[name] = m[name] !== undefined ? [m[name]] : values;
+          args[name] = arg[name] !== undefined ? [arg[name]] : values;
         });
         resolve(args);
       }
@@ -79,24 +64,34 @@ Cadence.addCommand('admin', arg => {
       ui.messageError(strings.error.admin.generic, {command, text: $('text', stanza).text()});
     else ui.messageError(strings.error.admin.unknown, {command});
   });
+},
+string => {
+  const m = Cadence.parseArgs(string);
+
+  // Make single-argument commands more convenient:
+  const defaultArgs = {
+    'announce': 'body',
+    'get-user-lastlogin': 'accountjid',
+    'set-motd': 'body',
+    'user-stats': 'accountjid',
+  }
+
+  // Use first positional argument as command.
+  if (m[0].length) m.cmd = m[0][0];
+  // If there is more, use the remaining text as an argument.
+  if (m[0].length > 1 && m.cmd in defaultArgs)
+    m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
+  return m;
 });
 
 /**
  * affiliate owner|admin|member|none [<nick>|<jid>]
  *   Set the affiliation of a particular user, or list all users with an affiliation.
  */
-Cadence.addCommand('affiliate', arg => {
-  arg = Cadence.parseArgs(arg);
-  arg[0] = arg[0] || [];
-
-  const type = arg.type || arg[0][0];
-
-  const nick = arg.nick || arg[0][1];
-  const jid = xmpp.JID.parse(arg.jid || arg[0][1]);
-
+Cadence.addCommand('affiliate',
+({type, nick, jid}) => {
   const roster = xmpp.roster[xmpp.room.current];
-  // Look up the nickname unless --jid was explicitly used.
-  const target = !arg.jid && roster[nick] || String(jid) && {jid};
+  const target = jid ? {jid} : roster[nick];
 
   if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
     return ui.messageError(strings.error.affiliate.type, {type})
@@ -106,14 +101,14 @@ Cadence.addCommand('affiliate', arg => {
     return xmpp.getUsers({affiliation: type}).then((stanza) => {
       // Create a dictionary of non-occupant users:
       const users = {};
-      $('item', stanza).map((s,t) => {
-        return xmpp.JID.parse(t.getAttribute('jid'));
+      $('item', stanza).map(function() {
+        return xmpp.JID.parse(this.getAttribute('jid'));
       }).each((i,jid) => {
         users[String(jid).toLowerCase()] = {jid};
       });
 
       if ($.isEmptyObject(users)) {
-        return ui.addMessageInfo(strings.info.affiliationsEmpty, {type});
+        return ui.messageInfo(strings.info.affiliationsEmpty, {type});
       }
 
       // Find users who are occupants:
@@ -131,15 +126,15 @@ Cadence.addCommand('affiliate', arg => {
     });
   }
 
+  // If a JID was given, fetch the user if they're present.
+  const user = jid && $.map(roster, x => x).find(x => jid.matchBare(x.jid)) || target;
+
   // User is present but anonymous:
   if (!user.jid)
     return ui.messageError(strings.error.affiliate.anon, {user});
   // User is not in the room (therefore their JID is actually just a nick).
   if (!user.jid.node)
     return ui.messageError(strings.error.affiliate.unknown, {nick: user.jid});
-
-  // If a JID was given, fetch the user if they're present.
-  const user = roster.find(x => target.jid.bareMatch(x.jid)) || target;
 
   // Attempt to set user's affiliation.
   xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
@@ -151,82 +146,115 @@ Cadence.addCommand('affiliate', arg => {
     else if ($('conflict', e).length) error = 'conflict';
     ui.messageError(strings.error.affiliate[error], {user, type});
   });
+},
+string => {
+  const arg = Cadence.parseArgs(string);
+  arg[0] = arg[0] || [];
+
+  if (!arg.type) arg.type = arg[0][0];
+
+  if (!arg.nick) arg.nick = arg[0][1];
+  arg.jid = xmpp.JID.parse(arg.jid || arg[0][1]);
+  return arg;
 });
 
 /**
  * alias <cmd> <commands>
  *   Create a macro.
  */
-Cadence.addCommand('alias', arg => {
-  arg = arg.trim();
-  if (!arg) {
-    const macros = $.map(config.settings.macros, (value, key) => {
-      return '    /' + key + ' - ' + value.join('; ');
-    }).join('\n');
-    if (out) return ui.messageInfo($('<div>').html(strings.info.macros), {macros});
-    else return ui.messageError(strings.error.noMacros);
+Cadence.addCommand('alias',
+({command, macro}) => {
+  if (!command) {
+    const macros = $.map(
+      config.settings.macros,
+      (value, key) => ('    /' + key + ' - ' + value.join('; '))
+    ).join('\n');
+
+    if (macros) {
+      return ui.messageInfo($('<div>').html(strings.info.macros), {macros});
+    }
+    else {
+      return ui.messageError(strings.error.noMacros);
+    }
   }
-  const m = arg.match(/^\/*(\S+)/); /**/
-  if (!m) return ui.messageError($('<div>').html(strings.error.aliasFormat));
-  const command = m[1];
-  if (this[command]) return ui.messageError(strings.error.aliasConflict, {command});
-  const data = arg.substring(m[0].length).trim();
-  if (!data) {
+
+  if (command in Cadence.commands) {
+    return ui.messageError(strings.error.aliasConflict, {command});
+  }
+  if (!macro) {
     delete config.settings.macros[command];
     Cadence.saveSettings();
     return ui.messageInfo(strings.info.aliasDelete, {command});
   }
-  const macro = data.split(';').map((command) => { return command.trim(); });
-  if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
 
-  const search = (commands, path) => {
-    if (commands) for (let cmd of commands) {
-      let match = cmd.match(/^\/(\S+)/);
-      match = match && match[1];
-      const recursion = (match == command && path.concat([match])) || search(config.settings.macros[match], path.concat([match]));
-      if (recursion) return recursion;
+  // Run a DFS to avoid recursive macros.
+  const macros = config.settings.macros;
+  const search = (macro, path) => {
+    if (macro) for (let statement of macro) {
+      let [,cmd] = statement.match(/^\/(\S+)/) || [];
+      path = path.concat([cmd]);
+      if (cmd == command) return path;
+      else return search(macros[cmd], path);
     }
     return false;
   };
-  const rec = search(macro, [command]);
-  if (rec) return ui.messageError(strings.error.aliasRecursion, {
-    command, path: rec.join(' -> ')
+  const recursion = search(macro, [command]);
+  if (recursion) return ui.messageError(strings.error.aliasRecursion, {
+    command, path: recursion.join(' -> ')
   });
 
-  if (config.settings.macros[command]) {
+  if (macros[command]) {
     ui.messageInfo(strings.info.aliasReplace, {command});
   }
   else ui.messageInfo(strings.info.aliasAdd, {command});
-  config.settings.macros[command] = macro;
+  macros[command] = macro;
   Cadence.saveSettings();
+},
+string => {
+  string = string.trim();
+  if (!string) return;
+
+  const [prefix, command] = string.match(/^\/*(\S+)/) || [];
+  if (!command) {
+    return ui.messageError($('<div>').html(strings.error.aliasFormat));
+  }
+  const data = string.substring(prefix.length);
+  if (!data) return {command};
+
+  const macro = split(';').map(st => st.trim());
+  if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
+  return {command, macro};
 });
 
-/**
- * away <msg>:
- *   Send a room presence with <show/> set to "away" and
- *   <status/> to "msg".
- */
-Cadence.addCommand('away', arg => {
-  xmpp.sendStatus({show: 'away', status: (arg || '').trim()});
-  ui.setUserStatus('away');
-});
-
-/**
- * back <msg>:
- *   Send an empty room presence that unsets <show/> and <status/>.
- */
-Cadence.addCommand('back', arg => {
-  xmpp.sendStatus({status: (arg || '').trim()});
-  ui.setUserStatus('available');
-});
+(() => {
+  const parser = string => ({status: string.trim()});
+  for (let show of ['away', 'dnd', 'xa']) {
+    Cadence.addCommand(show, ({status}) => {
+      xmpp.sendStatus({show, status});
+      ui.setUserStatus(show);
+    }, parser);
+  }
+  Cadence.addCommand('back', ({status}) => {
+    xmpp.sendStatus({show: 'available', status});
+    ui.setUserStatus('available');
+  }, parser);
+})();
 
 /**
  * ban <nick>|<jid>
  *   Shortcut for "/affiliate outcast <nick|jid>".
  */
-Cadence.addCommand('ban', arg => {
-  arg = arg.jid || String(arg).trim();
-  Cadence.execute('affiliate', {0: ['outcast', arg]});
+Cadence.addCommand('ban',
+({nick, jid}) => {
+  Cadence.execute('affiliate', {type: 'outcast', nick, jid});
+},
+string => {
+  const arg = Cadence.parseArgs(string);
+  const m = arg[0] && arg[0].length == 1 ? arg[0][0] : string.trim();
+  arg.nick = arg.nick || m;
+  arg.jid = arg.jid || xmpp.JID.parse(arg.jid || m);
+  arg.jid = arg.jid.node && arg.jid;
+  return arg;
 });
 
 /**
@@ -241,7 +269,6 @@ Cadence.addCommand('bans', () => {
  * buzz <nick|jid>
  */
 Cadence.addCommand('buzz', arg => {
-  arg = arg.trim();
   if (!arg)
     return ui.messageError(strings.error.noArgument);
 
@@ -257,7 +284,7 @@ Cadence.addCommand('buzz', arg => {
   ui.messageInfo(strings.info.buzz, {user});
 
   xmpp.attention(direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
-});
+}, string => string);
 
 /**
  * clear:
@@ -274,7 +301,6 @@ Cadence.addCommand('clear', () => {
  *   Alter a room configuration.
  */
 Cadence.addCommand('configure', arg => {
-  arg = Cadence.parseArgs(arg);
   if (arg.help)
     return ui.messageInfo($('<div>').html(strings.help.configure));
 
@@ -318,7 +344,6 @@ Cadence.addCommand('configure', arg => {
  *   Open a connection and authenticate.
  */
 Cadence.addCommand('connect', arg => {
-  arg = Cadence.parseArgs(arg);
   if (arg && arg[0]) {
     arg.user = arg.user || arg[0][0];
     arg.pass = arg.pass || arg[0][1];
@@ -387,7 +412,6 @@ Cadence.addCommand('connect', arg => {
  *   Join a new room and set it up.
  */
 Cadence.addCommand('create', arg => {
-  arg = Cadence.parseArgs(arg);
   if (arg.help)
     return ui.messageInfo($('<div>').html(strings.help.configure));
 
@@ -468,8 +492,6 @@ Cadence.addCommand('create', arg => {
 });
 
 Cadence.addCommand('destroy', arg => {
-  arg = Cadence.parseArgs(arg);
-
   const name = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
   if (!name)
     return ui.messageError(strings.error.noRoom);
@@ -498,23 +520,10 @@ Cadence.addCommand('destroy', arg => {
  * dmsg <jid>
  *   Send a direct message to a user outside the chatroom.
  */
-Cadence.addCommand('dmsg', arg => {
-  const m = Cadence.parseArgs(arg);
-
-  let jid = m.jid;
-  let msg = m.msg;
-  if (m[0].length) {
-    jid = jid || m[0][0];
-    msg = msg || arg.substring(m[1][0][0]).trim();
-  }
-
-  if (!jid || !msg)
-    return ui.messageError(strings.error.noArgument);
-
-  jid = xmpp.JID.parse(jid);
-
-  if (!jid.node)
-    return ui.messageError(strings.error.jidInvalid, {arg: jid});
+Cadence.addCommand('dmsg',
+({jid, msg}) => {
+  if (!jid || !msg) return ui.messageError(strings.error.noArgument);
+  if (!jid.node) return ui.messageError(strings.error.jidInvalid, {jid});
 
   const body = Cadence.formatOutgoing(msg);
   xmpp.sendMessage({body, to: jid});
@@ -525,32 +534,25 @@ Cadence.addCommand('dmsg', arg => {
     user: {jid: xmpp.jid},
     body: body.html
   }));
-});
-
-/**
- * dnd <msg>:
- *   Send a room presence with <show/> set to "dnd" and
- *   <status/> to "msg".
- */
-Cadence.addCommand('dnd', arg => {
-  xmpp.sendStatus({show: 'dnd', status: (arg || '').trim()});
-  ui.setUserStatus('dnd');
+},
+string => {
+  const arg = Cadence.parseArgs(string);
+  if (arg[0].length) {
+    arg.jid = arg[0][0];
+    arg.msg = string.substring(arg[1][0][0]).trim();
+  }
+  arg.jid = xmpp.JID.parse(arg.jid);
+  return arg;
 });
 
 /**
  * invite [<jid> <msg> | --room <room> --nick <nick> --msg <msg>]
  */
 Cadence.addCommand('invite', arg => {
-  const m = Cadence.parseArgs(arg);
-  let {room, nick, jid, msg} = m;
+  let {room, nick, jid, msg} = arg;
 
   if (room && nick)
     jid = xmpp.jidFromRoomNick({room, nick});
-
-  if (m[0] && m[0].length >= 1) {
-    jid = m[0][0];
-    msg = arg.substring(m[1][0][0]).trim();
-  }
 
   if (!jid)
     return ui.messageError(strings.error.noArgument);
@@ -560,6 +562,14 @@ Cadence.addCommand('invite', arg => {
   ui.messageInfo(strings.info.inviteSent, {
     jid, room: xmpp.room.available[xmpp.room.current]
   });
+},
+string => {
+  const arg = Cadence.parseArgs(string);
+  if (arg[0] && arg[0].length >= 1) {
+    arg.jid = arg[0][0];
+    arg.msg = string.substring(arg[1][0][0]).trim();
+  }
+  return arg;
 });
 
 /**
@@ -568,7 +578,6 @@ Cadence.addCommand('invite', arg => {
  *   will automatically leave the current room.
  */
 Cadence.addCommand('join', arg => {
-  arg = Cadence.parseArgs(arg);
   const name = arg.name || arg[0].join(" ").trim();
   if (!name) return ui.messageError(strings.error.noArgument);
 
@@ -618,15 +627,15 @@ Cadence.addCommand('join', arg => {
  *   The client will not validate the command or its authority; that's the
  *   server's job.
  */
-Cadence.addCommand('kick', arg => {
-  const nick = arg.trim();
+Cadence.addCommand('kick',
+({nick}) => {
   xmpp.setUser({nick, role: 'none'}).catch(stanza => {
     if ($('not-acceptable', stanza).length)
       return ui.messageError(strings.error.kick['not-acceptable'], {nick});
     if ($('not-allowed', stanza).length)
       return ui.messageError(strings.error.kick['not-allowed'], {nick});
   });
-});
+}, string => ({nick: string.trim()}));
 
 /**
  * list:
@@ -654,25 +663,17 @@ Cadence.addCommand('list', () => {
  * me <msg>
  *   Alias for /say "/me <msg>".
  */
-Cadence.addCommand('me', arg => {
+Cadence.addCommand('me', ({text}) => {
   // XEP-0245 says to simply send this command as text.
-  Cadence.execute('say', '/me' + arg);
-});
+  Cadence.execute('say', {text: '/me' + text});
+}, string => ({text: string}));
 
 /**
  * msg <nick> <msg>
  *   Send a private message to another occupant.
  */
-Cadence.addCommand('msg', arg => {
-  const m = Cadence.parseArgs(arg);
-  if (m[0].length) {
-    m.nick = m[0][0];
-    m.msg = arg.substring(m[1][0][0]).trim();
-  }
-
-  const nick = m.nick;
-  const msg = m.msg;
-
+Cadence.addCommand('msg',
+({nick, msg}) => {
   if (!nick || !msg)
     return ui.messageError(strings.error.noArgument);
   if (!(nick in xmpp.roster[xmpp.room.current]))
@@ -688,21 +689,27 @@ Cadence.addCommand('msg', arg => {
     user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
     body: body.html
   }));
+}, string => {
+  const arg = Cadence.parseArgs(string);
+  if (arg[0].length) {
+    arg.nick = arg[0][0];
+    arg.msg = string.substring(arg[1][0][0]).trim();
+  }
+  return arg;
 });
 
 /**
  * nick <nick>
  *   Ask XMPP to change the nick in the current room.
  */
-Cadence.addCommand('nick', arg => {
-  const nick = arg.trim();
+Cadence.addCommand('nick', ({nick}) => {
   if (!nick) return ui.messageError(strings.error.noArgument);
   Cadence.setSetting('xmpp.user', xmpp.jid.node);
   Cadence.setSetting('xmpp.nick', nick);
   xmpp.changeNick(nick);
   if (!xmpp.room.current)
     ui.messageInfo(strings.info.nickPrejoin, {nick});
-});
+}, string => ({nick: string.trim()}));
 
 /**
  * part
@@ -718,33 +725,108 @@ Cadence.addCommand('part', () => {
   Cadence.execute('list');
 });
 
-/**
- * ping <nick>|<jid>
- *   Send a ping and display the response time.
- */
-Cadence.addCommand('ping', arg => {
-  arg = arg.trim();
-  const jid = xmpp.JID.parse(arg);
-  const direct = !!jid.resource; // Only accept full JIDs.
+(() => {
+  const parser = string => {
+    string = string.trim();
+    const jid = xmpp.JID.parse(string);
+    const direct = !!jid.resource; // Only accept full JIDs.
+    return direct ? {jid} : {nick: arg};
+  };
 
-  const target = arg && (direct ? jid : xmpp.jidFromRoomNick({nick: arg}));
-  const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
-  const time = (new Date()).getTime();
+  /**
+   * ping <nick>|<jid>
+   *   Send a ping and display the response time.
+   */
+  Cadence.addCommand('ping',
+  ({nick, jid}) => {
+    const target = jid || xmpp.jidFromRoomNick({nick});
+    const user = nick ? xmpp.roster[xmpp.room.current][nick] : {jid};
+    const time = (new Date()).getTime();
 
-  xmpp.ping(target).then((stanza) => {
-    const delay = ((new Date()).getTime() - time).toString();
-    ui.messageInfo(strings.info.pong[+!!user], {user, delay});
-  }, (stanza) => {
-    if ($('item-not-found', stanza).length)
-      ui.messageError(strings.error.unknownUser, {nick: arg});
-    else if (stanza)
-      ui.messageError(strings.error.pingError);
-    else {
+    xmpp.ping(target).then((stanza) => {
       const delay = ((new Date()).getTime() - time).toString();
-      ui.messageError(strings.error.pingTimeout[+!!user], {user, delay});
+      ui.messageInfo(strings.info.pong[+!!user], {user, delay});
+    }, (stanza) => {
+      if ($('item-not-found', stanza).length)
+        ui.messageError(strings.error.unknownUser, {nick});
+      else if (stanza)
+        ui.messageError(strings.error.pingError);
+      else {
+        const delay = ((new Date()).getTime() - time).toString();
+        ui.messageError(strings.error.pingTimeout[+!!user], {user, delay});
+      }
+    });
+  }, parser);
+
+  /**
+   * time [<nick>|<jid>]
+   *   Send a time request and display the response.
+   */
+  Cadence.addCommand('time',
+  ({nick, jid}) => {
+    const target = jid || xmpp.jidFromRoomNick({nick});
+    const user = nick ? xmpp.roster[xmpp.room.current][nick] : {jid};
+
+    const start = new Date();
+
+    xmpp.getTime(target).then((stanza) => {
+      const now = new Date();
+      const tzo = $('tzo', stanza).text();
+      const utc = new Date($('utc', stanza).text());
+      const time = moment(utc).utcOffset(tzo);
+      let offset = (utc - now) + (now - start) / 2
+      if (offset > 0) offset = '+' + offset;
+      ui.messageInfo(strings.info.time, {user, tzo, time, offset});
+    }, (stanza) => {
+      if ($('item-not-found', stanza).length)
+        ui.messageError(strings.error.unknownUser, {nick});
+      else if ($('feature-not-implemented', stanza).length)
+        ui.messageError(strings.error.feature);
+      else if (!stanza)
+        ui.messageError(strings.error.timeout);
+    });
+  }, parser);
+
+  /**
+   * version
+   *   Either print the client and server version, or query another user.
+   */
+  Cadence.addCommand('version',
+  ({nick, jid}) => {
+    if (!nick && !jid) {
+      ui.messageInfo(strings.info.versionClient, {
+        version: $('<a>')
+          .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
+          .text(config.version)
+      });
     }
-  });
-});
+
+    // Only show client version when offline.
+    if (!xmpp.connection.connected) {
+      return arg && ui.messageError(strings.error.cmdStatus.offline, {command: 'version'});
+    }
+
+    const target = jid || xmpp.jidFromRoomNick({nick});
+    const user = nick ? xmpp.roster[xmpp.room.current][nick] : {jid};
+
+    return xmpp.getVersion(target).then((stanza) => {
+      const name = $('name', stanza).text();
+      const version = $('version', stanza).text();
+      const os = $('os', stanza).text() || '-';
+      if (user)
+        ui.messageInfo(strings.info.versionUser, {name, version, os, user});
+      else
+        ui.messageInfo(strings.info.versionServer, {name, version, os});
+    }, (stanza) => {
+      if ($('item-not-found', stanza).length != 0)
+        ui.messageError(strings.error.unknownUser, {nick});
+      else if ($('feature-not-implemented', stanza).length)
+        ui.messageError(strings.error.feature);
+      else if (!stanza)
+        ui.messageError(strings.error.timeout);
+    });
+  }, parser);
+})();
 
 /**
  * quit
@@ -759,10 +841,9 @@ Cadence.addCommand('quit', () => {
  * save
  *   Create a text file (by data: URI) from the chat history.
  */
-Cadence.addCommand('save', arg => {
+Cadence.addCommand('save', ({type}) => {
   if (ui.messages.length == 0)
     return ui.messageError(strings.error.saveEmpty);
-  const type = arg.trim();
   const timestamp = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
 
   let data = (type == 'html' ? visual.messagesToHTML : visual.messagesToText)(ui.messages);
@@ -777,22 +858,21 @@ Cadence.addCommand('save', arg => {
   const blob = new Blob([data], {type: 'text/' + type + ';charset=utf-8'});
   const suffix = type == 'html' ? 'html' : 'log';
   saveAs(blob, xmpp.room.current + '-' + timestamp + '.' + suffix);
-});
+}, string => ({type: string.trim()}));
 
 /**
  * say <msg>
  *   The default command that simply sends a message verbatim.
  */
-Cadence.addCommand('say', arg => {
-  const body = Cadence.formatOutgoing(arg);
+Cadence.addCommand('say', ({text}) => {
+  const body = Cadence.formatOutgoing(text);
   xmpp.sendMessage({body, to: xmpp.jidFromRoomNick(), type: 'groupchat'});
-});
+}, string => ({text: string}));
 
 /**
  * Synchronize settings with the server.
  */
-Cadence.addCommand('sync', arg => {
-  arg = arg.trim();
+Cadence.addCommand('sync', ({type}) => {
   const account = config.settings.sync.account;
 
   // We're already synchronized with another account.
@@ -800,114 +880,36 @@ Cadence.addCommand('sync', arg => {
     if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
       return ui.messageError(strings.error.sync.canceled, {account: xmpp.jid.node});
 
-  Cadence.synchronizeSettings(arg);
-});
-
-/**
- * time [<nick>|<jid>]
- *   Send a time request and display the response.
- */
-Cadence.addCommand('time', arg => {
-  arg = arg.trim();
-  if (!arg)
-    return ui.messageError(strings.error.noArgument);
-
-  const jid = xmpp.JID.parse(arg);
-  const direct = !!jid.resource; // Only accept full JIDs.
-  const target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
-  const user = !direct && xmpp.roster[xmpp.room.current][arg] || {jid};
-  const start = new Date();
-
-  xmpp.getTime(target).then((stanza) => {
-    const now = new Date();
-    const tzo = $('tzo', stanza).text();
-    const utc = new Date($('utc', stanza).text());
-    const time = moment(utc).utcOffset(tzo);
-    let offset = (utc - now) + (now - start) / 2
-    if (offset > 0) offset = '+' + offset;
-    ui.messageInfo(strings.info.time, {user, tzo, time, offset});
-  }, (stanza) => {
-    if ($('item-not-found', stanza).length)
-      ui.messageError(strings.error.unknownUser, {nick: arg});
-    else if ($('feature-not-implemented', stanza).length)
-      ui.messageError(strings.error.feature);
-    else if (!stanza)
-      ui.messageError(strings.error.timeout);
-  });
-});
+  Cadence.synchronizeSettings(type);
+}, string => ({type: string.trim()}));
 
 /**
  * unban
  *   Unban a user from the current room.
  */
-Cadence.addCommand('unban', arg => {
-  const jid = xmpp.JID.parse(arg.trim());
+Cadence.addCommand('unban', ({jid}) => {
+  if (!jid) return ui.messageError(strings.error.noArgument);
 
-  xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
+  return xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
     const isBanned = $('item', stanza).is(function() {
       return jid.matchBare(this.getAttribute('jid'));
     });
-    if (isBanned) this.affiliate({type: 'none', jid});
-    else
-      ui.messageError(strings.error.unbanNone);
+    if (isBanned) return Cadence.execute('affiliate', {type: 'none', jid});
+    else return ui.messageError(strings.error.unbanNone);
   }, (stanza) => {
     if ($('forbidden', iq).length)
       ui.messageError(strings.error.banList.forbidden);
     else ui.messageError(strings.error.banList.default);
   });
-});
-
-/**
- * version
- *   Either print the client and server version, or query another user.
- */
-Cadence.addCommand('version', arg => {
-  arg = arg.trim();
-  if (!arg) {
-    ui.messageInfo(strings.info.versionClient, {
-      version: $('<a>')
-        .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
-        .text(config.version)
-    });
-  }
-
-  // Only show client version when offline.
-  if (!xmpp.connection.connected) {
-    return arg && ui.messageError(strings.error.cmdStatus.offline, {command: 'version'});
-  }
-
-  const jid = xmpp.JID.parse(arg);
-  const direct = !!jid.resource;
-  let target;
-  if (arg) target = direct ? jid : xmpp.jidFromRoomNick({nick: arg});
-
-  const user = arg && (!direct && xmpp.roster[xmpp.room.current][arg] || {jid});
-
-  return xmpp.getVersion(target).then((stanza) => {
-    const name = $('name', stanza).text();
-    const version = $('version', stanza).text();
-    const os = $('os', stanza).text() || '-';
-    if (user)
-      ui.messageInfo(strings.info.versionUser, {name, version, os, user});
-    else
-      ui.messageInfo(strings.info.versionServer, {name, version, os});
-  }, (stanza) => {
-    if ($('item-not-found', stanza).length != 0)
-      ui.messageError(strings.error.unknownUser, {nick: arg});
-    else if ($('feature-not-implemented', stanza).length)
-      ui.messageError(strings.error.feature);
-    else if (!stanza)
-      ui.messageError(strings.error.timeout);
-  });
-});
+}, string => ({jid: xmpp.JID.parse(string.trim())}));
 
 /**
  * who [room]
  *   Query the user list of a room.
  */
-Cadence.addCommand('who', arg => {
-  arg = arg.trim();
-  const room = arg ? Cadence.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
+Cadence.addCommand('who', ({room}) => {
+  room = room || xmpp.room.available[xmpp.room.current];
+
   if (!room)
     return ui.messageError(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
   if (room.id != xmpp.room.current) {
@@ -922,16 +924,15 @@ Cadence.addCommand('who', arg => {
     const list = $.map(roster, visual.format.user);
     ui.messageInfo(strings.info.usersInThisRoom, {list});
   }
-});
+}, string => ({room: Cadence.getRoomFromTitle(string)}));
 
 /**
  * whois <nick>
  *   Print out information on a participant in the current room.
  */
-Cadence.addCommand('whois', arg => {
-  arg = arg.trim();
-  if (!arg) return ui.messageError(strings.error.noArgument);
-  const user = xmpp.roster[xmpp.room.current][arg];
+Cadence.addCommand('whois', ({nick}) => {
+  if (!nick) return ui.messageError(strings.error.noArgument);
+  const user = xmpp.roster[xmpp.room.current][nick];
   if (user) {
     ui.messageInfo(strings.info.whois, {
       user,
@@ -940,15 +941,5 @@ Cadence.addCommand('whois', arg => {
       status: user.show + (user.status ? ' (' + user.status + ')' : '')
     });
   }
-  else ui.messageError(strings.error.unknownUser, {nick: arg});
-});
-
-/**
- * xa <msg>:
- *   Send a room presence with <show/> set to "xa" and
- *   <status/> to "msg".
- */
-Cadence.addCommand('xa', arg => {
-  xmpp.sendStatus({show: 'xa', status: (arg || '').trim()});
-  ui.setUserStatus('xa');
-});
+  else ui.messageError(strings.error.unknownUser, {nick});
+}, string => ({nick: arg.trim()}));
