@@ -140,7 +140,7 @@ var ui = {
     for (let sound in this.sounds) sounds.push(new Option(sound, sound));
     $('#settingsContainer select.soundSelect').append(sounds).after(function() {
       const event = this.id.substring('settings-notifications.sounds.'.length);
-      return $('<button class="icon soundTest">').click(() => { ui.playSound(event); });
+      return $('<button class="icon soundTest">').click(() => ui.playSound(event));
     });
 
     ui.loadStrings();
@@ -204,7 +204,7 @@ var ui = {
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
-        TAB: () => { return this.autocomplete(); },
+        TAB: () => this.autocomplete(),
         RETURN: (e,x) => {
           if (!e.shiftKey) {
             chat.executeInput($(x).val())
@@ -212,16 +212,18 @@ var ui = {
             return true;
           }
         },
-        UP: (e,x) => { return (e.ctrlKey || !$(x).val()) && chat.historyUp(); },
-        DOWN: (e) => { return e.ctrlKey && chat.historyDown(); },
 
-        b: (e) => { return e.ctrlKey && insertBBCode('b'); },
-        i: (e) => { return e.ctrlKey && insertBBCode('i'); },
-        s: (e) => { return e.ctrlKey && insertBBCode('s'); },
-        u: (e) => { return e.ctrlKey && insertBBCode('u'); },
+        // Arrow-Up requires Ctrl if any text has been entered.
+        UP: (e,x) => ((e.ctrlKey || !$(x).val()) && chat.historyUp()),
+        DOWN: e => (e.ctrlKey && chat.historyDown()),
+
+        b: e => (e.ctrlKey && insertBBCode('b')),
+        i: e => (e.ctrlKey && insertBBCode('i')),
+        s: e => (e.ctrlKey && insertBBCode('s')),
+        u: e => (e.ctrlKey && insertBBCode('u')),
       }),
       // after any keystroke, update the message length counter.
-      keyup: () => { this.updateMessageLengthCounter(); }
+      keyup: () => this.updateMessageLengthCounter(),
     });
 
     // The room selection menu listens for changes.
@@ -242,7 +244,7 @@ var ui = {
     });
 
     // Log in with the button or pressing enter.
-    this.dom.loginContainer.submit((e) => {
+    this.dom.loginContainer.submit(e => {
       chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
@@ -333,7 +335,7 @@ var ui = {
     $('#settings-notifications\\.desktop').change(function() {
       if (this.value == 0) return;
       if (Notification.permission == 'default')
-        Notification.requestPermission((permission) => {
+        Notification.requestPermission(permission => {
           // If denied, revert the setting.
           if (permission != 'granted') $(this).val(0).change();
         });
@@ -342,7 +344,7 @@ var ui = {
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
-    const toggler = (selector) => {
+    const toggler = selector => {
       // Find the message at the top of the viewport...
       const i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
       $(selector).toggle();
@@ -353,12 +355,12 @@ var ui = {
         this.scrollDown();
       }
     };
-    $('#settings-markup\\.images').change(() => {
-      toggler('img.rescale, span.image-alt');
-    });
-    $('#settings-markup\\.emoticons').change(() => {
-      toggler('img.emoticon, span.emote-alt');
-    });
+    $('#settings-markup\\.images').change(() =>
+      toggler('img.rescale, span.image-alt')
+    );
+    $('#settings-markup\\.emoticons').change(() =>
+      toggler('img.emoticon, span.emote-alt')
+    );
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
       else visual.removeColor(ui.dom.chatList);
@@ -387,7 +389,7 @@ var ui = {
     });
 
     // /quit button.
-    $('#logoutButton').click(() => { chat.commands.quit(); });
+    $('#logoutButton').click(() => chat.commands.quit());
 
     $('#audioButton').click(function() {
       const audio = !config.settings.notifications.soundEnabled;
@@ -396,10 +398,7 @@ var ui = {
     });
 
     // scrolling up the chat list turns off auto-scrolling.
-    this.dom.chatList.scroll(() => {
-      this.checkAutoScroll();
-      return true;
-    });
+    this.dom.chatList.scroll(() => (this.checkAutoScroll() || true));
 
     const usermenu = {
       selector: '.user:not(.user-role-bot)',
@@ -442,7 +441,7 @@ var ui = {
     const joined = !!xmpp.room.current;
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
-    const cmd = (show) => chat.commands[show](
+    const cmd = show => chat.commands[show](
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
@@ -471,7 +470,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
+    const c = cmd => chat.cmdAvailableState(cmd, true);
     const labels = strings.label.command;
     const roster = xmpp.roster[xmpp.room.current]
     const userSelf = roster && roster[xmpp.nick.current];
@@ -488,13 +487,13 @@ var ui = {
         name: labels.msg,
         icon: 'msg',
         disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
-        callback: () => { chat.prefixMsg({nick}); }
+        callback: () => chat.prefixMsg({nick})
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
         disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
-        callback: () => { chat.prefixMsg({jid}); }
+        callback: () => chat.prefixMsg({jid})
       },
       sep1: '---',
       invite: {
@@ -502,34 +501,34 @@ var ui = {
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
         disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
-        callback: () => { chat.commands.invite({jid}); }
+        callback: () => chat.commands.invite({jid})
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: () => { chat.commands.kick(nick); }
+        callback: () => chat.commands.kick(nick)
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
-        callback: () => { chat.commands.ban({jid}); }
+        callback: () => chat.commands.ban({jid})
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: () => { chat.commands.whois(nick); }
+        callback: () => chat.commands.whois(nick)
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => { chat.commands.ping(nick || String(jid)); }
+        callback: () => chat.commands.ping(nick || String(jid))
       }
     }
 
@@ -540,7 +539,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    const c = (cmd) => { return chat.cmdAvailableState(cmd, true) };
+    const c = cmd => chat.cmdAvailableState(cmd, true);
     const labels = strings.label.command;
     const room = element.attr('data-room');
     const currentRoom = xmpp.room.current == room;
@@ -551,25 +550,25 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: () => { chat.commands.join({name: room}); }
+        callback: () => chat.commands.join({name: room})
       },
       part: {
         name: labels.part,
         icon: 'leave',
         disabled: !c('part') || !currentRoom,
-        callback: chat.commands.part
+        callback: () => chat.commands.part()
       },
       configure: {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: () => { chat.commands.configure({name: room, interactive: true}); }
+        callback: () => chat.commands.configure({name: room, interactive: true})
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: () => { chat.commands.destroy({room}); }
+        callback: () => chat.commands.destroy({room})
       }
     }
     return {items, autoHide: config.settings.contextmenu == 'hover'};
@@ -674,34 +673,28 @@ var ui = {
    */
   dataForm: function(stanza, submit) {
     // The standard constructor turns <field var=?> into <input name=?>.
-    const input = (field) => {
-      return $('<input>').attr('name', field.attr('var'));
-    };
+    const input = field => $('<input>').attr('name', field.attr('var'));
 
     // These are all the field constructors, by type.
     const fields = {};
-    fields.hidden = (field) => {
-      return input(field).attr({
-        type: 'hidden',
-        value: $('value', field).text()
-      });
-    };
-    fields.boolean = (field) => {
-      const value = $('value', field).text();
-      return input(field).attr({
-        type: 'checkbox',
-        checked: value == '1' || value == 'true',
-      });
-    };
-    fields['text-single'] = (field) => {
-      return input(field).attr({
-        type: 'text',
-        value: $('value', field).text()
-      });
-    };
+    fields.hidden = field => input(field).attr({
+      type: 'hidden',
+      value: $('value', field).text(),
+    });
+
+    // Per https://www.w3.org/TR/xmlschema-2/#boolean-lexical-representation,
+    // true booleans may be represented by "true" or "1".
+    fields.boolean = field => input(field).attr({
+      type: 'checkbox',
+      checked: ['true', '1'].includes($('value', field).text()),
+    });
+    fields['text-single'] = field => input(field).attr({
+      type: 'text',
+      value: $('value', field).text()
+    });
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
-    fields['text-multi'] = (field) => {
+    fields['text-multi'] = field => {
       const values = $.makeArray($('value', field).map(function() {
         return $(this).text();
       }));
@@ -710,12 +703,11 @@ var ui = {
         .attr('name', field.attr('var'))
         .text(values.join("\n"));
     };
-    fields['jid-multi'] = (field) => {
-      return fields['text-multi'](field)
-        .attr('title', strings.label.tip.multiline);
-    };
+    fields['jid-multi'] = field => fields['text-multi'](field).attr({
+      title: strings.label.tip.multiline
+    });
 
-    fields['list-single'] = (field) => {
+    fields['list-single'] = field => {
       const select = $('<select>').attr('name', field.attr('var'));
       const defaultValue = field.children('value').text();
 
@@ -730,31 +722,24 @@ var ui = {
       });
       return select;
     };
-    fields['list-multi'] = (field) => {
-      return fields['list-single'](field).attr('multiple', true);
-    };
-    fields['fixed'] = (field) => {
-      return $('<p>').text($('value', field).text());
-    };
-
-    const val = (field) => { return field.val(); };
+    fields['list-multi'] = field => fields['list-single'](field).attr({
+      multiple: true
+    });
+    fields['fixed'] = field => $('<p>').text($('value', field).text());
 
     // These are all the value callbacks, by type.
     const values = {};
+    const val = field => field.val();
     values.hidden = val;
-    values.boolean = (field) => {
-      return field.prop('checked') ? "1" : "0";
-    };
+    values.boolean = field => (field.prop('checked') ? "1" : "0");
     values['text-single'] = val;
     values['text-private'] = val;
     values['jid-single'] = val;
-    values['text-multi'] = (field) => {
-      return field.val().split("\n");
-    };
+    values['text-multi'] = field => field.val().split("\n");
     values['jid-multi'] = values['text-multi'];
     values['list-single'] = val;
     values['list-multi'] = val;
-    values['fixed'] = () => { return undefined; };
+    values['fixed'] = () => undefined;
 
     const x = $('x', stanza);
     const form = $('<form class="data-form">');
@@ -778,7 +763,7 @@ var ui = {
       form.append(row);
     });
 
-    form.submit((event) => {
+    form.submit(event => {
       event.preventDefault();
       const data = {};
       $('.data-form-field', form).each(function() {
@@ -920,7 +905,7 @@ var ui = {
     this.dom.chatList.append(message.html);
 
     // After fade-in, scroll down again for inline images.
-    $(message.html).fadeIn(() => { this.scrollDown(); });
+    $(message.html).fadeIn(() => this.scrollDown());
     this.scrollDown();
   },
 
@@ -1289,9 +1274,7 @@ var ui = {
   autocomplete: function() {
     // Search algorithm for the longest common prefix of all matching strings.
     const prefixSearch = (prefix, words) => {
-      let results = words.filter((word) => {
-        return word.substring(0, prefix.length) == prefix;
-      });
+      let results = words.filter(word => word.substring(0, prefix.length) == prefix);
 
       if (results.length > 1) {
         let result = results[0];
