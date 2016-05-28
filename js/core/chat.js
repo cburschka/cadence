@@ -51,10 +51,10 @@ var Cadence = {
 
     // When not in a room, forbid chat commands.
     if (!xmpp.room.current) {
-      if (!silent && Cadence.includes(command)) {
+      if (!silent && chat.includes(command)) {
         ui.messageError(strings.error.cmdState.prejoin, {command});
       }
-      return !Cadence.includes(command);
+      return !chat.includes(command);
     }
 
     // Allow everything else.
