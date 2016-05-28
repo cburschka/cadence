@@ -171,10 +171,10 @@ var ui = {
 
     // Set the form values.
     $('.settings').val(function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
+      return Cadence.getSetting(this.id.substring('settings-'.length));
     }).change();
     $('input.settings[type="checkbox"]').prop('checked', function() {
-      return chat.getSetting(this.id.substring('settings-'.length));
+      return Cadence.getSetting(this.id.substring('settings-'.length));
     }).change();
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
@@ -182,7 +182,7 @@ var ui = {
     this.toggleMenu();
 
     // Set the volume.
-    chat.setAudioVolume(config.settings.notifications.soundVolume);
+    Cadence.setAudioVolume(config.settings.notifications.soundVolume);
     $('#audioButton').toggleClass('off', !config.settings.notifications.soundEnabled);
   },
 
@@ -197,7 +197,7 @@ var ui = {
     const insertBBCode = (tag, arg='') => {
       const open = '[' + tag + (arg && '=' + arg) + ']';
       const close = '[/' + tag + ']';
-      chat.insertText([open, close]);
+      Cadence.insertText([open, close]);
       return true;
     };
 
@@ -207,15 +207,15 @@ var ui = {
         TAB: () => this.autocomplete(),
         RETURN: (e,x) => {
           if (!e.shiftKey) {
-            chat.executeInput($(x).val())
+            Cadence.executeInput($(x).val())
             $(x).val('');
             return true;
           }
         },
 
         // Arrow-Up requires Ctrl if any text has been entered.
-        UP: (e,x) => ((e.ctrlKey || !$(x).val()) && chat.historyUp()),
-        DOWN: e => (e.ctrlKey && chat.historyDown()),
+        UP: (e,x) => ((e.ctrlKey || !$(x).val()) && Cadence.historyUp()),
+        DOWN: e => (e.ctrlKey && Cadence.historyDown()),
 
         b: e => (e.ctrlKey && insertBBCode('b')),
         i: e => (e.ctrlKey && insertBBCode('i')),
@@ -229,35 +229,35 @@ var ui = {
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
       if (this.value != xmpp.room.current) {
-        if (this.value) chat.commands.join({name: this.value});
-        else chat.commands.part();
+        if (this.value) Cadence.commands.join({name: this.value});
+        else Cadence.commands.part();
       }
     });
     $(window).on('hashchange', () => {
       if (this.urlFragment != window.location.hash) {
         this.urlFragment = window.location.hash;
-        if (this.urlFragment) chat.commands.join({
+        if (this.urlFragment) Cadence.commands.join({
           name: this.getFragment()
         });
-        else chat.commands.part();
+        else Cadence.commands.part();
       }
     });
 
     // Log in with the button or pressing enter.
     this.dom.loginContainer.submit(e => {
-      chat.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
+      Cadence.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
       e.preventDefault();
     });
     $('#trayContainer button.toggleMenu').click(function() {
       const sidebar = this.getAttribute('data-sidebar');
       const oldMenu = config.settings.activeMenu;
       const newMenu = sidebar == oldMenu ? null : sidebar;
-      chat.setSetting('activeMenu', newMenu);
+      Cadence.setSetting('activeMenu', newMenu);
       ui.toggleMenu();
     });
 
     // BBCode buttons.
-    $('.insert-text').click(function() { chat.insertText(this.title); });
+    $('.insert-text').click(function() { Cadence.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       const tag = this.value.toLowerCase();
       if ($(this).hasClass('insert-bbcode-arg')) {
@@ -306,7 +306,7 @@ var ui = {
     // Clear the text color setting.
     $('#textColorClear').click(() => {
       config.settings.fullColor = false;
-      chat.setSetting('textColor', '');
+      Cadence.setSetting('textColor', '');
       this.setTextColorPicker('');
     });
     $('#settings-textColor').change(function() {
@@ -323,12 +323,12 @@ var ui = {
       let value = this.value;
       if (this.type == 'checkbox') value = this.checked;
       else if ((this.type == 'range' || this.type == 'select') && value === String(parseFloat(value))) value = parseFloat(value);
-      chat.setSetting(this.id.substring('settings-'.length), value);
+      Cadence.setSetting(this.id.substring('settings-'.length), value);
     });
     $('#settings-notifications\\.triggers').change(function() {
       let value = this.value.trim();
       value = value ? value.split(/[\s,;]+/) : [];
-      chat.setSetting(this.id.substring('settings-'.length), value);
+      Cadence.setSetting(this.id.substring('settings-'.length), value);
     });
 
     // If notifications are activated, ensure they can be sent.
@@ -376,7 +376,7 @@ var ui = {
 
     // Instantly apply sound volume.
     $('.soundVolume').change(function() {
-      chat.setAudioVolume(this.value);
+      Cadence.setAudioVolume(this.value);
     });
 
     // Instantly apply date format.
@@ -389,11 +389,11 @@ var ui = {
     });
 
     // /quit button.
-    $('#logoutButton').click(() => chat.commands.quit());
+    $('#logoutButton').click(() => Cadence.commands.quit());
 
     $('#audioButton').click(function() {
       const audio = !config.settings.notifications.soundEnabled;
-      chat.setSetting('notifications.soundEnabled', audio);
+      Cadence.setSetting('notifications.soundEnabled', audio);
       $(this).toggleClass('off', !audio);
     });
 
@@ -441,14 +441,14 @@ var ui = {
     const joined = !!xmpp.room.current;
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
-    const cmd = show => chat.commands[show](
+    const cmd = show => Cadence.commands[show](
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
       name: labels.available,
       icon: 'available',
       disabled: joined ? status == 'available' : online,
-      callback: joined ? cmd : () => chat.commands.connect(),
+      callback: joined ? cmd : () => Cadence.commands.connect(),
     }};
     for (let show of ['away', 'xa', 'dnd']) items[show] = {
       name: labels[show],
@@ -460,7 +460,7 @@ var ui = {
       name: labels.offline,
       icon: 'offline',
       disabled: !online,
-      callback: () => chat.commands.quit()
+      callback: () => Cadence.commands.quit()
     };
     return {items};
   },
@@ -470,7 +470,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    const c = cmd => chat.cmdAvailableState(cmd, true);
+    const c = cmd => Cadence.cmdAvailableState(cmd, true);
     const labels = strings.label.command;
     const roster = xmpp.roster[xmpp.room.current]
     const userSelf = roster && roster[xmpp.nick.current];
@@ -487,13 +487,13 @@ var ui = {
         name: labels.msg,
         icon: 'msg',
         disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
-        callback: () => chat.prefixMsg({nick})
+        callback: () => Cadence.prefixMsg({nick})
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
         disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
-        callback: () => chat.prefixMsg({jid})
+        callback: () => Cadence.prefixMsg({jid})
       },
       sep1: '---',
       invite: {
@@ -501,34 +501,34 @@ var ui = {
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
         disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
-        callback: () => chat.commands.invite({jid})
+        callback: () => Cadence.commands.invite({jid})
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: () => chat.commands.kick(nick)
+        callback: () => Cadence.commands.kick(nick)
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
-        callback: () => chat.commands.ban({jid})
+        callback: () => Cadence.commands.ban({jid})
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: () => chat.commands.whois(nick)
+        callback: () => Cadence.commands.whois(nick)
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => chat.commands.ping(nick || String(jid))
+        callback: () => Cadence.commands.ping(nick || String(jid))
       }
     }
 
@@ -539,7 +539,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    const c = cmd => chat.cmdAvailableState(cmd, true);
+    const c = cmd => Cadence.cmdAvailableState(cmd, true);
     const labels = strings.label.command;
     const room = element.attr('data-room');
     const currentRoom = xmpp.room.current == room;
@@ -550,25 +550,25 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: () => chat.commands.join({name: room})
+        callback: () => Cadence.commands.join({name: room})
       },
       part: {
         name: labels.part,
         icon: 'leave',
         disabled: !c('part') || !currentRoom,
-        callback: () => chat.commands.part()
+        callback: () => Cadence.commands.part()
       },
       configure: {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: () => chat.commands.configure({name: room, interactive: true})
+        callback: () => Cadence.commands.configure({name: room, interactive: true})
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: () => chat.commands.destroy({room})
+        callback: () => Cadence.commands.destroy({room})
       }
     }
     return {items, autoHide: config.settings.contextmenu == 'hover'};
@@ -1305,7 +1305,7 @@ var ui = {
     // Look for commands or nicknames.
     let result;
     if (prefix[0] == '/') {
-      const searchSpace = Object.keys(chat.commands).concat(Object.keys(config.settings.macros));
+      const searchSpace = Object.keys(Cadence.commands).concat(Object.keys(config.settings.macros));
       result = '/' + prefixSearch(prefix.substring(1), searchSpace);
     }
     else

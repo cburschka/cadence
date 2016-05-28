@@ -395,7 +395,7 @@ visual = {
       if (config.settings.contextmenu == 'left') return;
       const nick = $(this).attr('data-nick');
       const jid = $(this).attr('data-jid');
-      chat.prefixMsg({nick, jid});
+      Cadence.prefixMsg({nick, jid});
     });
   },
 

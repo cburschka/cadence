@@ -1,8 +1,4 @@
-/**
- * chat.js contains all the functions that alter the state
- * in response to user requests.
- */
-var chat = {
+var Cadence = {
   auth: undefined,
   history: [],
   historyIndex: 0,
@@ -16,7 +12,7 @@ var chat = {
      *   Execute a server admin command.
      */
     admin: function(arg) {
-      const m = chat.parseArgs(arg);
+      const m = Cadence.parseArgs(arg);
 
       // Make single-argument commands more convenient:
       const defaultArgs = {
@@ -94,7 +90,7 @@ var chat = {
      *   Set the affiliation of a particular user, or list all users with an affiliation.
      */
     affiliate: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
       arg[0] = arg[0] || [];
 
       const type = arg.type || arg[0][0];
@@ -181,7 +177,7 @@ var chat = {
       const data = arg.substring(m[0].length).trim();
       if (!data) {
         delete config.settings.macros[command];
-        chat.saveSettings();
+        Cadence.saveSettings();
         return ui.messageInfo(strings.info.aliasDelete, {command});
       }
       const macro = data.split(';').map((command) => { return command.trim(); });
@@ -206,7 +202,7 @@ var chat = {
       }
       else ui.messageInfo(strings.info.aliasAdd, {command});
       config.settings.macros[command] = macro;
-      chat.saveSettings();
+      Cadence.saveSettings();
     },
 
     /**
@@ -234,7 +230,7 @@ var chat = {
      */
     ban: function(arg) {
       arg = arg.jid || String(arg).trim();
-      this.affiliate({0: ['outcast', arg]});
+      Cadence.commands.affiliate({0: ['outcast', arg]});
     },
 
     /**
@@ -242,7 +238,7 @@ var chat = {
      *   Shortcut for "/affiliate outcast".
      */
     bans: function() {
-      this.affiliate({type: 'outcast'});
+      Cadence.commands.affiliate({type: 'outcast'});
     },
 
     /**
@@ -273,8 +269,8 @@ var chat = {
      */
     clear: function() {
       ui.clearMessages();
-      chat.history = [];
-      chat.historyIndex = 0;
+      Cadence.history = [];
+      Cadence.historyIndex = 0;
     },
 
     /**
@@ -282,7 +278,7 @@ var chat = {
      *   Alter a room configuration.
      */
     configure: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
       if (arg.help)
         return ui.messageInfo($('<div>').html(strings.help.configure));
 
@@ -326,7 +322,7 @@ var chat = {
      *   Open a connection and authenticate.
      */
     connect: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
       if (arg && arg[0]) {
         arg.user = arg.user || arg[0][0];
         arg.pass = arg.pass || arg[0][1];
@@ -343,13 +339,13 @@ var chat = {
         if (arg.anonymous) return resolve({user: '', pass: ''});
 
         // Reuse authentication for the rest of the session:
-        if (arg && arg.user && arg.pass) chat.auth = {user: arg.user, pass: arg.pass};
-        if (chat.auth) return resolve(chat.auth);
+        if (arg && arg.user && arg.pass) Cadence.auth = {user: arg.user, pass: arg.pass};
+        if (Cadence.auth) return resolve(Cadence.auth);
 
         // Next, attempt session authentication.
         if (config.settings.xmpp.sessionAuth) {
           const url = config.xmpp.sessionAuthURL;
-          if (url) return chat.sessionAuth(url).then(auth => {
+          if (url) return Cadence.sessionAuth(url).then(auth => {
             ui.messageInfo(strings.info.sessionAuth, {username: auth.user});
             resolve(auth);
           });
@@ -369,9 +365,9 @@ var chat = {
         // A room in the URL fragment (even an empty one) overrides autojoin.
         if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
           const name = ui.getFragment() || config.settings.xmpp.room;
-          this.join({name});
+          Cadence.commands.join({name});
         }
-        else this.list();
+        else Cadence.commands.list();
       },
       // Notify user of connection failures.
       ({status, error}) => {
@@ -395,7 +391,7 @@ var chat = {
      *   Join a new room and set it up.
      */
     create: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
       if (arg.help)
         return ui.messageInfo($('<div>').html(strings.help.configure));
 
@@ -439,7 +435,7 @@ var chat = {
               ui.formDialog(form, {cancel: () => { reject('cancel'); }, apply: false});
             }
             // Use command-line arguments or just set the room title.
-            else resolve(chat.roomConf(arg) || {'muc#roomconfig_roomname': room.title});
+            else resolve(Cadence.roomConf(arg) || {'muc#roomconfig_roomname': room.title});
           });
         })
         .then(
@@ -452,7 +448,7 @@ var chat = {
         .then(
           () => {
             xmpp.setRoom(id);
-            chat.setSetting('xmpp.room', id);
+            Cadence.setSetting('xmpp.room', id);
             ui.messageInfo(strings.info.roomCreated, {room});
             return xmpp.discoverRooms();
           },
@@ -476,7 +472,7 @@ var chat = {
     },
 
     destroy: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
 
       const name = arg.room || (arg[0] && arg[0][0]) || xmpp.room.current;
       if (!name)
@@ -507,7 +503,7 @@ var chat = {
      *   Send a direct message to a user outside the chatroom.
      */
     dmsg: function(arg) {
-      const m = chat.parseArgs(arg);
+      const m = Cadence.parseArgs(arg);
 
       let jid = m.jid;
       let msg = m.msg;
@@ -524,7 +520,7 @@ var chat = {
       if (!jid.node)
         return ui.messageError(strings.error.jidInvalid, {arg: jid});
 
-      const body = chat.formatOutgoing(msg);
+      const body = Cadence.formatOutgoing(msg);
       xmpp.sendMessage({body, to: jid});
 
       ui.messageAppend(visual.formatMessage({
@@ -549,7 +545,7 @@ var chat = {
      * invite [<jid> <msg> | --room <room> --nick <nick> --msg <msg>]
      */
     invite: function(arg) {
-      const m = chat.parseArgs(arg);
+      const m = Cadence.parseArgs(arg);
       let {room, nick, jid, msg} = m;
 
       if (room && nick)
@@ -576,7 +572,7 @@ var chat = {
      *   will automatically leave the current room.
      */
     join: function(arg) {
-      arg = chat.parseArgs(arg);
+      arg = Cadence.parseArgs(arg);
       const name = arg.name || arg[0].join(" ").trim();
       if (!name) return ui.messageError(strings.error.noArgument);
 
@@ -586,7 +582,7 @@ var chat = {
       // Refresh room list and try to find the room.
       return xmpp.discoverRooms()
       .then(() => {
-        room = chat.getRoomFromTitle(name);
+        room = Cadence.getRoomFromTitle(name);
         if (!room)
           throw ui.messageError(strings.error.unknownRoom, {name});
         else if (room.id == xmpp.room.current)
@@ -609,7 +605,7 @@ var chat = {
       })
       .then(() => {
         ui.updateRoom(room.id, xmpp.roster[room.id]);
-        chat.setSetting('xmpp.room', room.id);
+        Cadence.setSetting('xmpp.room', room.id);
         xmpp.setRoom(room.id);
         ui.messageInfo(strings.info.joined, {room});
       })
@@ -663,7 +659,7 @@ var chat = {
      *   Alias for /say "/me <msg>".
      */
     me: function(arg) {
-      this.say('/me' + arg); // XEP-0245 says to send this in plain.
+      Cadence.commands.say('/me' + arg); // XEP-0245 says to send this in plain.
     },
 
     /**
@@ -671,7 +667,7 @@ var chat = {
      *   Send a private message to another occupant.
      */
     msg: function(arg) {
-      const m = chat.parseArgs(arg);
+      const m = Cadence.parseArgs(arg);
       if (m[0].length) {
         m.nick = m[0][0];
         m.msg = arg.substring(m[1][0][0]).trim();
@@ -685,7 +681,7 @@ var chat = {
       if (!(nick in xmpp.roster[xmpp.room.current]))
         return ui.messageError(strings.error.unknownUser, {nick});
 
-      const body = chat.formatOutgoing(msg);
+      const body = Cadence.formatOutgoing(msg);
       xmpp.sendMessage({
         body, to: xmpp.jidFromRoomNick({nick})
       });
@@ -704,8 +700,8 @@ var chat = {
     nick: function(arg) {
       const nick = arg.trim();
       if (!nick) return ui.messageError(strings.error.noArgument);
-      chat.setSetting('xmpp.user', xmpp.jid.node);
-      chat.setSetting('xmpp.nick', nick);
+      Cadence.setSetting('xmpp.user', xmpp.jid.node);
+      Cadence.setSetting('xmpp.nick', nick);
       xmpp.changeNick(nick);
       if (!xmpp.room.current)
         ui.messageInfo(strings.info.nickPrejoin, {nick});
@@ -722,7 +718,7 @@ var chat = {
       ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
       ui.updateRoom();
       xmpp.leaveRoom(room);
-      this.list();
+      Cadence.commands.list();
     },
 
     /**
@@ -791,7 +787,7 @@ var chat = {
      *   The default command that simply sends a message verbatim.
      */
     say: function(arg) {
-      const body = chat.formatOutgoing(arg);
+      const body = Cadence.formatOutgoing(arg);
       xmpp.sendMessage({body, to: xmpp.jidFromRoomNick(), type: 'groupchat'});
     },
 
@@ -807,7 +803,7 @@ var chat = {
         if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
           return ui.messageError(strings.error.sync.canceled, {account: xmpp.jid.node});
 
-      chat.synchronizeSettings(arg);
+      Cadence.synchronizeSettings(arg);
     },
 
     /**
@@ -914,7 +910,7 @@ var chat = {
      */
     who: function(arg) {
       arg = arg.trim();
-      const room = arg ? chat.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
+      const room = arg ? Cadence.getRoomFromTitle(arg) : xmpp.room.available[xmpp.room.current];
       if (!room)
         return ui.messageError(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
       if (room.id != xmpp.room.current) {
@@ -988,10 +984,10 @@ var chat = {
 
     // When not in a room, forbid chat commands.
     if (!xmpp.room.current) {
-      if (!silent && chat.includes(command)) {
+      if (!silent && Cadence.includes(command)) {
         ui.messageError(strings.error.cmdState.prejoin, {command});
       }
-      return !chat.includes(command);
+      return !Cadence.includes(command);
     }
 
     // Allow everything else.
@@ -1282,7 +1278,7 @@ var chat = {
 
     const set = () => xmpp.storeSettings(settings).then(() => {
       config.settings.sync = {account: xmpp.jid.node, time: settings.modified};
-      chat.saveSettings();
+      Cadence.saveSettings();
       ui.messageInfo(strings.info.sync.set);
     });
 
