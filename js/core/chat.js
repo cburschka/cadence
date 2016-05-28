@@ -104,13 +104,13 @@ var chat = {
 
       const roster = xmpp.roster[xmpp.room.current];
       // Look up the nickname unless --jid was explicitly used.
-      const user = !arg.jid && roster[nick] || String(jid) && {jid};
+      const target = !arg.jid && roster[nick] || String(jid) && {jid};
 
       if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
         return ui.messageError(strings.error.affiliate.type, {type})
 
       // List users with a specific affiliation.
-      if (!user) {
+      if (!target) {
         return xmpp.getUsers({affiliation: type}).then((stanza) => {
           // Create a dictionary of non-occupant users:
           const users = {};
@@ -147,9 +147,7 @@ var chat = {
         return ui.messageError(strings.error.affiliate.unknown, {nick: user.jid});
 
       // If a JID was given, fetch the user if they're present.
-      if (!user.nick)
-        for (let nick in roster)
-          if (roster[nick].jid.bare() == user.jid) user = roster[nick];
+      const user = roster.find(x => target.jid.bareMatch(x.jid)) || target;
 
       // Attempt to set user's affiliation.
       xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
@@ -1159,27 +1157,27 @@ var chat = {
     // When separated by spaces, the value must not begin with an unquoted --.
     const keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
     const re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
-    const arguments = {0:[], 1:{0:[]}};
+    const args = {0:[], 1:{0:[]}};
     for (let match; match = re.exec(text); ) {
       // keyvalue: 1 = key, 2|3|4 = value
       if (match[1]) {
         let v = (match[2] || match[3] || match[4]).replace(/\\([\\\s"'])/g, '$1');
         if (['0', 'no', 'off', 'false'].includes(v)) v = false;
-        arguments[match[1]] = v;
-        arguments[1][match[1]] = re.lastIndex;
+        args[match[1]] = v;
+        args[1][match[1]] = re.lastIndex;
       }
       // key: 5 = key
       else if (match[5]) {
-        arguments[match[5]] = true;
-        arguments[1][match[5]] = re.lastIndex;
+        args[match[5]] = true;
+        args[1][match[5]] = re.lastIndex;
       }
       // value: 6|7|8 = value
       else {
-        arguments[0].push((match[6] || match[7] || match[8]).replace(/\\(.)/g, '$1'));
-        arguments[1][0].push(re.lastIndex);
+        args[0].push((match[6] || match[7] || match[8]).replace(/\\(.)/g, '$1'));
+        args[1][0].push(re.lastIndex);
       }
     }
-    return arguments;
+    return args;
   },
 
   /**
