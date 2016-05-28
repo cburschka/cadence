@@ -48,6 +48,7 @@ def generate_links(cdn_url, aggregate, css_alt, style):
         ]
         core = [
             'js/core/strings.js', 'js/core/chat.js', 'js/core/xmpp.js',
+            'js/core/commands.js',
             'js/core/ui.js', 'js/core/visual.js', 'js/core/init.js',
             'js/core/config.js', 'js/core/emoticons.js',
         ]
