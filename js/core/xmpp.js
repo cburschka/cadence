@@ -953,16 +953,18 @@ var xmpp = {
         // Accept invitations.
         const invite = $('x invite', stanza);
         if (invite.length) {
-          const room = xmpp.room.available[from.node];
-          if (!room) xmpp.getRoomInfo(from.node).then((data) => {
-            room = data;
-            xmpp.room.available[node] = data;
-          });
+          const room = this.room.available[from.node];
+          const jid = this.JID.parse(invite.attr('from'));
           const reason = $('reason', invite).text();
           const password = $('x password', stanza).text();
-          return ui.messageInfo(strings.info.inviteReceived[+!!password][+!!reason], {
-            jid: this.JID.parse(invite.attr('from')),
-            room, password, reason
+          const message = strings.info.inviteReceived[+!!password][+!!reason];
+          const invite = room => ui.messageInfo(message, {jid, room, password, reason});
+
+          // If we don't have the room info, load it first.
+          if (room) return invite(room);
+          else return this.getRoomInfo(from.node).then(data => {
+            this.room.available[from.node] = data;
+            invite(data);
           });
         }
 
