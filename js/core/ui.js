@@ -229,23 +229,26 @@ var ui = {
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
       if (this.value != xmpp.room.current) {
-        if (this.value) Cadence.commands.join({name: this.value});
-        else Cadence.commands.part();
+        if (this.value) Cadence.execute('join', {name: this.value});
+        else Cadence.execute('part');
       }
     });
     $(window).on('hashchange', () => {
       if (this.urlFragment != window.location.hash) {
         this.urlFragment = window.location.hash;
-        if (this.urlFragment) Cadence.commands.join({
+        if (this.urlFragment) Cadence.execute('join', {
           name: this.getFragment()
         });
-        else Cadence.commands.part();
+        else Cadence.execute('part');
       }
     });
 
     // Log in with the button or pressing enter.
     this.dom.loginContainer.submit(e => {
-      Cadence.commands.connect({user: $('#loginUser').val(), pass: $('#loginPass').val()});
+      Cadence.execute('connect', {
+        user: $('#loginUser').val(),
+        pass: $('#loginPass').val()
+      });
       e.preventDefault();
     });
     $('#trayContainer button.toggleMenu').click(function() {
@@ -389,7 +392,7 @@ var ui = {
     });
 
     // /quit button.
-    $('#logoutButton').click(() => Cadence.commands.quit());
+    $('#logoutButton').click(() => Cadence.execute('quit'));
 
     $('#audioButton').click(function() {
       const audio = !config.settings.notifications.soundEnabled;
@@ -441,14 +444,14 @@ var ui = {
     const joined = !!xmpp.room.current;
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
-    const cmd = show => Cadence.commands[show](
+    const cmd = show => Cadence.execute('show',
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
       name: labels.available,
       icon: 'available',
       disabled: joined ? status == 'available' : online,
-      callback: joined ? cmd : () => Cadence.commands.connect(),
+      callback: joined ? cmd : () => Cadence.execute('connect'),
     }};
     for (let show of ['away', 'xa', 'dnd']) items[show] = {
       name: labels[show],
@@ -460,7 +463,7 @@ var ui = {
       name: labels.offline,
       icon: 'offline',
       disabled: !online,
-      callback: () => Cadence.commands.quit()
+      callback: () => Cadence.execute('quit'),
     };
     return {items};
   },
@@ -501,34 +504,34 @@ var ui = {
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
         disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
-        callback: () => Cadence.commands.invite({jid})
+        callback: () => Cadence.execute('invite', {jid}),
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
         disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: () => Cadence.commands.kick(nick)
+        callback: () => Cadence.execute('kick', nick),
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
         disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
-        callback: () => Cadence.commands.ban({jid})
+        callback: () => Cadence.execute('ban', {jid}),
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
         disabled: !c('whois') || !nick || !roster[nick],
-        callback: () => Cadence.commands.whois(nick)
+        callback: () => Cadence.execute('whois', nick),
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
         disabled: !c('ping'),
-        callback: () => Cadence.commands.ping(nick || String(jid))
+        callback: () => Cadence.execute('ping', nick || String(jid)),
       }
     }
 
@@ -550,25 +553,25 @@ var ui = {
         name: labels.join,
         icon: 'join',
         disabled: !c('join') || currentRoom,
-        callback: () => Cadence.commands.join({name: room})
+        callback: () => Cadence.execute('join', {name: room}),
       },
       part: {
         name: labels.part,
         icon: 'leave',
         disabled: !c('part') || !currentRoom,
-        callback: () => Cadence.commands.part()
+        callback: () => Cadence.execute('part'),
       },
       configure: {
         name: labels.configure,
         icon: 'configure',
         disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: () => Cadence.commands.configure({name: room, interactive: true})
+        callback: () => Cadence.execute('configure', {name: room, interactive: true}),
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
         disabled: !c('destroy') || currentRoom && !owner,
-        callback: () => Cadence.commands.destroy({room})
+        callback: () => Cadence.execute('destroy', {room}),
       }
     }
     return {items, autoHide: config.settings.contextmenu == 'hover'};

@@ -4,6 +4,16 @@ var Cadence = {
   historyIndex: 0,
 
   /**
+   * Execute a specific command.
+   *
+   * @param {string} command
+   * @param {Object} arg
+   */
+  execute: function(command, arg) {
+    return this.commands[command](arg);
+  },
+
+  /**
    * All commands executable in chat by prefixing them with '/'.
    */
   commands: {
@@ -230,7 +240,7 @@ var Cadence = {
      */
     ban: function(arg) {
       arg = arg.jid || String(arg).trim();
-      Cadence.commands.affiliate({0: ['outcast', arg]});
+      Cadence.execute('affiliate', {0: ['outcast', arg]});
     },
 
     /**
@@ -238,7 +248,7 @@ var Cadence = {
      *   Shortcut for "/affiliate outcast".
      */
     bans: function() {
-      Cadence.commands.affiliate({type: 'outcast'});
+      Cadence.execute('affiliate', {type: 'outcast'});
     },
 
     /**
@@ -365,9 +375,9 @@ var Cadence = {
         // A room in the URL fragment (even an empty one) overrides autojoin.
         if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
           const name = ui.getFragment() || config.settings.xmpp.room;
-          Cadence.commands.join({name});
+          Cadence.execute('join', {name});
         }
-        else Cadence.commands.list();
+        else Cadence.execute('list');
       },
       // Notify user of connection failures.
       ({status, error}) => {
@@ -659,7 +669,8 @@ var Cadence = {
      *   Alias for /say "/me <msg>".
      */
     me: function(arg) {
-      Cadence.commands.say('/me' + arg); // XEP-0245 says to send this in plain.
+      // XEP-0245 says to simply send this command as text.
+      Cadence.execute('say', '/me' + arg);
     },
 
     /**
@@ -718,7 +729,7 @@ var Cadence = {
       ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
       ui.updateRoom();
       xmpp.leaveRoom(room);
-      Cadence.commands.list();
+      Cadence.execute('list');
     },
 
     /**

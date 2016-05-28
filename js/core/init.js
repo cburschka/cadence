@@ -24,7 +24,7 @@
     };
 
     if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
-      Cadence.commands.connect().catch(welcome);
+      Cadence.execute('connect').catch(welcome);
     }
     else {
       ui.setConnectionStatus(false);
