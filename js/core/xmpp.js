@@ -21,7 +21,7 @@ var xmpp = {
   /**
    * Create the connection object.
    */
-  init: function() {
+  init() {
     // Generate a unique resource name for this session.
     this.resource = this.createResourceName();
     this.connection = new Strophe.Connection(config.xmpp.url);
@@ -40,7 +40,7 @@ var xmpp = {
   /**
    * Attach all the event handlers to the connection object.
    */
-  setupHandlers: function() {
+  setupHandlers() {
     this.connection.addHandler(stanza => this.eventPresenceCallback(stanza), null, 'presence');
     this.connection.addHandler(stanza => this.eventMessageCallback(stanza), null, 'message');
     this.connection.addHandler(stanza => this.eventIQCallback(stanza), null, 'iq');
@@ -80,7 +80,7 @@ var xmpp = {
    * @return {Promise} A promise that resolves when the connection is
    *         established or has failed.
    */
-  connect: function(user, pass, disconnect) {
+  connect(user, pass, disconnect) {
     // Make sure the connection isn't already open.
     if (this.connection.connected) {
       throw {status: Strophe.Status.CONNECTED};
@@ -133,7 +133,7 @@ var xmpp = {
    *
    * @return {Stanza}
    */
-  iq: function(attrs) {
+  iq(attrs) {
     return $iq({from: this.jid}).attrs(attrs);
   },
 
@@ -146,7 +146,7 @@ var xmpp = {
    *
    * @return {Stanza}
    */
-  msg: function(attrs) {
+  msg(attrs) {
     return $msg({from: this.jid}).attrs(attrs);
   },
 
@@ -159,7 +159,7 @@ var xmpp = {
    *
    * @return {Stanza}
    */
-  pres: function(attrs={}) {
+  pres(attrs={}) {
     // Only annotate untyped presence with a cap-hash.
     const pres = attrs.type ? $pres() : this.connection.caps.pres();
     return pres.attrs({from: this.jid}).attrs(attrs);
@@ -168,7 +168,7 @@ var xmpp = {
   /**
    * Create a unique client identifier from the current millisecond timestamp.
    */
-  createResourceName: function() {
+  createResourceName() {
     return visual.formatText(config.settings.xmpp.resource, {
       client: config.clientName,
       version: config.version,
@@ -183,7 +183,7 @@ var xmpp = {
    * @param {string} nick (leave empty for groupchat)
    *
    */
-  jidFromRoomNick: function({room, nick}={}) {
+  jidFromRoomNick({room, nick}={}) {
     return new this.JID({
       domain: config.xmpp.mucService,
       node: room || this.room.current,
@@ -242,7 +242,7 @@ var xmpp = {
    *
    * @return {User}
    */
-  userFromJid: function(jid, room) {
+  userFromJid(jid, room) {
     if (jid.domain == config.xmpp.mucService) {
       const roster = this.roster[jid.node];
       if (roster && roster[jid.resource])
@@ -258,7 +258,7 @@ var xmpp = {
   /**
    * Prompt the user to enter a different nickname.
    */
-  nickConflictResolve: function() {
+  nickConflictResolve() {
     const nick = prompt(strings.info.promptNickConflict, this.nick.target);
     if (nick && nick != this.nick.target) return this.nick.target = nick;
   },
@@ -273,7 +273,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that will resolve to the new nickname.
    */
-  changeNick: function(nick) {
+  changeNick(nick) {
     return new Promise((resolve, reject) => {
       this.nick.target = nick;
       if (!this.connection.connected) return resolve();
@@ -303,7 +303,7 @@ var xmpp = {
    *
    * @param {String} room The room to leave.
    */
-  leaveRoom: function(room) {
+  leaveRoom(room) {
     delete this.roster[room];
     if (room) {
       const jid = this.jidFromRoomNick({room, nick: this.nick.current});
@@ -323,7 +323,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the nickname, or throws the stanza.
    */
-  getReservedNick: function(room) {
+  getReservedNick(room) {
     return new Promise((resolve, reject) => {
       const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
       iq.c('query', {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'});
@@ -349,7 +349,7 @@ var xmpp = {
    *
    * In the case of an error, the promise will reject with the stanza.
    */
-  getRoomInfo: function(room) {
+  getRoomInfo(room) {
     return new Promise((resolve, reject) => {
       const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
       iq.c('query', {xmlns: Strophe.NS.DISCO_INFO});
@@ -382,7 +382,7 @@ var xmpp = {
    *
    * @param {string} The room name.
    */
-  joinRoom: function({room, nick, password}) {
+  joinRoom({room, nick, password}) {
     return new Promise((resolve, reject) => {
       if (room) this.room.target = room;
       else return reject();
@@ -412,7 +412,7 @@ var xmpp = {
    * @param jid this may be an occupant in a different room
    * @param text an optional text message
    */
-  invite: function(jid, text) {
+  invite(jid, text) {
     this.connection.send($msg({
       from: this.jid,
       to: this.jidFromRoomNick()
@@ -433,7 +433,7 @@ var xmpp = {
    * @return {Promise} A promise that resolves to the <x> element of the form,
    *                   or rejects with an <error> element.
    */
-  roomConfig: function(room) {
+  roomConfig(room) {
     const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
     iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
 
@@ -450,7 +450,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves when the form is acknowledged.
    */
-  roomConfigSubmit: function(room, data) {
+  roomConfigSubmit(room, data) {
     const form = xmpp.iq({type: 'set', to: this.jidFromRoomNick({room})});
     form.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
     form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
@@ -479,7 +479,7 @@ var xmpp = {
    *
    * @return {Promise}
    */
-   roomConfigCancel: function(room) {
+   roomConfigCancel(room) {
      const iq = this.iq({type: 'set', to: this.jidFromRoomNick({room})});
      iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
      iq.c('x', {xmlns: 'jabber:x:data', type: 'cancel'});
@@ -498,7 +498,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the response.
    */
-  destroyRoom: function(room, alternate, reason) {
+  destroyRoom(room, alternate, reason) {
     const iq = this.iq({type: 'set', to: this.jidFromRoomNick({room})});
     iq.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
     iq.c('destroy');
@@ -518,7 +518,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that will resolve to the response stanza.
    */
-  command: function(node) {
+  command(node) {
     const iq = this.iq({type: 'set', to: config.xmpp.domain});
     iq.c('command', {
       xmlns: 'http://jabber.org/protocol/commands',
@@ -540,7 +540,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the response.
    */
-  commandSubmit: function(node, sessionid, data) {
+  commandSubmit(node, sessionid, data) {
     const form = this.iq({type: 'set', to: config.xmpp.domain});
     form.c('command', {
       xmlns: 'http://jabber.org/protocol/commands',
@@ -571,7 +571,7 @@ var xmpp = {
    * @param {String} show This must be one of "away", "chat", "dnd", "xa" or null.
    * @param {String} status This is an arbitrary status message.
    */
-  sendStatus: function({show, status}) {
+  sendStatus({show, status}) {
     const pres = this.pres({to: this.jidFromRoomNick({nick: this.nick.current})});
     if (show) pres.c('show', {}, show);
     if (status) pres.c('status', {}, status);
@@ -589,7 +589,7 @@ var xmpp = {
    *                     - {DOM} html (optional)
    *                   - {String} type (optional: normal, chat, error, groupchat, headline)
    */
-  sendMessage: function({to, body, type}) {
+  sendMessage({to, body, type}) {
     const msg = this.msg({to, type});
     msg.c('body', {}, body.text);
     msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
@@ -607,7 +607,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the server response.
    */
-  setUser: function(item) {
+  setUser(item) {
     const iq = this.iq({type: 'set', to: this.jidFromRoomNick()});
     iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
     iq.c('item', item);
@@ -617,7 +617,7 @@ var xmpp = {
     );
   },
 
-  setRoom: function(room) {
+  setRoom(room) {
     if (room == this.room.current) return;
     const oldRoom = this.room.current;
     if (oldRoom) xmpp.leaveRoom(oldRoom);
@@ -632,7 +632,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the response.
    */
-  getUsers: function(query) {
+  getUsers(query) {
     const iq = this.iq({type: 'get', to: this.jidFromRoomNick()});
     iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'});
     iq.c('item', query);
@@ -649,7 +649,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to a user list.
    */
-  getOccupants: function(room) {
+  getOccupants(room) {
     const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})});
     iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
 
@@ -667,7 +667,7 @@ var xmpp = {
    *
    * @return {Promise} A promise that resolves to the list of rooms.
    */
-  discoverRooms: function() {
+  discoverRooms() {
     const iq = this.iq({type: 'get', to: config.xmpp.mucService});
     iq.c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
 
@@ -715,7 +715,7 @@ var xmpp = {
    *
    * Any other presence that alters the user roster or client state.
    */
-  eventPresenceCallback: function(stanza) {
+  eventPresenceCallback(stanza) {
     if (!stanza) return true;
     const from = this.JID.parse(stanza.getAttribute('from'));
     // Discard any <presence/> that is not from the MUC domain.
@@ -749,7 +749,7 @@ var xmpp = {
   /**
    * Handle presence stanzas of type `error`.
    */
-  eventPresenceError: function(room, nick, stanza) {
+  eventPresenceError(room, nick, stanza) {
     if ($('conflict', stanza).length) {
       if (room == this.room.current) {
         ui.messageError(strings.error.nickConflict, {nick});
@@ -781,7 +781,7 @@ var xmpp = {
   /**
    * Handle presence stanzas of type `unavailable`.
    */
-  eventPresenceUnavailable: function(roomId, nick, codes, item, stanza) {
+  eventPresenceUnavailable(roomId, nick, codes, item, stanza) {
     const roster = this.roster[roomId];
     const user = roster[nick];
     const room = this.room.available[roomId];
@@ -852,7 +852,7 @@ var xmpp = {
   /**
    * Handle presence stanzas without a type.
    */
-  eventPresenceDefault: function(room, nick, codes, item, stanza) {
+  eventPresenceDefault(room, nick, codes, item, stanza) {
     const roster = this.roster[room];
     const oldUser = roster[nick];
 
@@ -917,7 +917,7 @@ var xmpp = {
   /**
    * This function handles any <message> stanzas received.
    */
-  eventMessageCallback: function(stanza) {
+  eventMessageCallback(stanza) {
     if (stanza) {
       const from = this.JID.parse(stanza.getAttribute('from'));
       let type = stanza.getAttribute('type');
@@ -1027,7 +1027,7 @@ var xmpp = {
    * @param {Object} stanza
    * @param {JID} from
    */
-  eventMessageError: function(stanza, from) {
+  eventMessageError(stanza, from) {
     const error = $('error', stanza);
     const {node, domain, resource} = from;
     if ($('remote-server-not-found', error).length)
@@ -1043,7 +1043,7 @@ var xmpp = {
   /**
    * This function handles any unsupported <iq> namespaces.
    */
-  eventIQCallback: function(stanza) {
+  eventIQCallback(stanza) {
     if (!stanza) return true;
 
     // Only respond to get/set, as per RFC-6120 8.2.3
@@ -1068,19 +1068,19 @@ var xmpp = {
     return true;
   },
 
-  ping: function(jid) {
+  ping(jid) {
     return this.connection.ping.ping(jid, config.xmpp.timeout);
   },
 
-  getTime: function(jid) {
+  getTime(jid) {
     return this.connection.time.getTime(jid || this.jid.domain, config.xmpp.timeout);
   },
 
-  getVersion: function(jid) {
+  getVersion(jid) {
     return this.connection.version.getVersion(jid || this.jid.domain, config.xmpp.timeout);
   },
 
-  attention: function(jid) {
+  attention(jid) {
     const msg = this.connection.attention.attention(jid);
     return this.connection.send(msg);
   },
@@ -1090,7 +1090,7 @@ var xmpp = {
    *
    * This will load settings stored under <cadence xmlns="cadence:settings">.
    */
-  loadSettings: function() {
+  loadSettings() {
     const name = config.clientName;
     const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
     const decodeValue = node => {
@@ -1123,7 +1123,7 @@ var xmpp = {
    *
    * This will store settings in <cadence xmlns="cadence:settings">.
    */
-  storeSettings: function(data, modified) {
+  storeSettings(data, modified) {
     const name = config.clientName;
     const query = this.connection.storage.set(name, name + ':settings');
     query.attrs({modified});
@@ -1149,5 +1149,5 @@ var xmpp = {
 
     encodeValue(data);
     return query.send(config.xmpp.timeout);
-  }
+  },
 };
