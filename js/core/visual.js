@@ -111,6 +111,9 @@ visual = {
     // Make users clickable.
     this.msgOnClick(html);
 
+    // Make links open in new tabs.
+    this.linkOnClick(html);
+
     return {timestamp: message.time.getTime(), html, message};
   },
 
@@ -246,8 +249,6 @@ visual = {
     // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
     this.addEmoticons(jq);
-    // Make links open in new tabs.
-    this.linkOnClick(jq);
   },
 
 
