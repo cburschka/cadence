@@ -148,7 +148,8 @@ var xmpp = {
       this.connection.version.sendVersion(request,
         config.clientName,
         config.version,
-        navigator.userAgent
+        // Sending the user agent (in <os>) is optional.
+        (config.settings.xmpp.sendUserAgent !== false) && navigator.userAgent
       );
       return true;
     });

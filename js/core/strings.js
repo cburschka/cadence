@@ -321,7 +321,8 @@ var strings = {
     settings: {
       xmpp: {
         sessionAuth: 'Log in with forum session',
-        autoJoin: 'Join room on login'
+        autoJoin: 'Join room on login',
+        sendUserAgent: 'Send user agent string on request.',
       },
       contextmenu: {
         label: 'Open context menu with',

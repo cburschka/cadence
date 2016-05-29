@@ -73,6 +73,7 @@ var config = {
       room: 'lounge',
       autoJoin: true,
       sessionAuth: true,
+      sendUserAgent: true,
       resource: '{client}/{version}/{timestamp}',
     },
 
