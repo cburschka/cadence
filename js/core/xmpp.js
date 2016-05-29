@@ -58,8 +58,8 @@ var xmpp = {
       if (!stanza) return this.condition = 'timeout';
       this.stanza = stanza;
       const error = $('error', stanza);
-      this.type = error.attribute('type');
-      this.condition = error.children(stanzaErrors.join(',')).prop('tagName');
+      this.type = error.attr('type');
+      this.condition = error.children(xmpp.stanzaErrors.join(',')).prop('tagName');
     }
   },
 

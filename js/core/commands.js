@@ -137,7 +137,7 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
     throw new Cadence.Error(strings.error.affiliate.notFound, {nick: user.jid});
 
   // Attempt to set user's affiliation.
-  xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
+  return xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
     const room = xmpp.room.available[xmpp.room.current];
     ui.messageInfo(strings.info.affiliate, {user, room, type});
   })
@@ -249,7 +249,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
  *   Shortcut for "/affiliate outcast <nick|jid>".
  */
 Cadence.addCommand('ban', ({nick, jid}) => {
-  Cadence.execute('affiliate', {type: 'outcast', nick, jid});
+  return Cadence.execute('affiliate', {type: 'outcast', nick, jid});
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
@@ -266,7 +266,7 @@ Cadence.addCommand('ban', ({nick, jid}) => {
  *   Shortcut for "/affiliate outcast".
  */
 Cadence.addCommand('bans', () => {
-  Cadence.execute('affiliate', {type: 'outcast'});
+  return Cadence.execute('affiliate', {type: 'outcast'});
 })
 .require(Cadence.requirements.room);
 
@@ -585,7 +585,7 @@ Cadence.addCommand('join', ({room, password}) => {
  *   server's job.
  */
 Cadence.addCommand('kick', ({nick}) => {
-  xmpp.setUser({nick, role: 'none'})
+  return xmpp.setUser({nick, role: 'none'})
   .catch(error => {
     switch (error.condition) {
       case 'not-acceptable':
@@ -604,7 +604,7 @@ Cadence.addCommand('kick', ({nick}) => {
  *   List available rooms.
  */
 Cadence.addCommand('list', () => {
-  xmpp.discoverRooms().then(
+  return xmpp.discoverRooms().then(
     rooms => {
       const links = $.map(rooms, visual.format.room);
       if (links.length) {
@@ -629,7 +629,7 @@ Cadence.addCommand('list', () => {
  */
 Cadence.addCommand('me', ({text}) => {
   // XEP-0245 says to simply send this command as text.
-  Cadence.execute('say', {text: '/me' + text});
+  return Cadence.execute('say', {text: '/me' + text});
 })
 .parse(string => ({text: string}))
 .require(Cadence.requirements.room);
@@ -692,7 +692,7 @@ Cadence.addCommand('part', () => {
   ui.messageInfo(strings.info.leave, {room: xmpp.room.available[room]});
   ui.updateRoom();
   xmpp.leaveRoom(room);
-  Cadence.execute('list');
+  return Cadence.execute('list');
 })
 .require(Cadence.requirements.room);
 
@@ -724,7 +724,7 @@ Cadence.addCommand('part', () => {
     const user = target && xmpp.userFromJid(target);
     const time = (new Date()).getTime();
 
-    xmpp.ping(target).then((stanza) => {
+    return xmpp.ping(target).then((stanza) => {
       const delay = ((new Date()).getTime() - time).toString();
       ui.messageInfo(strings.info.pong[+!!user], {user, delay});
     })
@@ -762,7 +762,7 @@ Cadence.addCommand('part', () => {
 
     const start = new Date();
 
-    xmpp.getTime(target).then((stanza) => {
+    return xmpp.getTime(target).then((stanza) => {
       const now = new Date();
       const tzo = $('tzo', stanza).text();
       const utc = new Date($('utc', stanza).text());
@@ -861,7 +861,7 @@ Cadence.addCommand('sync', ({type}) => {
     if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
       throw new Cadence.Error(strings.error.sync.canceled, {account: xmpp.jid.node});
 
-  Cadence.synchronizeSettings(type);
+  return Cadence.synchronizeSettings(type);
 })
 .parse(string => ({type: string.trim()}))
 .require(Cadence.requirements.online);
@@ -898,11 +898,11 @@ Cadence.addCommand('who', ({room}) => {
   if (!room)
     throw new Cadence.Error(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
   if (room.id != xmpp.room.current) {
-    xmpp.getOccupants(room.id, (users) => {
+    return xmpp.getOccupants(room.id).then(users => {
       const list = $.map(users, (user, nick) => { return visual.format.nick(nick); });
       if (links.length) ui.messageInfo(strings.info.usersInRoom, {room, list});
       else ui.messageInfo(strings.info.noUsers, {room});
-    })
+    });
   }
   else {
     const roster = xmpp.roster[xmpp.room.current];

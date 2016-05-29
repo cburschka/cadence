@@ -452,9 +452,7 @@ var Cadence = {
 
     if (type === 'set') return set();
 
-    // First load the stored settings.
-    xmpp.loadSettings()
-    .then(stored => {
+    return xmpp.loadSettings().then(stored => {
       const remote = new Date(stored.modified).getTime();
       if (local == remote) return ui.messageInfo(strings.info.sync.equal);
       if (type == 'get' || sync == local) return get(stored);
