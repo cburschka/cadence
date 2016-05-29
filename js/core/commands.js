@@ -53,16 +53,14 @@ Cadence.addCommand('admin', arg => {
 
     ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
   })
-  .catch((stanza) => {
-    if ($('forbidden', stanza).length)
-      throw new Cadence.Error(strings.error.admin.forbidden, {command});
-    else if ($('service-unavailable', stanza).length)
-      throw new Cadence.Error(strings.error.admin.badCommand, {command});
-    else if ($('text', stanza).length)
-      throw new Cadence.Error(strings.error.admin.generic, {command, text: $('text', stanza).text()});
-    else {
-      throw new Cadence.Error(strings.error.admin.unknown, {command});
+  .catch(error => {
+    switch (error.condition) {
+      case 'forbidden':
+        throw new Cadence.Error(strings.error.admin.forbidden, {command});
+      case 'service-unavailable':
+        throw new Cadence.Error(strings.error.admin.badCommand, {command});
     }
+    throw new Cadence.Error(strings.error.admin.unknown, {command});
   });
 })
 .parse(string => {
@@ -120,9 +118,11 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
       for (let jid in users) users[jid] = visual.format.user(users[jid]);
 
       ui.messageInfo(strings.info.affiliations[type], {type, list: users});
-    }, (stanza) => {
-      const type = ($('forbidden', iq).length) ? 'forbidden' : 'default';
-      throw new Cadence.Error(strings.error.affiliations[type], {type});
+    })
+    .catch(error => {
+      if (error.condition == 'forbidden')
+        throw new Cadence.Error(strings.error.affiliations.forbidden, {type});
+      throw error;
     });
   }
 
@@ -134,17 +134,21 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
     throw new Cadence.Error(strings.error.affiliate.anon, {user});
   // User is not in the room (therefore their JID is actually just a nick).
   if (!user.jid.node)
-    throw new Cadence.Error(strings.error.affiliate.unknown, {nick: user.jid});
+    throw new Cadence.Error(strings.error.affiliate.notFound, {nick: user.jid});
 
   // Attempt to set user's affiliation.
   xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
     const room = xmpp.room.available[xmpp.room.current];
     ui.messageInfo(strings.info.affiliate, {user, room, type});
-  }, (e) => {
-    let error = 'default';
-    if ($('not-allowed', e).length) error = 'notAllowed';
-    else if ($('conflict', e).length) error = 'conflict';
-    throw new Cadence.Error(strings.error.affiliate[error], {user, type});
+  })
+  .catch(error => {
+    switch (error.condition) {
+      case 'not-allowed':
+        throw new Cadence.Error(strings.error.affiliate.notAllowed, {user, type});
+      case 'conflict':
+        throw new Cadence.Error(strings.error.affiliate.conflict, {user, type});
+    }
+    throw error;
   });
 })
 .parse(string => {
@@ -307,13 +311,14 @@ Cadence.addCommand('configure', arg => {
 
   // Report success or error.
   const success = () => ui.messageInfo(strings.info.roomConf);
-  const error = stanza => {
-    if ($('item-not-found', stanza).length)
-      throw new Cadence.Error(strings.error.unknownRoom, {name});
-    else if ($('forbidden', stanza).length)
-      throw new Cadence.Error(strings.error.roomConfDenied, {room});
-    else
-      throw new Cadence.Error(strings.error.roomConf, {room});
+  const error = error => {
+    switch (error.condition) {
+      case 'item-not-found':
+        throw new Cadence.Error(strings.error.unknownRoom, {name});
+      case 'forbidden':
+        throw new Cadence.Error(strings.error.roomConfDenied, {room});
+    }
+    throw error;
   };
 
   return xmpp.roomConfig(name).then(configure).then(success, error);
@@ -359,6 +364,7 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
     if (!automatic) throw new Cadence.Error(strings.error.connection.auth);
   };
 
+  if (!getAuth) return noCredentials();
   return getAuth.then(connect, noCredentials);
 })
 .parse(string => {
@@ -462,11 +468,10 @@ Cadence.addCommand('destroy', ({room, alternate, reason}) => {
 
   xmpp.destroyRoom(name, alternate, reason)
   .then(() => ui.messageInfo(strings.info.destroySuccess, {room}))
-  .catch(stanza => {
-    if ($('forbidden', stanza).length)
+  .catch(error => {
+    if (error.condition == 'forbidden')
       throw new Cadence.Error(strings.error.destroyDenied, {room});
-    else
-      throw new Cadence.Error(strings.error.destroy, {room});
+    throw error;
   });
 })
 .parse(string => {
@@ -560,10 +565,12 @@ Cadence.addCommand('join', ({room, password}) => {
     xmpp.setRoom(room.id);
     ui.messageInfo(strings.info.joined, {room});
   };
-  const error = stanza => {
+  const error = error => {
     ui.setFragment(xmpp.room.current);
-    if ($('registration-required', stanza).length)
+    if (error.condition === 'registration-required') {
       throw new Cadence.Error(strings.error.joinRegister, {room});
+    }
+    else throw error;
   };
 
   return checkExists.then(reservedNick).then(join).then(success, error);
@@ -578,11 +585,15 @@ Cadence.addCommand('join', ({room, password}) => {
  *   server's job.
  */
 Cadence.addCommand('kick', ({nick}) => {
-  xmpp.setUser({nick, role: 'none'}).catch(stanza => {
-    if ($('not-acceptable', stanza).length)
-      throw new Cadence.Error(strings.error.kick['not-acceptable'], {nick});
-    if ($('not-allowed', stanza).length)
-      throw new Cadence.Error(strings.error.kick['not-allowed'], {nick});
+  xmpp.setUser({nick, role: 'none'})
+  .catch(error => {
+    switch (error.condition) {
+      case 'not-acceptable':
+        throw new Cadence.Error(strings.error.unknownUser, {nick});
+      case 'not-allowed':
+        throw new Cadence.Error(strings.error.kick, {nick});
+    }
+    throw error;
   });
 })
 .parse(string => ({nick: string.trim()}))
@@ -602,10 +613,11 @@ Cadence.addCommand('list', () => {
       else throw new Cadence.Error(strings.error.noRoomsAvailable);
     },
     error => {
-      const type = ($('remote-server-not-found', error).length) ? 404 : 'default';
-      let text = $('text', error).text();
-      text = text ? ' (' + text + ')' : '';
-      throw new Cadence.Error(strings.error.muc[type] + text, {domain: config.xmpp.mucService});
+      const domain = config.xmpp.mucService;
+      if (error.condition == 'remote-server-not-found') {
+        throw new Cadence.Error(strings.error.muc.notFound, {domain});
+      }
+      throw new Cadence.Error(strings.error.muc.unknown, {domain});
     }
   );
 })
@@ -715,17 +727,30 @@ Cadence.addCommand('part', () => {
     xmpp.ping(target).then((stanza) => {
       const delay = ((new Date()).getTime() - time).toString();
       ui.messageInfo(strings.info.pong[+!!user], {user, delay});
-    }, (stanza) => {
-      if ($('item-not-found', stanza).length)
-        ui.messageError(strings.error.unknownUser, {nick});
-      else if (stanza)
-        ui.messageError(strings.error.pingError);
-      else {
-        const delay = ((new Date()).getTime() - time).toString();
-        ui.messageError(strings.error.pingTimeout[+!!user], {user, delay});
+    })
+    .catch(error => {
+      switch (error.condition) {
+        case 'item-not-found':
+          throw new Cadence.Error(strings.error.unknownUser, {nick});
+        case 'timeout':
+          const delay = ((new Date()).getTime() - time).toString();
+          throw new Cadence.Error(strings.error.pingTimeout[+!!user], {user, delay});
       }
+      throw error;
     });
   }).parse(parser).require(Cadence.requirements.online);
+
+  const error = error => {
+    switch (error.condition) {
+      case 'item-not-found':
+        throw new Cadence.Error(strings.error.unknownUser, {nick});
+      case 'feature-not-implemented':
+        throw new Cadence.Error(strings.error.feature);
+      case 'timeout':
+        throw new Cadence.Error(strings.error.timeout);
+    }
+    throw error;
+  };
 
   /**
    * time [<nick>|<jid>]
@@ -745,14 +770,7 @@ Cadence.addCommand('part', () => {
       let offset = (utc - now) + (now - start) / 2
       if (offset > 0) offset = '+' + offset;
       ui.messageInfo(strings.info.time[+!!user], {user, tzo, time, offset});
-    }, (stanza) => {
-      if ($('item-not-found', stanza).length)
-        ui.messageError(strings.error.unknownUser, {nick});
-      else if ($('feature-not-implemented', stanza).length)
-        ui.messageError(strings.error.feature);
-      else if (!stanza)
-        ui.messageError(strings.error.timeout);
-    });
+    }).catch(error);
   }).parse(parser).require(Cadence.requirements.online);
 
   /**
@@ -770,7 +788,8 @@ Cadence.addCommand('part', () => {
 
     // Only show client version when offline.
     if (!xmpp.connection.connected) {
-      return arg && ui.messageError(strings.error.cmdStatus.offline, {command: 'version'});
+      if (arg) throw new Cadence.Error(strings.error.cmdStatus.offline, {command: 'version'});
+      else return;
     }
 
     const target = jid || nick && xmpp.jidFromRoomNick({nick});
@@ -784,14 +803,7 @@ Cadence.addCommand('part', () => {
         ui.messageInfo(strings.info.versionUser, {name, version, os, user});
       else
         ui.messageInfo(strings.info.versionServer, {name, version, os});
-    }, (stanza) => {
-      if ($('item-not-found', stanza).length != 0)
-        ui.messageError(strings.error.unknownUser, {nick});
-      else if ($('feature-not-implemented', stanza).length)
-        ui.messageError(strings.error.feature);
-      else if (!stanza)
-        ui.messageError(strings.error.timeout);
-    });
+    }).catch(error);
   }).parse(parser);
 })();
 
@@ -861,16 +873,16 @@ Cadence.addCommand('sync', ({type}) => {
 Cadence.addCommand('unban', ({jid}) => {
   if (!jid) throw new Cadence.Error(strings.error.noArgument);
 
-  return xmpp.getUsers({affiliation: 'outcast'}).then((stanza) => {
+  return xmpp.getUsers({affiliation: 'outcast'}).then(stanza => {
     const isBanned = $('item', stanza).is(function() {
       return jid.matchBare(this.getAttribute('jid'));
     });
     if (isBanned) return Cadence.execute('affiliate', {type: 'none', jid});
     else throw new Cadence.Error(strings.error.unbanNone);
-  }, (stanza) => {
-    if ($('forbidden', iq).length)
-      ui.messageError(strings.error.banList.forbidden);
-    else ui.messageError(strings.error.banList.default);
+  }).catch(error => {
+    if (error.condition == 'forbidden')
+      throw new Cadence.Error(strings.error.banList.forbidden);
+    throw error;
   });
 })
 .parse(string => ({jid: xmpp.JID.parse(string.trim())}))
@@ -916,7 +928,7 @@ Cadence.addCommand('whois', ({nick}) => {
       status: user.show + (user.status ? ' (' + user.status + ')' : '')
     });
   }
-  else ui.messageError(strings.error.unknownUser, {nick});
+  else throw new Cadence.Error(strings.error.unknownUser, {nick});
 })
 .parse(string => ({nick: arg.trim()}))
 .require(Cadence.requirements.room);

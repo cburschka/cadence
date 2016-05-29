@@ -4,52 +4,6 @@ var Cadence = {
   historyIndex: 0,
   commands: {},
 
-  /**
-   * Execute a specific command.
-   *
-   * @param {string} command
-   * @param {Object} arg
-   */
-  execute(command, arg={}) {
-    return this.getCommand(command).execute(arg);
-  },
-
-  /**
-   * Register a new command.
-   * The callback function should accept a single object argument.
-   * The optional parser argument should process a string into an acceptable object.
-   *
-   * @param {string} name
-   * @param {function} callback
-   */
-  addCommand(name, callback) {
-    return this.commands[name] = new Cadence.Command(callback);
-  },
-
-  getCommand(command) {
-    if (command in this.commands) return this.commands[command];
-    else throw new Cadence.Error(strings.error.cmdUnknown, {command});
-  },
-
-  checkCommand(command) {
-    try {
-      return this.getCommand(command).isAvailable();
-    }
-    catch (e) {
-      return false;
-    }
-  },
-
-  tryCommand(command, arg) {
-    try {
-      this.execute(command, arg);
-    }
-    catch (e) {
-      if (e instanceof Cadence.Error) e.output();
-      else throw e;
-    }
-  },
-
   Command: class {
     constructor(callback) {
       this.execute = callback;
@@ -82,7 +36,7 @@ var Cadence = {
     }
 
     toString() {
-      return visual.formatText(msg, data).text();
+      return visual.formatText(this.msg, this.data).text();
     }
 
     output() {
@@ -90,8 +44,63 @@ var Cadence = {
     }
 
     static fromError(error) {
-      return new Cadence.Error(strings.error.javascript, error);
+      if (error instanceof Error) return new Cadence.Error(strings.error.javascript, error);
+      // Catch whatever crazy stuff has been thrown at us.
+      return new Cadence.Error(strings.error.unknown, {error: JSON.stringify(error)});
     }
+  },
+
+  /**
+   * Execute a specific command.
+   *
+   * @param {string} command
+   * @param {Object} arg
+   */
+  execute(command, arg={}) {
+    return Promise.resolve(this.getCommand(command).execute(arg));
+  },
+
+  /**
+   * Register a new command.
+   * The callback function should accept a single object argument.
+   * The optional parser argument should process a string into an acceptable object.
+   *
+   * @param {string} name
+   * @param {function} callback
+   */
+  addCommand(name, callback) {
+    return this.commands[name] = new Cadence.Command(callback);
+  },
+
+  getCommand(command) {
+    if (command in this.commands) return this.commands[command];
+    else throw new Cadence.Error(strings.error.cmdUnknown, {command});
+  },
+
+  checkCommand(command) {
+    try {
+      return this.getCommand(command).isAvailable();
+    }
+    catch (e) {
+      return false;
+    }
+  },
+
+  tryCommand(command, arg) {
+    try {
+      this.execute(command, arg).catch(error => this.handleError(command, error));
+    }
+    catch (error) {
+      this.handleError(command, error);
+    }
+  },
+
+  handleError(command, error) {
+    if (!(error instanceof Cadence.Error)) {
+      error = Cadence.Error.fromError(error);
+    }
+    error.data = $.extend(error.data, {command});
+    error.output();
   },
 
   /**
@@ -122,15 +131,13 @@ var Cadence = {
       return this.executeMacro(config.settings.macros[command], text);
     }
 
+    // Catch both synchronous and asynchronous errors.
     try {
-      return this.getCommand(command).isAvailable().invoke(text);
+      return this.getCommand(command).isAvailable().invoke(text)
+      .catch(error => this.handleError(command, error));
     }
     catch (error) {
-      if (!(error instanceof Cadence.Error)) {
-        error = Cadence.Error.fromError(error);
-      }
-      error.data = $.extend(error.data, {command});
-      error.output();
+      this.handleError(command, error);
     }
   },
 
@@ -287,9 +294,10 @@ var Cadence = {
     ui.messageInfo(strings.info.connection.connecting);
 
     // This is a callback, because it happens after the promise is resolved.
+    // That also means we can't throw an error here.
     const disconnect = () => {
       ui.setConnectionStatus(false);
-      throw new Cadence.Error(strings.info.connection.disconnected);
+      (new Cadence.Error(strings.info.connection.disconnected)).output();
     }
 
     return xmpp.connect(user, pass, disconnect)
@@ -299,25 +307,26 @@ var Cadence = {
       ui.messageInfo(strings.info.connection.connected);
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
-        const name = ui.getFragment() || config.settings.xmpp.room;
+        const room = ui.getFragment() || config.settings.xmpp.room;
         Cadence.execute('join', {room});
       }
       else Cadence.execute('list');
-    },
+    })
     // Notify user of connection failures.
-    ({status, error}) => {
+    .catch(error => {
       ui.setConnectionStatus(false);
-      switch (status) {
+      switch (error.status) {
         case Strophe.Status.AUTHFAIL:
           throw new Cadence.Error(strings.error.connection.authfail);
         case Strophe.Status.CONNFAIL:
-          if (error == 'x-strophe-bad-non-anon-jid') {
+          if (error.error == 'x-strophe-bad-non-anon-jid') {
             throw new Cadence.Error(strings.error.connection.anonymous)
           }
           throw new Cadence.Error(strings.error.connection.connfail);
         case Strophe.Status.ERROR:
           throw new Cadence.Error(strings.error.connection.other);
       }
+      throw error;
     });
   },
 
@@ -457,7 +466,6 @@ var Cadence = {
   Cadence.requirements = {
     online() {
       if (!xmpp.connection.connected) {
-        console.log(strings.error.cmdState);
         throw new Cadence.Error(strings.error.cmdState.online);
       }
       return true;

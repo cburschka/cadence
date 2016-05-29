@@ -169,11 +169,11 @@ var strings = {
     },
     affiliate: {
       anon: 'You cannot access the JID of {user} in this room.',
-      conflict: 'You cannot change your own affiliation in this way.',
-      'default': 'Unknown error while attempting to set affiliation.',
+      conflict: 'You cannot change your own affiliation to this value.',
+      unknown: 'Unknown error while attempting to set affiliation.',
       notAllowed: 'You lack the authority to set the affiliation of {user} to {type}.',
       type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".',
-      unknown: 'There is no user named {nick} in this room.',
+      notFound: 'There is no user named {nick} in this room.',
     },
     affiliations: {
       'default': 'Unknown error while getting the list of {type} affiliations.',
@@ -191,7 +191,7 @@ var strings = {
     },
     connection: {
       anonymous: 'This server does not support anonymous login.',
-      authmissing: 'User and password are required.',
+      auth: 'User and password are required.',
       authfail: 'Authentication failed.',
       connfail: 'Connection failed.',
       other: 'An error has occurred.',
@@ -203,10 +203,7 @@ var strings = {
       node: 'User {node} on {domain} is not available.'
     },
     formFields: 'The following fields could not be set: {fields}',
-    kick: {
-      'not-allowed': 'You lack the authority to kick {nick}.',
-      'not-acceptable': 'You can\'t kick {nick} because they\'re not in the room.',
-    },
+    kick: 'You lack the authority to kick {nick}.',
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
     feature: 'The remote entity does not support this feature.',
     javascript: 'A javascript error has occurred.\n{name}: {message}\nStack trace:\n{stack}',
@@ -218,8 +215,8 @@ var strings = {
     joinSame: 'You are already in {room}.',
     messageDenied: 'You lack the authority to send this message ({text}).',
     muc: {
-      404: 'The conference server {domain} is not available.',
-      'default': 'Unknown error while connecting to the conference server {domain}.',
+      notFound: 'The conference server {domain} is not available.',
+      unknown: 'Unknown error while connecting to the conference server {domain}.',
     },
     nickConflict: 'Username {nick} already in use.',
     noArgument: 'This command requires more arguments.',
@@ -244,6 +241,7 @@ var strings = {
     timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
     unbanNone: 'No banned user matched your query.',
+    unknown: 'An unknown error has occurred: {error}',
     unknownJid: 'User {user} is anonymous.',
     unknownRoom: 'Room {name} does not exist.',
     unknownUser: 'User {nick} not found.',

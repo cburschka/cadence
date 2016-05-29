@@ -19,6 +19,92 @@ var xmpp = {
   historyEnd: {},
 
   /**
+   * Defined error conditions in stanzas.
+   */
+  stanzaErrors: [
+    'bad-request',
+    'conflict',
+    'feature-not-implemented',
+    'forbidden',
+    'gone',
+    'internal-server-error',
+    'item-not-found',
+    'jid-malformed',
+    'not-acceptable',
+    'not-allowed',
+    'not-authorized',
+    'policy-violation',
+    'recipient-unavailable',
+    'redirect',
+    'registration-required',
+    'remote-server-not-found',
+    'remote-server-timeout',
+    'resource-constraint',
+    'service-unavailable',
+    'subscription-required',
+    'undefined-condition',
+    'unexpected-request',
+  ],
+
+  ConnectionError: class {
+    constructor(status, error) {
+      this.status = status;
+      this.error = error;
+    }
+  },
+
+  StanzaError: class {
+    constructor(stanza) {
+      if (!stanza) return this.condition = 'timeout';
+      this.stanza = stanza;
+      const error = $('error', stanza);
+      this.type = error.attribute('type');
+      this.condition = error.children(stanzaErrors.join(',')).prop('tagName');
+    }
+  },
+
+  JID: class {
+    constructor({node, domain, resource}={}) {
+      let bareJid = domain || '';
+      if (node) bareJid = Strophe.escapeNode(node) + '@' + bareJid;
+      const jid = resource ? (bareJid + '/' + resource) : bareJid;
+
+      this.node = node;
+      this.domain = domain;
+      this.resource = resource;
+      this.jid = jid;
+      this.bareJid = bareJid;
+    }
+
+    bare() {
+      return this.bareJid;
+    }
+
+    equals(x) {
+      return String(this) === String(x);
+    }
+
+    matchBare(x) {
+      if (!x || !x.bare) x = xmpp.JID.parse(x);
+      return this.bare().toLowerCase() == x.bare().toLowerCase();
+    }
+
+    toString() {
+      return this.jid;
+    }
+
+    static parse(jid) {
+      if (!jid) return jid;
+      jid = String(jid);
+      return new xmpp.JID({
+        node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
+        domain: Strophe.getDomainFromJid(jid),
+        resource: Strophe.getResourceFromJid(jid)
+      });
+    }
+  },
+
+  /**
    * Create the connection object.
    */
   init() {
@@ -83,7 +169,7 @@ var xmpp = {
   connect(user, pass, disconnect) {
     // Make sure the connection isn't already open.
     if (this.connection.connected) {
-      throw {status: Strophe.Status.CONNECTED};
+      throw new this.ConnectionError(Strophe.Status.CONNECTED);
     }
 
     // Attach all the event handlers (they're removed when disconnecting).
@@ -100,18 +186,18 @@ var xmpp = {
     });
 
     let first = true;
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       return this.connection.connect(String(this.jid), pass, (status, error) => {
         // This block resolves the promise; it can only run once.
         if (first) switch (status) {
           case Strophe.Status.ERROR:
           case Strophe.Status.CONNFAIL:
           case Strophe.Status.AUTHFAIL:
-            first = false; throw {status, error};
+            first = false; return reject(new this.ConnectionError(status, error));
           case Strophe.Status.CONNECTED:
             // Broadcast presence.
             this.pres().send();
-            first = false; resolve();
+            first = false; return resolve();
         }
         else if (status === Strophe.Status.DISCONNECTED) {
           this.nick.current = null;
@@ -137,6 +223,8 @@ var xmpp = {
     const iq = $iq({from: this.jid}).attrs(attrs);
     iq.send = () => new Promise((resolve, reject) => {
       this.connection.sendIQ(iq, resolve, reject, config.xmpp.timeout);
+    }).catch(stanza => {
+      throw new this.StanzaError(stanza);
     });
     return iq;
   },
@@ -199,47 +287,6 @@ var xmpp = {
     });
   },
 
-  JID: class {
-    constructor({node, domain, resource}={}) {
-      let bareJid = domain || '';
-      if (node) bareJid = Strophe.escapeNode(node) + '@' + bareJid;
-      const jid = resource ? (bareJid + '/' + resource) : bareJid;
-
-      this.node = node;
-      this.domain = domain;
-      this.resource = resource;
-      this.jid = jid;
-      this.bareJid = bareJid;
-    }
-
-    bare() {
-      return this.bareJid;
-    }
-
-    equals(x) {
-      return String(this) === String(x);
-    }
-
-    matchBare(x) {
-      if (!x || !x.bare) x = xmpp.JID.parse(x);
-      return this.bare().toLowerCase() == x.bare().toLowerCase();
-    }
-
-    toString() {
-      return this.jid;
-    }
-
-    static parse(jid) {
-      if (!jid) return jid;
-      jid = String(jid);
-      return new xmpp.JID({
-        node: Strophe.unescapeNode(Strophe.getNodeFromJid(jid)),
-        domain: Strophe.getDomainFromJid(jid),
-        resource: Strophe.getResourceFromJid(jid)
-      });
-    }
-  },
-
   /**
    * Find a user by roomnick or JID.
    *
@@ -282,21 +329,21 @@ var xmpp = {
    * @return {Promise} A promise that will resolve to the new nickname.
    */
   changeNick(nick) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.nick.target = nick;
-      if (!this.connection.connected) return resolve();
+      if (!this.connection.connected) return resolve(nick);
 
       const jid = this.jidFromRoomNick({nick});
       this.pres({to: jid}).send();
 
-      this.connection.addHandler((stanza) => {
+      this.connection.addHandler(stanza => {
         // The new presence must come from our nickname, or contain a 110 status.
         const from = this.JID.parse(stanza.getAttribute('from'));
         const newNick = from.resource;
         const type = stanza.getAttribute('type');
         if (nick == newNick || $('x status[code="110"]', stanza).length) {
           if (type != 'error') resolve(newNick);
-          else reject(stanza);
+          else throw new this.StanzaError(stanza);
         }
         else return true;
       }, null, 'presence', null, null, String(jid), {matchBare: true});
@@ -337,6 +384,7 @@ var xmpp = {
       const query = $('query', stanza);
       const nick = $('identity', query).attr('name');
       if (query.attr('node') == 'x-roomuser-item' && nick) return nick;
+      // This is *not* an error stanza, the server is just being dumb.
       else throw stanza;
     });
   },
@@ -394,10 +442,12 @@ var xmpp = {
     if (password) pres.up().c('password', password);
     pres.send();
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       // The server may alter the nickname, requiring a bare match:
       this.connection.addHandler((stanza) => {
-        if ($(stanza).attr('type') == 'error') reject(stanza);
+        if ($(stanza).attr('type') == 'error') {
+          throw new this.StanzaError(stanza);
+        }
         else if ($('status[code=110]', stanza).length) {
           resolve(stanza);
         }
@@ -698,8 +748,45 @@ var xmpp = {
     // Initialize the room roster if it doesn't exist yet.
     if (!this.roster[room]) this.roster[room] = {};
 
-    if (type == 'error')
-      return this.eventPresenceError(room, nick, stanza) || true;
+
+    if (type == 'error') {
+      // We're not throwing this one, the error handling happens in here.
+      const error = new this.StanzaError(stanza);
+      switch (error.condition) {
+        case 'conflict':
+          if (room == this.room.current) {
+            ui.messageError(strings.error.nickConflict, {nick});
+            this.nick.target = this.nick.current;
+          }
+          else {
+            ui.messageError(strings.error.joinConflict, {nick});
+            if (this.nickConflictResolve()) {
+              ui.messageInfo(strings.info.rejoinNick, {nick: this.nick.target});
+              this.joinRoom(this.room.target, this.nick.target);
+            }
+          }
+          break;
+        case 'not-authorized':
+          const password = prompt(strings.info.promptRoomPassword);
+          if (password) {
+            this.joinExistingRoom(room, password);
+          }
+          else {
+            ui.messageError(strings.error.joinPassword, {room: this.room.available[room]});
+          }
+          break;
+        case 'forbidden':
+          ui.messageError(strings.error.joinBanned, {room: this.room.available[room]});
+          break;
+        case 'not-allowed':
+          ui.messageError(strings.error.noCreate);
+          break;
+        case 'jid-malformed':
+          this.nick.target = this.nick.current;
+          ui.messageError(strings.error.badNick, {nick});
+      }
+      return true;
+    }
 
     // Find the status codes.
     const item = $(stanza).find('item');
@@ -712,38 +799,6 @@ var xmpp = {
     else
       this.eventPresenceDefault(room, nick, codes, item, stanza);
     return true;
-  },
-
-  /**
-   * Handle presence stanzas of type `error`.
-   */
-  eventPresenceError(room, nick, stanza) {
-    if ($('conflict', stanza).length) {
-      if (room == this.room.current) {
-        ui.messageError(strings.error.nickConflict, {nick});
-        return this.nick.target = this.nick.current;
-      }
-      else {
-        ui.messageError(strings.error.joinConflict, {nick});
-        if (this.nickConflictResolve()) {
-          ui.messageInfo(strings.info.rejoinNick, {nick: this.nick.target});
-          return this.joinRoom(this.room.target, this.nick.target);
-        }
-      }
-    }
-    else if ($('not-authorized', stanza).length) {
-      const password = prompt(strings.info.promptRoomPassword);
-      if (password) return this.joinExistingRoom(room, password);
-      else ui.messageError(strings.error.joinPassword, {room: this.room.available[room]});
-    }
-    else if ($('forbidden', stanza).length)
-      ui.messageError(strings.error.joinBanned, {room: this.room.available[room]});
-    else if ($('not-allowed', stanza).length)
-      ui.messageError(strings.error.noCreate);
-    else if ($('jid-malformed', stanza).length) {
-      ui.messageError(strings.error.badNick, {nick});
-      this.nick.target = this.nick.current;
-    }
   },
 
   /**
