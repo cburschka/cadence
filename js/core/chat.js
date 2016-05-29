@@ -6,8 +6,13 @@ var Cadence = {
 
   Command: class {
     constructor(callback) {
-      this.execute = callback;
+      this.callback = callback;
       this.parser = Cadence.parseArgs;
+    }
+
+    execute(arg) {
+      // Make sure all commands return promises, even synchronous ones.
+      return Promise.resolve(this.callback(arg));
     }
 
     invoke(string) {
@@ -57,7 +62,7 @@ var Cadence = {
    * @param {Object} arg
    */
   execute(command, arg={}) {
-    return Promise.resolve(this.getCommand(command).execute(arg));
+    return this.getCommand(command).execute(arg);
   },
 
   /**
@@ -134,7 +139,7 @@ var Cadence = {
     // Catch both synchronous and asynchronous errors.
     try {
       return this.getCommand(command).isAvailable().invoke(text)
-      .catch(error => this.handleError(command, error));
+        .catch(error => this.handleError(command, error));
     }
     catch (error) {
       this.handleError(command, error);
