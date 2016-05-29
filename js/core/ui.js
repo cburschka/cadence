@@ -171,11 +171,16 @@ var ui = {
 
     // Set the form values.
     $('.settings').val(function() {
-      return Cadence.getSetting(this.id.substring('settings-'.length));
-    }).change();
+      const id = this.id.substring('settings-'.length);
+      const value = Cadence.getSetting(id);
+      return value;
+    });
     $('input.settings[type="checkbox"]').prop('checked', function() {
-      return Cadence.getSetting(this.id.substring('settings-'.length));
-    }).change();
+      const id = this.id.substring('settings-'.length);
+      const value = Cadence.getSetting(id);
+      return value;
+    });
+    $('.settings').change();
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     this.setTextColorPicker(config.settings.textColor);

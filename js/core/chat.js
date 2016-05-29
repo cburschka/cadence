@@ -431,18 +431,27 @@ var Cadence = {
   },
 
   synchronizeSettings(type) {
+    const old = config.settings.sync.account;
+    const account = xmpp.jid.node;
+
+    // We're already synchronized with another account.
+    if (old && old != account && !type) {
+      throw new Cadence.Error(strings.error.sync.change, {old, new: account});
+    }
+
     const settings = config.settings;
     const local = new Date(settings.modified).getTime();
     const sync = new Date(settings.sync.time).getTime();
 
     const set = () => xmpp.storeSettings(settings).then(() => {
-      config.settings.sync = {account: xmpp.jid.node, time: settings.modified};
+      config.settings.sync = {account, time: settings.modified};
       Cadence.saveSettings();
       ui.messageInfo(strings.info.sync.set);
     });
 
     const get = stored => {
-      stored.sync = {account: xmpp.jid.node, time: stored.modified};
+      if (!stored.sync) throw new Cadence.Error(strings.error.sync.missing);
+      stored.sync.time = stored.modified;
       config.settings = stored;
 
       ui.loadSettings(); // Apply the new settings.

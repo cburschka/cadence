@@ -854,13 +854,6 @@ Cadence.addCommand('say', ({text}) => {
  * Synchronize settings with the server.
  */
 Cadence.addCommand('sync', ({type}) => {
-  const account = config.settings.sync.account;
-
-  // We're already synchronized with another account.
-  if (account && account != xmpp.jid.node)
-    if (!prompt(strings.info.sync.change, {old: account, new: xmpp.jid.node}))
-      throw new Cadence.Error(strings.error.sync.canceled, {account: xmpp.jid.node});
-
   return Cadence.synchronizeSettings(type);
 })
 .parse(string => ({type: string.trim()}))

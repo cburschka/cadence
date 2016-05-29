@@ -135,7 +135,6 @@ var strings = {
     roomsAvailable: 'Available rooms: {list}',
     sessionAuth: 'Automatically logging in as {username}',
     sync: {
-      change: 'Do you want to stop synchronizing with {old} and synchronize with {new} instead?',
       equal: 'The settings are already synchronized.',
       get: 'The remote settings have been downloaded.',
       set: 'The local settings have been uploaded.',
@@ -235,8 +234,9 @@ var strings = {
     roomCreateCancel: 'Canceled room creation.',
     saveEmpty: 'There are no messages to save.',
     sync: {
-      canceled: 'The synchronization was canceled.',
+      change: 'You are currently synchronized with {old}. Overwrite the settings of {new} with /sync set, or apply them with /sync get.',
       conflict: 'The remote settings have changed. Overwrite them with /sync set, or apply them with /sync get.',
+      missing: 'There are no remote settings to load.',
     },
     timeout: 'Request timed out.',
     unban: 'Could not unban {jid} from this room.',
