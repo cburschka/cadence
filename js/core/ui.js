@@ -229,23 +229,23 @@ var ui = {
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
       if (this.value != xmpp.room.current) {
-        if (this.value) Cadence.execute('join', {name: this.value});
-        else Cadence.execute('part');
+        if (this.value) Cadence.tryCommand('join', {name: this.value});
+        else Cadence.tryCommand('part');
       }
     });
     $(window).on('hashchange', () => {
       if (this.urlFragment != window.location.hash) {
         this.urlFragment = window.location.hash;
-        if (this.urlFragment) Cadence.execute('join', {
-          name: this.getFragment()
-        });
-        else Cadence.execute('part');
+        if (this.urlFragment) {
+          Cadence.tryCommand('join', {room: this.getFragment()});
+        }
+        else Cadence.tryCommand('part');
       }
     });
 
     // Log in with the button or pressing enter.
     this.dom.loginContainer.submit(e => {
-      Cadence.execute('connect', {
+      Cadence.tryCommand('connect', {
         user: $('#loginUser').val(),
         pass: $('#loginPass').val()
       });
@@ -392,7 +392,7 @@ var ui = {
     });
 
     // /quit button.
-    $('#logoutButton').click(() => Cadence.execute('quit'));
+    $('#logoutButton').click(() => Cadence.tryCommand('quit'));
 
     $('#audioButton').click(function() {
       const audio = !config.settings.notifications.soundEnabled;
@@ -440,30 +440,31 @@ var ui = {
   },
 
   contextMenuStatus: function(_, {button}) {
+    const check = cmd => Cadence.checkCommand(cmd) && (cmd != xmpp.show);
     const labels = strings.label.status;
     const joined = !!xmpp.room.current;
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
-    const cmd = show => Cadence.execute('show',
+    const cmd = show => Cadence.tryCommand('show',
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
       name: labels.available,
       icon: 'available',
-      disabled: joined ? status == 'available' : online,
-      callback: joined ? cmd : () => Cadence.execute('connect'),
+      disabled: !check(online ? 'back' : 'connect'),
+      callback: () => Cadence.tryCommand(online ? 'back' : 'connect'),
     }};
     for (let show of ['away', 'xa', 'dnd']) items[show] = {
       name: labels[show],
       icon: show,
-      disabled: !joined || status == show,
+      disabled: !check(show),
       callback: cmd
     }
     items.offline = {
       name: labels.offline,
       icon: 'offline',
-      disabled: !online,
-      callback: () => Cadence.execute('quit'),
+      disabled: !check('quit'),
+      callback: () => Cadence.tryCommand('quit'),
     };
     return {items};
   },
@@ -473,7 +474,7 @@ var ui = {
    * @param {jq} user The user element.
    */
   userContextMenu: function(user) {
-    const c = cmd => Cadence.cmdAvailableState(cmd, true);
+    const check = cmd => Cadence.checkCommand(cmd);
     const labels = strings.label.command;
     const roster = xmpp.roster[xmpp.room.current]
     const userSelf = roster && roster[xmpp.nick.current];
@@ -489,13 +490,13 @@ var ui = {
       msg: {
         name: labels.msg,
         icon: 'msg',
-        disabled: !c('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
+        disabled: !check('msg') || !nick || !roster[nick], // disabled if user is not room occupant.
         callback: () => Cadence.prefixMsg({nick})
       },
       dmsg: {
         name: labels.dmsg,
         icon: 'msg',
-        disabled: !c('dmsg') || !jid, // disabled if user is anonymous.
+        disabled: !check('dmsg') || !jid, // disabled if user is anonymous.
         callback: () => Cadence.prefixMsg({jid})
       },
       sep1: '---',
@@ -503,35 +504,35 @@ var ui = {
         name: labels.invite,
         icon: 'invite',
         // disabled on anonymous users, or users who are already in the room.
-        disabled: !c('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
-        callback: () => Cadence.execute('invite', {jid}),
+        disabled: !check('invite') || !jid || nick && roster[nick] && jid.matchBare(roster[nick].jid),
+        callback: () => Cadence.tryCommand('invite', {jid}),
       },
       kick: {
         name: labels.kick,
         icon: 'leave',
         // disabled for non-mods, or higher affiliation, or absent users or yourself.
-        disabled: !c('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
-        callback: () => Cadence.execute('kick', {nick}),
+        disabled: !check('kick') || !mod || outranked || !nick || !roster[nick] || nick == xmpp.nick.current,
+        callback: () => Cadence.tryCommand('kick', {nick}),
       },
       ban: {
         name: labels.ban,
         icon: 'destroy',
         // disabled for non-admins, or higher affiliation, or anonymous users or yourself.
-        disabled: !c('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
-        callback: () => Cadence.execute('ban', {jid}),
+        disabled: !check('ban') || rank < 2 || outranked || !jid || jid.matchBare(xmpp.jid),
+        callback: () => Cadence.tryCommand('ban', {jid}),
       },
       sep2: '',
       whois: {
         name: labels.whois,
         icon: 'whois',
-        disabled: !c('whois') || !nick || !roster[nick],
-        callback: () => Cadence.execute('whois', {nick}),
+        disabled: !check('whois') || !nick || !roster[nick],
+        callback: () => Cadence.tryCommand('whois', {nick}),
       },
       ping: {
         name: labels.ping,
         icon: 'ping',
-        disabled: !c('ping'),
-        callback: () => Cadence.execute('ping', {nick, jid}),
+        disabled: !check('ping'),
+        callback: () => Cadence.tryCommand('ping', {nick, jid}),
       }
     }
 
@@ -542,7 +543,7 @@ var ui = {
    * Build the context menu for a room.
    */
   roomContextMenu: function(element) {
-    const c = cmd => Cadence.cmdAvailableState(cmd, true);
+    const check = cmd => Cadence.checkCommand(cmd);
     const labels = strings.label.command;
     const room = element.attr('data-room');
     const currentRoom = xmpp.room.current == room;
@@ -552,26 +553,26 @@ var ui = {
       join: {
         name: labels.join,
         icon: 'join',
-        disabled: !c('join') || currentRoom,
-        callback: () => Cadence.execute('join', {name: room}),
+        disabled: !check('join') || currentRoom,
+        callback: () => Cadence.tryCommand('join', {room}),
       },
       part: {
         name: labels.part,
         icon: 'leave',
-        disabled: !c('part') || !currentRoom,
-        callback: () => Cadence.execute('part'),
+        disabled: !check('part') || !currentRoom,
+        callback: () => Cadence.tryCommand('part'),
       },
       configure: {
         name: labels.configure,
         icon: 'configure',
-        disabled: !c('configure') || currentRoom && !owner, // can only see authorization inside.
-        callback: () => Cadence.execute('configure', {name: room, interactive: true}),
+        disabled: !check('configure') || currentRoom && !owner, // can only see authorization inside.
+        callback: () => Cadence.tryCommand('configure', {name: room, interactive: true}),
       },
       destroy: {
         name: labels.destroy,
         icon: 'destroy',
-        disabled: !c('destroy') || currentRoom && !owner,
-        callback: () => Cadence.execute('destroy', {room}),
+        disabled: !check('destroy') || currentRoom && !owner,
+        callback: () => Cadence.tryCommand('destroy', {room}),
       }
     }
     return {items, autoHide: config.settings.contextmenu == 'hover'};

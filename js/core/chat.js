@@ -11,18 +11,7 @@ var Cadence = {
    * @param {Object} arg
    */
   execute(command, arg={}) {
-    return this.commands[command].callback(arg);
-  },
-
-  /**
-   * Invoke a command from the command line.
-   *
-   * @param {string} command
-   * @param {string} arg
-   */
-  invoke(command, arg='') {
-    arg = this.commands[command].parser(arg);
-    return this.execute(command, arg);
+    return this.getCommand(command).execute(arg);
   },
 
   /**
@@ -33,46 +22,68 @@ var Cadence = {
    * @param {string} name
    * @param {function} callback
    */
-  addCommand(name, callback, parser) {
-    parser = parser || this.parseArgs;
-    this.commands[name] = {callback, parser};
+  addCommand(name, callback) {
+    return this.commands[name] = new Cadence.Command(callback);
   },
 
-  /**
-   * Validate the current command by client state.
-   */
-  cmdAvailableState(command, silent) {
-    const always = ['alias', 'clear', 'nick', 'save', 'version'];
-    const chat = ['affiliate', 'away', 'back', 'ban', 'bans', 'dnd', 'invite', 'kick', 'me', 'msg', 'part', 'say', 'unban', 'whois'];
-    const offline = ['connect'];
+  getCommand(command) {
+    if (command in this.commands) return this.commands[command];
+    else throw new Cadence.Error(strings.error.cmdUnknown, {command});
+  },
 
-    // Always allow these commands (hence the name).
-    if (always.includes(command)) return true;
-
-    // When offline, only allow offline commands.
-    if (!xmpp.connection.connected) {
-      if (!silent && !offline.includes(command)) {
-        ui.messageError(strings.error.cmdState.offline, {command});
-      }
-      return offline.includes(command);
+  checkCommand(command) {
+    try {
+      return this.getCommand(command).isAvailable();
     }
-
-    // When online, forbid offline commands.
-    if (offline.includes(command)) {
-      if (!silent) ui.messageError(strings.error.cmdState.online, {command});
+    catch (e) {
       return false;
     }
+  },
 
-    // When not in a room, forbid chat commands.
-    if (!xmpp.room.current) {
-      if (!silent && chat.includes(command)) {
-        ui.messageError(strings.error.cmdState.prejoin, {command});
-      }
-      return !chat.includes(command);
+  tryCommand(command, arg) {
+    try {
+      this.execute(command, arg);
+    }
+    catch (e) {
+      if (e instanceof Cadence.Error) e.output();
+      else throw e;
+    }
+  },
+
+  Command: class {
+    constructor(callback) {
+      this.execute = callback;
+      this.parser = Cadence.parseArgs;
     }
 
-    // Allow everything else.
-    return true;
+    invoke(string) {
+      return this.execute(this.parser(string));
+    }
+
+    require(requirement) {
+      this.requires = requirement;
+      return this;
+    }
+
+    parse(parser) {
+      this.parser = parser;
+      return this;
+    }
+
+    isAvailable() {
+      return (!this.requires || this.requires()) && this;
+    }
+  },
+
+  Error: class {
+    constructor(msg, data) {
+      this.msg = msg;
+      this.data = data;
+    }
+
+    output() {
+      ui.messageError(this.msg, this.data);
+    }
   },
 
   /**
@@ -99,13 +110,20 @@ var Cadence = {
       else text = text.substring(1);
     }
 
-    if (this.commands[command]) {
-      if (this.cmdAvailableState(command)) this.invoke(command, text);
+    if (command in config.settings.macros) {
+      return this.executeMacro(config.settings.macros[command], text);
     }
-    else if (config.settings.macros[command])
-      this.executeMacro(config.settings.macros[command], text);
-    else
-      ui.messageError(strings.error.cmdUnknown, {command});
+
+    try {
+      return this.getCommand(command).isAvailable().invoke(text);
+    }
+    catch (error) {
+      if (error instanceof Cadence.Error) {
+        error.data = $.extend(error.data, {command});
+        error.output();
+      }
+      else throw error;
+    }
   },
 
   /**
@@ -257,6 +275,44 @@ var Cadence = {
     return args;
   },
 
+  connect(user, pass) {
+    ui.messageInfo(strings.info.connection.connecting);
+
+    // This is a callback, because it happens after the promise is resolved.
+    const disconnect = () => {
+      ui.setConnectionStatus(false);
+      ui.messageError(strings.info.connection.disconnected);
+    }
+
+    return xmpp.connect(user, pass, disconnect)
+    // Then either join a room or list the available rooms.
+    .then(() => {
+      ui.setConnectionStatus(true);
+      ui.messageInfo(strings.info.connection.connected);
+      // A room in the URL fragment (even an empty one) overrides autojoin.
+      if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
+        const name = ui.getFragment() || config.settings.xmpp.room;
+        Cadence.execute('join', {name});
+      }
+      else Cadence.execute('list');
+    },
+    // Notify user of connection failures.
+    ({status, error}) => {
+      ui.setConnectionStatus(false);
+      switch (status) {
+        case Strophe.Status.AUTHFAIL:
+          throw new Cadence.Error(strings.error.connection.authfail);
+        case Strophe.Status.CONNFAIL:
+          if (error == 'x-strophe-bad-non-anon-jid') {
+            throw new Cadence.Error(strings.error.connection.anonymous)
+          }
+          throw new Cadence.Error(strings.error.connection.connfail);
+        case Strophe.Status.ERROR:
+          throw new Cadence.Error(strings.error.connection.other);
+      }
+    });
+  },
+
   /**
    * Convert arguments to room configuration form.
    */
@@ -387,4 +443,33 @@ var Cadence = {
       if (error == 'conflict') ui.messageError(strings.error.sync.conflict);
     });
   }
-}
+};
+
+(() => {
+  /**
+   * Validate the current command by client state.
+   */
+  Cadence.requirements = {
+    online() {
+      if (!xmpp.connection.connected) {
+        console.log(strings.error.cmdState);
+        throw new Cadence.Error(strings.error.cmdState.online);
+      }
+      return true;
+    },
+
+    offline() {
+      if (xmpp.connection.connected) {
+        throw new Cadence.Error(strings.error.cmdState.offline);
+      }
+      return true;
+    },
+
+    room() {
+      if (!xmpp.room.current) {
+        throw new Cadence.Error(strings.error.cmdState.room);
+      }
+      return true;
+    }
+  };
+})();

@@ -81,25 +81,27 @@ var xmpp = {
    *         established or has failed.
    */
   connect: function(user, pass, disconnect) {
+    // Make sure the connection isn't already open.
+    if (this.connection.connected) {
+      throw {status: Strophe.Status.CONNECTED};
+    }
+
+    // Attach all the event handlers (they're removed when disconnecting).
+    this.setupHandlers();
+
+    // Apply custom nickname, but only if it was set on the same account.
+    const nick = (user == config.settings.xmpp.user) && config.settings.xmpp.nick || user;
+    this.nick.target = nick;
+
+    this.jid = new this.JID({
+      node: user,
+      domain: config.xmpp.domain,
+      resource: user && this.resource
+    });
+
+    let first = true;
     return new Promise(resolve => {
-      // Make sure the connection isn't already open.
-      if (this.connection.handlers.length) throw {status: Strophe.Status.CONNECTED};
-
-      // Attach all the event handlers (they're removed when disconnecting).
-      this.setupHandlers();
-
-      // Apply custom nickname, but only if it was set on the same account.
-      const nick = (user == config.settings.xmpp.user) && config.settings.xmpp.nick || user;
-      this.nick.target = nick;
-
-      this.jid = new this.JID({
-        node: user,
-        domain: config.xmpp.domain,
-        resource: user && this.resource
-      });
-
-      let first = true;
-      this.connection.connect(String(this.jid), pass, (status, error) => {
+      return this.connection.connect(String(this.jid), pass, (status, error) => {
         // This block resolves the promise; it can only run once.
         if (first) switch (status) {
           case Strophe.Status.ERROR:
@@ -118,7 +120,7 @@ var xmpp = {
           this.roster = {};
           disconnect();
         }
-      });
+      })
     });
   },
 
@@ -1071,11 +1073,11 @@ var xmpp = {
   },
 
   getTime: function(jid) {
-    return this.connection.time.getTime(jid, config.xmpp.timeout);
+    return this.connection.time.getTime(jid || this.jid.domain, config.xmpp.timeout);
   },
 
   getVersion: function(jid) {
-    return this.connection.version.getVersion(jid, config.xmpp.timeout);
+    return this.connection.version.getVersion(jid || this.jid.domain, config.xmpp.timeout);
   },
 
   attention: function(jid) {

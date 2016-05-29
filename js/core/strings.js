@@ -140,7 +140,10 @@ var strings = {
       get: 'The remote settings have been downloaded.',
       set: 'The local settings have been uploaded.',
     },
-    time: 'Time: Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}',
+    time: [
+      'Local server time: {time}, clock offset: {offset} ms, timezone: {tzo}',
+      'Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}',
+    ],
     userAffiliation: 'The affiliation of {user} has been set to {affiliation}.',
     userIn: '{user} has joined the room.',
     userNick: '{user:from} is now known as {user:to}.',
@@ -182,9 +185,9 @@ var strings = {
     noMacros: 'No macros are defined.',
     badNick: 'The nickname {nick} is invalid.',
     cmdState: {
-      online: '/{command}: You are already online.',
-      offline: '/{command}: You are offline.',
-      prejoin: '/{command}: You need to join a room first.',
+      online: '/{command}: You are not connected.',
+      offline: '/{command}: You are already connected.',
+      room: '/{command}: This command can only be used in a room.',
     },
     connection: {
       anonymous: 'This server does not support anonymous login.',
