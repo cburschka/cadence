@@ -19,8 +19,7 @@ Cadence.addCommand('admin', arg => {
 
   let sessionid;
 
-  xmpp.command(command)
-  .then((stanza) => {
+  const process = stanza => {
     sessionid = $('command', stanza).attr('sessionid');
     return new Promise((resolve, reject) => {
       if (interactive) {
@@ -39,20 +38,21 @@ Cadence.addCommand('admin', arg => {
         resolve(args);
       }
     });
-  })
-  .then((data) => {
-    return xmpp.commandSubmit(command, sessionid, data);
-  })
-  .then((stanza) => {
+  };
+
+  const submit = data => xmpp.commandSubmit(command, sessionid, data);
+
+  const result = (stanza) => {
     const result = [];
     $('field[type!="hidden"]', stanza).each(function() {
       const label = $(this).attr('label');
       const value = $(this).text();
       result.push($('<strong>').text(value + ':'), ' ', value, $('<br>'));
-    });
-
+    })
     ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
-  })
+  };
+
+  return xmpp.command(command).then(process).then(submit).then(result)
   .catch(error => {
     switch (error.condition) {
       case 'forbidden':
@@ -60,11 +60,11 @@ Cadence.addCommand('admin', arg => {
       case 'service-unavailable':
         throw new Cadence.Error(strings.error.admin.badCommand, {command});
     }
-    throw new Cadence.Error(strings.error.admin.unknown, {command});
+    throw error;
   });
 })
 .parse(string => {
-  const m = Cadence.parseArgs(string);
+  const arg = Cadence.parseArgs(string);
 
   // Make single-argument commands more convenient:
   const defaultArgs = {
@@ -75,11 +75,11 @@ Cadence.addCommand('admin', arg => {
   }
 
   // Use first positional argument as command.
-  if (m[0].length) m.cmd = m[0][0];
   // If there is more, use the remaining text as an argument.
-  if (m[0].length > 1 && m.cmd in defaultArgs)
-    m[defaultArgs[m.cmd]] = arg.substring(m[1][0][0]).trim();
-  return m;
+  if (arg[0].length) arg.cmd = arg[0][0];
+  if (arg[0].length > 1 && arg.cmd in defaultArgs)
+    arg[defaultArgs[arg.cmd]] = string.substring(arg[1][0][0]).trim();
+  return arg;
 })
 .require(Cadence.requirements.online);
 
@@ -96,7 +96,7 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
 
   // List users with a specific affiliation.
   if (!target) {
-    return xmpp.getUsers({affiliation: type}).then((stanza) => {
+    const list = stanza => {
       // Create a dictionary of non-occupant users:
       const users = {};
       $('item', stanza).map(function() {
@@ -118,8 +118,9 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
       for (let jid in users) users[jid] = visual.format.user(users[jid]);
 
       ui.messageInfo(strings.info.affiliations[type], {type, list: users});
-    })
-    .catch(error => {
+    };
+
+    return xmpp.getUsers({affiliation: type}).then(list).catch(error => {
       if (error.condition == 'forbidden')
         throw new Cadence.Error(strings.error.affiliations.forbidden, {type});
       throw error;
@@ -397,11 +398,11 @@ Cadence.addCommand('create', arg => {
     },
     error => {
       // Catch only an <item-not-found> error.
-      if (!$('item-not-found', error).length) throw error;
+      if (error.condition != 'item-not-found') throw error;
     }
   );
 
-  const create = () => {
+  const join = () => {
     ui.messageInfo(strings.info.creating, {
       room,
       user: {nick: xmpp.nick.target, jid: xmpp.jid}
@@ -409,16 +410,18 @@ Cadence.addCommand('create', arg => {
     return xmpp.joinRoom({room: name});
   };
 
-  const configure = () => xmpp.roomConfig(name).then(processForm);
-  const processForm = form => fillForm(form).then(submit, cancel);
+  const getForm = () => xmpp.roomConfig(name);
   const fillForm = form => {
     // Use command-line arguments or just set the room title.
-    if (!interactive) return Cadence.roomConf(arg) || {'muc#roomconfig_roomname': title};
+    if (!interactive) {
+      const conf = Cadence.roomConf(arg) || {'muc#roomconfig_roomname': title};
+      return Promise.resolve(conf);
+    }
 
     // Unlike /configure, this form is in the promise chain. It can only be submitted once.
     return new Promise((resolve, reject) => {
-      const form = ui.dataForm(conf, resolve);
-      return ui.formDialog(form, {cancel: reject, apply: false});
+      const htmlForm = ui.dataForm(form, resolve);
+      return ui.formDialog(htmlForm, {cancel: reject, apply: false});
     });
   };
   const submit = data => xmpp.roomConfigSubmit(name, data);
@@ -426,6 +429,9 @@ Cadence.addCommand('create', arg => {
     xmpp.roomConfigCancel(name);
     throw error || new Cadence.Error(strings.error.roomCreateCancel);
   };
+
+  const processForm = form => fillForm(form).then(submit).catch(cancel);
+  const configure = () => getForm().then(processForm);
 
   const success = () => {
     xmpp.setRoom(name);
@@ -442,14 +448,16 @@ Cadence.addCommand('create', arg => {
     throw error;
   };
 
-  return checkExists.then(create).then(configure).then(success, error);
+  const create = () => join().then(configure).then(success, error);
+
+  return checkExists.then(create);
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
   // Use --name or positional args or --title as name.
   const name = arg.name || arg[0].join(' ') || arg.title;
   // Use --title or --name as title.
-  arg.title = arg.title || arg.name;
+  arg.title = arg.title || name;
   // The name must be lowercase.
   arg.name = name.toLowerCase();
   return arg;

@@ -234,7 +234,7 @@ var ui = {
     // The room selection menu listens for changes.
     this.dom.roomSelection.change(function() {
       if (this.value != xmpp.room.current) {
-        if (this.value) Cadence.tryCommand('join', {name: this.value});
+        if (this.value) Cadence.tryCommand('join', {room: this.value});
         else Cadence.tryCommand('part');
       }
     });

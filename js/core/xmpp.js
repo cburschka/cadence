@@ -502,7 +502,7 @@ var xmpp = {
     $.each(data, (name, values) => {
       if (values !== undefined) {
         form.c('field', {'var': name});
-        if (!values || values.constructor != Array) values = [values];
+        if (!(values instanceof Array)) values = [values];
         values.forEach(value => form.c('value', {}, String(value)));
         form.up();
       }
@@ -586,8 +586,8 @@ var xmpp = {
     $.each(data, (name, values) => {
       if (values !== undefined) {
         form.c('field', {'var': name});
-        if (!values || values.constructor != Array) values = [values];
-        values.each(value => form.c('value', {}, String(value)));
+        if (!values || !(values instanceof Array)) values = [values];
+        values.forEach(value => form.c('value', {}, String(value)));
         form.up();
       }
     });
@@ -958,8 +958,10 @@ var xmpp = {
       const time = delay.attr('stamp') || (new Date()).toISOString();
 
       // Message of the Day.
-      if (!from.node && !from.resource)
-        return ui.messageError(strings.info.motd, {domain: from.domain, text: body});
+      if (!from.node && !from.resource) {
+        ui.messageError(strings.info.motd, {domain: from.domain, text: body});
+        return true;
+      }
 
       if (muc) {
         const codes = $.makeArray($('x status', stanza).map(function() {
@@ -1154,7 +1156,7 @@ var xmpp = {
         query.attrs({type: typeof val});
         if (val !== undefined) query.t(String(val));
       }
-      else if (val.constructor === Array) {
+      else if (val instanceof Array) {
         query.attrs({type: 'array'});
         encodeArray(val);
       }

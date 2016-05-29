@@ -49,7 +49,10 @@ var Cadence = {
     }
 
     static fromError(error) {
-      if (error instanceof Error) return new Cadence.Error(strings.error.javascript, error);
+      if (error instanceof Error) {
+        const {name, message, stack} = error;
+        return new Cadence.Error(strings.error.javascript, {name, message, stack});
+      }
       // Catch whatever crazy stuff has been thrown at us.
       return new Cadence.Error(strings.error.unknown, {error: JSON.stringify(error)});
     }
@@ -104,7 +107,7 @@ var Cadence = {
     if (!(error instanceof Cadence.Error)) {
       error = Cadence.Error.fromError(error);
     }
-    error.data = $.extend(error.data, {command});
+    error.data = $.extend({command}, error.data);
     error.output();
   },
 
