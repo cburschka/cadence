@@ -209,6 +209,7 @@ var strings = {
     },
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
     feature: 'The remote entity does not support this feature.',
+    javascript: 'A javascript error has occurred.\n{name}: {message}\nStack trace:\n{stack}',
     jidInvalid: '{arg} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',

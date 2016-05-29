@@ -263,7 +263,8 @@ Cadence.addCommand('ban', ({nick, jid}) => {
  */
 Cadence.addCommand('bans', () => {
   Cadence.execute('affiliate', {type: 'outcast'});
-}).require(Cadence.requirements.room);
+})
+.require(Cadence.requirements.room);
 
 /**
  * clear:

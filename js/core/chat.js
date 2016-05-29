@@ -81,8 +81,16 @@ var Cadence = {
       this.data = data;
     }
 
+    toString() {
+      return visual.formatText(msg, data).text();
+    }
+
     output() {
       ui.messageError(this.msg, this.data);
+    }
+
+    static fromError(error) {
+      return new Cadence.Error(strings.error.javascript, error);
     }
   },
 
@@ -118,11 +126,11 @@ var Cadence = {
       return this.getCommand(command).isAvailable().invoke(text);
     }
     catch (error) {
-      if (error instanceof Cadence.Error) {
-        error.data = $.extend(error.data, {command});
-        error.output();
+      if (!(error instanceof Cadence.Error)) {
+        error = Cadence.Error.fromError(error);
       }
-      else throw error;
+      error.data = $.extend(error.data, {command});
+      error.output();
     }
   },
 
@@ -281,7 +289,7 @@ var Cadence = {
     // This is a callback, because it happens after the promise is resolved.
     const disconnect = () => {
       ui.setConnectionStatus(false);
-      ui.messageError(strings.info.connection.disconnected);
+      throw new Cadence.Error(strings.info.connection.disconnected);
     }
 
     return xmpp.connect(user, pass, disconnect)
@@ -292,7 +300,7 @@ var Cadence = {
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const name = ui.getFragment() || config.settings.xmpp.room;
-        Cadence.execute('join', {name});
+        Cadence.execute('join', {room});
       }
       else Cadence.execute('list');
     },
@@ -437,10 +445,7 @@ var Cadence = {
       if (local == remote) return ui.messageInfo(strings.info.sync.equal);
       if (type == 'get' || sync == local) return get(stored);
       if (sync == remote) return set();
-      throw 'conflict';
-    })
-    .catch(error => {
-      if (error == 'conflict') ui.messageError(strings.error.sync.conflict);
+      throw new Cadence.Error(strings.error.sync.conflict);
     });
   }
 };
