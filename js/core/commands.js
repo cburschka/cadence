@@ -792,12 +792,12 @@ Cadence.addCommand('part', () => {
           .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
           .text(config.version)
       });
+      return;
     }
 
     // Only show client version when offline.
     if (!xmpp.connection.connected) {
-      if (arg) throw new Cadence.Error(strings.error.cmdStatus.offline, {command: 'version'});
-      else return;
+      throw new Cadence.Error(strings.error.cmdStatus.offline, {command: 'version'});
     }
 
     const target = jid || nick && xmpp.jidFromRoomNick({nick});
