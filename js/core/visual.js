@@ -476,7 +476,7 @@ const visual = {
    * @return {string} a string containing all messages.
    */
   messagesToText(messages) {
-    return $.makeArray($(messages).map(function() {
+    return Array.from($(messages).map(function() {
       const jQ = this.html.clone();
       jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
       jQ.find('img.emoticon').remove(); // The alt text is already in a hidden <span>.
@@ -494,7 +494,7 @@ const visual = {
    * @return {string} an HTML string containing all messages.
    */
   messagesToHTML(messages) {
-    return $.makeArray($(messages).map(function() {
+    return Array.from($(messages).map(function() {
       const jQ = this.html.clone();
       jQ.find('.emote-alt, .hide-message, .hidden').remove();
       return jQ;

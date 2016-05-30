@@ -30,7 +30,7 @@ Cadence.addCommand('admin', arg => {
         const args = {};
         $('x > field', stanza).each(function() {
           const name = $(this).attr('var');
-          const values = $.makeArray($('value', this).map(function() {
+          const values = Array.from($('value', this).map(function() {
             return $(this).text();
           }));
           args[name] = arg[name] !== undefined ? [arg[name]] : values;

@@ -704,7 +704,7 @@ const ui = {
     fields['text-private'] = fields['text-single'];
     fields['jid-single'] = fields['text-single'];
     fields['text-multi'] = field => {
-      const values = $.makeArray($('value', field).map(function() {
+      const values = Array.from($('value', field).map(function() {
         return $(this).text();
       }));
 

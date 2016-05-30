@@ -410,7 +410,7 @@ const xmpp = {
 
     return iq.send().then(stanza => {
       const query = $('query', stanza);
-      const features = $.makeArray(query.children('feature').map(function() {
+      const features = Array.from(query.children('feature').map(function() {
         return $(this).attr('var')
       }));
       const data = {};
@@ -439,7 +439,7 @@ const xmpp = {
 
     const jid = this.jidFromRoomNick({room, nick: this.nick.target});
     const pres = this.pres({to: jid})
-      .c('x', {xmlns:Strophe.NS.MUC})
+      .c('x', {xmlns: Strophe.NS.MUC})
       .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
     if (password) pres.up().c('password', password);
     pres.send();
@@ -680,7 +680,7 @@ const xmpp = {
     return this.iq({type: 'get', to: this.jidFromRoomNick({room})})
       .c('query', {xmlns: Strophe.NS.DISCO_ITEMS})
       .send()
-      .then(stanza => $.makeArray(
+      .then(stanza => Array.from(
         $('item', stanza).map((_, e) => e.getAttribute('name'))
       ));
   },
@@ -792,7 +792,7 @@ const xmpp = {
 
     // Find the status codes.
     const item = $(stanza).find('item');
-    const codes = $.makeArray($('status', stanza).map(function() {
+    const codes = Array.from($('status', stanza).map(function() {
       return parseInt(this.getAttribute('code'));
     }));
 
@@ -966,7 +966,7 @@ const xmpp = {
       }
 
       if (muc) {
-        const codes = $.makeArray($('x status', stanza).map(function() {
+        const codes = Array.from($('x status', stanza).map(function() {
           return parseInt($(this).attr('code'));
         }));
 
