@@ -167,12 +167,9 @@ const strings = {
       unknown: 'Unknown error while executing "{command}".'
     },
     affiliate: {
-      anon: 'You cannot access the JID of {user} in this room.',
       conflict: 'You cannot change your own affiliation to this value.',
-      unknown: 'Unknown error while attempting to set affiliation.',
       notAllowed: 'You lack the authority to set the affiliation of {user} to {type}.',
       type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".',
-      notFound: 'There is no user named {nick} in this room.',
     },
     affiliations: {
       'default': 'Unknown error while getting the list of {type} affiliations.',

@@ -89,21 +89,22 @@ Cadence.addCommand('admin', arg => {
  */
 Cadence.addCommand('affiliate', ({type, nick, jid}) => {
   // Get a roster array.
-  const roster = $.map(xmpp.roster[xmpp.room.current], x => x);
-  const target = jid ? {jid} : roster[nick];
+  const roster = xmpp.roster[xmpp.room.current];
+  const rosterArray = $.map(roster, x => x);
 
-  if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
+  if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type)) {
     throw new Cadence.Error(strings.error.affiliate.type, {type});
+  }
 
   // List users with a specific affiliation.
-  if (!target) {
+  if (!nick && !jid) {
     const printList = stanza => {
       const list = Array.from($('item', stanza).map(function() {
         return this.getAttribute('jid');
       }))
       .sort()
       .map(xmpp.JID.parse)
-      .map(jid => (roster.find(u => jid.matchBare(u.jid)) || {jid}))
+      .map(jid => (rosterArray.find(u => jid.matchBare(u.jid)) || {jid}))
       .map(visual.format.user);
 
       if (list) return ui.messageInfo(strings.info.affiliations[type], {type, list});
@@ -111,24 +112,28 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
     };
 
     return xmpp.getUsers({affiliation: type}).then(printList).catch(error => {
-      if (error.condition == 'forbidden')
+      if (error.condition == 'forbidden') {
         throw new Cadence.Error(strings.error.affiliations.forbidden, {type});
+      }
       throw error;
     });
   }
 
-  // If a JID was given, fetch the user if they're present.
-  const user = jid && $.map(roster, x => x).find(x => jid.matchBare(x.jid)) || target;
+  if (nick && !(nick in roster)) {
+    throw new Cadence.Error(strings.error.notFound.nick, {nick});
+  }
 
-  // User is present but anonymous:
-  if (!user.jid)
-    throw new Cadence.Error(strings.error.affiliate.anon, {user});
-  // User is not in the room (therefore their JID is actually just a nick).
-  if (!user.jid.node)
-    throw new Cadence.Error(strings.error.affiliate.notFound, {nick: user.jid});
+  // We know now that the target is either a valid JID or a participant.
+  const target = jid || roster[nick].jid;
+
+  // Fetch the roster entry in either case, or fall back to a {jid} object.
+  const user = nick ? roster[nick] : (rosterArray.find(x => jid.matchBare(x.jid)) || {jid});
+
+  // If the target is null, then they're an anonymous participant.
+  if (!target) throw new Cadence.Error(strings.error.unknownJid, {user});
 
   // Attempt to set user's affiliation.
-  return xmpp.setUser({jid: user.jid, affiliation: type}).then(() => {
+  return xmpp.setUser({jid: target, affiliation: type}).then(() => {
     const room = xmpp.room.available[xmpp.room.current];
     ui.messageInfo(strings.info.affiliate, {user, room, type});
   })
@@ -148,8 +153,12 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
 
   if (!arg.type) arg.type = arg[0][0];
 
-  if (!arg.nick) arg.nick = arg[0][1];
-  arg.jid = xmpp.JID.parse(arg.jid || arg[0][1]);
+  // Allow a valid JID as positional argument.
+  const jid = xmpp.JID.parse(arg.jid || arg[0][1]);
+  arg.jid = arg.jid || jid.node && jid;
+
+  // Without a JID, use nick as positional argument.
+  arg.nick = !arg.jid && (arg.nick || arg[0][1]);
   return arg;
 })
 .require(Cadence.requirements.room);

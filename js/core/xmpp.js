@@ -17,6 +17,7 @@ const xmpp = {
   show: null,
   roster: {},
   historyEnd: {},
+  statusConstants: [],
 
   /**
    * Defined error conditions in stanzas.
@@ -51,6 +52,10 @@ const xmpp = {
       this.status = status;
       this.error = error;
     }
+
+    toString() {
+      return `Connection error: ${xmpp.statusConstants[this.status]}: ${this.error}`;
+    }
   },
 
   StanzaError: class {
@@ -61,6 +66,10 @@ const xmpp = {
       this.type = error.attr('type');
       this.condition = error.children(xmpp.stanzaErrors.join(',')).prop('tagName').toLowerCase();
       this.text = error.children('text').text();
+    }
+
+    toString() {
+      return `Stanza error: ${this.condition} (${this.text})`;
     }
   },
 
@@ -111,6 +120,12 @@ const xmpp = {
   init() {
     // Generate a unique resource name for this session.
     this.resource = this.createResourceName();
+
+    // Invert Strophe's status constant table.
+    $.each(Strophe.Status, (name, value) => {
+      this.statusConstants[value] = name;
+    });
+
     this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.disco.addIdentity('client', 'web', config.clientName);
     config.features.forEach(x => this.connection.disco.addFeature(x));

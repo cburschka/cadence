@@ -48,13 +48,21 @@ const Cadence = {
       ui.messageError(this.msg, this.data);
     }
 
-    static fromError(error) {
+    static from(error) {
+      if (error instanceof Cadence.Error) return error;
+
+      // Print a stack trace for generic JavaScript errors:
       if (error instanceof Error) {
         const {name, message, stack} = error;
         return new Cadence.Error(strings.error.javascript, {name, message, stack});
       }
-      // Catch whatever crazy stuff has been thrown at us.
-      return new Cadence.Error(strings.error.unknown, {error: JSON.stringify(error)});
+
+      // Avoid useless string representations, and the weird comma thing arrays do.
+      let string = String(error);
+      if (error instanceof Array || string == '[object Object]') {
+        string = JSON.stringify(error);
+      }
+      return new Cadence.Error(strings.error.unknown, {error: string});
     }
   },
 
@@ -104,9 +112,8 @@ const Cadence = {
   },
 
   handleError(command, error) {
-    if (!(error instanceof Cadence.Error)) {
-      error = Cadence.Error.fromError(error);
-    }
+    error = Cadence.Error.from(error);
+    // Put the command into the error's context variables.
     error.data = $.extend({command}, error.data);
     error.output();
   },
