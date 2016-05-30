@@ -86,8 +86,8 @@ const xmpp = {
     }
 
     matchBare(x) {
-      if (!x || !x.bare) x = xmpp.JID.parse(x);
-      return this.bare().toLowerCase() == x.bare().toLowerCase();
+      if (!(x instanceof xmpp.JID)) x = xmpp.JID.parse(x);
+      return x && this.bare().toLowerCase() == x.bare().toLowerCase();
     }
 
     toString() {
