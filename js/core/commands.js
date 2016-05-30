@@ -88,7 +88,8 @@ Cadence.addCommand('admin', arg => {
  *   Set the affiliation of a particular user, or list all users with an affiliation.
  */
 Cadence.addCommand('affiliate', ({type, nick, jid}) => {
-  const roster = xmpp.roster[xmpp.room.current];
+  // Get a roster array.
+  const roster = $.map(xmpp.roster[xmpp.room.current], x => x);
   const target = jid ? {jid} : roster[nick];
 
   if (!['owner', 'admin', 'member', 'outcast', 'none'].includes(type))
@@ -96,31 +97,20 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
 
   // List users with a specific affiliation.
   if (!target) {
-    const list = stanza => {
-      // Create a dictionary of non-occupant users:
-      const users = {};
-      $('item', stanza).map(function() {
-        return xmpp.JID.parse(this.getAttribute('jid'));
-      }).each((i,jid) => {
-        users[String(jid).toLowerCase()] = {jid};
-      });
+    const printList = stanza => {
+      const list = Array.from($('item', stanza).map(function() {
+        return this.getAttribute('jid');
+      }))
+      .sort()
+      .map(xmpp.JID.parse)
+      .map(jid => (roster.find(u => jid.matchBare(u.jid)) || {jid}))
+      .map(visual.format.user);
 
-      if ($.isEmptyObject(users)) {
-        return ui.messageInfo(strings.info.affiliationsEmpty, {type});
-      }
-
-      // Find users who are occupants:
-      for (let nick in roster) {
-        let jid = roster[nick].jid.bare().toLowerCase();
-        if (jid in users) users[jid] = roster[nick];
-      }
-
-      for (let jid in users) users[jid] = visual.format.user(users[jid]);
-
-      ui.messageInfo(strings.info.affiliations[type], {type, list: users});
+      if (list) return ui.messageInfo(strings.info.affiliations[type], {type, list});
+      else return ui.messageInfo(strings.info.affiliationsEmpty, {type});
     };
 
-    return xmpp.getUsers({affiliation: type}).then(list).catch(error => {
+    return xmpp.getUsers({affiliation: type}).then(printList).catch(error => {
       if (error.condition == 'forbidden')
         throw new Cadence.Error(strings.error.affiliations.forbidden, {type});
       throw error;

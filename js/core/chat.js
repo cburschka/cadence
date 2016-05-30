@@ -396,12 +396,7 @@ const Cadence = {
    * in the settings dictionary.
    */
   getSetting(key) {
-    const path = key.split('.');
-    let ref = config.settings;
-    for (let i = 0; i < path.length; i++) {
-      ref = ref[path[i]];
-    }
-    return ref;
+    return key.split('.').reduce((x, y) => x[y], config.settings);
   },
 
   /**
@@ -410,12 +405,10 @@ const Cadence = {
    */
   setSetting(key, val) {
     const path = key.split('.');
-    let ref = config.settings;
-    for (let i = 0; i < path.length - 1; i++) {
-      ref = ref[path[i]];
-    }
-    if (ref[path[path.length-1]] !== val) {
-      ref[path[path.length-1]] = val;
+    const last = path.pop();
+    const ref = path.reduce((x, y) => x[y], config.settings);
+    if (ref[last] !== val) {
+      ref[last] = val;
       config.settings.modified = (new Date()).toISOString();
       this.saveSettings();
     }
