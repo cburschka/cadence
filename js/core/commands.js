@@ -572,6 +572,7 @@ Cadence.addCommand('join', ({room, password}) => {
     Cadence.setSetting('xmpp.room', room.id);
     xmpp.setRoom(room.id);
     ui.messageInfo(strings.info.joined, {room});
+    return Cadence.execute('who');
   };
   const error = error => {
     ui.setFragment(xmpp.room.current);
