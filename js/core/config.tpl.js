@@ -1,4 +1,4 @@
-var config = {
+const config = {
   // Settings which can be modified by users:
   defaultSettings: {
     // Which option container is open when the page loads.

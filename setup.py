@@ -89,7 +89,7 @@ def generate_emoticons(cdn_url, packs, src_path):
                     'baseURL': baseURL,
                     'codes': data['aliases']
                 }
-        open('js/core/emoticons.js', 'w+').write('var emoticons = ' + json.dumps(output) + ';')
+        open('js/core/emoticons.js', 'w+').write('const emoticons = ' + json.dumps(output) + ';')
     except ValueError as e:
         print("Error parsing emoticon pack {}".format(pack))
         raise(e)

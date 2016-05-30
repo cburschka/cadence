@@ -2,7 +2,7 @@
  * visual.js contains all the functions that render output for
  * display on the local client.
  */
-visual = {
+const visual = {
   /**
    * Initialize the emoticon regular expression.
    */

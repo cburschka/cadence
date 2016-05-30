@@ -1,7 +1,7 @@
 /**
  * ui.js contains all functions that alter the user interface.
  */
-var ui = {
+const ui = {
   activeMenu: null,
   roster: {},
   sortedNicks: [],

@@ -5,12 +5,12 @@
     loadSettings();
     loadEmoticons();
 
+    Cadence.bbcode = XBBCode(config.markup.bbcode);
+    Cadence.bbcodeMD = XBBCode(config.markup.bbcodeMD);
+
     ui.init();
     visual.init();
     xmpp.init();
-
-    bbcode = XBBCode(config.markup.bbcode);
-    bbcodeMD = XBBCode(config.markup.bbcodeMD);
 
     $(window).on({beforeunload : () =>
       xmpp.connection.connected &&

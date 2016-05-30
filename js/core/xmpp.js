@@ -1,7 +1,7 @@
 /**
  * xmpp.js contains all the functions that communicate with the XMPP server.
  */
-var xmpp = {
+const xmpp = {
   connection: null,
   room: {
     available: {},

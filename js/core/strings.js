@@ -5,7 +5,7 @@
  *  - Make a copy of this file and alter the string values accordingly.
  *  - Note that markup is only supported in strings that already contain it.
  */
-var strings = {
+const strings = {
   show: {
     available: [
       '{user} has returned.',

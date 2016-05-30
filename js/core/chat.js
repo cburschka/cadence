@@ -1,4 +1,4 @@
-var Cadence = {
+const Cadence = {
   auth: undefined,
   history: [],
   historyIndex: 0,
@@ -169,11 +169,11 @@ var Cadence = {
    */
   formatOutgoing(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    let html = bbcode.render(visual.escapeHTML(text));
+    let html = this.bbcode.render(visual.escapeHTML(text));
     if (config.settings.textColor) {
       html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
     }
-    return {html, text: bbcodeMD.render(text)};
+    return {html, text: this.bbcodeMD.render(text)};
   },
 
   /**
