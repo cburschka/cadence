@@ -259,7 +259,7 @@ const ui = {
     $('#trayContainer button.toggleMenu').click(function() {
       const sidebar = this.getAttribute('data-sidebar');
       const oldMenu = config.settings.activeMenu;
-      const newMenu = sidebar == oldMenu ? null : sidebar;
+      const newMenu = sidebar == oldMenu ? '' : sidebar;
       Cadence.setSetting('activeMenu', newMenu);
       ui.toggleMenu();
     });
@@ -648,7 +648,7 @@ const ui = {
     const oldMenu = this.activeMenu;
     const newMenu = config.settings.activeMenu;
     // Sanity check, only toggle if the value changed.
-    if (oldMenu == newMenu) return;
+    if (oldMenu === newMenu) return;
     if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, speed);
 
     // New menu's width, plus an 8px margin. Yay for magic hard-coded pixels.
