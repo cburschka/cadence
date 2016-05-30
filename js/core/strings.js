@@ -197,10 +197,6 @@ const strings = {
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',
-    dmsg: {
-      domain: 'The remote server {domain} was not found.',
-      node: 'User {node} on {domain} is not available.'
-    },
     formFields: 'The following fields could not be set: {fields}',
     kick: 'You lack the authority to kick {nick}.',
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
@@ -243,8 +239,12 @@ const strings = {
     unbanNone: 'No banned user matched your query.',
     unknown: 'An unknown error has occurred: {error}',
     unknownJid: 'User {user} is anonymous.',
-    unknownRoom: 'Room {name} does not exist.',
-    unknownUser: 'User {nick} not found.',
+    notFound: {
+      domain: 'The remote server {domain} was not found.',
+      nick: '{nick} is not in this room.',
+      node: 'The user {node} on {domain} is not available.',
+      room: 'The room {name} does not exist.',
+    },
     noRoomsAvailable: 'There are no rooms available.',
   },
 

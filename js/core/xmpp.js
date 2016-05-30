@@ -59,7 +59,8 @@ const xmpp = {
       this.stanza = stanza;
       const error = $('error', stanza);
       this.type = error.attr('type');
-      this.condition = error.children(xmpp.stanzaErrors.join(',')).prop('tagName');
+      this.condition = error.children(xmpp.stanzaErrors.join(',')).prop('tagName').toLowerCase();
+      this.text = error.children('text').text();
     }
   },
 
@@ -1054,16 +1055,17 @@ const xmpp = {
    * @param {JID} from
    */
   eventMessageError(stanza, from) {
-    const error = $('error', stanza);
-    const {node, domain, resource} = from;
-    if ($('remote-server-not-found', error).length)
-      return ui.messageError(strings.error.dmsg.domain, {domain});
-    if ($('service-unavailable', error).length)
-      return ui.messageError(strings.error.dmsg.node, {domain, node});
-    if ($('item-not-found', error).length)
-      return ui.messageError(strings.error.unknownUser, {nick: resource});
-    if ($('forbidden', error).length)
-      return ui.messageError(strings.error.messageDenied, {text: $('text', error).text()});
+    const error = new xmpp.StanzaError(stanza);
+    switch (error.condition) {
+      case 'remote-server-not-found':
+        return ui.messageError(strings.error.notFound.domain, from);
+      case 'service-unavailable':
+        return ui.messageError(strings.error.direct.node, from);
+      case 'item-not-found':
+        return ui.messageError(strings.error.notFound.nick, {nick: from.resource});
+      case 'forbidden':
+        return ui.messageError(strings.error.messageDenied, error);
+    }
   },
 
   /**
@@ -1094,15 +1096,24 @@ const xmpp = {
   },
 
   ping(jid) {
-    return this.connection.ping.ping(jid, config.xmpp.timeout);
+    return this.connection.ping.ping(jid, config.xmpp.timeout)
+      .catch(stanza => {
+        throw new this.StanzaError(stanza);
+      });
   },
 
   getTime(jid) {
-    return this.connection.time.getTime(jid || this.jid.domain, config.xmpp.timeout);
+    return this.connection.time.getTime(jid || this.jid.domain, config.xmpp.timeout)
+      .catch(stanza => {
+        throw new this.StanzaError(stanza);
+      });
   },
 
   getVersion(jid) {
-    return this.connection.version.getVersion(jid || this.jid.domain, config.xmpp.timeout);
+    return this.connection.version.getVersion(jid || this.jid.domain, config.xmpp.timeout)
+      .catch(stanza => {
+        throw new this.StanzaError(stanza);
+      });
   },
 
   attention(jid) {

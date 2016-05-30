@@ -598,7 +598,7 @@ Cadence.addCommand('kick', ({nick}) => {
   .catch(error => {
     switch (error.condition) {
       case 'not-acceptable':
-        throw new Cadence.Error(strings.error.unknownUser, {nick});
+        throw new Cadence.Error(strings.error.notFound.nick, {nick});
       case 'not-allowed':
         throw new Cadence.Error(strings.error.kick, {nick});
     }
@@ -651,7 +651,7 @@ Cadence.addCommand('msg',
 ({nick, msg}) => {
   if (!nick || !msg.trim()) throw new Cadence.Error(strings.error.noArgument);
   if (!(nick in xmpp.roster[xmpp.room.current])) {
-    throw new Cadence.Error(strings.error.unknownUser, {nick});
+    throw new Cadence.Error(strings.error.notFound.nick, {nick});
   }
 
   const body = Cadence.formatOutgoing(msg);
@@ -740,7 +740,11 @@ Cadence.addCommand('part', () => {
     .catch(error => {
       switch (error.condition) {
         case 'item-not-found':
-          throw new Cadence.Error(strings.error.unknownUser, {nick});
+          throw new Cadence.Error(strings.error.notFound.nick, {nick});
+        case 'remote-server-not-found':
+          throw new Cadence.Error(strings.error.notFound.domain, target);
+        case 'service-unavailable':
+          throw new Cadence.Error(strings.error.notFound.node, target);
         case 'timeout':
           const delay = ((new Date()).getTime() - time).toString();
           throw new Cadence.Error(strings.error.pingTimeout[+!!user], {user, delay});
@@ -748,18 +752,6 @@ Cadence.addCommand('part', () => {
       throw error;
     });
   }).parse(parser).require(Cadence.requirements.online);
-
-  const error = error => {
-    switch (error.condition) {
-      case 'item-not-found':
-        throw new Cadence.Error(strings.error.unknownUser, {nick});
-      case 'feature-not-implemented':
-        throw new Cadence.Error(strings.error.feature);
-      case 'timeout':
-        throw new Cadence.Error(strings.error.timeout);
-    }
-    throw error;
-  };
 
   /**
    * time [<nick>|<jid>]
@@ -779,7 +771,22 @@ Cadence.addCommand('part', () => {
       let offset = (utc - now) + (now - start) / 2
       if (offset > 0) offset = '+' + offset;
       ui.messageInfo(strings.info.time[+!!user], {user, tzo, time, offset});
-    }).catch(error);
+    })
+    .catch(error => {
+      switch (error.condition) {
+        case 'item-not-found':
+          throw new Cadence.Error(strings.error.notFound.nick, {nick});
+        case 'remote-server-not-found':
+          throw new Cadence.Error(strings.error.notFound.domain, target);
+        case 'service-unavailable':
+          throw new Cadence.Error(strings.error.notFound.node, target);
+        case 'feature-not-implemented':
+          throw new Cadence.Error(strings.error.feature);
+        case 'timeout':
+          throw new Cadence.Error(strings.error.timeout);
+      }
+      throw error;
+    });
   }).parse(parser).require(Cadence.requirements.online);
 
   /**
@@ -814,7 +821,22 @@ Cadence.addCommand('part', () => {
         ui.messageInfo(strings.info.versionUser, {name, version, os, user});
       else
         ui.messageInfo(strings.info.versionServer, {name, version, os});
-    }).catch(error);
+    })
+    .catch(error => {
+      switch (error.condition) {
+        case 'item-not-found':
+          throw new Cadence.Error(strings.error.notFound.nick, {nick});
+        case 'remote-server-not-found':
+          throw new Cadence.Error(strings.error.notFound.domain, target);
+        case 'service-unavailable':
+          throw new Cadence.Error(strings.error.notFound.node, target);
+        case 'feature-not-implemented':
+          throw new Cadence.Error(strings.error.feature);
+        case 'timeout':
+          throw new Cadence.Error(strings.error.timeout);
+      }
+      throw error;
+    });
   }).parse(parser);
 })();
 
@@ -932,7 +954,7 @@ Cadence.addCommand('whois', ({nick}) => {
       status: user.show + (user.status ? ' (' + user.status + ')' : '')
     });
   }
-  else throw new Cadence.Error(strings.error.unknownUser, {nick});
+  else throw new Cadence.Error(strings.error.notFound.nick, {nick});
 })
 .parse(string => ({nick: arg.trim()}))
 .require(Cadence.requirements.room);
