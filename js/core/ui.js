@@ -450,7 +450,7 @@ const ui = {
     const joined = !!xmpp.room.current;
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
-    const cmd = show => Cadence.tryCommand('show',
+    const cmd = show => Cadence.tryCommand(show,
       button == 2 && prompt(strings.info.promptStatus) || ''
     );
     const items = {back: {
