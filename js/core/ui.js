@@ -914,7 +914,7 @@ const ui = {
     this.dom.chatList.append(message.html);
 
     // After fade-in, scroll down again for inline images.
-    $(message.html).fadeIn(() => this.scrollDown());
+    $(message.html).slideDown(() => this.scrollDown());
     this.scrollDown();
   },
 
