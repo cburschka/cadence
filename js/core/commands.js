@@ -253,10 +253,14 @@ Cadence.addCommand('ban', ({nick, jid}) => {
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
-  const m = arg[0] && arg[0].length == 1 ? arg[0][0] : string.trim();
-  arg.nick = arg.nick || m;
-  arg.jid = arg.jid || xmpp.JID.parse(arg.jid || m);
-  arg.jid = arg.jid.node && arg.jid;
+  const target = (arg[0] && arg[0].length) == 1 ? arg[0][0] : string.trim();
+
+  // Allow a valid JID as positional argument.
+  const jid = xmpp.JID.parse(arg.jid || target);
+  arg.jid = arg.jid || jid.node && jid;
+
+  // Without a JID, use nick as positional argument.
+  arg.nick = !arg.jid && (arg.nick || target);
   return arg;
 })
 .require(Cadence.requirements.room);
