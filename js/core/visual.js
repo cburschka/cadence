@@ -6,7 +6,7 @@ const visual = {
   /**
    * Initialize the emoticon regular expression.
    */
-  init: function() {
+  init() {
     const emoticons = config.markup.emoticons;
 
     this.emoticonSets = Object.keys(emoticons).map((set) => {
@@ -35,7 +35,7 @@ const visual = {
    *
    * @return {Text} The text node, or false.
    */
-  findMe: function(jq) {
+  findMe(jq) {
     while (jq.length) {
       if (jq[0].constructor == Text && jq[0].nodeValue.substring(0,4) == '/me ')
         return jq[0];
@@ -56,7 +56,7 @@ const visual = {
    * @return {jQuery} the rendered node. It has events attached and must not be
    *                  copied or transformed back into markup before insertion.
    */
-  formatMessage: function(message) {
+  formatMessage(message) {
     message.time = message.time ? new Date(message.time) : new Date();
 
     const body = $('<span>').append(message.body);
@@ -124,7 +124,7 @@ const visual = {
      *                        and an optional "attributes" object.
      * @returns {jQuery} the rendered button.
      */
-    button: (button) => {
+    button(button) {
       return $('<button>').text(button.label).click(button.click)
               .attr(button.attributes || {});
     },
@@ -134,7 +134,7 @@ const visual = {
      *
      * This is a shortcut to formatting a non-occupant user.
      */
-    jid: (jid) => {
+    jid(jid) {
       return visual.format.user({jid});
     },
 
@@ -144,7 +144,7 @@ const visual = {
      * @param {iterable} An object or array with values that are either strings
      *                   or jQuery objects.
      */
-    list: (list) => {
+    list(list) {
       const keys = Object.keys(list).sort();
       const output = [list[keys[0]]];
       for (let i = 1; i < keys.length; i++) output.push(', ', list[keys[i]]);
@@ -154,7 +154,7 @@ const visual = {
     /**
      * Format a nick.
      */
-    nick: function(nick) {
+    nick(nick) {
       return visual.lengthLimit(nick, config.ui.maxNickLength);
     },
 
@@ -162,7 +162,7 @@ const visual = {
      * Format a room object.
      * Currently only returns the room title.
      */
-    room: function(room) {
+    room(room) {
       return $('<a class="xmpp-room">')
         .attr({
           title: room.id,
@@ -179,7 +179,7 @@ const visual = {
      * @param {Date} time The timestamp or null for the current time.
      * @return {jQuery} A timestamp formatted according to config.settings.dateFormat.
      */
-    time: function(time) {
+    time(time) {
       return $('<span class="time">')
 	// Store locale-aware ISO8601 string in the attribute.
         .attr('data-time', moment(time).format("YYYY-MM-DDTHH:mm:ss.SSSZ"))
@@ -200,7 +200,7 @@ const visual = {
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
-    user: (user) => {
+    user(user) {
       let pdn = visual.format.nick(user.nick || user.jid && user.jid.bare());
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
@@ -228,7 +228,7 @@ const visual = {
    *
    * This function acts on the node in-place.
    */
-  formatBody: function(jq) {
+  formatBody(jq) {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(function() {
@@ -263,7 +263,7 @@ const visual = {
    * matching its name, or the "plaintext" formatter by default.
    * @return {string} The rendered text.
    */
-  formatText: function(text, variables) {
+  formatText(text, variables) {
     text = text || '';
 
     if (text.constructor !== jQuery)
@@ -286,20 +286,20 @@ const visual = {
    * Find span.color elements with a data-color attribute and set their
    * CSS color property to the attribute value.
    */
-  addColor: function(jq) {
+  addColor(jq) {
     jq.find('span.color[data-color]').css('color', function() {
       return $(this).attr('data-color');
     });
   },
 
-  removeColor: function(jq) {
+  removeColor(jq) {
     jq.find('span.color[data-color]').css('color', '');
   },
 
   /**
    * Find emoticon codes in the node's text and replace them with images.
    */
-  addEmoticons: function(jq) {
+  addEmoticons(jq) {
     const codes = this.emoticonSets;
     const regex = this.emoticonRegex;
     if (!regex) return;
@@ -327,7 +327,7 @@ const visual = {
   /**
    * Turn URLs into links.
    */
-  addLinks: function(jq) {
+  addLinks(jq) {
     const enabled = config.settings.markup.links;
 
     const linkRegex = /\b((?:https?|s?ftp):\/\/[^\s"']+[^\s.,;:()"'>])(\)*)/g;
@@ -360,7 +360,7 @@ const visual = {
   /**
    * Remove images, or add auto-scaling listeners to them
    */
-  processImages: function(jq) {
+  processImages(jq) {
     const maxWidth = ui.dom.chatList.width() - 30;
     const maxHeight = ui.dom.chatList.height() - 20;
 
@@ -383,14 +383,14 @@ const visual = {
   /**
    * Make links open in a new tab.
    */
-  linkOnClick: function(jq) {
+  linkOnClick(jq) {
     $('a[href]:not([href^="#"]):not([href^="javascript\\:"])', jq).click(function(event) {
       event.preventDefault();
       window.open(this.href);
     });
   },
 
-  msgOnClick: function(jq) {
+  msgOnClick(jq) {
     $('span.user', jq).click(function() {
       // Disabled when the context menu overrides it.
       if (config.settings.contextmenu == 'left') return;
@@ -407,7 +407,7 @@ const visual = {
    * @param {int} maxWidth The maximum width.
    * @param {int} maxHeight The maximum height.
    */
-  rescale: function(img, maxWidth, maxHeight) {
+  rescale(img, maxWidth, maxHeight) {
     const width = img.prop('naturalWidth');
     const height = img.prop('naturalHeight');
     // If rescaling doesn't work, just hide it.
@@ -428,7 +428,7 @@ const visual = {
    *
    * @return {string} an rgba() value.
    */
-  hex2rgba: function(hex, alpha) {
+  hex2rgba(hex, alpha) {
     const six = hex.match(/#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i);
     const three = hex.match(/#?([\da-f])([\da-f])([\da-f])/i);
 
@@ -449,7 +449,7 @@ const visual = {
    *
    * @return {string} Either the string, or its first (len-3) characters and "...".
    */
-  lengthLimit: function(str, len) {
+  lengthLimit(str, len) {
     return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
   },
 
@@ -462,7 +462,7 @@ const visual = {
    * @return {string} Either the string, or (len) characters consisting of its
    * prefix, followed by an ellipsis, followed by its suffix.
    */
-  ellipsis: function(str, len) {
+  ellipsis(str, len) {
     if (len && str.length > len)
       return str.substring(0, (len-3)/2) + '...' + str.substring(str.length - (len-3)/2);
     else return str;
@@ -475,7 +475,7 @@ const visual = {
    *
    * @return {string} a string containing all messages.
    */
-  messagesToText: function(messages) {
+  messagesToText(messages) {
     return $.makeArray($(messages).map(function() {
       const jQ = this.html.clone();
       jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
@@ -493,7 +493,7 @@ const visual = {
    *
    * @return {string} an HTML string containing all messages.
    */
-  messagesToHTML: function(messages) {
+  messagesToHTML(messages) {
     return $.makeArray($(messages).map(function() {
       const jQ = this.html.clone();
       jQ.find('.emote-alt, .hide-message, .hidden').remove();
@@ -524,13 +524,13 @@ const visual = {
    * @param {string} jid The JID to convert.
    * @return {string} The space-separated class names.
    */
-  jidClass: function(jid) {
+  jidClass(jid) {
     return ['node', 'domain', 'resource'].map((e) => {
       return this.escapeClass('jid-' + e + '-' + jid[e]);
     }).join(' ');
   },
 
-  escapeClass: function(text) {
+  escapeClass(text) {
     return String(text || '').replace(/[\s\0\\]/g, (x) => {
       return '\\' + x.charCodeAt(0).toString(16);
     });
@@ -543,7 +543,7 @@ const visual = {
    * and jQuery methods like $.text() and Text().
    * Only use it when working on strings.
    */
-  escapeHTML: function(text) {
+  escapeHTML(text) {
     const replacers = {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'};
     return String(text || '').replace(/[<>&"]/g, (x) => { return replacers[x]; });
   }

@@ -18,7 +18,7 @@ const ui = {
    * - build dynamically generated elements, and set form values.
    * - initialize event listeners.
    */
-  init: function() {
+  init() {
     this.dom = {
       loginContainer: $('#loginContainer'),
       roomContainer: $('#roomContainer'),
@@ -49,7 +49,7 @@ const ui = {
   /**
    * Load the sound files.
    */
-  loadSounds: function() {
+  loadSounds() {
     for (let sound of config.sounds) {
       this.sounds[sound] = new buzz.sound(config.soundURL + sound, {
         formats: ['ogg', 'mp3'],
@@ -61,7 +61,7 @@ const ui = {
   /**
    * Create dynamic page elements.
    */
-  initializePage: function() {
+  initializePage() {
     // Build help sidebar.
     const helpSidebar = $('#helpList');
     const categories = strings.help.sidebar;
@@ -148,7 +148,7 @@ const ui = {
     ui.loadSettings();
   },
 
-  loadStrings: function() {
+  loadStrings() {
     // Fill strings.
     $('.string').text(function() {
       return ui.getString($(this).attr('data-string'));
@@ -166,7 +166,7 @@ const ui = {
     });
   },
 
-  loadSettings: function() {
+  loadSettings() {
     this.setStyle(config.settings.activeStyle);
 
     // Set the form values.
@@ -194,7 +194,7 @@ const ui = {
   /**
    * Initialize the event listeners.
    */
-  initializeEvents: function() {
+  initializeEvents() {
     // Make all links on the static page open in new tabs.
     visual.linkOnClick(document);
 
@@ -444,7 +444,7 @@ const ui = {
     });
   },
 
-  contextMenuStatus: function(_, {button}) {
+  contextMenuStatus(_, {button}) {
     const check = cmd => Cadence.checkCommand(cmd) && (cmd != xmpp.show);
     const labels = strings.label.status;
     const joined = !!xmpp.room.current;
@@ -478,7 +478,7 @@ const ui = {
    * Build the context menu for a user.
    * @param {jq} user The user element.
    */
-  userContextMenu: function(user) {
+  userContextMenu(user) {
     const check = cmd => Cadence.checkCommand(cmd);
     const labels = strings.label.command;
     const roster = xmpp.roster[xmpp.room.current]
@@ -547,7 +547,7 @@ const ui = {
   /**
    * Build the context menu for a room.
    */
-  roomContextMenu: function(element) {
+  roomContextMenu(element) {
     const check = cmd => Cadence.checkCommand(cmd);
     const labels = strings.label.command;
     const room = element.attr('data-room');
@@ -586,7 +586,7 @@ const ui = {
   /**
    * Instantly delete the entire message log.
    */
-  clearMessages: function() {
+  clearMessages() {
     this.messages = [];
     xmpp.historyEnd = {};
     this.dom.chatList.html('');
@@ -598,7 +598,7 @@ const ui = {
    * - change the status icon.
    * - toggle between login form and room selection menu.
    */
-  setConnectionStatus: function(online) {
+  setConnectionStatus(online) {
     // status options are: online, waiting, offline
     if (!online) this.updateRoom();
     this.setUserStatus(online ? xmpp.show : 'offline');
@@ -609,7 +609,7 @@ const ui = {
   /**
    * Change the user status.
    */
-  setUserStatus: function(show) {
+  setUserStatus(show) {
     this.dom.statusButton.removeClass('available away dnd xa offline')
       .addClass(show || 'available');
   },
@@ -617,7 +617,7 @@ const ui = {
   /**
    * Change the active stylesheet.
    */
-  setStyle: function(style) {
+  setStyle(style) {
     this.dom.styleSheets.prop('disabled', 'disabled');
     this.dom.styleSheets
       .filter(function() { return this.title == style; })
@@ -627,7 +627,7 @@ const ui = {
   /**
    * This changes the value and appearance of the persistent color button.
    */
-  setTextColorPicker: function(color) {
+  setTextColorPicker(color) {
     $('#textColor')
       .css('color', color || '')
       .text(color || strings.label.settings.textColor.none)
@@ -643,7 +643,7 @@ const ui = {
    *
    * @param {boolean} animate Set to false to skip animation (on startup).
    */
-  toggleMenu: function(animate=true) {
+  toggleMenu(animate=true) {
     const speed = animate ? 'slow' : 0;
     const oldMenu = this.activeMenu;
     const newMenu = config.settings.activeMenu;
@@ -680,7 +680,7 @@ const ui = {
    * @param {function} submit The callback that the completed form will be sent to.
    * @return {jQuery} The HTML form.
    */
-  dataForm: function(stanza, submit) {
+  dataForm(stanza, submit) {
     // The standard constructor turns <field var=?> into <input name=?>.
     const input = field => $('<input>').attr('name', field.attr('var'));
 
@@ -796,7 +796,7 @@ const ui = {
    * @param form The form element.
    * @param {cancel, apply} Extra form actions.
    */
-  formDialog: function(form, {cancel, apply}={}) {
+  formDialog(form, {cancel, apply}={}) {
     const buttons = [
       {
         text: strings.label.button.save,
@@ -829,7 +829,7 @@ const ui = {
    * @param {Object} variables (optional) The variables to insert into the text.
    * @param {Object} options (optional)
    */
-  messageInfo: function(text, variables, {error}={}) {
+  messageInfo(text, variables, {error}={}) {
     const body = visual.formatText(text, variables);
     let message = {
       type: 'local',
@@ -857,7 +857,7 @@ const ui = {
    * Create an error message.
    * This is an alias for messageInfo(text, variables, {error: true})
    */
-  messageError: function(text, variables) {
+  messageError(text, variables) {
     this.messageInfo(text, variables, {error: true});
   },
 
@@ -866,7 +866,7 @@ const ui = {
    *
    * @param {Object} message. Must have user, time, room and body keys.
    */
-  messageDelayed: function(message) {
+  messageDelayed(message) {
     const entry = visual.formatMessage(message);
     entry.html.addClass('delayed')
       .find('.dateTime').after(' ', $('<span class="log-room"></span>')
@@ -881,7 +881,7 @@ const ui = {
    *
    * This is only used for delayed messages.
    */
-  messageInsert: function(message) {
+  messageInsert(message) {
     const total = this.messages.length;
     const time = message.timestamp;
 
@@ -908,7 +908,7 @@ const ui = {
   /**
    * Append a rendered message to the end of the chat list.
    */
-  messageAppend: function(message) {
+  messageAppend(message) {
     message.offset = this.dom.chatList.prop('scrollHeight');
     this.messages.push(message);
     this.dom.chatList.append(message.html);
@@ -921,7 +921,7 @@ const ui = {
   /**
    * Refresh the room selection menu.
    */
-  refreshRooms: function(rooms) {
+  refreshRooms(rooms) {
     const room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
     const options = [new Option('---', '')];
@@ -937,7 +937,7 @@ const ui = {
    * @param {String} user - The new user object.
    * @param {String} nick - The last known nickname of the user.
    */
-  rosterInsert: function(user, {nick, animate}={}) {
+  rosterInsert(user, {nick, animate}={}) {
     nick = nick || user.nick;
     if (animate === undefined) animate = true;
     const label = user.status || strings.label.status[user.show] || user.show;
@@ -1010,7 +1010,7 @@ const ui = {
    *
    * The user will remain visible as "offline" for a short time.
    */
-  rosterRemove: function(nick) {
+  rosterRemove(nick) {
     const entry = this.roster[nick];
 
     if (entry) {
@@ -1032,7 +1032,7 @@ const ui = {
    *
    * @returns {string}
    */
-  getFragment: function() {
+  getFragment() {
     return decodeURIComponent(this.urlFragment.substring(1));
   },
 
@@ -1042,7 +1042,7 @@ const ui = {
    *
    * @param {string} room
    */
-  setFragment: function(room) {
+  setFragment(room) {
     ui.urlFragment = '#' + encodeURIComponent(room || '');
     window.location.hash = ui.urlFragment;
   },
@@ -1050,7 +1050,7 @@ const ui = {
   /**
    * Remove the online list with a new roster, and set the room selection menu.
    */
-  updateRoom: function(room, roster={}) {
+  updateRoom(room, roster={}) {
     const list = this.dom.roster;
 
     this.title = (room ? xmpp.room.available[room].title + ' - ' : '') + config.ui.title;
@@ -1076,7 +1076,7 @@ const ui = {
    *
    * @start (optional) the first offset to recalculate.
    */
-  updateHeights: function(start) {
+  updateHeights(start) {
     let offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
     for (let i = start || 1; i < ui.messages.length; i++) {
       offset += ui.messages[i].html.height();
@@ -1089,7 +1089,7 @@ const ui = {
    *
    * @return the index of the first message starting after the offset.
    */
-  getMessageAt: function(offset) {
+  getMessageAt(offset) {
     let a = 0;
     let b = ui.messages.length - 1;
     if (b < 0) return null;
@@ -1108,7 +1108,7 @@ const ui = {
    *                 Should return true if the event should be terminated.
    * @return true if the event should be terminated.
    */
-  onKeyMap: function(map) {
+  onKeyMap(map) {
     // Compile a lookup table from KeyEvent.DOM_VK_* constants or charcodes.
     const callbacks = {};
     for (let key in map) {
@@ -1133,7 +1133,7 @@ const ui = {
    * Recalculate the input field length, and update the counter.
    * When a maximum length is set, count down to it.
    */
-  updateMessageLengthCounter: function() {
+  updateMessageLengthCounter() {
     const length = this.dom.inputField.val().length;
     if (config.ui.maxMessageLength) {
       const content = (config.ui.maxMessageLength - length);
@@ -1146,7 +1146,7 @@ const ui = {
   /**
    * Scroll to the bottom of the chat list if autoscrolling is enabled.
    */
-  scrollDown: function() {
+  scrollDown() {
     // Only autoscroll if we are at the bottom.
     if(this.autoScroll) {
       this.autoScrolled = true;
@@ -1161,7 +1161,7 @@ const ui = {
    * a screen from the bottom (magic number), then auto-scrolling should
    * be disabled.
    */
-  checkAutoScroll: function() {
+  checkAutoScroll() {
     if (this.autoScrolled) return;
 
     const chatList = this.dom.chatList;
@@ -1182,7 +1182,7 @@ const ui = {
    *
    * @return {boolean} True if a sound was played.
    */
-  playSound: function(event) {
+  playSound(event) {
     if (!config.settings.notifications.soundEnabled || !config.settings.notifications.soundVolume)
       return;
     if (xmpp.show == 'dnd') return;
@@ -1196,7 +1196,7 @@ const ui = {
    * 1. keyword alert, 2. /msg, 3. sender alert, 4. incoming.
    * The first applicable, enabled sound will be played.
    */
-  notify: function(message) {
+  notify(message) {
     const text = message.body.text();
     const name = message.user.nick || message.user.jid.bare() || '';
 
@@ -1231,7 +1231,7 @@ const ui = {
    *                     - 3: Join/part notifications
    * @param {Object} message: The message object.
    */
-  notifyDesktop: function(level, message) {
+  notifyDesktop(level, message) {
     if (xmpp.show == 'dnd') return;
     if (document.hidden) return;
     if (level > config.settings.notifications.desktop) return;
@@ -1255,7 +1255,7 @@ const ui = {
   /**
    * Blink.
    */
-  blinkTitle: function(string) {
+  blinkTitle(string) {
     window.clearInterval(this.blinker);
     string = string ? string + ' - ' : '';
 
@@ -1280,7 +1280,7 @@ const ui = {
   /**
    * Autocomplete partial nicknames or commands with Tab.
    */
-  autocomplete: function() {
+  autocomplete() {
     // Search algorithm for the longest common prefix of all matching strings.
     const prefixSearch = (prefix, words) => {
       let results = words.filter(word => word.substring(0, prefix.length) == prefix);
@@ -1328,7 +1328,7 @@ const ui = {
     return true;
   },
 
-  getString: function(key) {
+  getString(key) {
     const path = key.split('.');
     let ref = strings;
     for (let token of path) ref = ref[token];
