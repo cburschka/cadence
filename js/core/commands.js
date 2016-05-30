@@ -308,7 +308,7 @@ Cadence.addCommand('configure', arg => {
     else return submit(Cadence.roomConfig(arg));
   };
   // Submit the form back to the server.
-  const submit = data => xmpp.roomConfigSubmit(name, data);
+  const submit = data => xmpp.roomConfigSubmit(name, data).then(success, error);
 
   // Report success or error.
   const success = () => ui.messageInfo(strings.info.roomConf);
@@ -322,7 +322,7 @@ Cadence.addCommand('configure', arg => {
     throw error;
   };
 
-  return xmpp.roomConfig(name).then(configure).then(success, error);
+  return xmpp.roomConfig(name).then(configure);
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
