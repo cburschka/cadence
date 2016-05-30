@@ -99,15 +99,15 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
   // List users with a specific affiliation.
   if (!nick && !jid) {
     const printList = stanza => {
-      const list = Array.from($('item', stanza).map(function() {
+      const users = Array.from($('item', stanza).map(function() {
         return this.getAttribute('jid');
       }))
       .sort()
       .map(xmpp.JID.parse)
-      .map(jid => (rosterArray.find(u => jid.matchBare(u.jid)) || {jid}))
-      .map(visual.format.user);
+      .map(jid => (rosterArray.find(u => jid.matchBare(u.jid)) || {jid}));
+      users.type = 'user';
 
-      if (list) return ui.messageInfo(strings.info.affiliations[type], {type, list});
+      if (users.length) return ui.messageInfo(strings.info.affiliations[type], {type, users});
       else return ui.messageInfo(strings.info.affiliationsEmpty, {type});
     };
 
@@ -617,11 +617,10 @@ Cadence.addCommand('kick', ({nick}) => {
  */
 Cadence.addCommand('list', () => {
   return xmpp.discoverRooms().then(
-    rooms => {
-      const links = $.map(rooms, visual.format.room);
-      if (links.length) {
-        ui.messageInfo(strings.info.roomsAvailable, {list: links});
-      }
+    data => {
+      const rooms = $.map(data, x => x).sort((a, b) => +(a.title > b.title));
+      rooms.type = 'room';
+      if (rooms.length) ui.messageInfo(strings.info.roomsAvailable, {rooms});
       else throw new Cadence.Error(strings.error.noRoomsAvailable);
     },
     error => {
@@ -928,15 +927,17 @@ Cadence.addCommand('who', ({room}) => {
     throw new Cadence.Error(strings.error[arg ? 'unknownRoom' : 'noRoom'], {name: arg});
   if (room.id != xmpp.room.current) {
     return xmpp.getOccupants(room.id).then(users => {
-      const list = $.map(users, (user, nick) => { return visual.format.nick(nick); });
-      if (links.length) ui.messageInfo(strings.info.usersInRoom, {room, list});
+      users.type = 'nick';
+      if (users.length) ui.messageInfo(strings.info.usersInRoom, {room, users});
       else ui.messageInfo(strings.info.noUsers, {room});
     });
   }
   else {
     const roster = xmpp.roster[xmpp.room.current];
-    const list = $.map(roster, visual.format.user);
-    ui.messageInfo(strings.info.usersInThisRoom, {list});
+    // All users have nicks, and no nicks are equal:
+    const users = $.map(roster, x => x).sort((a, b) => +(a.nick > b.nick));
+    users.type = 'user';
+    ui.messageInfo(strings.info.usersInThisRoom, {users});
   }
 })
 .parse(string => ({room: Cadence.getRoomFromTitle(string)}))

@@ -33,7 +33,6 @@ XMPP_URL={url}
 XMPP_DOMAIN={domain}
 XMPP_MUC={muc}
 XMPP_SESSION_AUTH={session_auth}
-CHATBOT={chatbot}
 PREFIX={prefix}
 CDN_PREFIX={cdn_prefix}
 CDN_URL={cdn_url}
@@ -91,10 +90,6 @@ def parser():
     parser.add_argument(
       '--muc', type=str,
       help='The MUC conference server to connect to.', metavar='MUC', dest='muc', default=''
-      )
-    parser.add_argument(
-      '--chatbot', type=str,
-      help='[Deprecated] Attribute status messages to a virtual chatbot. []', metavar='CHATBOT', dest='chatbot', default=''
       )
     parser.add_argument(
       '--title', type=str,

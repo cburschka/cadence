@@ -460,7 +460,7 @@ const xmpp = {
     const jid = this.jidFromRoomNick({room, nick: this.nick.target});
     const pres = this.pres({to: jid})
       .c('x', {xmlns: Strophe.NS.MUC})
-      .c('history', {since: this.historyEnd[room] || '1970-01-01T00:00:00Z'});
+      .c('history', {since: (this.historyEnd[room] || new Date(0)).toISOString()});
     if (password) pres.up().c('password', password);
     pres.send();
 
@@ -976,8 +976,8 @@ const xmpp = {
       let body = $('html body p', stanza).contents();
       if (!body.length) body = $(stanza).children('body').contents();
 
-      const delay = $('delay', stanza);
-      const time = delay.attr('stamp') || (new Date()).toISOString();
+      const delay = $('delay', stanza)
+      const time = delay.length ? new Date(delay.attr('stamp')) : new Date();
 
       // Message of the Day.
       if (!from.node && !from.resource) {
@@ -1060,7 +1060,7 @@ const xmpp = {
         });
       }
       else {
-        const message = {user, body, type};
+        const message = {user, body, type, time};
         ui.messageAppend(visual.formatMessage(message));
         if (from.resource != this.nick.current) ui.notify(message);
       }

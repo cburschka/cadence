@@ -830,27 +830,16 @@ const ui = {
    * @param {Object} options (optional)
    */
   messageInfo(text, variables, {error}={}) {
-    const body = visual.formatText(text, variables);
-    let message = {
+    const message = {
+      body: visual.formatText(text, variables),
+      time: new Date(),
       type: 'local',
-      body,
-      user: config.ui.chatBotName && {
-        nick: config.ui.chatBotName,
-        role: 'bot',
-        affiliation: 'bot'
-      }
     };
     this.notifyDesktop(error ? 1 : 3, message);
 
-    message = visual.formatMessage(message, true);
-    message.html.find('.body').addClass('message-bot');
-
-    if (error) {
-      this.playSound('error');
-      message.html.find('.body').addClass('error');
-    }
-
-    this.messageAppend(message);
+    const output = visual.formatMessage(message, true);
+    if (error) output.html.find('.body').addClass('error');
+    this.messageAppend(output);
   },
 
   /**
@@ -859,6 +848,7 @@ const ui = {
    */
   messageError(text, variables) {
     this.messageInfo(text, variables, {error: true});
+    this.playSound('error');
   },
 
   /**

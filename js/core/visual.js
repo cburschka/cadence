@@ -57,53 +57,43 @@ const visual = {
    *                  copied or transformed back into markup before insertion.
    */
   formatMessage(message) {
-    message.time = message.time ? new Date(message.time) : new Date();
+    const {time, body, type, user, to} = message;
+    const timestamp = time.getTime();
 
-    const body = $('<span>').append(message.body);
-    if (message.type != 'local') this.formatBody(body);
+    if (type != 'local') this.formatBody(body);
 
-    const html =  $('<div class="row message"><span class="hide-message"></span>'
-                  + '<span class="dateTime"></span> '
+    const template =  $('<div class="row message"><span class="hide-message"></span>'
+                  + '<span class="dateTime">{time}</span> '
                   + '<span class="authorMessageContainer">'
-                  + '<span class="author"></span>'
-                  + '<span class="body"></span>'
+                  + (user ? '<span class="author">{user}</span> ' : '')
+                  + '<span class="body">{body}</span>'
                   + '<span class="hidden"></span></span>'
                   + '</div>');
 
+    const html = this.formatText(template, {time, user, body});
+
     $('span.hide-message, span.hidden', html).click(() => {
-      $('span.body, span.hidden', html).toggle('slow', function() {
-        // TODO: jquery issue #2071 is fixed; remove this after updating jquery.
-        if ($(this).css('display') == 'inline-block') {
-          $(this).css('display', 'inline');
-        }
-      });
+      $('span.body, span.hidden', html).toggle('slow');
       ui.updateHeights();
     });
 
-    $('span.dateTime', html).append(this.format.time(message.time));
-    $('span.body', html).append(body);
-
-    const me = message.type != 'local' && this.findMe(body);
-
-    if (message.user) {
-      $('span.author', html).append(this.format.user(message.user)).after(' ');
-
-      if (message.user.jid)
-        html.addClass(this.jidClass(message.user.jid));
+    const me = type != 'local' && this.findMe(body);
+    if (user) {
+      if (user.jid) html.addClass(this.jidClass(user.jid));
 
       if (me) {
-        $('span.authorMessageContainer', html)
-          .prepend('* ').wrap('<span class="action"></span>');
         me.nodeValue = me.nodeValue.substring(4);
+        $('span.authorMessageContainer', html).prepend('* ')
+        .wrap('<span class="action"></span>');
       }
       else $('span.author', html).append(':');
     }
 
-    if (message.type != 'groupchat' && message.type != 'local') {
+    if (type != 'groupchat' && type != 'local') {
       $('span.' + (me ? 'body' : 'author'), html).after([' ',
         $('<span class="privmsg">').append(this.formatText(
-          strings.info[message.to ? 'whisperTo' : 'whisper'],
-          {user: message.to}
+          strings.info[to ? 'whisperTo' : 'whisper'],
+          {user: to}
         ))
       ]);
     }
@@ -114,7 +104,7 @@ const visual = {
     // Make links open in new tabs.
     this.linkOnClick(html);
 
-    return {timestamp: message.time.getTime(), html, message};
+    return {timestamp, html, message};
   },
 
   format: {
@@ -124,9 +114,8 @@ const visual = {
      *                        and an optional "attributes" object.
      * @returns {jQuery} the rendered button.
      */
-    button(button) {
-      return $('<button>').text(button.label).click(button.click)
-              .attr(button.attributes || {});
+    button({label, click, attributes}) {
+      return $('<button>').text(label).click(click).attr(attributes || {});
     },
 
     /**
@@ -145,10 +134,10 @@ const visual = {
      *                   or jQuery objects.
      */
     list(list) {
-      const keys = Object.keys(list).sort();
-      const output = [list[keys[0]]];
-      for (let i = 1; i < keys.length; i++) output.push(', ', list[keys[i]]);
-      return output;
+      const type = list.type;
+      list = list.map(visual.format[type] || (x => x));
+      const last = list.pop();
+      return Array.concat($.map(list, e => [e, ', ']), last);
     },
 
     /**
@@ -162,15 +151,15 @@ const visual = {
      * Format a room object.
      * Currently only returns the room title.
      */
-    room(room) {
+    room({id, title}) {
       return $('<a class="xmpp-room">')
         .attr({
-          title: room.id,
-          href: '#' + room.id,
-          'data-room': room.id,
+          title: id,
+          href: '#' + id,
+          'data-room': id,
         })
-        .text(room.title || room.id)
-        .addClass((room.id == xmpp.room.current) && 'xmpp-room-current');
+        .text(title || id)
+        .addClass((id == xmpp.room.current) && 'xmpp-room-current');
     },
 
     /**
@@ -200,24 +189,23 @@ const visual = {
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
-    user() {
-      let pdn = visual.format.nick(user.nick || user.jid.userString());
+    user({nick, jid, role, affiliation, show}) {
+      let pdn = visual.format.nick(nick || jid.userString());
 
-      if (user.role == 'visitor' || (user.nick && user.jid &&
-        user.nick.toLowerCase() != user.jid.node.toLowerCase()))
+      if (role == 'visitor' || (nick && jid && nick.toLowerCase() != jid.node.toLowerCase())) {
         pdn = '(' + pdn + ')';
+      }
 
       return $('<span class="user">')
-        .addClass('user-affiliation-' + user.affiliation)
-        .addClass('user-role-' + user.role)
-        .addClass(user.jid && visual.jidClass(user.jid))
+        .addClass(`user-affiliation-${affiliation} user-role-${role}`)
+        .addClass(jid && visual.jidClass(jid))
         .attr({
-          'data-affiliation': user.affiliation,
-          'data-jid': user.jid,
-          'data-nick': user.nick,
-          'data-role': user.role,
-          'data-show': user.show,
-          'title': user.jid,
+          'data-affiliation': affiliation,
+          'data-jid': jid,
+          'data-nick': nick,
+          'data-role': role,
+          'data-show': show,
+          'title': jid,
         })
         .text(pdn);
     }
@@ -241,12 +229,9 @@ const visual = {
       ];
     });
     // If markup is disabled, replace the entire node with its text content.
-    if (!config.settings.markup.html)
-      jq.text(jq.text());
-    if (config.settings.markup.colors)
-      this.addColor(jq);
+    if (!config.settings.markup.html) jq.text(jq.text());
+    if (config.settings.markup.colors) this.addColor(jq);
     this.addLinks(jq);
-    // Handle images - either make them auto-scale, or remove them entirely.
     this.processImages(jq);
     this.addEmoticons(jq);
   },
@@ -263,21 +248,18 @@ const visual = {
    * matching its name, or the "plaintext" formatter by default.
    * @return {string} The rendered text.
    */
-  formatText(text, variables) {
-    text = text || '';
-
-    if (text.constructor !== jQuery)
-      text = $('<span>').text(String(text));
+  formatText(text='', variables={}) {
+    if (!(text instanceof jQuery)) text = $('<span>').text(String(text));
 
     text.find('*').addBack() // include all descendants and the top element.
       .replaceText(/({(?:(\w+):)?(\w+)})/g, (rep, format, key) => {
-        if (variables && key in variables) {
+        if (variables[key] !== undefined) {
           if ((format || key) in visual.format) {
             return visual.format[format || key](variables[key]);
           }
           return variables[key];
         }
-        return rep;
+        return '';
       });
     return text;
   },
