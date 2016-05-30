@@ -181,7 +181,7 @@ const visual = {
      */
     time(time) {
       return $('<span class="time">')
-	// Store locale-aware ISO8601 string in the attribute.
+        // Store locale-aware ISO8601 string in the attribute.
         .attr('data-time', moment(time).format("YYYY-MM-DDTHH:mm:ss.SSSZ"))
         .text(moment(time).format(config.settings.dateFormat));
     },
@@ -200,8 +200,8 @@ const visual = {
      *                  affiliation and status. Guests and people whose real nodes
      *                  don't match their nickname will be parenthesized.
      */
-    user(user) {
-      let pdn = visual.format.nick(user.nick || user.jid && user.jid.bare());
+    user() {
+      let pdn = visual.format.nick(user.nick || user.jid.userString());
 
       if (user.role == 'visitor' || (user.nick && user.jid &&
         user.nick.toLowerCase() != user.jid.node.toLowerCase()))

@@ -103,6 +103,11 @@ const xmpp = {
       return this.jid;
     }
 
+    userString() {
+      if (!this.node) return this.domain;
+      return `${this.node}@${this.domain}`;
+    }
+
     static parse(jid) {
       if (!jid) return jid;
       jid = String(jid);
