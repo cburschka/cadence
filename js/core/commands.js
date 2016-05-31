@@ -504,6 +504,7 @@ Cadence.addCommand('dmsg', ({jid, msg}) => {
 
   ui.messageAppend(visual.formatMessage({
     type: 'chat',
+    time: new Date(),
     to: {jid},
     user: {jid: xmpp.jid},
     body: body.html
@@ -618,7 +619,7 @@ Cadence.addCommand('kick', ({nick}) => {
 Cadence.addCommand('list', () => {
   return xmpp.discoverRooms().then(
     data => {
-      const rooms = $.map(data, x => x).sort((a, b) => +(a.title > b.title));
+      const rooms = $.map(data, x => x).sort((a, b) => 1-2*(a.title < b.title));
       rooms.type = 'room';
       if (rooms.length) ui.messageInfo(strings.info.roomsAvailable, {rooms});
       else throw new Cadence.Error(strings.error.noRoomsAvailable);
@@ -662,6 +663,7 @@ Cadence.addCommand('msg',
   });
   ui.messageAppend(visual.formatMessage({
     type: 'chat',
+    time: new Date(),
     to: xmpp.roster[xmpp.room.current][nick],
     user: xmpp.roster[xmpp.room.current][xmpp.nick.current],
     body: body.html
@@ -934,8 +936,8 @@ Cadence.addCommand('who', ({room}) => {
   }
   else {
     const roster = xmpp.roster[xmpp.room.current];
-    // All users have nicks, and no nicks are equal:
-    const users = $.map(roster, x => x).sort((a, b) => +(a.nick > b.nick));
+    const users = $.map(roster, x => x)
+    .sort((a, b) => 1-2*(a.nick.toLowerCase() < b.nick.toLowerCase()));
     users.type = 'user';
     ui.messageInfo(strings.info.usersInThisRoom, {users});
   }

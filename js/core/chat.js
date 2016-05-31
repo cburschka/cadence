@@ -176,9 +176,9 @@ const Cadence = {
    */
   formatOutgoing(text) {
     text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    let html = this.bbcode.render(visual.escapeHTML(text));
+    const html = $('<span>').append(this.bbcode.render(visual.escapeHTML(text)));
     if (config.settings.textColor) {
-      html = '<span class="color" data-color="' + config.settings.textColor + '">' + html + '</span>';
+      html.addClass('color').attr('data-color', config.settings.textColor);
     }
     return {html, text: this.bbcodeMD.render(text)};
   },
