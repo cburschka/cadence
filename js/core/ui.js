@@ -944,7 +944,6 @@ const ui = {
     const link = $('.user', entry);
 
     const exists = !!this.roster[nick];
-    this.roster[user.nick] = entry;
 
     // If the entry already exists:
     if (exists) {
@@ -974,12 +973,17 @@ const ui = {
         const oldIndex = this.sortedNicks.indexOf(nick);
         this.sortedNicks.splice(oldIndex, 1);
         delete this.roster[nick];
+        // And if the new nickname is already in the roster, remove that too:
+        const oldEntry = this.roster[user.nick];
+        if (oldEntry) oldEntry.remove();
       }
     }
     else {
       visual.msgOnClick(entry);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
     }
+
+    this.roster[user.nick] = entry;
 
     // If the nick is still in the sorted index, we're done.
     if (~this.sortedNicks.indexOf(nick)) return;
