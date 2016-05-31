@@ -2,7 +2,7 @@
   Strophe.addNamespace('CONFERENCE', 'jabber:x:conference');
 
   $(document).ready(function() {
-    loadSettings();
+    initSettings();
     loadEmoticons();
 
     Cadence.bbcode = XBBCode(config.markup.bbcode);
@@ -32,24 +32,15 @@
     }
   });
 
-  const loadSettings = () => {
+  const initSettings = () => {
     config.settings = config.defaultSettings;
-
-    let stored = null;
-    if (window.localStorage && localStorage.settings)
-      stored = JSON.parse(localStorage.settings);
-    else
-      stored = Cookies.getJSON(config.clientName + '_settings');
-
-    if (stored) {
-      if (stored.version == config.version)
-        config.settings = stored;
-      else
-        config.settings = objMerge(config.settings, stored);
-      // After merging, update the version.
-      config.settings.version = config.defaultSettings.version;
+    if (localStorage && localStorage.settings) {
+      Cadence.loadSettings(JSON.parse(localStorage.settings))
     }
-  };
+    else {
+      Cadence.loadSettings(Cookies.getJSON(config.clientName + '_settings'));
+    }
+  }
 
   const loadEmoticons = () => {
     for (let pack in emoticons.packages) {
@@ -61,19 +52,6 @@
     }
   };
 
-  /**
-   * Make a merged copy of objects a and b, whose structure is exactly that of
-   * a, using b's values for common keys.
-   */
-  const objMerge = (a, b) => {
-    if (typeof a != typeof b) return a;
-    if (a.constructor != Object) return b;
 
-    const c = {}
-    for (let key in a) c[key] = a[key];
-    for (let key in b)
-      c[key] = c[key] !== undefined ? objMerge(a[key], b[key]) : b[key];
-    return c;
-  };
 
 })();

@@ -64,7 +64,7 @@ const config = {
 
     sync: {
       account: '',
-      time: 0,
+      time: '',
     },
 
     xmpp: {

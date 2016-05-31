@@ -439,6 +439,8 @@ const Cadence = {
     }
   },
 
+  loadSettings() {},
+
   /**
    * Serialize the settings object and save it in the cookie.
    */
@@ -473,7 +475,7 @@ const Cadence = {
     const get = stored => {
       if (!stored.sync) throw new Cadence.Error(strings.error.sync.missing);
       stored.sync.time = stored.modified;
-      config.settings = stored;
+      Cadence.loadSettings(stored);
 
       ui.loadSettings(); // Apply the new settings.
       this.saveSettings();
@@ -499,6 +501,31 @@ const Cadence = {
 };
 
 (() => {
+  /**
+   * Make a merged copy of objects a and b, whose structure is exactly that of
+   * a, using b's values for common keys.
+   */
+  const objMerge = (a, b) => {
+    if (typeof a != typeof b) return a;
+    if (a.constructor != Object) return b;
+    // Shallow copy of a:
+    const c = Object.assign({}, a);
+    Object.keys(b).forEach(
+      key => c[key] = (c[key] !== undefined ? objMerge(c[key], b[key]) : b[key])
+    );
+    return c;
+  };
+
+  Cadence.loadSettings = settings => {
+    if (!settings) return;
+    if (settings.version == config.version) config.settings = settings;
+    else {
+      // Merge and update the version.
+      config.settings = objMerge(config.settings, settings);
+      config.settings.version = config.version;
+    }
+  };
+
   /**
    * Validate the current command by client state.
    */
