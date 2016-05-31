@@ -1236,18 +1236,20 @@ const ui = {
     if (!document.hidden) return;
     if (level > config.settings.notifications.desktop) return;
 
-    let body = $(message.body).text();
-    let sender = message.user.nick || message.user.jid.bare();
-    let title = sender;
+    const {title, body} = (() => {
+      const {type, user, body} = message;
+      const text = $(body).text();
+      const sender = user && visual.format.user(user).text();
+      const title = type == 'direct' ? sender : xmpp.getRoom().title;
 
-    if (message.type != 'direct') {
-      title = xmpp.room.available[xmpp.room.current].title;
-      if (message.type != 'local') {
-        if (message.type != 'groupchat')
-          body = strings.info.whisper + ' ' + body;
-        body = sender + ': ' + body;
+      switch (type) {
+        case 'direct':    return {title, body: text};
+        case 'local':     return {title, body: text};
+        case 'groupchat': return {title, body: `${sender}: ${text}`}
+        default:
+          return {title, body: `${sender}: ${strings.info.whisper} ${text}`}
       }
-    }
+    })();
 
     return new Notification(title, {body, tag: xmpp.room.current});
   },
