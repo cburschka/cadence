@@ -1233,7 +1233,7 @@ const ui = {
    */
   notifyDesktop(level, message) {
     if (xmpp.show == 'dnd') return;
-    if (document.hidden) return;
+    if (!document.hidden) return;
     if (level > config.settings.notifications.desktop) return;
 
     let body = $(message.body).text();
