@@ -69,6 +69,7 @@ const visual = {
                   + '<span class="body">{body}</span>'
                   + '<span class="hidden"></span></span>'
                   + '</div>');
+    template.addClass('message-type-' + message.type);
 
     const html = this.formatText(template, {time, user, body});
 
