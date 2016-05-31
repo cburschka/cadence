@@ -71,9 +71,28 @@ const Cadence = {
    *
    * @param {string} command
    * @param {Object} arg
+   *
+   * @return {Promise} a promise that resolves when the command completes.
    */
   execute(command, arg={}) {
-    return this.getCommand(command).execute(arg);
+    return Promise.resolve(this.getCommand(command).execute(arg));
+  },
+
+  /**
+   * Attempt to execute a command, catching and printing errors.
+   *
+   * @param {string} command
+   * @param {Object} arg
+   *
+   * @return {Promise} a promise that resolves when the command completes or fails.
+   */
+  tryCommand(command, arg) {
+    try {
+      return this.execute(command, arg).catch(error => this.handleError(command, error));
+    }
+    catch (error) {
+      return Promise.resolve(this.handleError(command, error));
+    }
   },
 
   /**
@@ -93,21 +112,19 @@ const Cadence = {
     else throw new Cadence.Error(strings.error.cmdUnknown, {command});
   },
 
+  /**
+   * Check if a command is currently executable, catching errors.
+   *
+   * @param {string} name
+   *
+   * @return {boolean} whether or not the command is available.
+   */
   checkCommand(command) {
     try {
       return this.getCommand(command).isAvailable();
     }
     catch (e) {
       return false;
-    }
-  },
-
-  tryCommand(command, arg) {
-    try {
-      this.execute(command, arg).catch(error => this.handleError(command, error));
-    }
-    catch (error) {
-      this.handleError(command, error);
     }
   },
 
