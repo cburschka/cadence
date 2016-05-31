@@ -337,12 +337,13 @@ const Cadence = {
     .then(() => {
       ui.setConnectionStatus(true);
       ui.messageInfo(strings.info.connection.connected);
+      Cadence.tryCommand('sync');
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const room = ui.getFragment() || config.settings.xmpp.room;
-        Cadence.execute('join', {room});
+        return Cadence.execute('join', {room});
       }
-      else Cadence.execute('list');
+      else return Cadence.execute('list');
     })
     // Notify user of connection failures.
     .catch(error => {
@@ -482,9 +483,15 @@ const Cadence = {
     if (type === 'set') return set();
 
     return xmpp.loadSettings().then(stored => {
+      if (type == 'get') return get(stored);
+
+      // If there is no stored data, store it.
+      if (!stored) return set();
+      // If we have never synchronized, then load.
+      if (!old) return get(stored);
       const remote = new Date(stored.modified).getTime();
       if (local == remote) return ui.messageInfo(strings.info.sync.equal);
-      if (type == 'get' || sync == local) return get(stored);
+      if (sync == local) return get(stored);
       if (sync == remote) return set();
       throw new Cadence.Error(strings.error.sync.conflict);
     });
