@@ -717,7 +717,7 @@ Cadence.addCommand('part', () => {
    * buzz <nick|jid>
    */
   Cadence.addCommand('buzz', ({nick, jid}) => {
-    const target = jid || xmpp.jidFromRoomNick({nick});
+    const target = nick && xmpp.jidFromRoomNick({nick}) || jid;
     const user = xmpp.userFromJid(target);
 
     ui.messageInfo(strings.info.buzz, {user});
@@ -729,7 +729,7 @@ Cadence.addCommand('part', () => {
    *   Send a ping and display the response time.
    */
   Cadence.addCommand('ping', ({nick, jid}) => {
-    const target = jid || nick && xmpp.jidFromRoomNick({nick});
+    const target = nick && xmpp.jidFromRoomNick({nick}) || jid;
     const user = target && xmpp.userFromJid(target);
     const time = (new Date()).getTime();
 
@@ -758,7 +758,7 @@ Cadence.addCommand('part', () => {
    *   Send a time request and display the response.
    */
   Cadence.addCommand('time', ({nick, jid}) => {
-    const target = jid || nick && xmpp.jidFromRoomNick({nick});
+    const target = nick && xmpp.jidFromRoomNick({nick}) || jid;
     const user = target && xmpp.userFromJid(target);
 
     const start = new Date();
@@ -810,7 +810,7 @@ Cadence.addCommand('part', () => {
       else return;
     }
 
-    const target = jid || nick && xmpp.jidFromRoomNick({nick});
+    const target = nick && xmpp.jidFromRoomNick({nick}) || jid;
     const user = target && xmpp.userFromJid(target);
 
     return xmpp.getVersion(target).then((stanza) => {
