@@ -103,7 +103,7 @@ span.hide-message {
 .context-menu-item.icon-invite { background-image: url(../../img/invite.png); }
 .context-menu-item.icon-join { background-image: url(../../img/join.png); }
 .context-menu-item.icon-leave { background-image: url(../../img/leave.png); }
-.context-menu-item.icon-msg { background-image: url(../../img/chat.png); }
+.context-menu-item.icon-msg { background-image: url(../../img/msg.png); }
 .context-menu-item.icon-ping { background-image: url(../../img/ping.png); }
 .context-menu-item.icon-whois { background-image: url(../../img/whois.png); }
 
