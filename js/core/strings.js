@@ -213,7 +213,6 @@ const strings = {
     nickConflict: 'Username {nick} already in use.',
     noArgument: 'This command requires more arguments.',
     noCreate: 'You are not allowed to create rooms.',
-    noRoom: 'You are not in a room and did not specify one.',
     pingError: 'Ping: Target does not support ping.',
     pingTimeout: [
       'Ping timed out ({delay} ms).',

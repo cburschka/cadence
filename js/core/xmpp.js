@@ -295,6 +295,39 @@ const xmpp = {
   },
 
   /**
+   * Return a room info object, if it exists.
+   *
+   * @param {string} id (optional)
+   *
+   * @return The requested or the current room, or undefined.
+   */
+  getRoom(room) {
+    return this.room.available[room || this.room.current];
+  },
+
+  /**
+   * Return a roster, if it exists.
+   *
+   * @param {string} room (optional)
+   *
+   * @return The requested or the current roster, or undefined.
+   */
+  getRoster(room) {
+    return this.roster[room || this.room.current];
+  },
+
+  /**
+   * Return a roster entry, if it exists.
+   *
+   * @param {string} nick
+   * @param {string} room (optional)
+   */
+  getOccupant(nick, room) {
+    const roster = this.getRoster(room);
+    return roster && roster[nick || this.nick.current];
+  },
+
+  /**
    * Generate a JID from a roomnick.
    *
    * @param {string} room (defaults to current room)
@@ -424,7 +457,7 @@ const xmpp = {
    *
    * In the case of an error, the promise will reject with the stanza.
    */
-  getRoomInfo(room) {
+  queryRoom(room) {
     const iq = this.iq({type: 'get', to: this.jidFromRoomNick({room})})
       .c('query', {xmlns: Strophe.NS.DISCO_INFO});
 
@@ -437,7 +470,7 @@ const xmpp = {
       query.find('x > field').each(function() {
         data[$(this).attr('var')] = $(this).find('value').text();
       });
-      return {
+      return this.room.available[room] = {
         id: room,
         title: query.children('identity').attr('name'),
         members: +data['muc#roominfo_occupants'],
@@ -696,7 +729,7 @@ const xmpp = {
    *
    * @return {Promise} A promise that resolves to a user list.
    */
-  getOccupants(room) {
+  queryOccupants(room) {
     return this.iq({type: 'get', to: this.jidFromRoomNick({room})})
       .c('query', {xmlns: Strophe.NS.DISCO_ITEMS})
       .send()
@@ -827,9 +860,9 @@ const xmpp = {
    * Handle presence stanzas of type `unavailable`.
    */
   eventPresenceUnavailable(roomId, nick, codes, item, stanza) {
-    const roster = this.roster[roomId];
+    const roster = this.getRoster(roomId);
     const user = roster[nick];
-    const room = this.room.available[roomId];
+    const room = this.getRoom(roomId);
 
     // Delete the old roster entry.
     delete roster[nick];
