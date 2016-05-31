@@ -328,10 +328,17 @@ const ui = {
 
     // Instantly save changed settings in the cookie.
     $('.settings').change(function() {
-      let value = this.value;
-      if (this.type == 'checkbox') value = this.checked;
-      else if ((this.type == 'range' || this.type == 'select') && value === String(parseFloat(value))) value = parseFloat(value);
-      Cadence.setSetting(this.id.substring('settings-'.length), value);
+      const {id, type, value, checked} = this;
+      const newValue = (() => {
+        switch (type) {
+          case 'checkbox': return checked;
+          case 'range': case 'select': case 'select-one':
+            const num = parseFloat(value);
+            if (value === String(num)) return num;
+          default: return value;
+        }
+      })();
+      Cadence.setSetting(id.substring('settings-'.length), newValue);
     });
     $('#settings-notifications\\.triggers').change(function() {
       let value = this.value.trim();
@@ -347,8 +354,7 @@ const ui = {
           // If denied, revert the setting.
           if (permission != 'granted') $(this).val(0).change();
         });
-      else if (Notification.permission == 'denied')
-        $(this).val(0).change();
+      else if (Notification.permission == 'denied') $(this).val(0).change();
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
