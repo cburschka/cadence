@@ -1006,8 +1006,9 @@ const xmpp = {
       let user = this.userFromJid(from);
       const muc = !!user.room || !!user.nick;
 
-      let body = $('html body p', stanza).contents();
-      if (!body.length) body = $(stanza).children('body').contents();
+      const text = $(stanza).children('body').text();
+      const html = $('html body p', stanza).contents();
+      const body = html.length ? $('<span>').append(html) : $('<span>').text(text);
 
       const delay = $('delay', stanza)
       const time = delay.length ? new Date(delay.attr('stamp')) : new Date();

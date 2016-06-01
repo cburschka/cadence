@@ -270,8 +270,9 @@ const visual = {
    * CSS color property to the attribute value.
    */
   addColor(jq) {
-    const color = jq.attr('data-color');
-    if (color) jq.css('color', color);
+    $('span.color').css('color', function() {
+      return this.getAttribute('data-color');
+    });
   },
 
   removeColor(jq) {
