@@ -237,7 +237,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
     }).parse(parser).require(Cadence.requirements.room);
   });
   Cadence.addCommand('back', ({status}) => {
-    xmpp.sendStatus({show: 'available', status});
+    xmpp.sendStatus({status});
     ui.setUserStatus('available');
   }).parse(parser).require(Cadence.requirements.room);
 })();

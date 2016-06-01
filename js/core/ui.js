@@ -454,13 +454,13 @@ const ui = {
     const online = xmpp.connection.connected;
     const status = xmpp.show || 'available';
     const cmd = show => Cadence.tryCommand(show,
-      button == 2 && prompt(strings.info.promptStatus) || ''
+      {status: button == 2 && prompt(strings.info.promptStatus + show)}
     );
     const items = {back: {
       name: labels.available,
       icon: 'available',
       disabled: !check(online ? 'back' : 'connect'),
-      callback: () => Cadence.tryCommand(online ? 'back' : 'connect'),
+      callback: () => (online ? cmd('back') : Cadence.tryCommand('connect')),
     }};
     ['away', 'xa', 'dnd'].forEach(show => items[show] = {
       name: labels[show],
