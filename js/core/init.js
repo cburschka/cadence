@@ -19,17 +19,9 @@
     });
     $(window).unload(() => xmpp.connection.disconnect());
 
-    const welcome = () => {
+    Cadence.execute('connect').catch(() => {
       if (config.ui.welcome) ui.messageInfo(config.ui.welcome);
-    };
-
-    if (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) {
-      Cadence.execute('connect').catch(welcome);
-    }
-    else {
-      ui.setConnectionStatus(false);
-      welcome();
-    }
+    });
   });
 
   const initSettings = () => {

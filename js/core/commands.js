@@ -346,11 +346,12 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
     if (user && pass) return {user, pass};
     // Or reuse the credentials from the last connection:
     if (this.auth) return this.auth;
+    return {user: $('#loginUser').val(), pass: $('#loginPass').val()};
   })();
 
   const getAuth = (() => {
     // Use the auth values we have:
-    if (auth) return Promise.resolve(auth);
+    if (auth.user && auth.pass) return Promise.resolve(auth);
 
     // Or attempt session authentication:
     const url = config.xmpp.sessionAuthURL;
