@@ -175,7 +175,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
     ).join('\n');
 
     if (macros) {
-      return ui.messageInfo($('<div>').html(strings.info.macros), {macros});
+      return ui.messageInfo($('<span>').html(strings.info.macros), {macros});
     }
     else {
       throw new Cadence.Error(strings.error.noMacros);
@@ -194,18 +194,16 @@ Cadence.addCommand('alias', ({command, macro}) => {
   // Run a DFS to avoid recursive macros.
   const macros = config.settings.macros;
   const search = (macro, path) => {
-    if (macro) for (let statement of macro) {
-      let [,cmd] = statement.match(/^\/(\S+)/) || [];
+    macro.forEach(statement => {
+      const [,cmd] = statement.match(/^\/(\S+)/) || [];
       path = path.concat([cmd]);
-      if (cmd == command) return path;
+      if (cmd == command) throw new Cadence.Error(strings.error.aliasRecursion, {
+        command, path: path.join(' -> ')
+      });
       else return search(macros[cmd], path);
-    }
-    return false;
+    });
   };
-  const recursion = search(macro, [command]);
-  if (recursion) throw new Cadence.Error(strings.error.aliasRecursion, {
-    command, path: recursion.join(' -> ')
-  });
+  search(macro, [command]);
 
   if (macros[command]) {
     ui.messageInfo(strings.info.aliasReplace, {command});
@@ -216,7 +214,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
 })
 .parse(string => {
   string = string.trim();
-  if (!string) return;
+  if (!string) return {};
 
   const [prefix, command] = string.match(/^\/*(\S+)/) || [];
   if (!command) {

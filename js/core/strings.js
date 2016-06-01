@@ -116,7 +116,7 @@ const strings = {
     joining: 'Joining {room} as {user} ...',
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
-    macros: 'Macros:<br /><code>{macros}</code>',
+    macros: 'Macros:\n<code>{macros}</code>',
     motd: 'Announcement from {domain}: {text}',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
