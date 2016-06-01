@@ -134,6 +134,7 @@ const strings = {
     roomCreated: 'The room {room} has been newly created.',
     roomsAvailable: 'Available rooms: {list:rooms}',
     sessionAuth: 'Automatically logging in as {username}',
+    suggestions: 'Suggestions: {list}',
     sync: {
       equal: 'The settings are already synchronized.',
       get: 'The remote settings have been downloaded.',

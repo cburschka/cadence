@@ -1259,50 +1259,33 @@ const ui = {
    * Autocomplete partial nicknames or commands with Tab.
    */
   autocomplete() {
-    // Search algorithm for the longest common prefix of all matching strings.
-    const prefixSearch = (prefix, words) => {
-      let results = words.filter(word => word.substring(0, prefix.length) == prefix);
-
-      if (results.length > 1) {
-        let result = results[0];
-        // For each match, cut down to the longest common prefix.
-        results.forEach(candidate => {
-          for (let c in candidate) {
-            if (result[c] != candidate[c]) {
-              result = result.substring(0, j);
-              break;
-            }
-          }
-          result = result.substring(0, results[i].length);
-        });
-        results = result ? [result] : [];
-      }
-      if (results.length == 1) return results[0];
-      else return '';
-    };
-
     const inputField = this.dom.inputField;
     inputField.focus();
     const start = inputField[0].selectionStart;
     const end = inputField[0].selectionEnd;
     if (start != end) return false;
     const old = inputField.val();
-    const prefix = old.substring(0, start).match(/(^|\s)((\S|\\\s)*)$/)[2];
+    const [,slash,prefix=''] = old.substring(0, start).match(/(?:^|\s)(\/?)((?:\S|\\\s)*)$/);
 
-    // Look for commands or nicknames.
-    let result;
-    if (prefix[0] == '/') {
-      const searchSpace = Object.keys(Cadence.commands).concat(Object.keys(config.settings.macros));
-      result = '/' + prefixSearch(prefix.substring(1), searchSpace);
-    }
-    else
-      result = prefixSearch(prefix, this.sortedNicks);
+    const commands = Object.keys(Cadence.commands).concat(Object.keys(config.settings.macros));
+    const searchSpace = slash ? commands : this.sortedNicks;
 
-    if (result.length > prefix.length) {
-      inputField.val(old.substring(0, start - prefix.length) + result + old.substring(start, old.length));
-      inputField[0].selectionStart = start - prefix.length + result.length;
-      inputField[0].selectionEnd = inputField[0].selectionStart;
-    }
+    const candidates = searchSpace.filter(x => x.startsWith(prefix));
+    if (!candidates.length) return true;
+
+    const common = (candidates.length == 1 ?
+      (candidates[0] + ' ') :
+      candidates.reduce((a,b) => {
+        const index = Array.from(a).findIndex((c, i) => c != b[i]);
+        return a.substring(0, index);
+      })
+    );
+
+    const next = common.substring(prefix.length);
+    if (next) return Cadence.insertText(next) || true;
+    const list = slash ? candidates.map(x => '/' + x) : candidates.map(x => xmpp.getOccupant(x));
+    list.type = slash ? 'command' : 'user';
+    ui.messageInfo(strings.info.suggestions, {list});
     return true;
   },
 
