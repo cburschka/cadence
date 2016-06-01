@@ -380,10 +380,6 @@ const strings = {
       chat: {
         title: 'Chat commands',
         commands: {
-          alias: [
-            'Create a macro',
-            '/alias <cmd> /a; /b'
-          ],
           away: [
             'Set away status',
             '/away <message>'
@@ -391,10 +387,6 @@ const strings = {
           back: [
             'Remove away status',
             '/back'
-          ],
-          clear: [
-            'Clear all messages',
-            '/clear'
           ],
           configure: [
             'Configure an existing room',
@@ -444,10 +436,6 @@ const strings = {
             'Disconnect',
             '/quit'
           ],
-          save: [
-            'Save history as file',
-            '/save [html]'
-          ],
           say: [
             'Say something',
             '[/say] ...'
@@ -459,7 +447,28 @@ const strings = {
           who: [
             'List users',
             '/who [<room>]'
-          ]
+          ],
+        },
+      },
+      ui: {
+        title: 'Interface commands',
+        commands: {
+          alias: [
+            'Create a macro',
+            '/alias <cmd> /a; /b'
+          ],
+          clear: [
+            'Clear all messages',
+            '/clear'
+          ],
+          save: [
+            'Save history as file',
+            '/save [html]'
+          ],
+          sync: [
+            'Synchronize settings',
+            '/sync [get|set]',
+          ],
         },
       },
       admin: {

@@ -339,27 +339,28 @@ Cadence.addCommand('configure', arg => {
  *   Open a connection and authenticate.
  */
 Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
-  const auth = (
+  const auth = (() => {
     // Connect anonymously:
-    anonymous && {user: '', pass: ''} ||
+    if (anonymous) return {user: '', pass: ''};
     // Or with the arguments:
-    (user && pass) && {user, pass} ||
+    if (user && pass) return {user, pass};
     // Or reuse the credentials from the last connection:
-    this.auth
-  );
+    if (this.auth) return this.auth;
+  })();
 
-  const getAuth = (
+  const getAuth = (() => {
     // Use the auth values we have:
-    auth && Promise.resolve(auth) ||
+    if (auth) return Promise.resolve(auth);
 
     // Or attempt session authentication:
-    (config.settings.xmpp.sessionAuth && config.xmpp.sessionAuthURL) &&
-    Cadence.sessionAuth(config.xmpp.sessionAuthURL)
-    .then(auth => {
+    const url = config.xmpp.sessionAuthURL;
+    if (url && config.settings.sessionAuth) return Cadence.sessionAuth(url).then(auth => {
       ui.messageInfo(strings.info.sessionAuth, {username: auth.user});
       return auth;
-    })
-  );
+    });
+    return Promise.reject();
+  })();
+
 
   const connect = ({user, pass}) => Cadence.connect(user, pass);
   const noCredentials = () => {
@@ -367,7 +368,6 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
     if (!automatic) throw new Cadence.Error(strings.error.connection.auth);
   };
 
-  if (!getAuth) return noCredentials();
   return getAuth.then(connect, noCredentials);
 })
 .parse(string => {
