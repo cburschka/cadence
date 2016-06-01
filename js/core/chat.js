@@ -181,7 +181,7 @@ const Cadence = {
    */
   executeMacro(macro, text) {
     text = text.trim();
-    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text, true)));
+    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text), true));
   },
 
   /**
