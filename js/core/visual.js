@@ -282,21 +282,22 @@ const visual = {
    * Find emoticon codes in the node's text and replace them with images.
    */
   addEmoticons(jq) {
-    const codes = this.emoticonSets;
+    const sets = this.emoticonSets;
     const regex = this.emoticonRegex;
     if (!regex) return;
 
     const image = (...groups) => {
-      for (let i in groups) {
-        if (groups[i]) {
-          return  [$('<img class="emoticon" />').attr({
-            src: codes[i].baseURL + codes[i].codes
-            [groups[i]],
-            title: groups[i],
-            alt: groups[i]
-          }), $('<span class="emote-alt"></span>').text(groups[i])]
-        }
-      }
+      const i = groups.findIndex(x => !!x);
+      const {code} = groups[i];
+      const {baseURL, codes} = sets[i];
+      return  [
+        $('<img class="emoticon">').attr({
+          src: baseURL + codes[code],
+          title: code,
+          alt: code
+        }),
+        $('<span class="emote-alt">').text(code)
+      ]
     };
 
     jq.add('*', jq).not('code, code *, a, a *').replaceText(regex, image);
@@ -315,11 +316,12 @@ const visual = {
     const linkRegex = /\b((?:https?|s?ftp):\/\/[^\s"']+[^\s.,;:()"'>])(\)*)/g;
     const link = (url, closeParens) => {
       // Allow URLs to finish with a parenthesized part.
-      let open = 0;
-      for (let c of url) {
-        if (c == '(') open++;
-        else if (open && c == ')') open--;
-      }
+      const open = Array.from(url).reduce((open, c) => {
+        if (c == '(') return open + 1;
+        else if (c == ')') return Math.max(0, open - 1);
+        else return open;
+      }, 0);
+
       url += closeParens.substring(0, open);
       closeParens = closeParens.substring(open);
 

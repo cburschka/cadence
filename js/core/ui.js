@@ -50,12 +50,12 @@ const ui = {
    * Load the sound files.
    */
   loadSounds() {
-    for (let sound of config.sounds) {
+    config.sounds.forEach(sound => {
       this.sounds[sound] = new buzz.sound(config.soundURL + sound, {
         formats: ['ogg', 'mp3'],
         preload: true
       });
-    }
+    });
   },
 
   /**
@@ -63,84 +63,80 @@ const ui = {
    */
   initializePage() {
     // Build help sidebar.
-    const helpSidebar = $('#helpList');
-    const categories = strings.help.sidebar;
-    for (let key in categories) {
-      const table = $('<table>');
-      table.append($('<caption>').append($('<h4>').text(categories[key].title)));
-      const commands = categories[key].commands;
-      for (let key in commands) {
-        const row = $('<tr class="row">').append(
-          $('<td class="desc">').text(commands[key][0]),
-          $('<td class="code">').text(commands[key][1])
-        );
-        table.append(row);
-      }
-      helpSidebar.append(table);
-    }
+    const help = strings.help.sidebar;
+    const helpSections = Object.values(help).map(({title, commands}) => {
+      const caption = $('<caption>').append($('<h4>').text(title));
+      const rows = Object.values(commands).map(
+        ([desc, code]) => $('<tr class="row">').append(
+          $('<td class="desc">').text(desc),
+          $('<td class="code">').text(code)
+        )
+      );
+      return $('<table>').append(caption, rows);
+    });
+    $('#helpList').append(helpSections);
 
     // Build the navigation menu.
     const navigation = config.ui.navigation;
-    for (let key in navigation)
-      $('#navigation ul').append($('<li>').append(
-        $('<a>').attr('href', navigation[key]).text(key)
-      ));
-    if (navigation) $('#navigation').css('display', 'inline-block');
+    const navLinks = $.map(navigation, (val, key) =>
+      $('<li>').append($('<a>').attr('href', val).text(key))
+    );
+    $('#navigation ul').append(navLinks);
+    $('#navigation').toggle(!!navLinks.length);
 
     // Build and fill the emoticon containers.
     const bars = config.ui.emoticonSidebars
     const emoticons = config.markup.emoticons;
-    for (let set in bars) {
-      this.dom.menu['emoticon-' + set] = $('<div class="menuContainer emoticon-sidebar box"></div>')
-        .attr('id', 'emoticon-' + set)
-        .append($('<h3></h3>').text(bars[set].title))
-        .append($('<div class="emoticon-list-sidebar" dir="ltr"></div>')
-          .attr('id', 'emoticonsList-' + set)
-        )
-        .appendTo(this.dom.emoticonSidebarContainer);
+    Object.keys(bars).forEach(set => {
+      const {title, icon} = bars[set];
+      const {codes, baseURL} = emoticons[set];
 
       $('<button class="tray icon toggleMenu">')
+        .text(title)
         .attr({
-          title: bars[set].title,
-          id: 'emoticon-' + set + 'Button',
-          'data-sidebar': 'emoticon-' + set,
+          title,
+          id: `emoticon-${set}Button`,
+          'data-sidebar': `emoticon-${set}`,
         })
-        .text(bars[set].title)
-        .css('background-image', 'url(' + encodeURI(emoticons[set].baseURL + bars[set].icon) + ')')
+        .css('background-image', `url(${encodeURI(baseURL + icon)})`)
         .appendTo(this.dom.emoticonTrayContainer);
-    }
 
-    for (let set in emoticons) {
-      const list = $('#emoticonsList-' + set);
-      for (let code in emoticons[set].codes) {
-        list.append($('<a class="insert-text"></a>')
-          .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
-          .attr('title', code)
-          .append($('<img />')
-            .attr('src', emoticons[set].baseURL + emoticons[set].codes[code])
-            .attr('alt', code)
-          )
-        );
-      }
-    }
+      const list = $('<div class="emoticon-list-sidebar" dir="ltr">')
+        .attr('id', `emoticonsList-${set}`);
+
+      const sidebar = $('<div class="menuContainer emoticon-sidebar box">')
+        .attr('id', `emoticon-${set}`)
+        .append($('<h3>').text(title), list)
+        .appendTo(this.dom.emoticonSidebarContainer);
+
+      this.dom.menu[`emoticon-${set}`] = sidebar;
+
+      const shortcuts = Object.keys(codes).map(code =>
+        $('<a class="insert-text">').attr({
+          href: `javascript:void('${code.replace(/'/g, '\\\'')}');`,
+          title: code
+        })
+        .append($('<img>').attr({
+          src: baseURL + codes[code],
+          alt: code
+        }))
+      );
+      list.append(shortcuts);
+    });
 
     // Build the color palette picker.
-    const palette = $('#colorCodesContainer');
-    const colorCodes = config.markup.colorCodes;
-    for (let code of colorCodes) {
-      palette.append($('<a class="colorCode"></a>')
-        .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
-        .attr('title', code)
-        .css('background-color', code)
-      );
-    }
-    palette.append('<button class="button" id="textColorFull" class="string" data-string="label.button.advanced">');
+    const colorCodes = config.markup.colorCodes.map(code =>
+      $('<a class="colorCode">')
+      .attr('href', "javascript:void('" + code.replace(/'/g, '\\\'') + "');")
+      .attr('title', code)
+      .css('background-color', code)
+    );
+    $('#colorCodesContainer').prepend(colorCodes);
 
-    const sounds = [$('<option value="" class="string" data-string="label.page.none">')];
-    for (let sound in this.sounds) sounds.push(new Option(sound, sound));
-    $('#settingsContainer select.soundSelect').append(sounds).after(function() {
-      const event = this.id.substring('settings-notifications.sounds.'.length);
-      return $('<button class="icon soundTest">').click(() => ui.playSound(event));
+    const sounds = Object.keys(this.sounds).map(sound => new Option(sound));
+    $('#settingsContainer select.soundSelect').append(sounds);
+    $('button.soundTest').click(function() {
+      return ui.playSound(this.getAttribute('data-sound'));
     });
 
     ui.loadStrings();
@@ -359,13 +355,14 @@ const ui = {
 
     // Attempt to maintain the scroll position when changing message heights.
     const toggler = selector => {
-      // Find the message at the top of the viewport...
-      const i = this.getMessageAt(this.dom.chatList.prop('scrollTop'));
+      // Find the first message in full view.
+      const scrollTop = this.dom.chatList.prop('scrollTop');
+      const index = this.messages.findIndexBinary(m => m.offset >= scrollTop);
       $(selector).toggle();
       this.updateHeights();
-      if (i) {
-        // ... and scroll to it again (snap to bottom if appropriate).
-        this.dom.chatList.prop('scrollTop', this.messages[i].offset);
+      if (index) {
+        // ... and scroll to it again (and snap to bottom if appropriate).
+        this.dom.chatList.prop('scrollTop', this.messages[index].offset);
         this.scrollDown();
       }
     };
@@ -442,12 +439,12 @@ const ui = {
     });
     $('#settingsList').tabs();
 
-    for (let trigger of ['left', 'right']) $.contextMenu({
+    ['left', 'right'].forEach(trigger => $.contextMenu({
       selector: '#statusButton',
       className: 'box dialog',
       trigger,
       build: this.contextMenuStatus
-    });
+    }));
   },
 
   contextMenuStatus(_, {button}) {
@@ -465,12 +462,12 @@ const ui = {
       disabled: !check(online ? 'back' : 'connect'),
       callback: () => Cadence.tryCommand(online ? 'back' : 'connect'),
     }};
-    for (let show of ['away', 'xa', 'dnd']) items[show] = {
+    ['away', 'xa', 'dnd'].forEach(show => items[show] = {
       name: labels[show],
       icon: show,
       disabled: !check(show),
       callback: cmd
-    }
+    });
     items.offline = {
       name: labels.offline,
       icon: 'offline',
@@ -881,23 +878,19 @@ const ui = {
     const total = this.messages.length;
     const time = message.timestamp;
 
+    // Find the first message that is newer.
+    const index = this.messages.findIndex(m => time < m.timestamp);
+
     // If there are no newer messages, just append it.
-    if (!total || time > this.messages[total-1].timestamp)
-      return this.messageAppend(message);
+    if (!~index) return this.messageAppend(message);
 
-    // Otherwise, find the first message that is newer.
-    let i;
-    for (i = 0; i < total; i++)
-      if (time < this.messages[i].timestamp)
-        break;
+    // Otherwise, insert it before that message.
+    message.offset = this.messages[index].offset;
+    this.messages[index].html.before(message.html);
+    this.messages.splice(index, 0, message);
 
-    // Insert it before that message.
-    message.offset = this.messages[i].offset;
-    this.messages[i].html.before(message.html);
-    this.messages.splice(i, 0, message);
-
-    $(message.html).css({display:'block'});
-    this.updateHeights(i);
+    $(message.html).show();
+    this.updateHeights(index);
     this.scrollDown();
   },
 
@@ -920,10 +913,10 @@ const ui = {
   refreshRooms(rooms) {
     const room = this.dom.roomSelection.val();
     $('option', this.dom.roomSelection).remove();
-    const options = [new Option('---', '')];
-    for (let id in rooms) {
-      options.push(new Option(rooms[id].title, id));
-    }
+    const options = Array.concat(
+      new Option('---', ''),
+      Object.keys(rooms).map(id => new Option(rooms[id].title, id))
+    );
     this.dom.roomSelection.html(options).val(room);
   },
 
@@ -1064,8 +1057,9 @@ const ui = {
       list.html('');
       this.roster = {};
       this.sortedNicks = [];
-      for (let nick in roster)
+      Object.keys(roster).forEach(nick => {
         this.rosterInsert(roster[nick], {animate: false});
+      });
 
       list.slideDown();
     });
@@ -1074,31 +1068,14 @@ const ui = {
   /**
    * Recalculate the vertical positions of all messages.
    *
-   * @start (optional) the first offset to recalculate.
+   * @start (optional) the last correct offset.
    */
-  updateHeights(start) {
-    let offset = ui.messages[start-1] ? ui.messages[start-1].offset : 0;
-    for (let i = start || 1; i < ui.messages.length; i++) {
-      offset += ui.messages[i].html.height();
-      ui.messages[i].offset = offset;
-    }
-  },
-
-  /**
-   * Find the message at a given offset in the history via binary search.
-   *
-   * @return the index of the first message starting after the offset.
-   */
-  getMessageAt(offset) {
-    let a = 0;
-    let b = ui.messages.length - 1;
-    if (b < 0) return null;
-    while (a + 1 < b) {
-      const c = (a + b) / 2 | 0;
-      if (ui.messages[c].offset < offset) a = c;
-      else b = c;
-    }
-    return b;
+  updateHeights(start=0) {
+    const first = ui.messages[start];
+    ui.messages.slice(start+1).reduce((offset, message) => {
+      message.offset = offset;
+      return offset + message.html.height();
+    }, first.offset + first.html.height());
   },
 
   /**
@@ -1111,10 +1088,11 @@ const ui = {
   onKeyMap(map) {
     // Compile a lookup table from KeyEvent.DOM_VK_* constants or charcodes.
     const callbacks = {};
-    for (let key in map) {
+    Object.keys(map).forEach(key => {
       const index = KeyEvent["DOM_VK_" + key] || key.charCodeAt(0);
       callbacks[index] = map[key];
-    }
+    });
+
     return function(event) {
       const char = event.which || event.keyCode;
       if (callbacks[char] && callbacks[char](event, this)) {
@@ -1197,29 +1175,27 @@ const ui = {
    * The first applicable, enabled sound will be played.
    */
   notify(message) {
-    const text = message.body.text();
-    const name = message.user.nick || message.user.jid.bare() || '';
+    const {body, type, user} = message;
+    const {triggers} = config.settings.notifications;
+    const allTriggers = Array.concat(triggers, xmpp.nick.current, xmpp.jid.node);
+    const text = body.text();
+    const name = user.nick || user.jid.bare() || '';
 
-    let mention = (text.indexOf(xmpp.nick.current) >= 0
-                || text.indexOf(xmpp.jid.node) >= 0);
-    let sender = false;
-    for (let trigger of config.settings.notifications.triggers) {
-      mention = mention || (0 <= text.indexOf(trigger));
-      sender = sender || (0 <= name.indexOf(trigger));
-    }
+    const mention = allTriggers.some(trigger => ~text.indexOf(trigger));
+    const sender = allTriggers.some(trigger => ~name.indexOf(trigger));
 
     // Any kind of alert is level 1, everything else is 2.
-    this.notifyDesktop(((mention || message.type == 'chat' || sender) ? 1 : 2), message);
+    this.notifyDesktop(((mention || type == 'chat' || sender) ? 1 : 2), message);
 
-    if (mention && this.playSound('mention')) return;
-    if (message.type != 'groupchat' && this.playSound('msg')) return;
-    if (sender && this.playSound('mention')) return;
-    this.playSound('receive');
-
-    if (!message.user.jid.equals(xmpp.jid)) {
-      const sender = message.user.nick || message.user.jid.bare();
+    if (!user.jid.equals(xmpp.jid)) {
+      const sender = user.nick || user.jid.userString();
       this.blinkTitle(sender);
     }
+
+    if (mention && this.playSound('mention')) return;
+    if (type != 'groupchat' && this.playSound('msg')) return;
+    if (sender && this.playSound('mention')) return;
+    this.playSound('receive');
   },
 
   /**
@@ -1290,7 +1266,7 @@ const ui = {
       if (results.length > 1) {
         let result = results[0];
         // For each match, cut down to the longest common prefix.
-        for (let candidate of results) {
+        results.forEach(candidate => {
           for (let c in candidate) {
             if (result[c] != candidate[c]) {
               result = result.substring(0, j);
@@ -1298,7 +1274,7 @@ const ui = {
             }
           }
           result = result.substring(0, results[i].length);
-        }
+        });
         results = result ? [result] : [];
       }
       if (results.length == 1) return results[0];

@@ -1232,8 +1232,8 @@ const xmpp = {
       }
       query.up();
     }
-    const encodeArray = arr => { for (let val of arr) encodeValue(val) };
-    const encodeObject = obj => { for (let key in obj) encodeValue(obj[key], key) };
+    const encodeArray = arr => arr.forEach(val => encodeValue(val));
+    const encodeObject = obj => Object.keys(obj).forEach(key => encodeValue(obj[key], key));
 
     encodeValue(data);
     return query.send(config.xmpp.timeout);

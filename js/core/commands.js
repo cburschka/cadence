@@ -225,19 +225,19 @@ Cadence.addCommand('alias', ({command, macro}) => {
   const data = string.substring(prefix.length);
   if (!data) return {command};
 
-  const macro = split(';').map(st => st.trim());
+  const macro = data.split(';').map(st => st.trim());
   if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
   return {command, macro};
 });
 
 (() => {
   const parser = string => ({status: string.trim()});
-  for (let show of ['away', 'dnd', 'xa']) {
+  ['away', 'dnd', 'xa'].forEach(show => {
     Cadence.addCommand(show, ({status}) => {
       xmpp.sendStatus({show, status});
       ui.setUserStatus(show);
     }).parse(parser).require(Cadence.requirements.room);
-  }
+  });
   Cadence.addCommand('back', ({status}) => {
     xmpp.sendStatus({show: 'available', status});
     ui.setUserStatus('available');

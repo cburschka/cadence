@@ -66,7 +66,9 @@
       <div id="emoticonsContainer" class="container">
         <span id="emoticonsList-general" dir="ltr"></span>
       </div>
-      <div id="colorCodesContainer" class="box container" dir="ltr"></div>
+      <div id="colorCodesContainer" class="box container" dir="ltr">
+        <button class="button" id="textColorFull" class="string" data-string="label.button.advanced">
+      </div>
       <div id="trayContainer" class="container">
         <button class="tray icon string string-title" id="statusButton" data-title="label.tooltip.status" data-string="label.button.status"></button>
         <button class="tray icon toggleMenu string string-title" id="helpButton" data-sidebar="help" data-title="label.tooltip.help" data-string="label.button.help"></button>
@@ -185,35 +187,75 @@
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.receive" class="string" data-string="label.settings.notifications.sounds.receive"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.receive"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.receive">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="receive" class="icon soundTest"/>
+              </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.send" class="string" data-string="label.settings.notifications.sounds.send"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.send"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.send">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="send" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.enter" class="string" data-string="label.settings.notifications.sounds.enter"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.enter"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.enter">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="enter" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.leave" class="string" data-string="label.settings.notifications.sounds.leave"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.leave"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.leave">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="leave" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.info" class="string" data-string="label.settings.notifications.sounds.info"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.info"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.info">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="info" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.error" class="string" data-string="label.settings.notifications.sounds.error"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.error"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.error">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="error" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.mention" class="string" data-string="label.settings.notifications.sounds.mention"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.mention"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.mention">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="mention" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.sounds.msg" class="string" data-string="label.settings.notifications.sounds.msg"></label></td>
-            <td class="setting"><select class="settings soundSelect" id="settings-notifications.sounds.msg"></select></td>
+            <td class="setting">
+              <select class="settings soundSelect" id="settings-notifications.sounds.msg">
+                <option value="" class="string" data-string="label.page.none"/>
+              </select>
+              <button data-sound="msg" class="icon soundTest"/>
+            </td>
           </tr>
           <tr class="row">
             <td><label for="settings-notifications.leavePage" class="string" data-string="label.settings.notifications.leavePage"></label></td>
