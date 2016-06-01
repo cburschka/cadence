@@ -194,13 +194,14 @@ Cadence.addCommand('alias', ({command, macro}) => {
   // Run a DFS to avoid recursive macros.
   const macros = config.settings.macros;
   const search = (macro, path) => {
+    console.log({macro, path});
     macro.forEach(statement => {
       const [,cmd] = statement.match(/^\/(\S+)/) || [];
-      path = path.concat([cmd]);
+      const newPath = path.concat([cmd]);
       if (cmd == command) throw new Cadence.Error(strings.error.aliasRecursion, {
-        command, path: path.join(' -> ')
+        command, path: newPath.join(' -> ')
       });
-      else return search(macros[cmd], path);
+      else return macros[cmd] && search(macros[cmd], newPath);
     });
   };
   search(macro, [command]);
