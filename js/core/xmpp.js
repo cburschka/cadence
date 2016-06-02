@@ -890,7 +890,7 @@ const xmpp = {
         const type = codes.includes(301) ? 'ban' : 'kick';
         const actorNick = $('actor', item).attr('nick');
         // For a self-kick, the actor is already out of the roster.
-        const actor = actorNick == nick ? user : roster[nick];
+        const actor = actorNick == nick ? user : roster[actorNick];
         const reason = $('reason', item).text();
         const index = (+!!actor) * 2 + (+!!reason);
 
