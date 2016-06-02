@@ -912,9 +912,7 @@ const ui = {
    */
   refreshRooms(rooms) {
     const room = this.dom.roomSelection.val();
-    $('option', this.dom.roomSelection).remove();
-    const options = Array.concat(
-      new Option('---', ''),
+    const options = [new Option('---', '')].concat(
       Object.keys(rooms).map(id => new Option(rooms[id].title, id))
     );
     this.dom.roomSelection.html(options).val(room);
