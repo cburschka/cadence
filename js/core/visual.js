@@ -269,7 +269,7 @@ const visual = {
    * CSS color property to the attribute value.
    */
   addColor(jq) {
-    $('span.color').css('color', function() {
+    $('span.color', jq).css('color', function() {
       return this.getAttribute('data-color');
     });
   },
