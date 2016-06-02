@@ -1026,7 +1026,7 @@ const xmpp = {
 
         // React to configuration updates.
         if (codes.includes(104)) {
-          this.getRoomInfo(from.node).then((room) => {
+          this.queryRoom(from.node).then((room) => {
             this.room.available[from.node] = room;
             ui.refreshRooms(this.room.available);
             ui.messageInfo(strings.code[104], {room});
@@ -1045,7 +1045,7 @@ const xmpp = {
 
           // If we don't have the room info, load it first.
           if (room) return invite(room);
-          else return this.getRoomInfo(from.node).then(data => {
+          else return this.queryRoom(from.node).then(data => {
             this.room.available[from.node] = data;
             invite(data);
           });
