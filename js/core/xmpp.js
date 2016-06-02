@@ -660,9 +660,9 @@ const xmpp = {
    */
   sendStatus({show, status}) {
     const pres = this.pres({to: this.jidFromRoomNick({nick: this.nick.current})});
-    if (show) pres.c('show', {}, show);
+    if (show !== 'available') pres.c('show', {}, show);
     if (status) pres.c('status', {}, status);
-    this.show = show;
+    this.show = show || 'available';
     return pres.send();
   },
 
