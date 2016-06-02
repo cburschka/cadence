@@ -135,10 +135,9 @@ const visual = {
      *                   or jQuery objects.
      */
     list(list) {
-      const type = list.type;
-      list = list.map(visual.format[type] || (x => x));
-      const last = list.pop();
-      return Array.concat($.map(list, e => [e, ', ']), last);
+      const {type} = list;
+      const [first,...rest] = list.map(visual.format[type] || (x => x));
+      return [first].concat($.map(rest, e => [', ', e]));
     },
 
     /**
