@@ -611,14 +611,12 @@ const xmpp = {
    *
    * @return {Promise} A promise that will resolve to the response stanza.
    */
-  command(node) {
-    return this.iq({type: 'set', to: config.xmpp.domain})
-      .c('command', {
-        xmlns: 'http://jabber.org/protocol/commands',
-        action: 'execute',
-        node: 'http://jabber.org/protocol/admin#' + node
-      })
-      .send();
+  command(to, node) {
+    return this.iq({to, type: 'set'}).c('command', {
+      node,
+      xmlns: 'http://jabber.org/protocol/commands',
+      action: 'execute',
+    }).send();
   },
 
   /**
@@ -630,12 +628,12 @@ const xmpp = {
    *
    * @return {Promise} A promise that resolves to the response.
    */
-  commandSubmit(node, sessionid, data) {
-    const form = this.iq({type: 'set', to: config.xmpp.domain});
+  commandSubmit(to, node, sessionid, data) {
+    const form = this.iq({to, type: 'set'});
     form.c('command', {
+      node,
+      sessionid,
       xmlns: 'http://jabber.org/protocol/commands',
-      node: 'http://jabber.org/protocol/admin#' + node,
-      sessionid
     });
     form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
@@ -649,6 +647,24 @@ const xmpp = {
     });
 
     return form.send();
+  },
+
+  listCommands(to) {
+    const iq = this.iq({to, type: 'get'});
+    iq.c('query', {
+      xmlns: Strophe.NS.DISCO_ITEMS,
+      node: 'http://jabber.org/protocol/commands'
+    });
+    return iq.send().then(stanza =>
+      Array.from(stanza.querySelectorAll('item'))
+      .map(
+        item => ({
+          jid: item.getAttribute('jid'),
+          name: item.getAttribute('name'),
+          node: item.getAttribute('node'),
+        })
+      )
+    );
   },
 
   /**

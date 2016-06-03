@@ -119,6 +119,10 @@ const visual = {
       return $('<button>').text(label).click(click).attr(attributes || {});
     },
 
+    code(text) {
+      return $('<code>').text(text);
+    },
+
     dl(list) {
       const dl = $('<dl>');
       Object.entries().forEach((key, val) => dl.append(

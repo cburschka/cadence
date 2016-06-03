@@ -35,6 +35,7 @@ const strings = {
 
   info: {
     admin: {
+      commands: 'Available commands:\n{commands}',
       result: 'Completed command "{command}":\n{result}',
       completed: 'Completed command "{command}".'
     },
@@ -115,7 +116,7 @@ const strings = {
     joining: 'Joining {room} as {user} ...',
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
-    macros: 'Macros:\n<code>{macros}</code>',
+    macros: 'Macros:\n{code:macros}',
     motd: 'Announcement from {domain}: {text}',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
@@ -164,7 +165,8 @@ const strings = {
       forbidden: 'You are not authorized to execute "{command}" on this server.',
       badCommand: 'Unrecognized server command "{command}".',
       generic: 'Error while executing "{command}": {text}',
-      unknown: 'Unknown error while executing "{command}".'
+      unknown: 'Unknown error while executing "{command}".',
+      cancel: 'Canceled command "{command}".',
     },
     affiliate: {
       conflict: 'You cannot change your own affiliation to this value.',

@@ -8,39 +8,43 @@
  *   Execute a server admin command.
  */
 Cadence.addCommand('admin', arg => {
-  const command = arg.cmd;
-  if (!command) throw new Cadence.Error(strings.error.noArgument);
+  const to = config.xmpp.domain;
+  const {command, node, full, quiet} = arg;
+  const adminPrefix = 'http://jabber.org/protocol/admin#'
 
-  // Interactive configuration with --interactive, or with a command
-  // that contains no named arguments other than --cmd.
-  const interactive = arg.interactive || Object.keys(arg).every(
-    (key) => { return key*0 === 0 || key == 'cmd' }
-  );
+  if (!node) {
+    return xmpp.listCommands(to).then(items => {
+      const commands = $('<dl>');
+      items.forEach(({name, node}) => {
+        const xep133 = node.startsWith(adminPrefix);
+        const code = $('<code>');
+        if (xep133) code.text(`/admin ${node.substring(adminPrefix.length)}`);
+        else code.text(`/admin --node "${node.replace(/"/,'\\"')}"`);
+        if (xep133 || full) {
+          commands.append($('<dt>').append(code), $('<dd>').text(name));
+        }
+      });
+      ui.messageInfo(strings.info.admin.commands, {commands});
+    });
+  }
 
   let sessionid;
 
   const process = stanza => {
+    const command = stanza.querySelector('command');
+    if (command.getAttribute('status') == 'completed') return;
     sessionid = $('command', stanza).attr('sessionid');
     return new Promise((resolve, reject) => {
-      if (interactive) {
-        const form = ui.dataForm(stanza, resolve);
-        ui.formDialog(form, {cancel: reject, apply: false});
-      }
+      const form = ui.dataForm(stanza, resolve);
+      if (quiet) form.submit();
       else {
-        const args = {};
-        $('x > field', stanza).each(function() {
-          const name = $(this).attr('var');
-          const values = Array.from($('value', this).map(function() {
-            return $(this).text();
-          }));
-          args[name] = arg[name] !== undefined ? [arg[name]] : values;
-        });
-        resolve(args);
+        const cancel = () => reject(new Cadence.Error(strings.error.admin.cancel, {command}));
+        ui.formDialog(form, {cancel, apply: false});
       }
     });
   };
 
-  const submit = data => xmpp.commandSubmit(command, sessionid, data);
+  const submit = data => xmpp.commandSubmit(to, node, sessionid, data);
 
   const result = (stanza) => {
     const result = [];
@@ -49,16 +53,16 @@ Cadence.addCommand('admin', arg => {
       const value = $(this).text();
       result.push($('<strong>').text(value + ':'), ' ', value, $('<br>'));
     })
-    ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {command, result});
+    ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {result, command: command || node});
   };
 
-  return xmpp.command(command).then(process).then(submit).then(result)
+  return xmpp.command(to, node).then(process).then(submit).then(result)
   .catch(error => {
-    switch (error.condition) {
+    switch (error && error.condition) {
       case 'forbidden':
-        throw new Cadence.Error(strings.error.admin.forbidden, {command});
+        throw new Cadence.Error(strings.error.admin.forbidden, {command: command || node});
       case 'service-unavailable':
-        throw new Cadence.Error(strings.error.admin.badCommand, {command});
+        throw new Cadence.Error(strings.error.admin.badCommand, {command: command || node});
     }
     throw error;
   });
@@ -66,20 +70,10 @@ Cadence.addCommand('admin', arg => {
 .parse(string => {
   const arg = Cadence.parseArgs(string);
 
-  // Make single-argument commands more convenient:
-  const defaultArgs = {
-    'announce': 'body',
-    'get-user-lastlogin': 'accountjid',
-    'set-motd': 'body',
-    'user-stats': 'accountjid',
-  }
-
   // Use first positional argument as command.
-  // If there is more, use the remaining text as an argument.
-  if (arg[0].length) arg.cmd = arg[0][0];
-  if (arg[0].length > 1 && arg.cmd in defaultArgs)
-    arg[defaultArgs[arg.cmd]] = string.substring(arg[1][0][0]).trim();
-  return arg;
+  const command = arg.command || arg[0][0];
+  const node = arg.node || command && `http://jabber.org/protocol/admin#${command}`;
+  return $.extend(arg, {command, node});
 })
 .require(Cadence.requirements.online);
 
@@ -175,7 +169,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
     ).join('\n');
 
     if (macros) {
-      return ui.messageInfo($('<span>').html(strings.info.macros), {macros});
+      return ui.messageInfo(strings.info.macros, {macros});
     }
     else {
       throw new Cadence.Error(strings.error.noMacros);
