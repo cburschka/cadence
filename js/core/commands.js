@@ -323,7 +323,8 @@ Cadence.addCommand('configure', arg => {
     throw error;
   };
 
-  return xmpp.roomConfig(name).then(configure);
+  // The error handler is attached to the form request and the submission event.
+  return xmpp.roomConfig(name).then(configure, error);
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
@@ -361,8 +362,19 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
     return Promise.reject();
   })();
 
+  const connect = ({user, pass}) => {
+    try {
+      return Cadence.connect(user, pass);
+    }
+    catch (error) {
+      // Reconnect if we're in some kind of broken state.
+      if (error instanceof xmpp.ConnectionError && error.status == Strophe.Status.CONNECTED) {
+        return Cadence.execute('quit').then(() => connect({user, pass}));
+      }
+      throw error;
+    }
+  }
 
-  const connect = ({user, pass}) => Cadence.connect(user, pass);
   const noCredentials = () => {
     // Only complain about missing credentials on a manual invocation.
     if (!automatic) throw new Cadence.Error(strings.error.connection.auth);
@@ -915,7 +927,7 @@ Cadence.addCommand('unban', ({jid}) => {
     else throw new Cadence.Error(strings.error.unbanNone);
   }).catch(error => {
     if (error.condition == 'forbidden')
-      throw new Cadence.Error(strings.error.banList.forbidden);
+      throw new Cadence.Error(strings.error.affiliations.forbidden);
     throw error;
   });
 })

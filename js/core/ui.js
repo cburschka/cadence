@@ -360,7 +360,7 @@ const ui = {
       const index = this.messages.findIndexBinary(m => m.offset >= scrollTop);
       $(selector).toggle();
       this.updateHeights();
-      if (index) {
+      if (~index) {
         // ... and scroll to it again (and snap to bottom if appropriate).
         this.dom.chatList.prop('scrollTop', this.messages[index].offset);
         this.scrollDown();

@@ -166,7 +166,8 @@ const config = {
     title: '@@@TITLE@@@',
     maxNickLength: 48,
     maxMessageLength: 2048,
-    welcome: ''
+    welcome: '',
+    navigation: {},
   },
 
   features: [

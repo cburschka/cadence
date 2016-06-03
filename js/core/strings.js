@@ -200,7 +200,7 @@ const strings = {
     kick: 'You lack the authority to kick {nick}.',
     cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.',
     feature: 'The remote entity does not support this feature.',
-    javascript: 'A javascript error has occurred.\n{name}: {message}\nStack trace:\n{stack}',
+    javascript: 'A javascript error has occurred.\n{code:name}: {code:message}\nStack trace:\n{code:stack}',
     jidInvalid: '{arg} is not a valid JID.',
     joinBanned: 'You are banned from {room}.',
     joinConflict: 'Unable to join; username {nick} already in use.',
