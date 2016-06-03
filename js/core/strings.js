@@ -172,7 +172,6 @@ const strings = {
       type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".',
     },
     affiliations: {
-      'default': 'Unknown error while getting the list of {type} affiliations.',
       forbidden: 'You are not authorized to get the {type} list for this room.',
     },
     aliasFormat: 'Usage: /alias <cmd> /<...>[; /<...>]*',
@@ -191,6 +190,7 @@ const strings = {
       authfail: 'Authentication failed.',
       connfail: 'Connection failed.',
       other: 'An error has occurred.',
+      shutdown: 'The server is shutting down.',
     },
     destroyDenied: 'You lack the authority to destroy {room}.',
     destroy: 'Failed to destroy {room}.',

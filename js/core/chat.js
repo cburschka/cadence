@@ -87,12 +87,9 @@ const Cadence = {
    * @return {Promise} a promise that resolves when the command completes or fails.
    */
   tryCommand(command, arg) {
-    try {
-      return this.execute(command, arg).catch(error => this.handleError(command, error));
-    }
-    catch (error) {
-      return Promise.resolve(this.handleError(command, error));
-    }
+    Promise.resolve()
+    .then(() => this.execute(command, arg))
+    .catch(error => this.handleError(error, command));
   },
 
   /**
@@ -128,10 +125,10 @@ const Cadence = {
     }
   },
 
-  handleError(command, error) {
+  handleError(error, command) {
     error = Cadence.Error.from(error);
     // Put the command into the error's context variables.
-    error.data = $.extend({command}, error.data);
+    if (command) error.data = $.extend({command}, error.data);
     error.output();
   },
 
@@ -164,24 +161,24 @@ const Cadence = {
     }
 
     // Catch both synchronous and asynchronous errors.
-    try {
-      return this.getCommand(command).isAvailable().invoke(text)
-        .catch(error => this.handleError(command, error));
-    }
-    catch (error) {
-      this.handleError(command, error);
-    }
+    return Promise.resolve()
+    .then(() => this.getCommand(command).isAvailable().invoke(text))
+    .catch(error => this.handleError(error, command));
   },
 
   /**
    * Run a stored macro:
    *
-   * @param {[string]} macro: An array of commands.
+   * @param {Array} macro: An array of commands.
    * @param {string} text: A string to replace $ with in the command array.
+   *
+   * @return {Promise} A promise that resolves when all tasks are complete.
    */
   executeMacro(macro, text) {
     text = text.trim();
-    macro.forEach(statement => this.executeInput(statement.replace(/\$/g, text), true));
+    return Promise.all(macro.map(
+      statement => this.executeInput(statement.replace(/\$/g, text), true)
+    ));
   },
 
   /**
@@ -327,37 +324,42 @@ const Cadence = {
 
     // This is a callback, because it happens after the promise is resolved.
     // That also means we can't throw an error here.
-    const disconnect = () => {
-      ui.setConnectionStatus(false);
-      (new Cadence.Error(strings.info.connection.disconnected)).output();
+    const handler = (status, error) => {
+      if (status == Strophe.Status.DISCONNECTED) {
+        ui.setConnectionStatus(false);
+        this.handleError(new this.Error(strings.info.connection.disconnected));
+      }
+      else if (error == 'system-shutdown') {
+        this.handleError(new this.Error(strings.error.connection.shutdown));
+      }
     }
 
-    return xmpp.connect(user, pass, disconnect)
+    return xmpp.connect(user, pass, handler)
     // Then either join a room or list the available rooms.
     .then(() => {
       ui.setConnectionStatus(true);
       ui.messageInfo(strings.info.connection.connected);
-      Cadence.tryCommand('sync');
+      this.tryCommand('sync');
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const room = ui.getFragment() || config.settings.xmpp.room;
-        return Cadence.execute('join', {room});
+        return this.execute('join', {room});
       }
-      else return Cadence.execute('list');
+      else return this.execute('list');
     })
     // Notify user of connection failures.
     .catch(error => {
       ui.setConnectionStatus(false);
       switch (error.status) {
         case Strophe.Status.AUTHFAIL:
-          throw new Cadence.Error(strings.error.connection.authfail);
+          throw new this.Error(strings.error.connection.authfail);
         case Strophe.Status.CONNFAIL:
           if (error.error == 'x-strophe-bad-non-anon-jid') {
-            throw new Cadence.Error(strings.error.connection.anonymous)
+            throw new this.Error(strings.error.connection.anonymous)
           }
-          throw new Cadence.Error(strings.error.connection.connfail);
+          throw new this.Error(strings.error.connection.connfail);
         case Strophe.Status.ERROR:
-          throw new Cadence.Error(strings.error.connection.other);
+          throw new this.Error(strings.error.connection.other);
       }
       throw error;
     });

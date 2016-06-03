@@ -183,12 +183,12 @@ const xmpp = {
    *
    * @param {String} user A user on the configured domain.
    * @param {String} pass The password.
-   * @param {function} disconnect A callback to run after disconnecting.
+   * @param {function} handler A callback to run on connection events.
    *
    * @return {Promise} A promise that resolves when the connection is
    *         established or has failed.
    */
-  connect(user, pass, disconnect) {
+  connect(user, pass, handler) {
     // Make sure the connection isn't already open.
     if (this.connection.connected) {
       throw new this.ConnectionError(Strophe.Status.CONNECTED);
@@ -210,24 +210,25 @@ const xmpp = {
     let first = true;
     return new Promise((resolve, reject) => {
       return this.connection.connect(String(this.jid), pass, (status, error) => {
+        console.log(status, error);
         // This block resolves the promise; it can only run once.
         if (first) switch (status) {
           case Strophe.Status.ERROR:
           case Strophe.Status.CONNFAIL:
           case Strophe.Status.AUTHFAIL:
-            first = false; return reject(new this.ConnectionError(status, error));
+            first = false; reject(new this.ConnectionError(status, error));
           case Strophe.Status.CONNECTED:
             // Broadcast presence.
             this.pres().send();
-            first = false; return resolve();
+            first = false; resolve();
         }
         else if (status === Strophe.Status.DISCONNECTED) {
           this.nick.current = null;
           this.room.current = null;
           this.show = null;
           this.roster = {};
-          disconnect();
         }
+        handler(status, error);
       })
     });
   },
