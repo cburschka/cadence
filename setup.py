@@ -47,7 +47,7 @@ def generate_links(cdn_url, css_alt, style):
     )
     js_template = '<script src="{src}"></script>'
     lib_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in lib)
-    core_links = '\n'.join(js_template.format(src='{}src/{}.js'.format(cdn_url, script)) for script in core)
+    core_links = '\n'.join(js_template.format(src='{}lib/{}.js'.format(cdn_url, script)) for script in core)
     return css_links, lib_links, core_links
 
 def generate_emoticons(cdn_url, packs):

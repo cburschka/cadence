@@ -3,7 +3,8 @@ ifndef CP
   CP=cp
 endif
 
-CORE_FILES = $(wildcard src/*.js)
+SRC = $(wildcard src/*.js)
+CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
 LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/filesaver.js js/lib/cookie.js \
@@ -31,7 +32,7 @@ init:
 	mkdir -p js/lib/
 
 clean:
-	rm -f index.html config.js emoticons.js js/lib/*.js
+	rm -f index.html config.js emoticons.js ${CORE_FILES} js/lib/*.js
 
 distclean: clean
 	rm .config.vars
@@ -60,8 +61,8 @@ install-init:
 install-js: install-js-core install-js-lib
 
 install-js-core: ${CORE_FILES}
-	mkdir -p "${CDN_PREFIX}/src/"
-	$(CP) -au $^ "${CDN_PREFIX}/src/"
+	mkdir -p "${CDN_PREFIX}/lib/"
+	$(CP) -au $^ "${CDN_PREFIX}/lib/"
 install-js-lib: ${LIB_FILES}
 	mkdir -p "${CDN_PREFIX}/js/lib/"
 	$(CP) -au $^ "${CDN_PREFIX}/js/lib/"
@@ -81,6 +82,11 @@ index.html: index.tpl.html .config.vars
 
 emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
 	./setup.py $@
+
+lib: $(CORE_FILES)
+lib/%.js: src/%.js
+	mkdir -p $(@D)
+	babel $< -o $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@
