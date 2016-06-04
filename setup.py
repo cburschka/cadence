@@ -12,7 +12,7 @@ def load_variables():
     return dict(line.split('=', 2) for line in data)
 
 def generate_file(src, dest, var):
-    template = open(var['SRC_PATH'] + '/' + src).read()
+    template = open(src).read()
     template = re.sub('([{}])', '\\1\\1', template)
     template = re.sub('@@@([A-Z_]+)@@@', '{\\1}', template)
     open(dest, 'w+').write(template.format(**var))
@@ -50,12 +50,12 @@ def generate_links(cdn_url, css_alt, style):
     core_links = '\n'.join(js_template.format(src='{}src/{}.js'.format(cdn_url, script)) for script in core)
     return css_links, lib_links, core_links
 
-def generate_emoticons(cdn_url, packs, src_path):
+def generate_emoticons(cdn_url, packs):
     output = {'packages': {}, 'sidebars': {}}
     imagepath = 'img/emoticons/packs'
     try:
         for pack in packs:
-            datafile = src_path + '/emoticon-packs/' + pack + '/emoticons.conf'
+            datafile = 'emoticon-packs/' + pack + '/emoticons.conf'
             baseURL = cdn_url + imagepath + '/' + pack + '/'
             data = json.load(open(datafile, 'r'), object_pairs_hook=collections.OrderedDict)
             if 'codes' in data:
@@ -82,7 +82,7 @@ def generate_emoticons(cdn_url, packs, src_path):
 targets = {
     'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
     'config.js': lambda v: generate_file('config.tpl.js', 'config.js', v),
-    'emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split(), v['SRC_PATH']),
+    'emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split()),
 }
 
 def main(target, version=None):

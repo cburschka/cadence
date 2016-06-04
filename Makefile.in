@@ -1,12 +1,7 @@
 include .config.vars
-ifndef SRC_PATH
-  SRC_PATH=.
-endif
 ifndef CP
   CP=cp
 endif
-
-VPATH = ${SRC_PATH}
 
 CORE_FILES = $(wildcard src/*.js)
 
@@ -48,13 +43,13 @@ ifneq (.,${PREFIX})
 	mkdir -p "${PREFIX}"
 	$(CP) -au index.html config.js emoticons.js "${PREFIX}/"
 endif
-	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
-	$(CP) -au "${SRC_PATH}/css/global/images/" "${CDN_PREFIX}/css/global/"
-	$(CP) -au "${SRC_PATH}/img" "${SRC_PATH}/sounds" "${CDN_PREFIX}/"
+	$(CP) -au "css/alt" "${CDN_PREFIX}/css/"
+	$(CP) -au "css/global/images/" "${CDN_PREFIX}/css/global/"
+	$(CP) -au "img" "sounds" "${CDN_PREFIX}/"
 else
 install: all ${LIB_FILES}
 endif
-	$(CP) -Tau "${SRC_PATH}/emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
+	$(CP) -Tau "emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
 install-cdn: install-init install-js install-css-global
@@ -76,16 +71,16 @@ install-css-global: ${CSS_FILES}
 
 config.js: config.tpl.js .config.vars
 	VERSION=${VERSION}
-	if [ -d "${SRC_PATH}/.git" ]; then \
-	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always`; \
+	if [ -d ".git" ]; then \
+	    VERSION=`git describe --always`; \
 	fi; \
-	"${SRC_PATH}/setup.py" $@ $$VERSION
+	./setup.py $@ $$VERSION
 
 index.html: index.tpl.html .config.vars
-	"${SRC_PATH}/setup.py" $@
+	./setup.py $@
 
 emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
-	"${SRC_PATH}/setup.py" $@
+	./setup.py $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
 	$(CP) $^ $@
@@ -112,7 +107,6 @@ js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
 submodules:
-	cd "${SRC_PATH}"; \
 	git submodule update --init
 
 .PHONY: all js init submodules
