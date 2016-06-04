@@ -19,9 +19,6 @@
 [submodule "js/lib/contextmenu"]
 	path = js/lib/contextmenu
 	url = https://github.com/medialize/jquery-contextMenu
-[submodule "js/lib/replacetext"]
-	path = js/lib/replacetext
-	url = https://github.com/cburschka/jquery-replacetext
 [submodule "js/lib/strophe-plugins"]
 	path = js/lib/strophe-plugins
 	url = https://github.com/cburschka/strophejs-plugins

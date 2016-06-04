@@ -1,0 +1,37 @@
+{
+  "name": "cadence",
+  "version": "2.0.0-dev0",
+  "description": "An XMPP web chat.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cburschka/cadence.git"
+  },
+  "keywords": [
+    "cadence",
+    "xmpp",
+    "strophe",
+    "chat",
+    "client"
+  ],
+  "author": "Christoph Burschka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cburschka/cadence/issues"
+  },
+  "homepage": "https://github.com/cburschka/cadence#readme",
+  "dependencies": {
+    "jquery-replacetext": "^1.1.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.9.0"
+  }
+}

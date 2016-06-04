@@ -9,7 +9,9 @@ Requirements
 
 * An XMPP server with Multi-User Chat and either BOSH or WebSocket
   support is required to run cadence.
-* Python 2.7+ (or 3+) and GNU Make are required in the build process.
+* Python 2.7+ (or 3+), [Babel](https://babeljs.io) and GNU Make are
+  required in the build process.
+
 
 Building
 --------

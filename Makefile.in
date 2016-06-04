@@ -103,7 +103,7 @@ js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
 js/lib/moment.js: js/lib/moment/moment.js
 	$(CP) $^ $@
 
-js/lib/replacetext.js: js/lib/replacetext/jquery.replacetext.js
+js/lib/replacetext.js: node_modules/jquery-replacetext/replacetext.js
 	$(CP) $^ $@
 
 js/lib/strophe.js: js/lib/strophe/strophe.js
