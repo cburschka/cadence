@@ -8,10 +8,7 @@ endif
 
 VPATH = ${SRC_PATH}
 
-CORE_FILES = js/core/strings.js js/core/chat.js js/core/xmpp.js \
-             js/core/commands.js \
-             js/core/ui.js js/core/visual.js js/core/init.js \
-             js/core/config.js js/core/emoticons.js js/core/util.js
+CORE_FILES = $(wildcard js/core/*.js)
 
 LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/filesaver.js js/lib/cookie.js \

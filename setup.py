@@ -47,10 +47,9 @@ def generate_links(cdn_url, aggregate, css_alt, style):
             'js/lib/filesaver.js'
         ]
         core = [
-            'js/core/strings.js', 'js/core/chat.js', 'js/core/xmpp.js',
-            'js/core/commands.js',
-            'js/core/ui.js', 'js/core/visual.js', 'js/core/init.js',
-            'js/core/config.js', 'js/core/emoticons.js', 'js/core/util.js',
+            'strings', 'chat', 'xmpp',
+            'commands', 'ui', 'visual', 'init',
+            'config', 'emoticons', 'util',
         ]
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
@@ -62,7 +61,7 @@ def generate_links(cdn_url, aggregate, css_alt, style):
     )
     js_template = '<script src="{src}"></script>'
     lib_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in lib)
-    core_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in core)
+    core_links = '\n'.join(js_template.format(src='{}js/core/{}.js'.format(cdn_url, script)) for script in core)
     return css_links, lib_links, core_links
 
 def generate_emoticons(cdn_url, packs, src_path):
