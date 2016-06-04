@@ -299,7 +299,7 @@ const visual = {
 
     const image = (...groups) => {
       const i = groups.findIndex(x => !!x);
-      const {code} = groups[i];
+      const code = groups[i];
       const {baseURL, codes} = sets[i];
       return  [
         $('<img class="emoticon">').attr({

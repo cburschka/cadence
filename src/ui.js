@@ -110,7 +110,10 @@ const ui = {
         .appendTo(this.dom.emoticonSidebarContainer);
 
       this.dom.menu[`emoticon-${set}`] = sidebar;
+    });
 
+    Object.keys(emoticons).forEach(set => {
+      const {baseURL, codes} = emoticons[set];
       const shortcuts = Object.keys(codes).map(code =>
         $('<a class="insert-text">').attr({
           href: `javascript:void('${code.replace(/'/g, '\\\'')}');`,
@@ -121,7 +124,7 @@ const ui = {
           alt: code
         }))
       );
-      list.append(shortcuts);
+      $(`#emoticonsList-${set}`).append(shortcuts);
     });
 
     // Build the color palette picker.
