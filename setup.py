@@ -17,11 +17,6 @@ def generate_file(src, dest, var):
     template = re.sub('@@@([A-Z_]+)@@@', '{\\1}', template)
     open(dest, 'w+').write(template.format(**var))
 
-def generate_files(src_path, var):
-    files = [('index.tpl.html', 'index.html'), ('js/core/config.tpl.js', 'js/core/config.js')]
-    for src, dest in files:
-        generate_file(src_path + '/' + src, dest, var)
-
 def generate_links(cdn_url, css_alt, style):
     css = 'css/global/import.css'
     lib = [
@@ -41,11 +36,7 @@ def generate_links(cdn_url, css_alt, style):
         'js/lib/buzz.js',
         'js/lib/filesaver.js'
     ]
-    core = [
-        'strings', 'chat', 'xmpp',
-        'commands', 'ui', 'visual', 'init',
-        'config', 'emoticons', 'util',
-    ]
+    core = ['strings', 'chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
     css_links += '\n'.join(
@@ -83,15 +74,15 @@ def generate_emoticons(cdn_url, packs, src_path):
                     'baseURL': baseURL,
                     'codes': data['aliases']
                 }
-        open('js/core/emoticons.js', 'w+').write('const emoticons = ' + json.dumps(output) + ';')
+        open('emoticons.js', 'w+').write('const emoticons = ' + json.dumps(output) + ';')
     except ValueError as e:
         print("Error parsing emoticon pack {}".format(pack))
         raise(e)
 
 targets = {
     'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
-    'js/core/config.js': lambda v: generate_file('js/core/config.tpl.js', 'js/core/config.js', v),
-    'js/core/emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split(), v['SRC_PATH']),
+    'config.js': lambda v: generate_file('config.tpl.js', 'config.js', v),
+    'emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split(), v['SRC_PATH']),
 }
 
 def main(target, version=None):

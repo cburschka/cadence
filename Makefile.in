@@ -26,7 +26,7 @@ CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
 endif
-JS_FILES = ${CORE_FILES} ${LIB_FILES}
+JS_FILES = ${CORE_FILES} ${LIB_FILES} config.js emoticons.js
 CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 
 
@@ -36,7 +36,7 @@ init:
 	mkdir -p js/lib/ js/core/ css/global/
 
 clean:
-	rm -f index.html js/core/config.js js/core/emoticons.js js/*.js js/lib/*.js css/global/all.*
+	rm -f index.html config.js emoticons.js js/lib/*.js
 	for dir in "js/core/ js/lib/ css/global/"; do\
 	  if [ -d "$$dir" ]; then rmdir --ignore-fail-on-non-empty $$dir; fi;\
 	done
@@ -49,7 +49,7 @@ ifneq (.,${CDN_PREFIX})
 install: all install-cdn
 ifneq (.,${PREFIX})
 	mkdir -p "${PREFIX}"
-	$(CP) -au index.html "${PREFIX}/"
+	$(CP) -au index.html config.js emoticons.js "${PREFIX}/"
 endif
 	$(CP) -au "${SRC_PATH}/css/alt" "${CDN_PREFIX}/css/"
 	$(CP) -au "${SRC_PATH}/css/global/images/" "${CDN_PREFIX}/css/global/"
@@ -77,7 +77,7 @@ install-css-global: ${CSS_FILES}
 	mkdir -p "${CDN_PREFIX}/css/global"
 	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
 
-js/core/config.js: js/core/config.tpl.js .config.vars
+config.js: config.tpl.js .config.vars
 	VERSION=${VERSION}
 	if [ -d "${SRC_PATH}/.git" ]; then \
 	    VERSION=`git --git-dir ${SRC_PATH}/.git describe --always`; \
@@ -87,7 +87,7 @@ js/core/config.js: js/core/config.tpl.js .config.vars
 index.html: index.tpl.html .config.vars
 	"${SRC_PATH}/setup.py" $@
 
-js/core/emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
+emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
 	"${SRC_PATH}/setup.py" $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
