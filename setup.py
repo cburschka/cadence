@@ -22,35 +22,30 @@ def generate_files(src_path, var):
     for src, dest in files:
         generate_file(src_path + '/' + src, dest, var)
 
-def generate_links(cdn_url, aggregate, css_alt, style):
-    if aggregate == 'True':
-        css = 'css/global/all.css'
-        lib = ['js/lib.js']
-        core = ['js/core.js']
-    else:
-        css = 'css/global/import.css'
-        lib = [
-            'js/lib/contextmenu.js',
-            'js/lib/cookie.js',
-            'js/lib/replacetext.js',
-            'js/lib/strophe.js',
-            'js/lib/strophe.attention.js',
-            'js/lib/strophe.disco.js',
-            'js/lib/strophe.caps.js',
-            'js/lib/strophe.ping.js',
-            'js/lib/strophe.storage.js',
-            'js/lib/strophe.time.js',
-            'js/lib/strophe.version.js',
-            'js/lib/moment.js',
-            'js/lib/xbbcode.js',
-            'js/lib/buzz.js',
-            'js/lib/filesaver.js'
-        ]
-        core = [
-            'strings', 'chat', 'xmpp',
-            'commands', 'ui', 'visual', 'init',
-            'config', 'emoticons', 'util',
-        ]
+def generate_links(cdn_url, css_alt, style):
+    css = 'css/global/import.css'
+    lib = [
+        'js/lib/contextmenu.js',
+        'js/lib/cookie.js',
+        'js/lib/replacetext.js',
+        'js/lib/strophe.js',
+        'js/lib/strophe.attention.js',
+        'js/lib/strophe.disco.js',
+        'js/lib/strophe.caps.js',
+        'js/lib/strophe.ping.js',
+        'js/lib/strophe.storage.js',
+        'js/lib/strophe.time.js',
+        'js/lib/strophe.version.js',
+        'js/lib/moment.js',
+        'js/lib/xbbcode.js',
+        'js/lib/buzz.js',
+        'js/lib/filesaver.js'
+    ]
+    core = [
+        'strings', 'chat', 'xmpp',
+        'commands', 'ui', 'visual', 'init',
+        'config', 'emoticons', 'util',
+    ]
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
     css_links += '\n'.join(
@@ -104,7 +99,7 @@ def main(target, version=None):
     if (version):
         variables['VERSION'] = version
     css_alt = variables['CSS_ALT'].split()
-    css, libjs, corejs = generate_links(variables['CDN_URL'], variables['AGGREGATE'], css_alt, variables['STYLE'])
+    css, libjs, corejs = generate_links(variables['CDN_URL'], css_alt, variables['STYLE'])
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs

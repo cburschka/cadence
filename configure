@@ -36,7 +36,6 @@ XMPP_SESSION_AUTH={session_auth}
 PREFIX={prefix}
 CDN_PREFIX={cdn_prefix}
 CDN_URL={cdn_url}
-AGGREGATE={aggregate}
 SRC_PATH={src_path}
 CSS_ALT={css_alt}
 STYLE={style}
@@ -110,10 +109,6 @@ def parser():
     parser.add_argument(
       '--cdn-prefix', type=str,
       help='Directory to install resources to [PREFIX]', metavar='CDN_PREFIX', dest='cdn_prefix', default=''
-      )
-    parser.add_argument(
-      '--aggregate', action='store_const',
-      help='Aggregate JS/CSS files.', dest='aggregate', const=True, default=False
       )
     parser.add_argument(
       '--style', type=str,

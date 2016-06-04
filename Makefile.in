@@ -28,10 +28,6 @@ ifndef CDN_PREFIX
 endif
 JS_FILES = ${CORE_FILES} ${LIB_FILES}
 CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
-ifeq (${AGGREGATE},True)
-  JS_FILES = js/lib.js js/core.js
-  CSS_FILES = css/global/all.css
-endif
 
 
 all: submodules init index.html ${JS_FILES} ${CSS_FILES}
@@ -69,12 +65,7 @@ install-cdn: install-init install-js install-css-global
 install-init:
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 
-ifneq (${AGGREGATE},True)
 install-js: install-js-core install-js-lib
-else
-install-js: ${JS_FILES}
-	$(CP) -au $^ "${CDN_PREFIX}/js"
-endif
 
 install-js-core: ${CORE_FILES}
 	mkdir -p "${CDN_PREFIX}/js/core/"
@@ -122,15 +113,6 @@ js/lib/strophe.js: js/lib/strophe/strophe.js
 
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
-
-js/lib.js: ${LIB_FILES}
-	cat $^ > $@
-
-js/core.js: ${CORE_FILES}
-	cat $^ > $@
-
-css/global/all.css: ${CSS_FILES_GLOBAL}
-	cat $^ > $@
 
 submodules:
 	cd "${SRC_PATH}"; \
