@@ -291,7 +291,13 @@ Cadence.addCommand('clear', () => {
 Cadence.addCommand('configure', arg => {
   const {name, help, interactive} = arg;
 
-  if (help) return ui.messageInfo($('<div>').html(strings.help.configure));
+  if (help) {
+    const args = {};
+    Object.entries(strings.help.configure.args).forEach((key, val) => {
+      args[`--${key}`] = val;
+    })
+    return ui.messageInfo(strings.help.configure.text, {args});
+  }
   if (!name) throw new Cadence.Error(strings.error.noArgument);
 
   const room = xmpp.getRoom(name);

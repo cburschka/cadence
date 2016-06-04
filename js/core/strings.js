@@ -3,7 +3,6 @@
  *
  * Guide to translators:
  *  - Make a copy of this file and alter the string values accordingly.
- *  - Note that markup is only supported in strings that already contain it.
  */
 const strings = {
   show: {
@@ -367,15 +366,19 @@ const strings = {
     }
   },
   help: {
-    configure: 'Configuration arguments:\
-<dl><dt><code>--title &lt;...&gt;</code></dt><dd>Set human-readable room title.</dd>\
-<dt><code>--desc &lt;...&gt;</code></dt><dd>Set the room description.</dd>\
-<dt><code>--log, --log 0</code></dt><dd>Toggle logging.</dd>\
-<dt><code>--persistent, --persistent 0</code></dt><dd>Toggle room persistence.</dd>\
-<dt><code>--public, --public 0</code></dt><dd>Make the room public or private (unlisted).</dd>\
-<dt><code>--anonymous, --anonymous 0</code></dt><dd>Toggle anonymity. This determines whether non-moderators can see participants\' full JID.</dd>\
-<dt><code>--password &lt;...&gt;, --password 0</code></dt><dd>Set or remove a room password.</dd>\
-<dt><code>--members-only, --members-only 0</code></dt><dd>Toggle the members-only status.</dd></dl>',
+    configure: {
+      text: 'Configuration arguments:\n{dl:args}',
+      args: {
+        title: 'User-facing room title.',
+        desc: 'Room description',
+        log: 'Enable logging',
+        persistent: 'Enable persistence',
+        public: 'List the room publicly',
+        anonymous: 'Hide participants\' JIDs from non-moderators',
+        password: 'Set a room password',
+        'members-only': 'Only allow users on the room\'s member list to enter.',
+      }
+    },
 
     sidebar: {
       chat: {

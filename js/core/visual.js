@@ -119,6 +119,13 @@ const visual = {
       return $('<button>').text(label).click(click).attr(attributes || {});
     },
 
+    dl(list) {
+      const dl = $('<dl>');
+      Object.entries().forEach((key, val) => dl.append(
+        $('dt').text(key), $('dd').text(val)
+      ));
+    },
+
     /**
      * Format a JID.
      *
