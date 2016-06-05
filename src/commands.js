@@ -712,7 +712,7 @@ Cadence.addCommand('part', () => {
 
   ui.messageInfo(strings.info.leave, {room});
   ui.updateRoom();
-  xmpp.leaveRoom();
+  xmpp.leaveRoom(room.id);
   return Cadence.execute('list');
 })
 .require(Cadence.requirements.room);
