@@ -1157,21 +1157,21 @@ const xmpp = {
   },
 
   ping(jid) {
-    return this.connection.ping.ping(jid, config.xmpp.timeout)
+    return this.connection.ping.query(jid, config.xmpp.timeout)
       .catch(stanza => {
         throw new this.StanzaError(stanza);
       });
   },
 
   getTime(jid) {
-    return this.connection.time.getTime(jid || this.jid.domain, config.xmpp.timeout)
+    return this.connection.time.query(jid || this.jid.domain, config.xmpp.timeout)
       .catch(stanza => {
         throw new this.StanzaError(stanza);
       });
   },
 
   getVersion(jid) {
-    return this.connection.version.getVersion(jid || this.jid.domain, config.xmpp.timeout)
+    return this.connection.version.query(jid || this.jid.domain, config.xmpp.timeout)
       .catch(stanza => {
         throw new this.StanzaError(stanza);
       });
