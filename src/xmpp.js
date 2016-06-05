@@ -1017,8 +1017,8 @@ const xmpp = {
       const html = $('html body p', stanza).contents();
       const body = html.length ? $('<span>').append(html) : $('<span>').text(text);
 
-      const delay = $('delay', stanza)
-      const time = delay.length ? new Date(delay.attr('stamp')) : new Date();
+      const delay = stanza.querySelector('delay');
+      const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();
 
       // Message of the Day.
       if (!from.node && !from.resource) {
@@ -1061,16 +1061,16 @@ const xmpp = {
         if (!from.resource) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
-        if (delay.length) {
+        if (delay) {
+          // Look for an XEP-0033 <address type="ofrom"> element.
+          const address = stanza.querySelector('addresses > address[type=ofrom]');
           // In non-anonymous rooms, try to identify the author by JID.
-          const jid = this.JID.parse(delay.attr('from'));
-          if (!jid.matchBare(from)) {
-            // Copy the entry and fill in the old nickname.
-            user = $.extend({}, this.userFromJid(jid, from.node));
-            user.nick = from.resource;
+          const jid = this.JID.parse(address && address.getAttribute('jid'));
+          if (jid) {
+            // Copy the entry and fill in the new information.
+            $.extend(user, this.userFromJid(jid, from.node), user, {jid});
           }
-          // Otherwise, do not use the roster entry.
-          else user = {nick: from.resource};
+          else user = {nick: from.resource, room: from.node};
         }
 
         this.historyEnd[from.node] = time;
@@ -1094,7 +1094,7 @@ const xmpp = {
       // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
       if (!$(stanza).children('body').length) return true;
 
-      if (delay.length) {
+      if (delay) {
         ui.messageDelayed({
           user, body, type, time,
           room: muc && this.room.available[from.node]
