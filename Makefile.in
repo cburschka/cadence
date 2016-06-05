@@ -29,7 +29,7 @@ CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 all: submodules init index.html ${JS_FILES} ${CSS_FILES}
 
 init:
-	mkdir -p js/lib/
+	mkdir -p js/lib/ lib/
 
 clean:
 	rm -f index.html config.js emoticons.js ${CORE_FILES} js/lib/*.js
@@ -85,7 +85,6 @@ emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
 
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
-	mkdir -p $(@D)
 	babel $< -o $@
 
 js/lib/buzz.js: js/lib/buzz/src/buzz.js
