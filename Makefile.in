@@ -13,7 +13,7 @@ LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
             js/lib/strophe.disco.js js/lib/strophe.ping.js \
             js/lib/strophe.storage.js \
             js/lib/strophe.time.js js/lib/strophe.version.js \
-            js/lib/xbbcode.js
+            js/lib/xbbcode.js js/lib/babel.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
@@ -112,6 +112,9 @@ js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
 js/lib/strophe.%.js: node_modules/strophe-cadence/lib/%.js
+	$(CP) $^ $@
+
+js/lib/babel.js: node_modules/babel-polyfill/browser.js
 	$(CP) $^ $@
 
 submodules:

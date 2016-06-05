@@ -34,6 +34,7 @@ def generate_links(cdn_url, css_alt, style):
         'js/lib/moment.js',
         'js/lib/xbbcode.js',
         'js/lib/buzz.js',
+        'js/lib/babel.js',
         'js/lib/filesaver.js'
     ]
     core = ['strings', 'chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
