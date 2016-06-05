@@ -1066,7 +1066,7 @@ const xmpp = {
           const jid = this.JID.parse(address && address.getAttribute('jid'));
           if (jid) {
             // Copy the entry and fill in the new information.
-            $.extend(user, this.userFromJid(jid, from.node), user, {jid});
+            user = $.extend({}, this.userFromJid(jid, from.node), user, {jid});
           }
           else user = {nick: from.resource, room: from.node};
         }
