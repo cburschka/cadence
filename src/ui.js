@@ -1290,9 +1290,11 @@ const ui = {
   },
 
   getString(key) {
-    const path = key.split('.');
-    let ref = strings;
-    for (let token of path) ref = ref[token];
-    return ref;
+    try {
+      return key.split('.').reduce((x, y) => x[y], strings);
+    }
+    catch(e) {
+      throw `Missing string ${key}.`;
+    }
   }
 };
