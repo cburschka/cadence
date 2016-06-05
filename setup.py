@@ -18,7 +18,6 @@ def generate_file(src, dest, var):
     open(dest, 'w+').write(template.format(**var))
 
 def generate_links(cdn_url, css_alt, style):
-    css = 'css/global/import.css'
     module = [
         'contextmenu', 'cookie', 'replacetext', 'strophe',
         'strophe/attention', 'strophe/disco', 'strophe/caps', 'strophe/ping',
@@ -26,9 +25,8 @@ def generate_links(cdn_url, css_alt, style):
         'xbbcode', 'buzz', 'babel', 'filesaver'
     ]
     core = ['strings', 'chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
-    css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
-    css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}css/alt/{name}.css" />'
-    css_links += '\n'.join(
+    css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}assets/css/alt/{name}.css" />'
+    css_links = '\n'.join(
         css_template.format(
             cdn=cdn_url, name=name, alt=('alternate ' if name != style else '')
         )
@@ -41,7 +39,7 @@ def generate_links(cdn_url, css_alt, style):
 
 def generate_emoticons(cdn_url, packs):
     output = {'packages': {}, 'sidebars': {}}
-    imagepath = 'img/emoticons/packs'
+    imagepath = 'assets/emoticons'
     try:
         for pack in packs:
             datafile = 'emoticon-packs/' + pack + '/emoticons.conf'

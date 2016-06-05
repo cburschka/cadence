@@ -15,18 +15,12 @@ LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
             lib/modules/strophe/time.js lib/modules/strophe/version.js \
             lib/modules/xbbcode.js lib/modules/babel.js
 
-CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
-                    css/global/color.css css/global/icons.css \
-                    css/global/jquery-ui.css \
-                    css/global/contextmenu.css css/global/borders.css
 ifndef CDN_PREFIX
   CDN_PREFIX = ${PREFIX}
 endif
 JS_FILES = ${CORE_FILES} ${LIB_FILES} config.js emoticons.js
-CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 
-
-all: submodules init index.html ${JS_FILES} ${CSS_FILES}
+all: submodules emoticons init index.html ${JS_FILES}
 
 init:
 	mkdir -p lib/modules/strophe
@@ -44,26 +38,20 @@ ifneq (.,${PREFIX})
 	mkdir -p "${PREFIX}"
 	$(CP) -au index.html config.js emoticons.js "${PREFIX}/"
 endif
-	$(CP) -au "css/alt" "${CDN_PREFIX}/css/"
-	$(CP) -au "css/global/images/" "${CDN_PREFIX}/css/global/"
-	$(CP) -au "img" "sounds" "${CDN_PREFIX}/"
 else
-install: all ${LIB_FILES}
+install: all ${JS_FILES}
 endif
-	$(CP) -Tau "emoticon-packs" "${CDN_PREFIX}/img/emoticons/packs"
 	touch -a "${PREFIX}/custom.css" "${PREFIX}/config.custom.js"
 
-install-cdn: install-init install-js install-css-global
-
-install-init:
-	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
+install-cdn: install-js
+	mkdir -p "${CDN_PREFIX}"
+	$(CP) -au "assets" "${CDN_PREFIX}/"
 
 install-js: ${JS_FILES}
 	$(CP) -au "lib/" "${CDN_PREFIX}/"
 
-install-css-global: ${CSS_FILES}
-	mkdir -p "${CDN_PREFIX}/css/global"
-	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
+emoticons:
+	$(CP) -Tau "emoticon-packs" "assets/emoticons"
 
 config.js: config.tpl.js .config.vars
 	VERSION=${VERSION}

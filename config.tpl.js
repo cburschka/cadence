@@ -127,7 +127,7 @@ const config = {
 
     emoticons: {
       general: {
-        baseURL: '@@@CDN_URL@@@img/emoticons/general/',
+        baseURL: '@@@CDN_URL@@@assets/img/emoticons/general/',
         codes: {
           ':)': 'smile.png',
           ':(': 'sad.png',
@@ -150,7 +150,7 @@ const config = {
 
   // Defines the available sounds loaded on chat start:
   sounds: ['sound_1', 'sound_2', 'sound_3', 'sound_4', 'sound_5', 'sound_6'],
-  soundURL: '@@@CDN_URL@@@sounds/',
+  soundURL: '@@@CDN_URL@@@assets/sounds/',
 
   xmpp: {
     // This is NOT the server, but the domain portion of the JID.
