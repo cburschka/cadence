@@ -31,15 +31,15 @@ Cadence.addCommand('admin', arg => {
   let sessionid;
 
   const process = stanza => {
-    const command = stanza.querySelector('command');
-    if (command.getAttribute('status') == 'completed') return;
-    sessionid = $('command', stanza).attr('sessionid');
+    const _command = stanza.querySelector('command');
+    if (_command.getAttribute('status') == 'completed') return;
+    sessionid = _command.getAttribute('sessionid');
     return new Promise((resolve, reject) => {
       const form = ui.dataForm(stanza, resolve);
       if (quiet) form.submit();
       else {
         const cancel = () => reject(new Cadence.Error(strings.error.admin.cancel, {command}));
-        ui.formDialog(form, {cancel, apply: false});
+        ui.formDialog(form, {cancel, single: true});
       }
     });
   };
@@ -71,7 +71,7 @@ Cadence.addCommand('admin', arg => {
   const arg = Cadence.parseArgs(string);
 
   // Use first positional argument as command.
-  const command = arg.command || arg[0][0];
+  const command = arg.command || arg[0][0] || arg.node;
   const node = arg.node || command && `http://jabber.org/protocol/admin#${command}`;
   return $.extend(arg, {command, node});
 })
@@ -430,7 +430,7 @@ Cadence.addCommand('create', arg => {
     // Unlike /configure, this form is in the promise chain. It can only be submitted once.
     return new Promise((resolve, reject) => {
       const htmlForm = ui.dataForm(form, resolve);
-      return ui.formDialog(htmlForm, {cancel: reject, apply: false});
+      return ui.formDialog(htmlForm, {cancel: reject, single: true});
     });
   };
   const submit = data => xmpp.roomConfigSubmit(name, data);

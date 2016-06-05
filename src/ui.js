@@ -797,33 +797,30 @@ const ui = {
    * By default, the dialog will have three buttons: Save, Apply, and Close.
    * Save will trigger the form's submit() event and close the dialog.
    * Apply will trigger the form's submit() event.
-   * Close will close the dialog.
+   * Close will close the dialog and trigger the supplied cancel() callback.
    *
    * @param form The form element.
-   * @param {cancel, apply} Extra form actions.
+   * @param {boolean} single If this is true, the form is destroyed on submission.
    */
-  formDialog(form, {cancel, apply}={}) {
-    const buttons = [
-      {
-        text: strings.label.button.save,
-        click: function() { form.submit(); $(this).dialog('destroy') }
-      },
-      {
-         text: strings.label.button.close,
-         click: function() { cancel && cancel(); $(this).dialog('destroy'); }
-      }
-    ];
+  formDialog(form, {cancel, single}={}) {
+    const labels = strings.label.button;
+    const buttons = [{
+      text: labels.submit,
+      click: () => { form.submit(); form.dialog('destroy'); }
+    }];
+    if (single) form.submit(() => form.dialog('destroy'));
+    else buttons.push({text: labels.apply, click: () => form.submit() });
 
-    if (apply || apply === undefined) buttons.push({
-      text: strings.label.button.apply,
-      click: function() { form.submit(); }
-    });
+    const _cancel = () => { cancel && cancel(); form.dialog('destroy'); }
+    buttons.push({text: labels.cancel, click: _cancel});
 
     form.dialog({
+      buttons,
+      close: _cancel,
+      show: true,
       dialogClass: 'box dialog',
       height: 0.8*$(window).height(),
       width: Math.min(0.75*$(window).width(), 600),
-      buttons
     });
   },
 
