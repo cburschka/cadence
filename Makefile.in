@@ -6,14 +6,14 @@ endif
 SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
-LIB_FILES = js/lib/buzz.js js/lib/contextmenu.js \
-            js/lib/filesaver.js js/lib/cookie.js \
-            js/lib/moment.js js/lib/replacetext.js js/lib/strophe.js \
-            js/lib/strophe.attention.js js/lib/strophe.caps.js \
-            js/lib/strophe.disco.js js/lib/strophe.ping.js \
-            js/lib/strophe.storage.js \
-            js/lib/strophe.time.js js/lib/strophe.version.js \
-            js/lib/xbbcode.js js/lib/babel.js
+LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
+            lib/modules/filesaver.js lib/modules/cookie.js \
+            lib/modules/moment.js lib/modules/replacetext.js lib/modules/strophe.js \
+            lib/modules/strophe/attention.js lib/modules/strophe/caps.js \
+            lib/modules/strophe/disco.js lib/modules/strophe/ping.js \
+            lib/modules/strophe/storage.js \
+            lib/modules/strophe/time.js lib/modules/strophe/version.js \
+            lib/modules/xbbcode.js lib/modules/babel.js
 
 CSS_FILES_GLOBAL = css/global/layout.css css/global/fonts.css \
                     css/global/color.css css/global/icons.css \
@@ -29,10 +29,10 @@ CSS_FILES = ${CSS_FILES_GLOBAL} css/global/import.css
 all: submodules init index.html ${JS_FILES} ${CSS_FILES}
 
 init:
-	mkdir -p js/lib/ lib/
+	mkdir -p lib/modules/strophe
 
 clean:
-	rm -f index.html config.js emoticons.js ${CORE_FILES} js/lib/*.js
+	rm -f index.html ${JS_FILES}
 
 distclean: clean
 	rm .config.vars
@@ -58,14 +58,9 @@ install-cdn: install-init install-js install-css-global
 install-init:
 	mkdir -p "${CDN_PREFIX}/css/" "${CDN_PREFIX}/js/"
 
-install-js: install-js-core install-js-lib
+install-js: ${JS_FILES}
+	$(CP) -au "lib/" "${CDN_PREFIX}/"
 
-install-js-core: ${CORE_FILES}
-	mkdir -p "${CDN_PREFIX}/lib/"
-	$(CP) -au $^ "${CDN_PREFIX}/lib/"
-install-js-lib: ${LIB_FILES}
-	mkdir -p "${CDN_PREFIX}/js/lib/"
-	$(CP) -au $^ "${CDN_PREFIX}/js/lib/"
 install-css-global: ${CSS_FILES}
 	mkdir -p "${CDN_PREFIX}/css/global"
 	$(CP) -au $^ "${CDN_PREFIX}/css/global/"
@@ -87,34 +82,34 @@ lib: $(CORE_FILES)
 lib/%.js: src/%.js
 	babel $< -o $@
 
-js/lib/buzz.js: js/lib/buzz/src/buzz.js
+lib/modules/buzz.js: modules/buzz/src/buzz.js
 	$(CP) $^ $@
 
-js/lib/contextmenu.js: js/lib/contextmenu/src/jquery.contextMenu.js
+lib/modules/contextmenu.js: modules/contextmenu/src/jquery.contextMenu.js
 	$(CP) $^ $@
 
-js/lib/filesaver.js: js/lib/filesaver/FileSaver.js
+lib/modules/filesaver.js: modules/filesaver/FileSaver.js
 	$(CP) $^ $@
 
-js/lib/cookie.js: js/lib/cookie/src/js.cookie.js
+lib/modules/cookie.js: modules/cookie/src/js.cookie.js
 	$(CP) $^ $@
 
-js/lib/moment.js: js/lib/moment/moment.js
+lib/modules/moment.js: modules/moment/moment.js
 	$(CP) $^ $@
 
-js/lib/replacetext.js: node_modules/jquery-replacetext/replacetext.js
+lib/modules/replacetext.js: node_modules/jquery-replacetext/replacetext.js
 	$(CP) $^ $@
 
-js/lib/strophe.js: js/lib/strophe/strophe.js
+lib/modules/strophe.js: modules/strophe/strophe.js
 	$(CP) $^ $@
 
-js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
+lib/modules/xbbcode.js: modules/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
-js/lib/strophe.%.js: node_modules/strophe-cadence/lib/%.js
+lib/modules/strophe/%.js: node_modules/strophe-cadence/lib/%.js
 	$(CP) $^ $@
 
-js/lib/babel.js: node_modules/babel-polyfill/browser.js
+lib/modules/babel.js: node_modules/babel-polyfill/browser.js
 	$(CP) $^ $@
 
 submodules:

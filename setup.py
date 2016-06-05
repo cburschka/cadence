@@ -19,23 +19,11 @@ def generate_file(src, dest, var):
 
 def generate_links(cdn_url, css_alt, style):
     css = 'css/global/import.css'
-    lib = [
-        'js/lib/contextmenu.js',
-        'js/lib/cookie.js',
-        'js/lib/replacetext.js',
-        'js/lib/strophe.js',
-        'js/lib/strophe.attention.js',
-        'js/lib/strophe.disco.js',
-        'js/lib/strophe.caps.js',
-        'js/lib/strophe.ping.js',
-        'js/lib/strophe.storage.js',
-        'js/lib/strophe.time.js',
-        'js/lib/strophe.version.js',
-        'js/lib/moment.js',
-        'js/lib/xbbcode.js',
-        'js/lib/buzz.js',
-        'js/lib/babel.js',
-        'js/lib/filesaver.js'
+    module = [
+        'contextmenu', 'cookie', 'replacetext', 'strophe',
+        'strophe/attention', 'strophe/disco', 'strophe/caps', 'strophe/ping',
+        'strophe/storage', 'strophe/time', 'strophe/version', 'moment',
+        'xbbcode', 'buzz', 'babel', 'filesaver'
     ]
     core = ['strings', 'chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
     css_links = '<link id="global-style" rel="stylesheet" type="text/css" href="{href}" />\n'.format(href=cdn_url + css)
@@ -47,9 +35,9 @@ def generate_links(cdn_url, css_alt, style):
         for name in css_alt
     )
     js_template = '<script src="{src}"></script>'
-    lib_links = '\n'.join(js_template.format(src=cdn_url + filename) for filename in lib)
     core_links = '\n'.join(js_template.format(src='{}lib/{}.js'.format(cdn_url, script)) for script in core)
-    return css_links, lib_links, core_links
+    module_links = '\n'.join(js_template.format(src='{}lib/modules/{}.js'.format(cdn_url, script)) for script in module)
+    return css_links, module_links, core_links
 
 def generate_emoticons(cdn_url, packs):
     output = {'packages': {}, 'sidebars': {}}

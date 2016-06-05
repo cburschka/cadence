@@ -1,21 +1,21 @@
 [submodule "js/lib/xbbcode"]
-	path = js/lib/xbbcode
+	path = modules/xbbcode
 	url = https://github.com/cburschka/xbbcode.js/
 [submodule "js/lib/js-cookie"]
-	path = js/lib/cookie
+	path = modules/cookie
 	url = https://github.com/js-cookie/js-cookie.git
 [submodule "js/lib/moment"]
-	path = js/lib/moment
+	path = modules/moment
 	url = https://github.com/moment/moment.git
 [submodule "js/lib/strophejs"]
-	path = js/lib/strophe
+	path = modules/strophe
 	url = https://github.com/strophe/strophejs.git
 [submodule "js/lib/buzz"]
-	path = js/lib/buzz
+	path = modules/buzz
 	url = https://github.com/jaysalvat/buzz.git
 [submodule "js/lib/FileSaver.js"]
-	path = js/lib/filesaver
+	path = modules/filesaver
 	url = https://github.com/eligrey/FileSaver.js
 [submodule "js/lib/contextmenu"]
-	path = js/lib/contextmenu
+	path = modules/contextmenu
 	url = https://github.com/medialize/jquery-contextMenu
