@@ -278,11 +278,9 @@ const xmpp = {
    * Create a unique client identifier from the current millisecond timestamp.
    */
   createResourceName() {
-    return visual.formatText(config.settings.xmpp.resource, {
-      client: config.clientName,
-      version: config.version,
-      timestamp: (new Date()).getTime().toString()
-    }).text();
+    const {clientName} = config;
+    const time = (new Date()).getTime().toString(36);
+    return `${clientName}/${time}`;
   },
 
   /**

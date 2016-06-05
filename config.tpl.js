@@ -74,7 +74,6 @@ const config = {
       autoJoin: true,
       sessionAuth: true,
       sendUserAgent: true,
-      resource: '{client}/{version}/{timestamp}',
     },
 
     macros: {},
