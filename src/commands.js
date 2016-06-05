@@ -286,10 +286,9 @@ Cadence.addCommand('configure', arg => {
   const {name, help, interactive} = arg;
 
   if (help) {
-    const args = {};
-    Object.entries(strings.help.configure.args).forEach((key, val) => {
-      args[`--${key}`] = val;
-    })
+    const args = Object.entries(strings.help.configure.args).map(
+      ([key, val]) => [$('<code>').text(`--${key}`), val]
+    );
     return ui.messageInfo(strings.help.configure.text, {args});
   }
   if (!name) throw new Cadence.Error(strings.error.noArgument);
@@ -306,7 +305,7 @@ Cadence.addCommand('configure', arg => {
       const htmlform = ui.dataForm(form, submit);
       return ui.formDialog(htmlform, {cancel: () => xmpp.roomConfigCancel(name)});
     }
-    else return submit(Cadence.roomConfig(arg));
+    else return submit(Cadence.roomConf(arg));
   };
   // Submit the form back to the server.
   const submit = data => xmpp.roomConfigSubmit(name, data).then(success, error);
@@ -399,7 +398,7 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
 Cadence.addCommand('create', arg => {
   const {help, name, title, interactive} = arg;
 
-  if (help) return ui.messageInfo($('<div>').html(strings.help.configure));
+  if (help) return Cadence.execute('configure', {help});
 
   if (!name) throw new Cadence.Error(strings.error.roomCreateName);
 
@@ -426,11 +425,7 @@ Cadence.addCommand('create', arg => {
 
   const getForm = () => xmpp.roomConfig(name);
   const fillForm = form => {
-    // Use command-line arguments or just set the room title.
-    if (!interactive) {
-      const conf = Cadence.roomConf(arg) || {'muc#roomconfig_roomname': title};
-      return Promise.resolve(conf);
-    }
+    if (!interactive) return Promise.resolve(Cadence.roomConf(arg));
 
     // Unlike /configure, this form is in the promise chain. It can only be submitted once.
     return new Promise((resolve, reject) => {
@@ -473,7 +468,7 @@ Cadence.addCommand('create', arg => {
   // Use --title or --name as title.
   arg.title = arg.title || name;
   // The name must be lowercase.
-  arg.name = name.toLowerCase();
+  arg.name = name && name.toLowerCase();
   return arg;
 })
 .require(Cadence.requirements.online);

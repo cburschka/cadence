@@ -370,25 +370,27 @@ const Cadence = {
    */
   roomConf(args) {
     const conf = {};
+    const {title, desc, log, persistent, anonymous, password} = args;
+    const _public = args['public'];
+    const membersonly = args['members-only'];
 
-    const title = args.title || args.name;
     if (title)
-      conf['muc#roomconfig_roomname'] = args.title || args.name;
-    if (args.desc) conf['muc#roomconfig_roomdesc'] = args.desc;
-    if (args.log !== undefined)
-      conf['muc#roomconfig_enablelogging'] = args.log ? '1' : '0';
-    if (args.persistent !== undefined)
-      conf['muc#roomconfig_persistentroom'] = args.persistent ? '1' : '0';
-    if (args['public'] !== undefined)
-      conf['muc#roomconfig_publicroom'] = args['public'] ? '1' : '0';
-    if (args.anonymous !== undefined)
-      conf['muc#roomconfig_whois'] = args.anonymous ? 'moderators' : 'anyone';
-    if (args.password !== undefined) {
-      conf['muc#roomconfig_passwordprotectedroom'] = args.password ? '1' : '0';
-      conf['muc#roomconfig_roomsecret'] = args.password;
+      conf['muc#roomconfig_roomname'] = title;
+    if (desc) conf['muc#roomconfig_roomdesc'] = desc;
+    if (log !== undefined)
+      conf['muc#roomconfig_enablelogging'] = log ? '1' : '0';
+    if (persistent !== undefined)
+      conf['muc#roomconfig_persistentroom'] = persistent ? '1' : '0';
+    if (_public !== undefined)
+      conf['muc#roomconfig_publicroom'] = _public ? '1' : '0';
+    if (anonymous !== undefined)
+      conf['muc#roomconfig_whois'] = anonymous ? 'moderators' : 'anyone';
+    if (password !== undefined) {
+      conf['muc#roomconfig_passwordprotectedroom'] = password ? '1' : '0';
+      conf['muc#roomconfig_roomsecret'] = password;
     }
-    if (args['members-only'] !== undefined)
-      conf['muc#roomconfig_membersonly'] = args.membersonly ? '1' : '0';
+    if (membersonly !== undefined)
+      conf['muc#roomconfig_membersonly'] = membersonly ? '1' : '0';
     if (!$.isEmptyObject(conf)) return conf;
   },
 

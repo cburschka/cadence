@@ -125,9 +125,10 @@ const visual = {
 
     dl(list) {
       const dl = $('<dl>');
-      Object.entries().forEach((key, val) => dl.append(
-        $('dt').text(key), $('dd').text(val)
+      list.forEach(([key, val]) => dl.append(
+        visual.formatText($('<dt>{key}</dt><dd>{val}</dd>'), {key, val})
       ));
+      return dl;
     },
 
     /**
