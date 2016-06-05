@@ -41,10 +41,10 @@ const strings = {
     },
     affiliate: 'Affiliation of {user} in {room} set to {type}.',
     affiliations: {
-      'outcast': 'Banned users in this room: {list:users}',
-      'member': 'Members of this room: {list:users}',
-      'admin': 'Administrators of this room: {list:users}',
-      'owner': 'Owners of this room: {list:users}',
+      outcast: 'Banned users in this room: {list:users}',
+      member: 'Members of this room: {list:users}',
+      admin: 'Administrators of this room: {list:users}',
+      owner: 'Owners of this room: {list:users}',
     },
     affiliationsEmpty: 'No users have the affiliation "{type}" in this room.',
     aliasAdd: 'Alias /{command} added.',
@@ -320,18 +320,21 @@ const strings = {
       xmpp: {
         sessionAuth: 'Log in with forum session',
         autoJoin: 'Join room on login',
-        sendUserAgent: 'Send user agent string on request.',
+        sendUserAgent: 'Send user agent string on request',
       },
       contextmenu: {
         label: 'Open context menu with',
         hover: 'Hover',
         left: 'Left click',
-        right: 'Right click'
+        right: 'Right click',
+      },
+      sync: {
+        auto: 'Synchronize settings automatically',
       },
       textColor: {
         label: 'Text color',
         clear: 'Clear',
-        none: 'None'
+        none: 'None',
       },
       dateFormat: 'Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>)',
       markup: {
@@ -339,7 +342,7 @@ const strings = {
         images: 'Show images in-line',
         links: 'Make URLs clickable',
         colors: 'Show persistent colors',
-        emoticons: 'Show emoticons as images'
+        emoticons: 'Show emoticons as images',
       },
       notifications: {
         desktop: {

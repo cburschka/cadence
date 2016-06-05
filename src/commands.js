@@ -848,9 +848,10 @@ Cadence.addCommand('part', () => {
  *   Ask XMPP to disconnect.
  */
 Cadence.addCommand('quit', () => {
+  const {sync} = config.settings;
   ui.messageInfo(strings.info.connection.disconnecting);
-  const sync = !!config.settings.sync.account;
-  const trySync = (sync ? Cadence.tryCommand('sync') : Promise.resolve());
+  const auto = (sync.account == xmpp.jid.node) && sync.auto;
+  const trySync = (auto ? Cadence.tryCommand('sync') : Promise.resolve());
   return trySync.then(() => xmpp.connection.disconnect());
 })
 .require(Cadence.requirements.online);

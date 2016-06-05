@@ -339,7 +339,7 @@ const Cadence = {
     .then(() => {
       ui.setConnectionStatus(true);
       ui.messageInfo(strings.info.connection.connected);
-      this.tryCommand('sync');
+      config.settings.sync.auto && this.tryCommand('sync');
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const room = ui.getFragment() || config.settings.xmpp.room;
@@ -478,11 +478,14 @@ const Cadence = {
     const local = new Date(settings.modified).getTime();
     const sync = new Date(settings.sync.time).getTime();
 
-    const set = () => xmpp.storeSettings(settings).then(() => {
-      config.settings.sync = {account, time: settings.modified};
-      Cadence.saveSettings();
-      ui.messageInfo(strings.info.sync.set);
-    });
+    const set = () => {
+      config.settings.sync = {account, time: settings.modified, auto: true};
+      xmpp.storeSettings(settings).then(() => {
+        Cadence.saveSettings();
+        ui.loadSettings();
+        ui.messageInfo(strings.info.sync.set);
+      });
+    };
 
     const get = stored => {
       if (!stored.sync) throw new Cadence.Error(strings.error.sync.missing);

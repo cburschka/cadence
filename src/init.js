@@ -1,27 +1,32 @@
 (() => {
   Strophe.addNamespace('CONFERENCE', 'jabber:x:conference');
 
-  $(document).ready(function() {
-    initSettings();
-    loadEmoticons();
+  $(document).ready(() => {
+    try {
+      initSettings();
+      loadEmoticons();
 
-    Cadence.bbcode = XBBCode(config.markup.bbcode);
-    Cadence.bbcodeMD = XBBCode(config.markup.bbcodeMD);
+      Cadence.bbcode = XBBCode(config.markup.bbcode);
+      Cadence.bbcodeMD = XBBCode(config.markup.bbcodeMD);
 
-    ui.init();
-    visual.init();
-    xmpp.init();
+      ui.init();
+      visual.init();
+      xmpp.init();
 
-    $(window).on({beforeunload : () =>
-      xmpp.connection.connected &&
-      config.settings.notifications.leavePage &&
-      strings.info.leavePage
-    });
-    $(window).unload(() => xmpp.connection.disconnect());
+      $(window).on({beforeunload : () =>
+        xmpp.connection.connected &&
+        config.settings.notifications.leavePage &&
+        strings.info.leavePage
+      });
+      $(window).unload(() => xmpp.connection.disconnect());
 
-    Cadence.execute('connect').catch(() => {
-      if (config.ui.welcome) ui.messageInfo(config.ui.welcome);
-    });
+      Cadence.execute('connect').catch(() => {
+        if (config.ui.welcome) ui.messageInfo(config.ui.welcome);
+      });
+    }
+    catch(e) {
+      Cadence.handleError(e);
+    }
   });
 
   const initSettings = () => {
