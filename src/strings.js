@@ -35,7 +35,7 @@ const strings = {
 
   info: {
     admin: {
-      commands: 'Available commands:\n{commands}',
+      commands: 'Available commands: {dl:commands}',
       result: 'Completed command "{command}":\n{result}',
       completed: 'Completed command "{command}".'
     },

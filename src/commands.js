@@ -14,16 +14,12 @@ Cadence.addCommand('admin', arg => {
 
   if (!node) {
     return xmpp.listCommands(to).then(items => {
-      const commands = $('<dl>');
-      items.forEach(({name, node}) => {
+      const commands = items.map(({name, node}) => {
         const xep133 = node.startsWith(adminPrefix);
-        const code = $('<code>');
-        if (xep133) code.text(`/admin ${node.substring(adminPrefix.length)}`);
-        else code.text(`/admin --node "${node.replace(/"/,'\\"')}"`);
-        if (xep133 || full) {
-          commands.append($('<dt>').append(code), $('<dd>').text(name));
-        }
-      });
+        const command = xep133 ? node.substring(adminPrefix.length) : `--node "${node.replace(/"/,'\\"')}"`;
+        const code = $('<code>').text(`/admin ${command}`);
+        if (xep133 || full) return [code, name];
+      }).filter(x => !!x);
       ui.messageInfo(strings.info.admin.commands, {commands});
     });
   }
