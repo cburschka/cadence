@@ -51,7 +51,7 @@ Cadence.addCommand('admin', arg => {
     $('field[type!="hidden"]', stanza).each(function() {
       const label = $(this).attr('label');
       const value = $(this).text();
-      result.push($('<strong>').text(value + ':'), ' ', value, $('<br>'));
+      result.push($('<strong>').text(label + ':'), ' ', value, $('<br>'));
     })
     ui.messageInfo(strings.info.admin[result.length ? 'result' : 'completed'], {result, command: command || node});
   };
