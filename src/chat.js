@@ -87,7 +87,7 @@ const Cadence = {
    * @return {Promise} a promise that resolves when the command completes or fails.
    */
   tryCommand(command, arg) {
-    Promise.resolve()
+    return Promise.resolve()
     .then(() => this.execute(command, arg))
     .catch(error => this.handleError(error, command));
   },

@@ -151,29 +151,20 @@ const xmpp = {
     this.connection.addHandler(stanza => this.eventPresenceCallback(stanza), null, 'presence');
     this.connection.addHandler(stanza => this.eventMessageCallback(stanza), null, 'message');
     this.connection.addHandler(stanza => this.eventIQCallback(stanza), null, 'iq');
-    this.connection.attention.addAttentionHandler(stanza => {
+    this.connection.attention.addHandler(stanza => {
       const from = this.JID.parse(stanza.getAttribute('from'));
       const user = this.userFromJid(from);
       ui.messageError(strings.info.attention, {user});
       return true;
     });
-    this.connection.ping.addPingHandler(ping => {
-      this.connection.ping.pong(ping);
-      return true;
-    });
-    this.connection.time.addTimeHandler(request => {
-      this.connection.time.sendTime(request);
-      return true;
-    });
-    this.connection.version.addVersionHandler(request => {
-      this.connection.version.sendVersion(request,
-        config.clientName,
-        config.version,
-        // Sending the user agent (in <os>) is optional.
-        (config.settings.xmpp.sendUserAgent !== false) && navigator.userAgent
-      );
-      return true;
-    });
+    this.connection.ping.addHandler();
+    this.connection.time.addHandler();
+    this.connection.version.addHandler(this.connection.version.responder(
+      config.clientName,
+      config.version,
+      // Sending the user agent (in <os>) is optional.
+      (config.settings.xmpp.sendUserAgent !== false) && navigator.userAgent
+    ));
 
     this.connection.addTimedHandler(30, () => this.discoverRooms());
   },
@@ -210,17 +201,16 @@ const xmpp = {
     let first = true;
     return new Promise((resolve, reject) => {
       return this.connection.connect(String(this.jid), pass, (status, error) => {
-        console.log(status, error);
         // This block resolves the promise; it can only run once.
         if (first) switch (status) {
           case Strophe.Status.ERROR:
           case Strophe.Status.CONNFAIL:
           case Strophe.Status.AUTHFAIL:
-            first = false; reject(new this.ConnectionError(status, error));
+            first = false; return reject(new this.ConnectionError(status, error));
           case Strophe.Status.CONNECTED:
             // Broadcast presence.
             this.pres().send();
-            first = false; resolve();
+            first = false; return resolve();
         }
         else if (status === Strophe.Status.DISCONNECTED) {
           this.nick.current = null;
@@ -276,10 +266,10 @@ const xmpp = {
    *
    * @return {Stanza}
    */
-  pres(attrs={}) {
+  pres(attrs) {
+    const pres = $pres({from: this.jid}).attrs(attrs);
     // Only annotate untyped presence with a cap-hash.
-    const pres = attrs.type ? $pres() : this.connection.caps.pres();
-    pres.attrs({from: this.jid}).attrs(attrs);
+    if (!attrs || !attrs.type) this.connection.caps.caps(pres);
     pres.send = () => this.connection.send(pres);
     return pres;
   },
@@ -1231,7 +1221,7 @@ const xmpp = {
    */
   storeSettings(data, modified) {
     const name = config.clientName;
-    const query = this.connection.storage.set(name, name + ':settings');
+    const query = this.connection.storage.set(name, `${name}:settings`);
     query.attrs({modified});
     const encodeValue = (val, name) => {
       query.c('data', {name});
@@ -1254,6 +1244,8 @@ const xmpp = {
     const encodeObject = obj => Object.keys(obj).forEach(key => encodeValue(obj[key], key));
 
     encodeValue(data);
-    return query.send(config.xmpp.timeout);
+    return query.send(config.xmpp.timeout).catch(stanza => {
+      throw new this.StanzaError(stanza);
+    });
   },
 };

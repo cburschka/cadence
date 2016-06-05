@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/cburschka/cadence#readme",
   "dependencies": {
-    "jquery-replacetext": "^1.1.0"
+    "jquery-replacetext": "^1.1.0",
+    "strophe-cadence": "0.0.1"
   },
   "babel": {
     "presets": [

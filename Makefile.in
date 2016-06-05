@@ -111,6 +111,9 @@ js/lib/strophe.js: js/lib/strophe/strophe.js
 js/lib/xbbcode.js: js/lib/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
+js/lib/strophe.%.js: node_modules/strophe-cadence/lib/%.js
+	$(CP) $^ $@
+
 submodules:
 	git submodule update --init
 
@@ -119,5 +122,3 @@ submodules:
 
 .SECONDEXPANSION:
 
-js/lib/strophe.%.js: js/lib/strophe-plugins/%/strophe.$$*.js
-	$(CP) $^ $@
