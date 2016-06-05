@@ -707,7 +707,9 @@ const ui = {
       type: 'text',
       value: $('value', field).text()
     });
-    fields['text-private'] = fields['text-single'];
+    fields['text-private'] = field => (
+      fields['text-single'](field).attr('type', 'password')
+    );
     fields['jid-single'] = fields['text-single'];
     fields['text-multi'] = field => {
       const values = Array.from($('value', field).map(function() {
