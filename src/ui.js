@@ -1236,8 +1236,6 @@ const ui = {
    */
   blinkTitle(string) {
     window.clearInterval(this.blinker);
-    string = string ? string + ' - ' : '';
-
     const speed = config.settings.notifications.blinkSpeed; // faster than you would believe.
     const delay = Math.ceil(1000 / speed);
 
@@ -1245,12 +1243,14 @@ const ui = {
     if (!number) return;
     let state = false;
 
+    const title = (string ? `${string} - ` : '') + this.title;
     this.blinker = window.setInterval(() => {
+      const blinker = state ? '[@ ] ' : '[ @] ';
       if (!number) {
-        $(document).attr('title', ui.title);
-        return window.clearInterval(ui.blinker);
+        $(document).attr('title', this.title);
+        return window.clearInterval(this.blinker);
       }
-      $(document).attr('title', (state ? '[@ ] ' : '[ @] ') + string + ui.title);
+      $(document).attr('title', blinker + title);
       state = !state;
       number--;
     }, delay);
