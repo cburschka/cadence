@@ -12,7 +12,7 @@
  */
 Array.prototype.findIndexBinary = function(fn) {
   // Check that the last element satisfies fn.
-  if (!fn(this[this.length-1])) return -1;
+  if (this.length < 1 || !fn(this[this.length-1])) return -1;
   const rec = (a, b) => {
     if (fn(this[a])) return a;
     const c = Math.floor((a + b) / 2);

@@ -1071,8 +1071,9 @@ const ui = {
    * @start (optional) the last correct offset.
    */
   updateHeights(start=0) {
-    const first = ui.messages[start];
-    ui.messages.slice(start+1).reduce((offset, message) => {
+    if (this.messages.length < 1) return;
+    const first = this.messages[start];
+    this.messages.slice(start+1).reduce((offset, message) => {
       message.offset = offset;
       return offset + message.html.height();
     }, first.offset + first.html.height());
