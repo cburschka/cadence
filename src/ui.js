@@ -317,7 +317,9 @@ const ui = {
       this.setTextColorPicker('');
     });
     $('#settings-textColor').change(function() {
-      ui.setTextColorPicker($(this).val())
+      const value = $(this).val();
+      ui.setTextColorPicker(value);
+      Cadence.setSetting('textColor', value);
     });
 
     // Listen for changes in the style menu.
