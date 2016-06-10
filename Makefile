@@ -3,6 +3,10 @@ ifndef CP
   CP=cp
 endif
 
+ifndef BABEL
+  BABEL=babel
+endif
+
 SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
@@ -68,7 +72,7 @@ emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf) .config.vars
 
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
-	babel $< -o $@
+	$(BABEL) $^ -o $@
 
 lib/modules/buzz.js: modules/buzz/src/buzz.js
 	$(CP) $^ $@
@@ -100,8 +104,12 @@ lib/modules/strophe/%.js: node_modules/strophe-cadence/lib/%.js
 lib/modules/babel.js: node_modules/babel-polyfill/browser.js
 	$(CP) $^ $@
 
+.config.vars:
+	$(error Please run ./configure)
+
 submodules:
 	git submodule update --init
+
 
 .PHONY: all js init submodules
 
