@@ -438,8 +438,7 @@ const Cadence = {
     const ref = path.reduce((x, y) => x[y], config.settings);
     if (ref[last] !== val) {
       ref[last] = val;
-      config.settings.modified = (new Date()).toISOString();
-      this.saveSettings();
+      this.saveSettings(true);
     }
   },
 
@@ -455,8 +454,11 @@ const Cadence = {
 
   /**
    * Serialize the settings object and save it in the cookie.
+   *
+   * @param {boolean} update Sets the modification time.
    */
-  saveSettings() {
+  saveSettings(update) {
+    if (update) config.settings.modified = (new Date()).toISOString();
     if (window.localStorage) {
       localStorage.settings = JSON.stringify(config.settings);
     }

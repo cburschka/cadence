@@ -177,7 +177,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
   }
   if (!macro) {
     delete config.settings.macros[command];
-    Cadence.saveSettings();
+    Cadence.saveSettings(true);
     return ui.messageInfo(strings.info.aliasDelete, {command});
   }
 
@@ -200,7 +200,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
   }
   else ui.messageInfo(strings.info.aliasAdd, {command});
   macros[command] = macro;
-  Cadence.saveSettings();
+  Cadence.saveSettings(true);
 })
 .parse(string => {
   string = string.trim();
