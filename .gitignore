@@ -3,15 +3,12 @@
 
 # Built files
 .config.vars
-Makefile
-*.min.*
 index.html
-js/core/config.js
-js/core/emoticons.js
-js/lib/*.js
-js/lib.js
-js/core.js
-css/global/all.css
+lib/
+node_modules/
+assets/emoticons/
+emoticons.js
+config.js
 
 # Installed files
 img/emoticons/packs

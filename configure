@@ -18,14 +18,11 @@ def main():
     args.cdn_prefix = args.cdn_prefix.rstrip('/')
     args.cdn_url = args.cdn_url and (args.cdn_url.rstrip('/') + '/') or ''
 
-    args.src_path = os.path.dirname(__file__) or '.'
-    shutil.copy(os.path.realpath(args.src_path) + '/Makefile.in', os.getcwd() + '/Makefile')
-
     if args.packs == 'auto':
-        args.packs = ' '.join(folder for folder in os.listdir(args.src_path + '/emoticon-packs')
-            if os.path.isfile(args.src_path + '/emoticon-packs/' + folder + '/emoticons.conf'))
+        args.packs = ' '.join(folder for folder in os.listdir('emoticon-packs')
+            if os.path.isfile('emoticon-packs/{}/emoticons.conf'.format(folder)))
 
-    args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir(args.src_path + '/css/alt/') if x[-4:] == '.css']))
+    args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css']))
 
     open('.config.vars', 'w+').write(
 '''TITLE={title}
@@ -36,7 +33,6 @@ XMPP_SESSION_AUTH={session_auth}
 PREFIX={prefix}
 CDN_PREFIX={cdn_prefix}
 CDN_URL={cdn_url}
-SRC_PATH={src_path}
 CSS_ALT={css_alt}
 STYLE={style}
 PACKS={packs}
@@ -44,7 +40,6 @@ PACKS={packs}
 
 
 def parser():
-    src_path = os.path.dirname(__file__) or '.'
     parser = argparse.ArgumentParser(
       prog='configure',
       description='''Configure cadence for installation.
