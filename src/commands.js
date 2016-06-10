@@ -184,7 +184,6 @@ Cadence.addCommand('alias', ({command, macro}) => {
   // Run a DFS to avoid recursive macros.
   const macros = config.settings.macros;
   const search = (macro, path) => {
-    console.log({macro, path});
     macro.forEach(statement => {
       const [,cmd] = statement.match(/^\/(\S+)/) || [];
       const newPath = path.concat([cmd]);

@@ -43,10 +43,18 @@ Object.merge = (a, b) => {
   );
   return c;
 };
+Object.forEach = Object.forEach ||
+  ((obj, fn) => Object.keys(obj).forEach(key => fn(key, obj[key])));
 Object.values = Object.values ||
   (obj => Object.keys(obj).map(key => obj[key]));
 Object.entries = Object.entries ||
   (obj => Object.keys(obj).map(key => [key, obj[key]]));
+Object.fromEntries = Object.fromEntries ||
+  (entries => {
+    const obj = {};
+    entries.forEach(([key, value]) => obj[key] = value);
+    return obj;
+  });
 
 /**
  * Polyfill for the KeyEvent constants.

@@ -56,7 +56,6 @@ const visual = {
   formatMessage(message) {
     const {time, body, type, user, to} = message;
     const timestamp = time.getTime();
-    console.log(body.html);
     const text = $('<span class="body-text">').text(body.text);
     const html = $('<span class="body-html">').append(Array.from(body.html));
 

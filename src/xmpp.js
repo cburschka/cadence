@@ -62,10 +62,11 @@ const xmpp = {
     constructor(stanza) {
       if (!stanza) return this.condition = 'timeout';
       this.stanza = stanza;
-      const error = $('error', stanza);
-      this.type = error.attr('type');
-      this.condition = error.children(xmpp.stanzaErrors.join(',')).prop('tagName').toLowerCase();
-      this.text = error.children('text').text();
+      const error = stanza.querySelector('error');
+      this.type = error.getAttribute('type');
+      this.condition = xmpp.stanzaErrors.find(x => error.querySelector(x));
+      const text = error.querySelector('text');
+      this.text = text && text.textContent;
     }
 
     toString() {
@@ -127,7 +128,7 @@ const xmpp = {
     this.resource = this.createResourceName();
 
     // Invert Strophe's status constant table.
-    $.each(Strophe.Status, (name, value) => {
+    Object.forEach(Strophe.Status, (name, value) => {
       this.statusConstants[value] = name;
     });
 
@@ -349,7 +350,7 @@ const xmpp = {
       return {room: jid.node, nick: jid.resource};
     };
     const roster = room && this.roster[room];
-    const user = roster && $.map(roster, x => x).find(x => jid.matchBare(x.jid));
+    const user = roster && Object.values(roster).find(x => jid.matchBare(x.jid));
     if (user) return user;
     return {jid};
   },
@@ -385,7 +386,7 @@ const xmpp = {
         const from = this.JID.parse(stanza.getAttribute('from'));
         const newNick = from.resource;
         const type = stanza.getAttribute('type');
-        if (nick == newNick || $('x status[code="110"]', stanza).length) {
+        if (nick == newNick || stanza.querySelector('x status[code="110"]')) {
           if (type != 'error') resolve(newNick);
           else throw new this.StanzaError(stanza);
         }
@@ -425,9 +426,9 @@ const xmpp = {
       .c('query', {xmlns: Strophe.NS.DISCO_INFO, node: 'x-roomuser-item'});
 
     return iq.send().then(stanza => {
-      const query = $('query', stanza);
-      const nick = $('identity', query).attr('name');
-      if (query.attr('node') == 'x-roomuser-item' && nick) return nick;
+      const query = stanza.querySelector('query');
+      const nick = query.querySelector('identity').getAttribute('name');
+      if (query.getAttribute('node') == 'x-roomuser-item' && nick) return nick;
       // This is *not* an error stanza, the server is just being dumb.
       else throw stanza;
     });
@@ -451,17 +452,16 @@ const xmpp = {
       .c('query', {xmlns: Strophe.NS.DISCO_INFO});
 
     return iq.send().then(stanza => {
-      const query = $('query', stanza);
-      const features = Array.from(query.children('feature').map(function() {
-        return $(this).attr('var')
-      }));
-      const data = {};
-      query.find('x > field').each(function() {
-        data[$(this).attr('var')] = $(this).find('value').text();
-      });
+      const query = stanza.querySelector('query');
+      const features = Array.from(query.querySelectorAll('query > feature')).map(
+        e => e.getAttribute('var')
+      );
+      const data = Object.fromEntries(Array.from(query.querySelectorAll('x > field')).map(
+        e => [e.getttribute('var'), e.querySelector('value').textContent]
+      ));
       return this.room.available[room] = {
         id: room,
-        title: query.children('identity').attr('name'),
+        title: query.querySelector('identity').getAttribute('name'),
         members: +data['muc#roominfo_occupants'],
         features, data
       };
@@ -488,11 +488,11 @@ const xmpp = {
 
     return new Promise(resolve => {
       // The server may alter the nickname, requiring a bare match:
-      this.connection.addHandler((stanza) => {
-        if ($(stanza).attr('type') == 'error') {
+      this.connection.addHandler(stanza => {
+        if (stanza.getAttribute('type') == 'error') {
           throw new this.StanzaError(stanza);
         }
-        else if ($('status[code=110]', stanza).length) {
+        else if (stanza.querySelector('status[code="110"]')) {
           resolve(stanza);
         }
         else return true;
@@ -543,7 +543,7 @@ const xmpp = {
     form.c('query', {xmlns: Strophe.NS.MUC + '#owner'});
     form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
-    $.each(data, (name, values) => {
+    Object.forEach(data, (name, values) => {
       if (values !== undefined) {
         form.c('field', {'var': name});
         if (!(values instanceof Array)) values = [values];
@@ -625,7 +625,7 @@ const xmpp = {
     });
     form.c('x', {xmlns: 'jabber:x:data', type: 'submit'});
 
-    $.each(data, (name, values) => {
+    Object.forEach(data, (name, values) => {
       if (values !== undefined) {
         form.c('field', {'var': name});
         if (!values || !(values instanceof Array)) values = [values];
@@ -743,8 +743,8 @@ const xmpp = {
     return this.iq({type: 'get', to: this.jidFromRoomNick({room})})
       .c('query', {xmlns: Strophe.NS.DISCO_ITEMS})
       .send()
-      .then(stanza => Array.from(
-        $('item', stanza).map((_, e) => e.getAttribute('name'))
+      .then(stanza => Array.from(stanza.querySelectorAll('item')).map(
+        e => e.getAttribute('name')
       ));
   },
 
@@ -760,7 +760,7 @@ const xmpp = {
 
     return iq.send().then(stanza => {
       const rooms = {};
-      $('item', stanza).each((_, item) => {
+      Array.from(stanza.querySelectorAll('item')).forEach(item => {
         const jid = this.JID.parse(item.getAttribute('jid'));
         const id = jid.node;
 
@@ -854,10 +854,10 @@ const xmpp = {
     }
 
     // Find the status codes.
-    const item = $(stanza).find('item');
-    const codes = Array.from($('status', stanza).map(function() {
-      return parseInt(this.getAttribute('code'));
-    }));
+    const item = stanza.querySelector('item');
+    const codes = Array.from(stanza.querySelectorAll('status')).map(
+      e => parseInt(e.getAttribute('code'))
+    );
 
     if (type == 'unavailable')
       this.eventPresenceUnavailable(room, nick, codes, item, stanza);
@@ -882,7 +882,7 @@ const xmpp = {
 
     // An `unavailable` 303 is a nick change to <item nick="{new}"/>
     if (codes.includes(303)) {
-      const newNick = item.attr('nick');
+      const newNick = item.getAttribute('nick');
       const newUser = $.extend({}, user, {nick: newNick});
       ui.messageInfo(strings.info.userNick, {from: user, to: newUser});
 
@@ -898,10 +898,12 @@ const xmpp = {
       // An `unavailable` 301 is a ban; a 307 is a kick.
       if (codes.includes(301) || codes.includes(307)) {
         const type = codes.includes(301) ? 'ban' : 'kick';
-        const actorNick = $('actor', item).attr('nick');
+        const _actor = item.querySelector('actor');
+        const actorNick = _actor && _actor.getAttribute('nick');
         // For a self-kick, the actor is already out of the roster.
         const actor = actorNick == nick ? user : roster[actorNick];
-        const reason = $('reason', item).text();
+        const _reason = item.querySelector('reason');
+        const reason = _reason && _reason.textContent;
         const index = (+!!actor) * 2 + (+!!reason);
 
         // ejabberd bug: presence does not use 110 code; check nick.
@@ -913,10 +915,11 @@ const xmpp = {
       }
 
       // A <destroy> element indicates that the room has been destroyed.
-      else if ($('x destroy', stanza).length) {
-        const destroy = $('x destroy', stanza);
-        const reason = $('reason', destroy).text();
-        const jid = this.JID.parse(destroy.attr('jid'));
+      else if (stanza.querySelector('x destroy')) {
+        const destroy = stanza.querySelector('x destroy');
+        const _reason = destroy.querySelector('reason');
+        const reason = _reason && _reason.textContent;
+        const jid = this.JID.parse(destroy.getAttribute('jid'));
         const alternate = jid.domain == config.xmpp.mucService
                     && (this.room.available[jid.node] || {id: jid.node});
 
@@ -944,15 +947,17 @@ const xmpp = {
     const roster = this.roster[room];
     const oldUser = roster[nick];
 
+    const _show = stanza.querySelector('show');
+    const _status = stanza.querySelector('status');
+    const show = _show && _show.textContent || 'available';
+    const status = _status && _status.textContent || '';
+
     // Create the user object.
     const user = {
-      nick,
-      jid: this.JID.parse(item.attr('jid')), // if not anonymous.
-      role: item.attr('role'),
-      affiliation: item.attr('affiliation'),
-      // away, dnd, xa, chat, [default].
-      show: $('show', stanza).text() || 'available',
-      status: $('status', stanza).text() || ''
+      nick, show, status,
+      jid: this.JID.parse(item.getAttribute('jid')), // if not anonymous.
+      role: item.getAttribute('role'),
+      affiliation: item.getAttribute('affiliation'),
     };
 
     // A 110-code presence reflects a presence that we sent.
@@ -1008,6 +1013,8 @@ const xmpp = {
   eventMessageCallback(stanza) {
     if (stanza) {
       const from = this.JID.parse(stanza.getAttribute('from'));
+      const {domain, node, resource} = from;
+
       let type = stanza.getAttribute('type');
 
       if (type == 'error')
@@ -1024,15 +1031,15 @@ const xmpp = {
       const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();
 
       // Message of the Day.
-      if (!from.node && !from.resource) {
-        ui.messageError(strings.info.motd, {domain: from.domain, text: body});
+      if (!node && !resource) {
+        ui.messageError(strings.info.motd, {domain: from.domain, text: html || text});
         return true;
       }
 
       if (muc) {
-        const codes = Array.from($('x status', stanza).map(function() {
-          return parseInt($(this).attr('code'));
-        }));
+        const codes = Array.from(stanza.querySelectorAll('x status')).map(
+          e => parseInt(e.getAttribute('code'))
+        );
 
         // React to configuration updates.
         if (codes.includes(104)) {
@@ -1044,24 +1051,26 @@ const xmpp = {
         }
 
         // Accept invitations.
-        const invite = $('x invite', stanza);
-        if (invite.length) {
+        const invite = stanza.querySelector('x invite');
+        if (invite) {
           const room = this.room.available[from.node];
           const jid = this.JID.parse(invite.attr('from'));
-          const reason = $('reason', invite).text();
-          const password = $('x password', stanza).text();
+          const _reason = invite.querySelector('reason');
+          const reason = _reason && _reason.textContent;
+          const _password = stanza.querySelector('x password');
+          const password = _password && _password.textContent;
           const message = strings.info.inviteReceived[+!!password][+!!reason];
-          const invite = room => ui.messageInfo(message, {jid, room, password, reason});
 
+          const process = room => ui.messageInfo(message, {jid, room, password, reason});
           // If we don't have the room info, load it first.
-          if (room) return invite(room);
-          else return this.queryRoom(from.node).then(data => {
-            this.room.available[from.node] = data;
-            invite(data);
+          if (room) return process(room);
+          else return this.queryRoom(node).then(data => {
+            this.room.available[node] = data;
+            process(data);
           });
         }
 
-        if (!from.resource) return true;
+        if (!resource) return true;
 
         // Do not look up the nick for delayed messages, because it's unreliable.
         if (delay) {
@@ -1071,23 +1080,23 @@ const xmpp = {
           const jid = this.JID.parse(address && address.getAttribute('jid'));
           if (jid) {
             // Copy the entry and fill in the new information.
-            user = $.extend({}, this.userFromJid(jid, from.node), user, {jid});
+            user = $.extend({}, this.userFromJid(jid, node), user, {jid});
           }
-          else user = {nick: from.resource, room: from.node};
+          else user = {nick: resource, room: node};
         }
 
-        this.historyEnd[from.node] = time;
+        this.historyEnd[node] = time;
       }
 
       // Accept direct messages from other domains.
       else type = 'direct';
 
       // Accept direct invitations:
-      const invite = $('x[xmlns="' + Strophe.NS.CONFERENCE + '"]', stanza);
-      if (invite.length) {
-        const room = xmpp.userFromJid(this.JID.parse(invite.attr('jid'))).room;
-        const password = invite.attr('password');
-        const reason = invite.attr('reason');
+      const invite = stanza.querySelector(`x[xmlns="${Strophe.NS.CONFERENCE}"]`);
+      if (invite) {
+        const {room} = this.userFromJid(this.JID.parse(invite.getAttribute('jid')));
+        const password = invite.getAttribute('password');
+        const reason = invite.getAttribute('reason');
         if (room) return ui.messageInfo(
           strings.info.inviteReceived[+!!password][+!!reason],
           {jid: from, room, password, reason}
@@ -1095,18 +1104,18 @@ const xmpp = {
       }
 
       // If there is no <body> element, drop the message. (@TODO #201 XEP-0085)
-      if (!$(stanza).children('body').length) return true;
+      if (!text) return true;
 
       if (delay) {
         ui.messageDelayed({
           user, body, type, time,
-          room: muc && this.room.available[from.node]
+          room: muc && this.room.available[node]
         });
       }
       else {
         const message = {user, body, type, time};
         ui.messageAppend(visual.formatMessage(message));
-        if (from.resource != this.nick.current) ui.notify(message);
+        if (resource != this.nick.current) ui.notify(message);
       }
     }
     return true;
@@ -1142,7 +1151,7 @@ const xmpp = {
     const type = stanza.getAttribute('type');
     if (type != 'get' && type != 'set') return true;
 
-    const xmlns = $(stanza).children().attr('xmlns');
+    const xmlns = stanza.querySelector('iq > *').getAttribute('xmlns');
 
     // Send <feature-not-implemented /> for anything not recognized.
     if (!config.features.includes(xmlns)) {
@@ -1191,30 +1200,26 @@ const xmpp = {
    */
   loadSettings() {
     const name = config.clientName;
-    const query = this.connection.storage.get(name, name + ':settings', config.xmpp.timeout);
+    const query = this.connection.storage.get(name, `${name}:settings`, config.xmpp.timeout);
     const decodeValue = node => {
-      node = $(node);
-      switch (node.attr('type')) {
+      const value = node.textContent;
+      switch (node.getAttribute('type')) {
         case 'object': return decodeObject(node);
         case 'array': return decodeArray(node);
-        case 'number': return parseFloat(node.text());
-        case 'boolean': return node.text() === 'true';
+        case 'number': return parseFloat(value);
+        case 'boolean': return value === 'true';
         case 'undefined': return undefined;
         case 'null': return null;
-        default: return node.text();
+        default: return value;
       }
     };
-    const decodeArray = node => $.map(node.children(), decodeValue);
-    const decodeObject = node => {
-      const obj = {};
-      node.children().each(function() {
-        obj[$(this).attr('name')] = decodeValue(this);
-      });
-      return obj;
-    };
-    return query.then((stanza) => {
-      return decodeValue($('query > ' + name + ' > data', stanza));
-    });
+    const decodeArray = ({childNodes}) => Array.from(childNodes).map(decodeValue);
+    const decodeObject = ({childNodes}) => Object.fromEntries(Array.from(childNodes).map(
+      e => [e.getAttribute('name'), decodeValue(e)]
+    ));
+    return query.then(
+      stanza => decodeValue(stanza.querySelector(`query > ${name} > data`))
+    );
   },
 
   /**
@@ -1236,6 +1241,7 @@ const xmpp = {
         query.attrs({type: 'array'});
         encodeArray(val);
       }
+      // typeof null == 'object'. Blame Javascript.
       else if (val === null) query.attrs({type: 'null'});
       else {
         query.attrs({type: 'object'});
@@ -1244,7 +1250,7 @@ const xmpp = {
       query.up();
     }
     const encodeArray = arr => arr.forEach(val => encodeValue(val));
-    const encodeObject = obj => Object.keys(obj).forEach(key => encodeValue(obj[key], key));
+    const encodeObject = obj => Object.forEach(obj, (key, value) => encodeValue(value, key));
 
     encodeValue(data);
     return query.send(config.xmpp.timeout).catch(stanza => {
