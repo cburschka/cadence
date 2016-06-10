@@ -378,6 +378,9 @@ const ui = {
     $('#settings-markup\\.emoticons').change(() =>
       toggler('img.emoticon', 'span.emote-alt', config.settings.markup.emoticons)
     );
+    $('#settings-markup\\.html').change(() =>
+      toggler('span.body-html', 'span.body-text', config.settings.markup.html)
+    );
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
       else visual.removeColor(ui.dom.chatList);
@@ -838,8 +841,9 @@ const ui = {
    * @param {Object} options (optional)
    */
   messageInfo(text, variables, {error}={}) {
+    const html = visual.formatText(text, variables);
     const message = {
-      body: visual.formatText(text, variables),
+      body: {html, text: html.text()},
       time: new Date(),
       type: 'local',
     };
@@ -1180,9 +1184,9 @@ const ui = {
    */
   notify(message) {
     const {body, type, user} = message;
+    const {text} = body;
     const {triggers} = config.settings.notifications;
     const allTriggers = Array.concat(triggers, xmpp.nick.current, xmpp.jid.node);
-    const text = body.text();
     const name = user.nick || user.jid.bare() || '';
 
     const mention = allTriggers.some(trigger => ~text.indexOf(trigger));

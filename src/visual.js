@@ -28,20 +28,17 @@ const visual = {
   },
 
   /**
-   * Traverse a jQuery set to find a text node prefixed by "/me ".
+   * Traverse a DOM node to find a text node prefixed by "/me ".
    * The text node must be in a direct line of first descendants of the root.
    *
-   * @param {jQuery} jq The jquery node to search through.
+   * @param {DOM} node The node to search through.
    *
    * @return {Text} The text node, or false.
    */
-  findMe(jq) {
-    while (jq.length) {
-      if (jq[0].constructor == Text && jq[0].nodeValue.substring(0,4) == '/me ')
-        return jq[0];
-      jq = jq.contents().first();
-    }
-    return false;
+  findMe(node) {
+    if (!node) return false;
+    if (node instanceof Text) return node.nodeValue.substring(0,4) == '/me ' && node;
+    return this.findMe(node.firstChild);
   },
 
   /**
@@ -59,39 +56,47 @@ const visual = {
   formatMessage(message) {
     const {time, body, type, user, to} = message;
     const timestamp = time.getTime();
+    console.log(body.html);
+    const text = $('<span class="body-text">').text(body.text);
+    const html = $('<span class="body-html">').append(Array.from(body.html));
 
-    if (type != 'local') this.formatBody(body);
+    if (type != 'local') {
+      this.formatBody(html);
+      this.formatBody(text);
+    }
+    (config.settings.markup.html ? text : html).hide();
 
     const template =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime">{time}</span> '
                   + '<span class="authorMessageContainer">'
                   + (user ? '<span class="author">{user}</span> ' : '')
-                  + '<span class="body">{body}</span>'
+                  + '<span class="body">{text}{html}</span>'
                   + '<span class="hidden"></span></span>'
                   + '</div>');
     template.addClass('message-type-' + message.type);
 
-    const html = this.formatText(template, {time, user, body});
+    const output = this.formatText(template, {time, user, html, text});
 
-    $('span.hide-message, span.hidden', html).click(() => {
-      $('span.body, span.hidden', html).toggle('slow');
+    $('span.hide-message, span.hidden', output).click(() => {
+      $('span.body, span.hidden', output).toggle('slow');
       ui.updateHeights();
     });
 
-    const me = type != 'local' && this.findMe(body);
+    const me = type != 'local' && this.findMe(html);
     if (user) {
-      if (user.jid) html.addClass(this.jidClass(user.jid));
+      if (user.jid) output.addClass(this.jidClass(user.jid));
 
       if (me) {
         me.nodeValue = me.nodeValue.substring(4);
-        $('span.authorMessageContainer', html).prepend('* ')
+        text.nodeValue = text.nodeValue.substring(4);
+        $('span.authorMessageContainer', output).prepend('* ')
         .wrap('<span class="action"></span>');
       }
-      else $('span.author', html).append(':');
+      else $('span.author', output).append(':');
     }
 
     if (type != 'groupchat' && type != 'local') {
-      $('span.' + (me ? 'body' : 'author'), html).after([' ',
+      $('span.' + (me ? 'body' : 'author'), output).after([' ',
         $('<span class="privmsg">').append(this.formatText(
           strings.info[to ? 'whisperTo' : 'whisper'],
           {user: to}
@@ -100,12 +105,12 @@ const visual = {
     }
 
     // Make users clickable.
-    this.msgOnClick(html);
+    this.msgOnClick(output);
 
     // Make links open in new tabs.
-    this.linkOnClick(html);
+    this.linkOnClick(output);
 
-    return {timestamp, html, message};
+    return {timestamp, html: output, message};
   },
 
   format: {
@@ -232,16 +237,8 @@ const visual = {
     // Security: Replace all but the following whitelisted tags with their content.
     $('br', jq).replaceWith('\n');
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(function() {
-      const content = $(this).contents().detach();
-      const wrapper = this.outerHTML.match(/^(.*)(<\/[\w]+>)$/);
-      return [
-        new Text(wrapper[1]),
-        content,
-        new Text(wrapper[2])
-      ];
+      return this.childNodes;
     });
-    // If markup is disabled, replace the entire node with its text content.
-    if (!config.settings.markup.html) jq.text(jq.text());
     if (config.settings.markup.colors) this.addColor(jq);
     this.addLinks(jq);
     this.processImages(jq);
@@ -281,13 +278,13 @@ const visual = {
    * CSS color property to the attribute value.
    */
   addColor(jq) {
-    $('span.color', jq).css('color', function() {
+    jq.find('.color').addBack('.color').css('color', function() {
       return this.getAttribute('data-color');
     });
   },
 
   removeColor(jq) {
-    jq.find('span.color[data-color]').css('color', '');
+    jq.find('.color[data-color]').css('color', '');
   },
 
   /**

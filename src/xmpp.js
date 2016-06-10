@@ -683,10 +683,15 @@ const xmpp = {
    */
   sendMessage({to, body, type}) {
     const msg = this.msg({to, type});
-    msg.c('body', {}, body.text);
-    msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
-    msg.c('body', {xmlns: Strophe.NS.XHTML});
-    if (body.html) msg.cnode($('<p>').append(body.html)[0]);
+    const {text, html} = body;
+    msg.c('body', {}, text);
+    if (html) {
+      msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
+      msg.c('body', {xmlns: Strophe.NS.XHTML});
+      const array = Array.from(html);
+      const nodes = array.length ? array : [html];
+      nodes.forEach(node => msg.cnode(node).up());
+    }
     msg.send();
     ui.playSound('send');
   },
@@ -1011,9 +1016,9 @@ const xmpp = {
       let user = this.userFromJid(from);
       const muc = !!user.room || !!user.nick;
 
-      const text = $(stanza).children('body').text();
-      const html = $('html body p', stanza).contents();
-      const body = html.length ? $('<span>').append(html) : $('<span>').text(text);
+      const text = stanza.querySelector('message > body');
+      const html = stanza.querySelector('message > html > body') || text;
+      const body = {html: html.childNodes, text: text.textContent};
 
       const delay = stanza.querySelector('delay');
       const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();

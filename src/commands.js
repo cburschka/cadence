@@ -509,7 +509,7 @@ Cadence.addCommand('dmsg', ({jid, msg}) => {
     time: new Date(),
     to: {jid},
     user: {jid: xmpp.jid},
-    body: body.html
+    body
   }));
 })
 .parse(string => {
@@ -666,7 +666,7 @@ Cadence.addCommand('msg',
     user: xmpp.getOccupant(),
     to: recipient,
     time: new Date(),
-    body: body.html
+    body
   }));
 })
 .parse(string => {
