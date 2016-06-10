@@ -359,11 +359,12 @@ const ui = {
     }).change();
 
     // Attempt to maintain the scroll position when changing message heights.
-    const toggler = selector => {
+    const toggler = (show, hide, value) => {
       // Find the first message in full view.
       const scrollTop = this.dom.chatList.prop('scrollTop');
       const index = this.messages.findIndexBinary(m => m.offset >= scrollTop);
-      $(selector).toggle();
+      $(show).toggle(value);
+      $(hide).toggle(!value);
       this.updateHeights();
       if (~index) {
         // ... and scroll to it again (and snap to bottom if appropriate).
@@ -372,10 +373,10 @@ const ui = {
       }
     };
     $('#settings-markup\\.images').change(() =>
-      toggler('img.rescale, span.image-alt')
+      toggler('img.rescale', 'span.image-alt', config.settings.markup.images)
     );
     $('#settings-markup\\.emoticons').change(() =>
-      toggler('img.emoticon, span.emote-alt')
+      toggler('img.emoticon', 'span.emote-alt', config.settings.markup.emoticons)
     );
     $('#settings-markup\\.colors').change(function() {
       if (this.checked) visual.addColor(ui.dom.chatList);
