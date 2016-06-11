@@ -971,5 +971,5 @@ Cadence.addCommand('whois', ({nick}) => {
     status: show + (status ? ` (${status})` : '')
   });
 })
-.parse(string => ({nick: arg.trim()}))
+.parse(string => ({nick: string.trim()}))
 .require(Cadence.requirements.room);
