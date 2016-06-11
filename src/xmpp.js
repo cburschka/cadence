@@ -681,7 +681,7 @@ const xmpp = {
    *                     - {DOM} html (optional)
    *                   - {String} type (optional: normal, chat, error, groupchat, headline)
    */
-  sendMessage({to, body, type}) {
+  sendMessage({to, body, type, meta}) {
     const msg = this.msg({to, type});
     const {text, html} = body;
     msg.c('body', {}, text);
@@ -691,6 +691,14 @@ const xmpp = {
       const array = Array.from(html);
       const nodes = array.length ? array : [html];
       nodes.forEach(node => msg.cnode(node).up());
+      msg.up().up();
+    }
+    if (meta) {
+      msg.c('cadence', {xmlns: `cadence:meta`});
+      Object.forEach(meta, (key, value) => {
+        msg.c(key, {}, value);
+      });
+      msg.up();
     }
     msg.send();
     ui.playSound('send');
@@ -1023,6 +1031,11 @@ const xmpp = {
       let user = this.userFromJid(from);
       const muc = !!user.room || !!user.nick;
 
+      const _meta = stanza.querySelector('message > cadence');
+      const meta = _meta && Object.fromEntries(Array.from(_meta.childNodes).map(
+        e => [e.tagName, e.textContent]
+      ));
+
       const text = stanza.querySelector('message > body');
       const html = stanza.querySelector('message > html > body') || text;
       const body = {html: html.childNodes, text: text.textContent};
@@ -1108,12 +1121,12 @@ const xmpp = {
 
       if (delay) {
         ui.messageDelayed({
-          user, body, type, time,
+          user, body, type, time, meta,
           room: muc && this.room.available[node]
         });
       }
       else {
-        const message = {user, body, type, time};
+        const message = {user, body, type, time, meta};
         ui.messageAppend(visual.formatMessage(message));
         if (resource != this.nick.current) ui.notify(message);
       }

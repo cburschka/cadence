@@ -188,13 +188,14 @@ const Cadence = {
    * @return {object} An object with `html` and `text` keys, containing
    *         the html and markdown versions of the message.
    */
-  formatOutgoing(text) {
-    text = visual.lengthLimit(text, config.ui.maxMessageLength);
-    const html = $('<span>').append(this.bbcode.render(visual.escapeHTML(text)));
-    if (config.settings.textColor) {
-      html.addClass('color').attr('data-color', config.settings.textColor);
-    }
-    return {html, text: this.bbcodeMD.render(text)};
+  sendMessage({to, text, type}) {
+    const color = config.settings.textColor;
+    const html = $('<p>').append(this.bbcode.render(visual.escapeHTML(text)));
+    const body = {html, text: this.bbcodeMD.render(text)};
+    const meta = color && {color};
+    const message = {to, body, type, meta};
+    xmpp.sendMessage(message);
+    return message;
   },
 
   /**

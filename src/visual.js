@@ -54,16 +54,18 @@ const visual = {
    *                  copied or transformed back into markup before insertion.
    */
   formatMessage(message) {
-    const {time, body, type, user, to} = message;
+    const {time, body, type, user, to, meta} = message;
+    const {color} = meta || {};
     const timestamp = time.getTime();
     const text = $('<span class="body-text">').text(body.text);
     const html = $('<span class="body-html">').append(Array.from(body.html));
+    const {markup} = config.settings;
 
     if (type != 'local') {
       this.formatBody(html);
       this.formatBody(text);
     }
-    (config.settings.markup.html ? text : html).hide();
+    (markup.html ? text : html).hide();
 
     const template =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime">{time}</span> '
@@ -73,7 +75,10 @@ const visual = {
                   + '<span class="hidden"></span></span>'
                   + '</div>');
     template.addClass('message-type-' + message.type);
-
+    if (color) {
+      $('span.body', template).addClass('color').attr('data-color', color);
+    }
+    if (markup.colors) this.addColor(template);
     const output = this.formatText(template, {time, user, html, text});
 
     $('span.hide-message, span.hidden', output).click(() => {
@@ -238,7 +243,6 @@ const visual = {
     $(':not(a,img,span,q,code,strong,em,blockquote)', jq).replaceWith(function() {
       return this.childNodes;
     });
-    if (config.settings.markup.colors) this.addColor(jq);
     this.addLinks(jq);
     this.processImages(jq);
     this.addEmoticons(jq);
@@ -277,13 +281,13 @@ const visual = {
    * CSS color property to the attribute value.
    */
   addColor(jq) {
-    jq.find('.color').addBack('.color').css('color', function() {
+    $('span.body.color', jq).css('color', function() {
       return this.getAttribute('data-color');
     });
   },
 
   removeColor(jq) {
-    jq.find('.color[data-color]').css('color', '');
+    $('span.body.color', jq).css('color', '');
   },
 
   /**

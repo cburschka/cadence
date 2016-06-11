@@ -496,26 +496,23 @@ Cadence.addCommand('destroy', ({room, alternate, reason}) => {
  * dmsg <jid>
  *   Send a direct message to a user outside the chatroom.
  */
-Cadence.addCommand('dmsg', ({jid, msg}) => {
-  if (!jid || !msg) throw new Cadence.Error(strings.error.noArgument);
+Cadence.addCommand('dmsg', ({jid, text}) => {
+  if (!jid || !text) throw new Cadence.Error(strings.error.noArgument);
   if (!jid.node) throw new Cadence.Error(strings.error.jidInvalid, {jid});
 
-  const body = Cadence.formatOutgoing(msg);
-  xmpp.sendMessage({body, to: jid});
+  const message = Cadence.sendMessage({to: jid, text});
 
-  ui.messageAppend(visual.formatMessage({
-    type: 'chat',
+  ui.messageAppend(visual.formatMessage($.extend(message, {
     time: new Date(),
     to: {jid},
     user: {jid: xmpp.jid},
-    body
-  }));
+  })));
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
   if (arg[0].length) {
     arg.jid = arg[0][0];
-    arg.msg = string.substring(arg[1][0][0]).trim();
+    arg.text = string.substring(arg[1][0][0]).trim();
   }
   arg.jid = xmpp.JID.parse(arg.jid);
   return arg;
@@ -651,28 +648,29 @@ Cadence.addCommand('me', ({text}) => {
  *   Send a private message to another occupant.
  */
 Cadence.addCommand('msg',
-({nick, msg}) => {
-  if (!nick || !msg.trim()) throw new Cadence.Error(strings.error.noArgument);
+({nick, text}) => {
+  if (!nick || !text.trim()) throw new Cadence.Error(strings.error.noArgument);
   const recipient = xmpp.getOccupant(nick);
   if (!recipient) {
     throw new Cadence.Error(strings.error.notFound.nick, {nick});
   }
 
-  const body = Cadence.formatOutgoing(msg);
-  xmpp.sendMessage({body, to: xmpp.jidFromRoomNick({nick})});
-  ui.messageAppend(visual.formatMessage({
-    type: 'chat',
+  const message = Cadence.sendMessage({
+    to: xmpp.jidFromRoomNick({nick}),
+    text,
+  });
+
+  ui.messageAppend(visual.formatMessage($.extend(message, {
     user: xmpp.getOccupant(),
     to: recipient,
     time: new Date(),
-    body
-  }));
+  })));
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
   if (arg[0].length) {
     arg.nick = arg[0][0];
-    arg.msg = string.substring(arg[1][0][0]).trim();
+    arg.text = string.substring(arg[1][0][0]).trim();
   }
   return arg;
 })
@@ -886,8 +884,11 @@ Cadence.addCommand('save', ({type}) => {
  *   The default command that simply sends a message verbatim.
  */
 Cadence.addCommand('say', ({text}) => {
-  const body = Cadence.formatOutgoing(text);
-  xmpp.sendMessage({body, to: xmpp.jidFromRoomNick(), type: 'groupchat'});
+  Cadence.sendMessage({
+    text,
+    to: xmpp.jidFromRoomNick(),
+    type: 'groupchat',
+  });
 })
 .parse(string => ({text: string}))
 .require(Cadence.requirements.room);
