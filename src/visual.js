@@ -419,22 +419,15 @@ const visual = {
   /**
    * Convert a hex color into an RGBa color with an alpha channel.
    *
-   * @param {string} hex The hex code of the color, short or long, prefixed with #.
+   * @param {string} hex The hex code of the color, prefixed with #.
    * @param {float} alpha The alpha value to set, a number between 0 and 1.
    *
    * @return {string} an rgba() value.
    */
   hex2rgba(hex, alpha) {
-    const six = hex.match(/#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i);
-    const three = hex.match(/#?([\da-f])([\da-f])([\da-f])/i);
-
-    // A three-digit hex-code is expanded, effectively multiplying by 17.
-    const digits = (six || three || []).slice(1).map((e) => {
-      const x = parseInt(e, 16);
-      return six ? x : x * 17;
-    });
-
-    return 'rgba(' + digits.join(',') + ',' + alpha + ')';
+    const [,...rgb] = hex.match(/#([\da-f]{2})([\da-f]{2})([\da-f]{2})/);
+    const [R,G,B] = rgb.map(e => parseInt(e, 16));
+    return `rgba(${R},${G},${B},${alpha})`;
   },
 
   /**
