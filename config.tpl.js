@@ -102,7 +102,7 @@ const config = {
       s: '~~{content}~~',
       code: '```{content}```',
       url: '[{content}]({option})',
-      img: '![Image({content})]({content})',
+      img: '![Image]({content})',
     },
 
     // Colors shown in palette selector.
