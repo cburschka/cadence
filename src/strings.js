@@ -117,7 +117,6 @@ const strings = {
     leave: 'Leaving {room} ...',
     leavePage: 'Leaving this page will delete the chat history.',
     macros: 'Macros:\n{code:macros}',
-    motd: 'Announcement from {domain}: {text}',
     nickPrejoin: 'Your preferred nickname is now {nick}',
     nickRegistered: 'Switching to registered nick {nick}.',
     noUsers: 'No users are online in {room}.',

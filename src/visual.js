@@ -58,14 +58,15 @@ const visual = {
     const {color} = meta || {};
     const timestamp = time.getTime();
     const text = $('<span class="body-text">').text(body.text);
-    const html = $('<span class="body-html">').append(Array.from(body.html));
+    const html = $('<span class="body-html">').append(body.html);
     const {markup} = config.settings;
 
     if (type != 'local') {
       this.formatBody(html);
       this.formatBody(text);
     }
-    (markup.html ? text : html).hide();
+    else html.removeClass('body-html');
+    ((markup.html || type == 'local') ? text : html).hide();
 
     const template =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime">{time}</span> '
@@ -99,7 +100,7 @@ const visual = {
       else $('span.author', output).append(':');
     }
 
-    if (type != 'groupchat' && type != 'local') {
+    if (['normal', 'chat'].includes(message.type)) {
       $('span.' + (me ? 'body' : 'author'), output).after([' ',
         $('<span class="privmsg">').append(this.formatText(
           strings.info[to ? 'whisperTo' : 'whisper'],

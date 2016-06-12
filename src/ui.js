@@ -1221,21 +1221,22 @@ const ui = {
     if (level > config.settings.notifications.desktop) return;
 
     const {title, body} = (() => {
-      const {type, user, body} = message;
-      const text = $(body).text();
+      const {body, type, user} = message;
+      const {text} = body;
+      const {room} = user || {};
+      const _room = (!user || room) && xmpp.getRoom(room);
       const sender = user && visual.format.user(user).text();
-      const title = type == 'direct' ? sender : xmpp.getRoom().title;
+      const title = _room && _room.title || sender || '';
 
-      switch (type) {
-        case 'direct':    return {title, body: text};
-        case 'local':     return {title, body: text};
-        case 'groupchat': return {title, body: `${sender}: ${text}`}
-        default:
-          return {title, body: `${sender}: ${strings.info.whisper} ${text}`}
-      }
+      // Local and direct messages.
+      if (!user || !room) return {title, body: text};
+      // Messages inside room:
+      if (type == 'groupchat') return {title, body: `${sender}: ${text}`};
+      // Whispers inside room:
+      return {title, body: `${sender}: ${strings.info.whisper} ${text}`};
     })();
 
-    return new Notification(title, {body, tag: xmpp.room.current});
+    return new Notification(title, {body, tag: title});
   },
 
   /**

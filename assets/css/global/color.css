@@ -1,6 +1,6 @@
 .author .user-affiliation-owner,
 #roster .user-affiliation-owner,
-.body.error { color: red }
+.body.error, .message-type-headline .body { color: red }
 .author .user-affiliation-admin,
 #roster .user-affiliation-admin { color: #0a0 }
 .author .user-role-visitor,

@@ -962,7 +962,7 @@ const xmpp = {
 
     // Create the user object.
     const user = {
-      nick, show, status,
+      nick, show, status, room,
       jid: this.JID.parse(item.getAttribute('jid')), // if not anonymous.
       role: item.getAttribute('role'),
       affiliation: item.getAttribute('affiliation'),
@@ -1023,7 +1023,7 @@ const xmpp = {
       const from = this.JID.parse(stanza.getAttribute('from'));
       const {domain, node, resource} = from;
 
-      let type = stanza.getAttribute('type');
+      const type = stanza.getAttribute('type') || 'normal';
 
       if (type == 'error')
         return this.eventMessageError(stanza, from) || true;
@@ -1038,16 +1038,10 @@ const xmpp = {
 
       const text = stanza.querySelector('message > body');
       const html = stanza.querySelector('message > html > body') || text;
-      const body = {html: html.childNodes, text: text.textContent};
+      const body = {html: Array.from(html.childNodes), text: text.textContent};
 
       const delay = stanza.querySelector('delay');
       const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();
-
-      // Message of the Day.
-      if (!node && !resource) {
-        ui.messageError(strings.info.motd, {domain: from.domain, text: html || text});
-        return true;
-      }
 
       if (muc) {
         const codes = Array.from(stanza.querySelectorAll('x status')).map(
@@ -1100,9 +1094,6 @@ const xmpp = {
 
         this.historyEnd[node] = time;
       }
-
-      // Accept direct messages from other domains.
-      else type = 'direct';
 
       // Accept direct invitations:
       const invite = stanza.querySelector(`x[xmlns="${Strophe.NS.CONFERENCE}"]`);
