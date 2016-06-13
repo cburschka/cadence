@@ -55,18 +55,20 @@ const visual = {
    */
   formatMessage(message) {
     const {time, body, type, user, to, meta} = message;
+    const local = type == 'local';
     const {color} = meta || {};
     const timestamp = time.getTime();
-    const text = $('<span class="body-text">').text(body.text);
+    const me = !local && this.findMe(body.html[0]);
     const html = $('<span class="body-html">').append(body.html);
+    const text = !local ? $('<span class="body-text">').text(body.text) : '';
     const {markup} = config.settings;
 
-    if (type != 'local') {
+    if (!local) {
       this.formatBody(html);
       this.formatBody(text);
+      (markup.html ? text : html).hide();
     }
     else html.removeClass('body-html');
-    ((markup.html || type == 'local') ? text : html).hide();
 
     const template =  $('<div class="row message"><span class="hide-message"></span>'
                   + '<span class="dateTime">{time}</span> '
@@ -87,13 +89,11 @@ const visual = {
       ui.updateHeights();
     });
 
-    const me = type != 'local' && this.findMe(html);
     if (user) {
       if (user.jid) output.addClass(this.jidClass(user.jid));
-
       if (me) {
         me.nodeValue = me.nodeValue.substring(4);
-        text.nodeValue = text.nodeValue.substring(4);
+        text.text(body.text.substring(4));
         $('span.authorMessageContainer', output).prepend('* ')
         .wrap('<span class="action"></span>');
       }
