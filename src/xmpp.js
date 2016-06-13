@@ -1040,6 +1040,9 @@ const xmpp = {
       const html = stanza.querySelector('message > html > body') || text;
       const body = {html: Array.from(html.childNodes), text: text.textContent};
 
+      const _subject = stanza.querySelector('message > subject');
+      const subject = _subject ? _subject.textContent : '';
+
       const delay = stanza.querySelector('delay');
       const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();
 
@@ -1112,12 +1115,12 @@ const xmpp = {
 
       if (delay) {
         ui.messageDelayed({
-          user, body, type, time, meta,
+          user, body, type, time, meta, subject,
           room: muc && this.room.available[node]
         });
       }
       else {
-        const message = {user, body, type, time, meta};
+        const message = {user, body, type, time, meta, subject};
         ui.messageAppend(visual.formatMessage(message));
         if (resource != this.nick.current) ui.notify(message);
       }

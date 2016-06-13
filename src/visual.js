@@ -54,13 +54,13 @@ const visual = {
    *                  copied or transformed back into markup before insertion.
    */
   formatMessage(message) {
-    const {time, body, type, user, to, meta} = message;
+    const {body, meta, time, to, type, user} = message;
     const local = type == 'local';
     const {color} = meta || {};
-    const timestamp = time.getTime();
     const me = !local && this.findMe(body.html[0]);
     const html = $('<span class="body-html">').append(body.html);
     const text = !local ? $('<span class="body-text">').text(body.text) : '';
+    const subject = message.subject && $('<span class="subject">').text(message.subject + ': ');
     const {markup} = config.settings;
 
     if (!local) {
@@ -74,7 +74,7 @@ const visual = {
                   + '<span class="dateTime">{time}</span> '
                   + '<span class="authorMessageContainer">'
                   + (user ? '<span class="author">{user}</span> ' : '')
-                  + '<span class="body">{text}{html}</span>'
+                  + '<span class="body">{subject}{text}{html}</span>'
                   + '<span class="hidden"></span></span>'
                   + '</div>');
     template.addClass('message-type-' + message.type);
@@ -82,7 +82,7 @@ const visual = {
       $('span.body', template).addClass('color').attr('data-color', color);
     }
     if (markup.colors) this.addColor(template);
-    const output = this.formatText(template, {time, user, html, text});
+    const output = this.formatText(template, {subject, time, user, html, text});
 
     $('span.hide-message, span.hidden', output).click(() => {
       $('span.body, span.hidden', output).toggle('slow');
@@ -115,7 +115,7 @@ const visual = {
     // Make links open in new tabs.
     this.linkOnClick(output);
 
-    return {timestamp, html: output, message};
+    return {message, timestamp: time.getTime(), html: output};
   },
 
   format: {

@@ -8,6 +8,7 @@ a:hover { text-decoration:underline }
 .author { font-weight:bold }
 #roster .user-self { font-weight:bold }
 .xmpp-room-current { font-weight:bold }
+.message .subject { font-weight:bold }
 .action, .message-type-local .body, .privmsg { font-style:italic }
 q { font-variant:small-caps }
 code {

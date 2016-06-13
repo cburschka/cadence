@@ -1223,12 +1223,14 @@ const ui = {
     if (level > config.settings.notifications.desktop) return;
 
     const {title, body} = (() => {
-      const {body, type, user} = message;
+      const {body, type, user, subject} = message;
       const {text} = body;
       const {room} = user || {};
       const _room = (!user || room) && xmpp.getRoom(room);
       const sender = user && visual.format.user(user).text();
-      const title = _room && _room.title || sender || '';
+      const context = _room && _room.title || sender || '';
+      // Messages with a subject always have a sender (and therefore a context).
+      const title = subject ? `${subject} (${context})` : context;
 
       // Local and direct messages.
       if (!user || !room) return {title, body: text};
