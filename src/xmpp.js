@@ -1038,7 +1038,7 @@ const xmpp = {
 
       const text = stanza.querySelector('message > body');
       const html = stanza.querySelector('message > html > body') || text;
-      const body = {html: Array.from(html.childNodes), text: text.textContent};
+      const body = text && {html: Array.from(html.childNodes), text: text.textContent};
 
       const _subject = stanza.querySelector('message > subject');
       const subject = _subject ? _subject.textContent : '';
