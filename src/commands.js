@@ -9,7 +9,7 @@
  */
 Cadence.addCommand('admin', arg => {
   const to = config.xmpp.domain;
-  const {command, node, full, quiet} = arg;
+  const {command, node, full, quiet, help} = arg;
   const adminPrefix = 'http://jabber.org/protocol/admin#'
 
   if (!node) {
@@ -31,7 +31,39 @@ Cadence.addCommand('admin', arg => {
     if (_command.getAttribute('status') == 'completed') return;
     sessionid = _command.getAttribute('sessionid');
     return new Promise((resolve, reject) => {
+      if (help) {
+        const args = Array.from(_command.querySelectorAll('x > field'))
+          .map(f => ({
+            type: f.getAttribute('type'),
+            name: f.getAttribute('var'),
+            label: f.getAttribute('label'),
+            value: (f.querySelector('value') || {}).textContent,
+            options: Object.fromEntries(Array.from(f.querySelectorAll('option')).map(o => [
+              (o.querySelector('value') || {}).textContent,
+              o.getAttribute('label')
+            ])),
+            required: !!f.querySelector('required'),
+          }))
+          .filter(({type}) => !['hidden', 'fixed'].includes(type))
+          .map(({type, name, label, value, options, required}) => {
+            const option = Object.keys(options).join('|');
+            const _default = value && `[${value}]` || '';
+            const multi = ['list-multi', 'jid-multi'].includes(type);
+            const _required = required && !_default ? strings.label.tip.required : '';
+            const _multi = multi ? strings.label.tip.multiline : '';
+            const extra = `${_required} ${_multi}`.trim();
+            return [
+              $('<code>').text(`--${name} ${option} ${_default}`),
+              label + (extra && ` (${extra})`)
+            ];
+          });
+        return reject(ui.messageInfo(strings.info.admin.args, {command, args}));
+      }
       const form = ui.dataForm(stanza, resolve);
+      Object.forEach(arg, (key, value) => {
+        const field = form.fields[key];
+        if (field) field.val(value);
+      });
       if (quiet) form.submit();
       else {
         const cancel = () => reject(new Cadence.Error(strings.error.admin.cancel, {command}));
@@ -54,7 +86,8 @@ Cadence.addCommand('admin', arg => {
 
   return xmpp.command(to, node).then(process).then(submit).then(result)
   .catch(error => {
-    switch (error && error.condition) {
+    if (!error) return;
+    switch (error.condition) {
       case 'forbidden':
         throw new Cadence.Error(strings.error.admin.forbidden, {command: command || node});
       case 'service-unavailable':

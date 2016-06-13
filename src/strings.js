@@ -35,7 +35,8 @@ const strings = {
 
   info: {
     admin: {
-      commands: 'Available commands: {dl:commands}',
+      commands: 'Available commands: {dl:commands}Use /admin <command> --help for more information.',
+      args: 'Arguments for {command}: {dl:args}Add --quiet to run the command right away.',
       result: 'Completed command "{command}":\n{result}',
       completed: 'Completed command "{command}".'
     },
@@ -261,6 +262,7 @@ const strings = {
     },
     tip: {
       multiline: 'Enter one item per line.',
+      required: 'This field is required.',
     },
     button: {
       advanced: 'Advanced',

@@ -766,12 +766,14 @@ const ui = {
 
     const x = $('x', stanza);
     const form = $('<form class="data-form">');
+    form.fields = {};
 
     form.attr('title', $('title', x).text());
 
     x.children('field').each(function() {
       const type = $(this).attr('type');
       const field = fields[type]($(this));
+      form.fields[$(this).attr('var')] = field;
       field.addClass('data-form-field');
       field.attr('data-type', type);
       field.uniqueId();
