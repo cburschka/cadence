@@ -156,13 +156,14 @@ const Cadence = {
       else text = text.substring(1);
     }
 
-    if (command in config.settings.macros) {
-      return this.executeMacro(config.settings.macros[command], text);
-    }
+    const macro = config.settings.macros[command];
 
     // Catch both synchronous and asynchronous errors.
     return Promise.resolve()
-    .then(() => this.getCommand(command).isAvailable().invoke(text))
+    .then(() => macro ?
+      this.executeMacro(macro, text) :
+      this.getCommand(command).isAvailable().invoke(text)
+    )
     .catch(error => this.handleError(error, command));
   },
 
