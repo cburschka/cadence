@@ -135,8 +135,8 @@ const Cadence = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput(text, macro) {
-    if (!macro) {
+  executeInput(text, inMacro) {
+    if (!inMacro) {
       this.history.push(text);
       this.historyIndex = this.history.length;
     }
@@ -175,10 +175,17 @@ const Cadence = {
    * @return {Promise} A promise that resolves when all tasks are complete.
    */
   executeMacro(macro, text) {
-    text = text.trim();
-    return Promise.all(macro.map(
-      statement => this.executeInput(statement.replace(/\$/g, text), true)
-    ));
+    const re = /\s+((?:[^\\\s]|\\.)*)/g;
+    let index = 0;
+    const _macro = macro.map(statement => statement.replace(/\$/g, () => {
+      const match = re.exec(text);
+      if (!match) return '';
+      index = match.index + match[0].length;
+      return match[1];
+    }));
+    _macro[_macro.length-1] += text.substring(index);
+
+    return Promise.all(_macro.map(s => this.executeInput(s, true)));
   },
 
   /**

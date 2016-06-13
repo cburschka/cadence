@@ -246,8 +246,7 @@ Cadence.addCommand('alias', ({command, macro}) => {
   const data = string.substring(prefix.length);
   if (!data) return {command};
 
-  const macro = data.split(';').map(st => st.trim());
-  if (macro.length == 1 && !macro[0].match(/\$/)) macro[0] += ' $';
+  const macro = data.split(';').map(st => st.trim()).filter(x => x);
   return {command, macro};
 });
 
