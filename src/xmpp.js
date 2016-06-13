@@ -1197,7 +1197,9 @@ const xmpp = {
   },
 
   attention(jid) {
-    return this.connection.attention.attention(jid).send(msg);
+    const msg = this.msg({to: jid, type: 'headline'});
+    this.connection.attention.attention(msg);
+    return msg.send();
   },
 
   /**
