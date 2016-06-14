@@ -110,7 +110,7 @@ Cadence.addCommand('admin', arg => {
  * affiliate owner|admin|member|none [<nick>|<jid>]
  *   Set the affiliation of a particular user, or list all users with an affiliation.
  */
-Cadence.addCommand('affiliate', ({type, nick, jid}) => {
+Cadence.addCommand('affiliate', ({type, nick, jid, reason}) => {
   // Get a roster array.
   const roster = xmpp.getRoster();
   const rosterArray = $.map(roster, x => x);
@@ -156,7 +156,7 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
   if (!target) throw new Cadence.Error(strings.error.unknownJid, {user});
 
   // Attempt to set user's affiliation.
-  return xmpp.setUser({jid: target, affiliation: type}).then(() => {
+  return xmpp.setUser({jid: target, affiliation: type}, reason).then(() => {
     const room = xmpp.getRoom();
     ui.messageInfo(strings.info.affiliate, {user, room, type});
   })
@@ -172,17 +172,19 @@ Cadence.addCommand('affiliate', ({type, nick, jid}) => {
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
-  arg[0] = arg[0] || [];
 
-  if (!arg.type) arg.type = arg[0][0];
+  // If any named arguments are given, only use named arguments.
+  if (arg.type) {
+    const {nick, jid, reason, type} = arg;
+    const _jid = xmpp.JID.parse(jid);
+    return {type, nick, reason, jid: _jid};
+  }
 
-  // Allow a valid JID as positional argument.
-  const jid = xmpp.JID.parse(arg.jid || arg[0][1]);
-  arg.jid = arg.jid || jid.node && jid;
+  const [type, target] = arg[0];
+  const reason = string.substring(arg[1][0][1]).trim();
+  const jid = xmpp.JID.parse(target) || {};
 
-  // Without a JID, use nick as positional argument.
-  arg.nick = !arg.jid && (arg.nick || arg[0][1]);
-  return arg;
+  return {reason, type, jid: jid.node && jid, nick: !jid.node && target};
 })
 .require(Cadence.requirements.room);
 
@@ -268,21 +270,20 @@ Cadence.addCommand('alias', ({command, macro}) => {
  * ban <nick>|<jid>
  *   Shortcut for "/affiliate outcast <nick|jid>".
  */
-Cadence.addCommand('ban', ({nick, jid}) => {
+Cadence.addCommand('ban', ({nick, jid, reason}) => {
   if (!nick && !jid) throw new Cadence.Error(strings.error.noArgument);
-  return Cadence.execute('affiliate', {type: 'outcast', nick, jid});
+  return Cadence.execute('affiliate', {type: 'outcast', nick, jid, reason});
 })
 .parse(string => {
   const arg = Cadence.parseArgs(string);
-  const target = (arg[0] && arg[0].length) == 1 ? arg[0][0] : string.trim();
+  const [target] = arg[0];
 
-  // Allow a valid JID as positional argument.
-  const jid = xmpp.JID.parse(arg.jid || target);
-  arg.jid = arg.jid || jid.node && jid;
+  const _jid = xmpp.JID.parse(arg.jid || target);
+  const jid = _jid.node && _jid;
+  const nick = arg.nick || !arg.jid && !_jid.node && target;
+  const reason = arg.reason || string.substring(arg[1][0][0]).trim();
 
-  // Without a JID, use nick as positional argument.
-  arg.nick = !arg.jid && (arg.nick || target);
-  return arg;
+  return {jid, nick, reason};
 })
 .require(Cadence.requirements.room);
 
@@ -625,9 +626,9 @@ Cadence.addCommand('join', ({room, password}) => {
  *   The client will not validate the command or its authority; that's the
  *   server's job.
  */
-Cadence.addCommand('kick', ({nick}) => {
+Cadence.addCommand('kick', ({nick, reason}) => {
   if (!nick) throw new Cadence.Error(strings.error.noArgument);
-  return xmpp.setUser({nick, role: 'none'})
+  return xmpp.setUser({nick, role: 'none'}, reason)
   .catch(error => {
     switch (error.condition) {
       case 'not-acceptable':
@@ -638,7 +639,12 @@ Cadence.addCommand('kick', ({nick}) => {
     throw error;
   });
 })
-.parse(string => ({nick: string.trim()}))
+.parse(string => {
+  const arg = Cadence.parseArgs(string);
+  const [nick] = arg[0];
+  const reason = string.substring(arg[1][0][0]).trim();
+  return {nick, reason};
+})
 .require(Cadence.requirements.room);
 
 /**

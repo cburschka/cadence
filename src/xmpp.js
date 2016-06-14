@@ -708,14 +708,16 @@ const xmpp = {
    * Set a user's role (by roomnick) or affiliation (by jid).
    *
    * @param {Object} item Either nick/role or jid/affiliation.
+   * @param {String} reason (optional)
    *
    * @return {Promise} A promise that resolves to the server response.
    */
-  setUser(item) {
-    return this.iq({type: 'set', to: this.jidFromRoomNick()})
-      .c('query', {xmlns: Strophe.NS.MUC + '#admin'})
-      .c('item', item)
-      .send();
+  setUser(item, reason) {
+    const iq = this.iq({type: 'set', to: this.jidFromRoomNick()});
+    iq.c('query', {xmlns: Strophe.NS.MUC + '#admin'})
+    iq.c('item', item)
+    if (reason) iq.c('reason', {}, reason);
+    return iq.send();
   },
 
   setRoom(room) {
