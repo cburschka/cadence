@@ -382,7 +382,7 @@ Cadence.addCommand('connect', function({user, pass, anonymous, automatic}) {
 
     // Or attempt session authentication:
     const url = config.xmpp.sessionAuthURL;
-    if (url && config.settings.sessionAuth) return Cadence.sessionAuth(url).then(auth => {
+    if (url && config.settings.xmpp.sessionAuth) return Cadence.sessionAuth(url).then(auth => {
       ui.messageInfo(strings.info.sessionAuth, {username: auth.user});
       return auth;
     });
