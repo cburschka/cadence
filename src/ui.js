@@ -730,24 +730,27 @@ const ui = {
       title: strings.label.tip.multiline
     });
 
-    fields['list-single'] = field => {
-      const select = $('<select>').attr('name', field.attr('var'));
-      const defaultValue = field.children('value').text();
+    fields['list-multi'] = fields['list-single'] = field => {
+      const select = $('<select>').attr({
+        multiple: field.attr('type') == 'list-multi',
+        name: field.attr('var')
+      });
+      const defaultValues = field.children('value').map(function() {
+        return this.textContent;
+      }).toArray();
 
       $('option', field).each(function() {
         const value = $('value', this).text();
         const option = $('<option>').attr({
           value,
-          selected: value == defaultValue
+          selected: defaultValues.includes(value),
         });
         option.text($(this).attr('label'));
         select.append(option);
       });
       return select;
     };
-    fields['list-multi'] = field => fields['list-single'](field).attr({
-      multiple: true
-    });
+
     fields['fixed'] = field => $('<p>').text($('value', field).text());
 
     // These are all the value callbacks, by type.
