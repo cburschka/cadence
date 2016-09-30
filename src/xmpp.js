@@ -1142,7 +1142,7 @@ const xmpp = {
       case 'remote-server-not-found':
         return ui.messageError(strings.error.notFound.domain, from);
       case 'service-unavailable':
-        return ui.messageError(strings.error.direct.node, from);
+        return ui.messageError(strings.error.notFound.node, from);
       case 'item-not-found':
         return ui.messageError(strings.error.notFound.nick, {nick: from.resource});
       case 'forbidden':
