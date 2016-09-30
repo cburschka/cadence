@@ -809,71 +809,70 @@ const xmpp = {
    * Any other presence that alters the user roster or client state.
    */
   eventPresenceCallback(stanza) {
-    if (!stanza) return true;
-    const from = this.JID.parse(stanza.getAttribute('from'));
-    // Discard any <presence/> that is not from the MUC domain.
-    // (This client does not support direct non-MUC communication.)
-    if (from.domain != config.xmpp.mucService) return true;
+    try {
+      const from = this.JID.parse(stanza.getAttribute('from'));
+      // Discard any <presence/> that is not from the MUC domain.
+      // (This client does not support direct non-MUC communication.)
+      if (from.domain != config.xmpp.mucService) return true;
 
-    // Find the room and nickname that the presence came from, and the type.
-    const room = from.node;
-    const nick = from.resource;
-    const type = stanza.getAttribute('type');
+      // Find the room and nickname that the presence came from, and the type.
+      const room = from.node;
+      const nick = from.resource;
+      const type = stanza.getAttribute('type');
 
-    // Initialize the room roster if it doesn't exist yet.
-    if (!this.roster[room]) this.roster[room] = {};
+      // Initialize the room roster if it doesn't exist yet.
+      if (!this.roster[room]) this.roster[room] = {};
 
-
-    if (type == 'error') {
-      // We're not throwing this one, the error handling happens in here.
-      const error = new this.StanzaError(stanza);
-      switch (error.condition) {
-        case 'conflict':
-          if (room == this.room.current) {
-            ui.messageError(strings.error.nickConflict, {nick});
-            this.nick.target = this.nick.current;
-          }
-          else {
-            ui.messageError(strings.error.joinConflict, {nick});
-            if (this.nickConflictResolve()) {
-              ui.messageInfo(strings.info.rejoinNick, {nick: this.nick.target});
-              this.joinRoom(this.room.target, this.nick.target);
-            }
-          }
-          break;
-        case 'not-authorized':
-          const password = prompt(strings.info.promptRoomPassword);
-          if (password) {
-            this.joinExistingRoom(room, password);
-          }
-          else {
-            ui.messageError(strings.error.joinPassword, {room: this.room.available[room]});
-          }
-          break;
-        case 'forbidden':
-          ui.messageError(strings.error.joinBanned, {room: this.room.available[room]});
-          break;
-        case 'not-allowed':
-          ui.messageError(strings.error.noCreate);
-          break;
-        case 'jid-malformed':
-          this.nick.target = this.nick.current;
-          ui.messageError(strings.error.badNick, {nick});
+      if (type == 'error') {
+        this.eventPresenceError(room, nick, stanza);
+        return true;
       }
-      return true;
+
+      // Find the status codes.
+      const item = stanza.querySelector('item');
+      const codes = Array.from(stanza.querySelectorAll('status')).map(
+        e => parseInt(e.getAttribute('code'))
+      );
+
+      if (type == 'unavailable')
+        this.eventPresenceUnavailable(room, nick, codes, item, stanza);
+      else
+        this.eventPresenceDefault(room, nick, codes, item, stanza);
     }
-
-    // Find the status codes.
-    const item = stanza.querySelector('item');
-    const codes = Array.from(stanza.querySelectorAll('status')).map(
-      e => parseInt(e.getAttribute('code'))
-    );
-
-    if (type == 'unavailable')
-      this.eventPresenceUnavailable(room, nick, codes, item, stanza);
-    else
-      this.eventPresenceDefault(room, nick, codes, item, stanza);
+    catch (e) {
+      Cadence.handleError(e);
+    }
     return true;
+  },
+
+  eventPresenceError(room, nick, stanza) {
+    // We're not throwing this one, the error handling happens in here.
+    const error = new this.StanzaError(stanza);
+    switch (error.condition) {
+      case 'conflict':
+        if (room == this.room.current) {
+          this.nick.target = this.nick.current;
+          throw new Cadence.Error(strings.error.nickConflict, {nick});
+        }
+        if (this.nickConflictResolve()) {
+          ui.messageInfo(strings.info.rejoinNick, {nick: this.nick.target});
+          this.joinRoom(this.room.target, this.nick.target);
+        }
+        else throw new Cadence.Error(strings.error.joinConflict, {nick});
+        break;
+      case 'not-authorized':
+        const password = prompt(strings.info.promptRoomPassword);
+        if (password) this.joinExistingRoom(room, password);
+        else throw new Cadence.Error(strings.error.joinPassword, {room: this.room.available[room]});
+        break;
+      case 'forbidden':
+        throw new Cadence.Error(strings.error.joinBanned, {room: this.room.available[room]});
+      case 'not-allowed':
+        throw new Cadence.Error(strings.error.noCreate);
+      case 'jid-malformed':
+        this.nick.target = this.nick.current;
+        throw new Cadence.Error(strings.error.badNick, {nick});
+    }
   },
 
   /**
@@ -1021,7 +1020,7 @@ const xmpp = {
    * This function handles any <message> stanzas received.
    */
   eventMessageCallback(stanza) {
-    if (stanza) {
+    try {
       const from = this.JID.parse(stanza.getAttribute('from'));
       const {domain, node, resource} = from;
 
@@ -1127,6 +1126,9 @@ const xmpp = {
         if (resource != this.nick.current) ui.notify(message);
       }
     }
+    catch (e) {
+      Cadence.handleError(e);
+    }
     return true;
   },
 
@@ -1140,13 +1142,13 @@ const xmpp = {
     const error = new xmpp.StanzaError(stanza);
     switch (error.condition) {
       case 'remote-server-not-found':
-        return ui.messageError(strings.error.notFound.domain, from);
+        throw new Cadence.Error(strings.error.notFound.domain, from);
       case 'service-unavailable':
-        return ui.messageError(strings.error.notFound.node, from);
+        throw new Cadence.Error(strings.error.notFound.node, from);
       case 'item-not-found':
-        return ui.messageError(strings.error.notFound.nick, {nick: from.resource});
+        throw new Cadence.Error(strings.error.notFound.nick, {nick: from.resource});
       case 'forbidden':
-        return ui.messageError(strings.error.messageDenied, error);
+        throw new Cadence.Error(strings.error.messageDenied, error);
     }
   },
 
