@@ -1214,25 +1214,10 @@ const xmpp = {
   loadSettings() {
     const name = config.clientName;
     const query = this.connection.storage.get(name, `${name}:settings`, config.xmpp.timeout);
-    const decodeValue = node => {
-      const value = node.textContent;
-      switch (node.getAttribute('type')) {
-        case 'object': return decodeObject(node);
-        case 'array': return decodeArray(node);
-        case 'number': return parseFloat(value);
-        case 'boolean': return value === 'true';
-        case 'undefined': return undefined;
-        case 'null': return null;
-        default: return value;
-      }
-    };
-    const decodeArray = ({childNodes}) => Array.from(childNodes).map(decodeValue);
-    const decodeObject = ({childNodes}) => Object.fromEntries(Array.from(childNodes).map(
-      e => [e.getAttribute('name'), decodeValue(e)]
-    ));
-    return query.then(
-      stanza => decodeValue(stanza.querySelector(`query > ${name} > data`))
-    );
+    return query.then(stanza => {
+      const data = stanza.querySelector(`query > ${name} > data`);
+      return this.connection.storage.read(data);
+    });
   },
 
   /**
@@ -1242,32 +1227,11 @@ const xmpp = {
    */
   storeSettings(data, modified) {
     const name = config.clientName;
-    const query = this.connection.storage.set(name, `${name}:settings`);
-    query.attrs({modified});
-    const encodeValue = (val, name) => {
-      query.c('data', {name});
-      if (typeof val !== 'object') {
-        query.attrs({type: typeof val});
-        if (val !== undefined) query.t(String(val));
-      }
-      else if (val instanceof Array) {
-        query.attrs({type: 'array'});
-        encodeArray(val);
-      }
-      // typeof null == 'object'. Blame Javascript.
-      else if (val === null) query.attrs({type: 'null'});
-      else {
-        query.attrs({type: 'object'});
-        encodeObject(val);
-      }
-      query.up();
-    }
-    const encodeArray = arr => arr.forEach(val => encodeValue(val));
-    const encodeObject = obj => Object.forEach(obj, (key, value) => encodeValue(value, key));
-
-    encodeValue(data);
-    return query.send(config.xmpp.timeout).catch(stanza => {
-      throw new this.StanzaError(stanza);
-    });
+    return this.connection.storage.set(name, `${name}:settings`)
+      .attrs({modified})
+      .write(data)
+      .send(config.xmpp.timeout).catch(stanza => {
+        throw new this.StanzaError(stanza);
+      });
   },
 };
