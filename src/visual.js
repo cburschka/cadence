@@ -440,7 +440,7 @@ const visual = {
    * @return {string} Either the string, or its first (len-3) characters and "...".
    */
   lengthLimit(str, len) {
-    return (len && str.length > len) ? str.substring(0, len-3) + '...' : str;
+    return (str && len && str.length > len) ? str.substring(0, len-3) + '...' : str;
   },
 
   /**
