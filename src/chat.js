@@ -352,7 +352,11 @@ const Cadence = {
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const room = ui.getFragment() || config.settings.xmpp.room;
-        return this.execute('join', {room});
+        // Try to join, but ignore failures.
+        return this.execute('join', {room}).catch(e => {
+          this.handleError(e);
+          return this.execute('list');
+        });
       }
       else return this.execute('list');
     })
