@@ -343,7 +343,7 @@ Cadence.addCommand('configure', arg => {
   const error = error => {
     switch (error.condition) {
       case 'item-not-found':
-        throw new Cadence.Error(strings.error.unknownRoom, {name});
+        throw new Cadence.Error(strings.error.notFound.room, {name});
       case 'forbidden':
         throw new Cadence.Error(strings.error.roomConfDenied, {room});
     }
@@ -506,7 +506,7 @@ Cadence.addCommand('destroy', ({room, alternate, reason}) => {
   if (!name) throw new Cadence.Error(strings.error.noArgument);
 
   room = xmpp.getRoom(name);
-  if (!room) throw new Cadence.Error(strings.error.unknownRoom, {name});
+  if (!room) throw new Cadence.Error(strings.error.notFound.room, {name});
 
   const confirm = visual.formatText(strings.info.destroyConfirm, {room});
   if (!window.confirm(confirm.text())) return;
@@ -584,7 +584,7 @@ Cadence.addCommand('join', ({room, password}) => {
   // Refresh room list and try to find the room.
   const checkExists = xmpp.discoverRooms().then(() => {
     room = Cadence.getRoomFromTitle(name);
-    if (!room) throw new Cadence.Error(strings.error.unknownRoom, {name});
+    if (!room) throw new Cadence.Error(strings.error.notFound.room, {name});
     if (room.id == xmpp.room.current) {
       throw new Cadence.Error(strings.error.joinSame, {room});
     }
@@ -972,7 +972,7 @@ Cadence.addCommand('who', ({room}) => {
   const name = room;
   room = name ? Cadence.getRoomFromTitle(room) : xmpp.getRoom();
   if (!room) {
-    if (name) throw new Cadence.Error(strings.error.unknownRoom, {name});
+    if (name) throw new Cadence.Error(strings.error.notFound.room, {name});
     else throw new Cadence.Error(strings.error.noArgument);
   }
 
