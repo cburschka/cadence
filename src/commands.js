@@ -931,6 +931,10 @@ Cadence.addCommand('say', ({text}) => {
 .parse(string => ({text: string}))
 .require(Cadence.requirements.room);
 
+Cadence.addCommand('subject', ({text}) => xmpp.setSubject(text))
+.parse(string => ({text: string.trim()}))
+.require(Cadence.requirements.room);
+
 /**
  * Synchronize settings with the server.
  */

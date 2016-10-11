@@ -17,6 +17,7 @@ const xmpp = {
   show: null,
   roster: {},
   historyEnd: {},
+  subject: {},
   statusConstants: [],
 
   /**
@@ -705,6 +706,20 @@ const xmpp = {
   },
 
   /**
+   * Set the room subject.
+   *
+   * @param {String} text The new room subject.
+   */
+  setSubject(text) {
+    this.msg({
+       to: this.jidFromRoomNick(),
+       type: 'groupchat',
+     })
+     .c('subject', {}, text)
+     .send();
+  },
+
+  /**
    * Set a user's role (by roomnick) or affiliation (by jid).
    *
    * @param {Object} item Either nick/role or jid/affiliation.
@@ -1042,7 +1057,7 @@ const xmpp = {
       const body = text && {html: Array.from(html.childNodes), text: text.textContent};
 
       const _subject = stanza.querySelector('message > subject');
-      const subject = _subject ? _subject.textContent : '';
+      const subject = _subject && _subject.textContent;
 
       const delay = stanza.querySelector('delay');
       const time = delay ? new Date(delay.getAttribute('stamp')) : new Date();
@@ -1094,6 +1109,16 @@ const xmpp = {
             user = $.extend({}, this.userFromJid(jid, node), user, {jid});
           }
           else user = {nick: resource, room: node};
+        }
+        // A body-less subject message indicates a room subject change.
+        else if (subject !== null && text === null) {
+          if (subject) {
+            // The first live <subject/> is always sent at the start.
+            if (node in this.subject) ui.messageInfo(strings.info.subject.change, {subject, user});
+            else ui.messageInfo(strings.info.subject.initial, {subject, user});
+          }
+          else if (this.subject[node]) ui.messageInfo(strings.info.subject.remove, {user});
+          this.subject[node] = subject;
         }
 
         this.historyEnd[node] = time;

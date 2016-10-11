@@ -134,6 +134,11 @@ const strings = {
     roomCreated: 'The room {room} has been newly created.',
     roomsAvailable: 'Available rooms: {list:rooms}',
     sessionAuth: 'Automatically logging in as {username}',
+    subject: {
+      change: '{user} has changed the room subject to: {subject}',
+      initial: 'The room subject is: {subject} (set by {user})',
+      remove: '{user} has removed the room subject.'
+    },
     suggestions: 'Suggestions: {list}',
     sync: {
       equal: 'The settings are already synchronized.',
