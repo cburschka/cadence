@@ -470,7 +470,7 @@ const xmpp = {
         e => e.getAttribute('var')
       );
       const data = Object.fromEntries(Array.from(query.querySelectorAll('x > field')).map(
-        e => [e.getttribute('var'), e.querySelector('value').textContent]
+        e => [e.getAttribute('var'), e.querySelector('value').textContent]
       ));
       return this.room.available[room] = {
         id: room,
