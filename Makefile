@@ -6,6 +6,10 @@ ifndef BABEL
   BABEL=babel
 endif
 
+ifndef JSYAML
+  JSYAML=js-yaml
+endif
+
 SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
@@ -20,13 +24,14 @@ LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
 
 JS_FILES = ${CORE_FILES} ${LIB_FILES}
 
-all: submodules emoticons init index.html ${JS_FILES}
+all: submodules emoticons init locales index.html ${JS_FILES}
 
 install: all
 	./install.py
 
 init:
 	mkdir -p lib/modules/strophe
+	mkdir -p assets/locales/
 
 emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"
@@ -37,6 +42,14 @@ index.html: index.tpl.html install.yml
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
 	$(BABEL) $^ >$@
+
+LOCALE_SRC = $(wildcard locales/*.yml)
+LOCALES = $(LOCALE_SRC:locales/%.yml=assets/locales/%.json)
+
+assets/locales/%.json: locales/%.yml
+	$(JSYAML) $^ >$@
+
+locales: ${LOCALES}
 
 lib/modules/buzz.js: modules/buzz/src/buzz.js
 	$(CP) $^ $@

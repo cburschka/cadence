@@ -1,10 +1,15 @@
-var config, emoticons;
+var config, emoticons, strings;
 
 (() => {
   Strophe.addNamespace('CONFERENCE', 'jabber:x:conference');
 
   $(document).ready(() => {
     try {
+      const variables = loadJSON();
+      config = variables.config;
+      emoticons = variables.emoticons;
+      strings = variables.strings;
+
       initSettings();
       loadEmoticons();
 
@@ -32,7 +37,6 @@ var config, emoticons;
   });
 
   const initSettings = () => {
-    config = JSON.parse($('#config').text());
     config.settings.version = config.version;
 
     if (localStorage && localStorage.settings) {
@@ -44,7 +48,6 @@ var config, emoticons;
   }
 
   const loadEmoticons = () => {
-    emoticons = JSON.parse($('#emoticons').text());
     for (let pack in emoticons.packages) {
       config.markup.emoticons[pack] = emoticons.packages[pack];
     }
@@ -53,5 +56,12 @@ var config, emoticons;
       config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
   };
+
+  const loadJSON = () => Object.fromEntries(
+    $('script.json-data').get().map(e => [
+      e.getAttribute('data-var'),
+      JSON.parse(e.innerText)
+    ])
+  );
 
 })();

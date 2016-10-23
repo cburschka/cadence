@@ -4,6 +4,7 @@ index.html
 lib/
 node_modules/
 assets/emoticons/
+assets/locales/
 emoticons.js
 config.js
 

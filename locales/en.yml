@@ -1,0 +1,474 @@
+language: English
+
+show:
+  available:
+    - '{user} has returned.'
+    - '{user} has returned ({status}).'
+  away:
+    - '{user} is away.'
+    - '{user} is away ({status}).'
+  xa:
+    - '{user} is extendedly away.'
+    - '{user} is extendedly away ({status}).'
+  dnd:
+    - '{user} is busy.'
+    - '{user} is busy ({status}).'
+
+showOther:
+  - '{user} changed mode to "{show}".'
+  - '{user} changed mode to "{show}" ({status}).'
+
+code:
+  104: 'The configuration of {room} has been altered.'
+  210: Your nick has been modified by the server.
+
+info:
+  admin:
+    commands: 'Available commands: {dl:commands}Use /admin <command> --help for more information.'
+    args: 'Arguments for {command}: {dl:args}Add --quiet to run the command right away.'
+    result: |
+      Completed command "{command}":
+      {result}
+    completed: 'Completed command "{command}".'
+
+  affiliate: 'Affiliation of {user} in {room} set to {type}.'
+  affiliations:
+    outcast: 'Banned users in this room: {list:users}'
+    member: 'Members of this room: {list:users}'
+    admin: 'Administrators of this room: {list:users}'
+    owner: 'Owners of this room: {list:users}'
+
+  affiliationsEmpty: 'No users have the affiliation "{type}" in this room.'
+  aliasAdd: 'Alias /{command} added.'
+  aliasDelete: 'Alias /{command} deleted.'
+  aliasReplace: 'Alias /{command} replaced.'
+  attention: '{user} has buzzed you!'
+  buzz: 'Buzzing {user} ...'
+  connection:
+    connected: 'You are now connected.'
+    connecting: 'Connecting...'
+    disconnected: 'You are now disconnected.'
+    disconnecting: 'Disconnecting...'
+
+  creating: 'Creating {room} as {user} ...'
+  destroyConfirm: 'Do you really want to destroy the room {room}?'
+  destroyed:
+    - '{room} has been destroyed!'
+    - '{room} has been destroyed ({reason})!'
+    - '{room} has been destroyed in favor of {room:alternate}!'
+    - '{room} has been destroyed in favor of {room:alternate} ({reason})!'
+
+  destroySuccess: 'Successfully destroyed room {room}.'
+  evicted:
+    kick:
+      me:
+        - 'You have been kicked!'
+        - 'You have been been kicked ({reason})!'
+        - 'You have been kicked by {user:actor}!'
+        - 'You have been kicked by {user:actor} ({reason})!'
+      other:
+        - '{user} has been kicked.'
+        - '{user} has been kicked ({reason}).'
+        - '{user:actor} has kicked {user}.'
+        - '{user:actor} has kicked {user} ({reason}).'
+
+    ban:
+      me:
+        - 'You have been banned from {room}!'
+        - 'You have been been banned from {room} ({reason})!'
+        - 'You have been banned from {room} by {user:actor}!'
+        - 'You have been banned from {room} by {user:actor} ({reason})!'
+      other:
+        - '{user} has been banned from {room}.'
+        - '{user} has been banned from {room} ({reason}).'
+        - '{user:actor} has banned {user} from {room}.'
+        - '{user:actor} has banned {user} from room ({reason}).'
+
+  inviteReceived:
+
+      - '{jid} has invited you to {room}.'
+      - '{jid} has invited you to {room} ({reason}).'
+      - '{jid} has invited you to {room}. The password is "{password}".'
+      - '{jid} has invited you to {room} ({reason}). The password is "{password}".'
+
+  inviteSent: 'Inviting {jid} to {room}.'
+  joined: 'Now talking in {room}.'
+  joining: 'Joining {room} as {user} ...'
+  leave: 'Leaving {room} ...'
+  leavePage: Leaving this page will delete the chat history.
+  macros: >
+    Macros:
+    {code:macros}
+  nickPrejoin: 'Your preferred nickname is now {nick}'
+  nickRegistered: 'Switching to registered nick {nick}.'
+  noUsers: 'No users are online in {room}.'
+  pong:
+    - 'Ping: Pong ({delay} ms).'
+    - 'Ping to {user}: Pong ({delay} ms).'
+
+  promptBBCodeArg: This BBCode tag requires an argument.
+  promptNickConflict: This nickname is in use; enter another one.
+  promptRoomPassword: This room requires a password.
+  promptStatus: Status message.
+  rejoinNick: 'Rejoining as {nick} ...'
+  roomConf: Room configuration saved.
+  roomCreated: 'The room {room} has been newly created.'
+  roomsAvailable: 'Available rooms: {list:rooms}'
+  sessionAuth: 'Automatically logging in as {username}'
+  subject:
+    change: '{user} has changed the room subject to: {subject}'
+    initial: 'The room subject is: {subject} (set by {user})'
+    remove: '{user} has removed the room subject.'
+
+  suggestions: 'Suggestions: {list}'
+  sync:
+    equal: The settings are already synchronized.
+    get: The remote settings have been downloaded.
+    set: The local settings have been uploaded.
+
+  time:
+    - 'Local server time: {time}, clock offset: {offset} ms, timezone: {tzo}'
+    - 'Local time of {user}: {time}, clock offset: {offset} ms, timezone: {tzo}'
+
+  userAffiliation: 'The affiliation of {user} has been set to {affiliation}.'
+  userIn: '{user} has joined the room.'
+  userNick: '{user:from} is now known as {user:to}.'
+  userOut: '{user} has left the room.'
+  userRole: 'The role of {user} has been set to {role}.'
+  unbanSuccess: 'Unbanned {jid} from this room.'
+  usersInRoom: 'Users in {room}: {list:users}.'
+  usersInThisRoom: 'Users in this room: {list:users}.'
+  versionClient: 'Cadence version: {version}'
+  versionServer: 'Server version: {name} {version} running on {os}'
+  versionUser: '{user} is using: {name} {version} running on {os}'
+  whisper: (whispers)
+  whisperTo: '(whispers to {user})'
+  whois: 'Information for {user}: {jid}, Role: {privilege}, Status: {status}'
+
+error:
+  admin:
+    forbidden: 'You are not authorized to execute "{command}" on this server.'
+    badCommand: 'Unrecognized server command "{command}".'
+    generic: 'Error while executing "{command}": {text}'
+    unknown: 'Unknown error while executing "{command}".'
+    cancel: 'Canceled command "{command}".'
+
+  affiliate:
+    conflict: You cannot change your own affiliation to this value.
+    notAllowed: 'You lack the authority to set the affiliation of {user} to {type}.'
+    type: 'Affiliation "{type}" must be one of "owner", "admin", "member", "none", "outcast".'
+
+  affiliations:
+    forbidden: 'You are not authorized to get the {type} list for this room.'
+
+  aliasFormat: 'Usage: /alias <cmd> /<...>[; /<...>]*'
+  aliasConflict: "/alias: Can't overwrite command /{command}."
+  aliasRecursion: 'Failed to define {command}; recursion detected via {path}.'
+  noMacros: No macros are defined.
+  badNick: 'The nickname {nick} is invalid.'
+  cmdState:
+    online: '/{command}: You are not connected.'
+    offline: '/{command}: You are already connected.'
+    room: '/{command}: This command can only be used in a room.'
+
+  connection:
+    anonymous: This server does not support anonymous login.
+    auth: User and password are required.
+    authfail: Authentication failed.
+    connfail: Connection failed.
+    other: An error has occurred.
+    shutdown: The server is shutting down.
+
+  destroyDenied: 'You lack the authority to destroy {room}.'
+  destroy: 'Failed to destroy {room}.'
+  formFields: 'The following fields could not be set: {fields}'
+  kick: 'You lack the authority to kick {nick}.'
+  cmdUnknown: 'Unknown command: /{command}. Type "/say /{command}" or "//{command}" to say this in chat.'
+  feature: The remote entity does not support this feature.
+  javascript: |
+    A javascript error has occurred.
+    {code:name}: {code:message}
+    Stack trace:
+    {code:stack}
+  jidInvalid: '{arg} is not a valid JID.'
+  joinBanned: 'You are banned from {room}.'
+  joinConflict: 'Unable to join; username {nick} already in use.'
+  joinPassword: 'A password is required to enter {room}.'
+  joinRegister: 'Membership is required to enter {room}.'
+  joinSame: 'You are already in {room}.'
+  messageDenied: 'You lack the authority to send this message ({text}).'
+  muc:
+    notFound: 'The conference server {domain} is not available.'
+    unknown: 'Unknown error while connecting to the conference server {domain}.'
+
+  nickConflict: 'Username {nick} already in use.'
+  noArgument: This command requires more arguments.
+  noCreate: You are not allowed to create rooms.
+  pingError: Target does not support ping.
+  pingTimeout:
+    - 'Ping timed out ({delay} ms).'
+    - 'Ping to {user} timed out ({delay} ms).'
+
+  roomConf: 'Failed to configure {room}.'
+  roomConfDenied: 'You lack the authority to configure {room}.'
+  roomConfOptions: 'The allowed values for {field} are: {options}'
+  roomExists: 'Could not create {room}; it already exists.'
+  roomCreateName: Could not create a room without a name.
+  roomCreateCancel: Canceled room creation.
+  saveEmpty: There are no messages to save.
+  sync:
+    change: >
+      You are currently synchronized with {old}. Overwrite the settings of {new}
+      with /sync set, or apply them with /sync get.'
+    conflict: >
+      The remote settings have changed. Overwrite them with /sync set, or apply
+      them with /sync get.
+    missing: There are no remote settings to load.
+
+  timeout: Request timed out.
+  unban: 'Could not unban {jid} from this room.'
+  unbanNone: No banned user matched your query.
+  unknown: 'An unknown error has occurred: {error}'
+  unknownJid: 'User {user} is anonymous.'
+  notFound:
+    domain: 'The remote server {domain} was not found.'
+    nick: '{nick} is not in this room.'
+    node: 'The user {node} on {domain} is not available.'
+    room: 'The room {name} does not exist.'
+
+  noRoomsAvailable: There are no rooms available.
+
+label:
+  command:
+    ban: Ban
+    configure: Configure
+    destroy: Destroy
+    dmsg: Direct message
+    invite: Invite
+    join: Join
+    kick: Kick
+    msg: Private message
+    part: Leave
+    ping: Ping
+    whois: User info
+
+  tip:
+    multiline: Enter one item per line.
+    required: This field is required.
+
+  button:
+    advanced: Advanced
+    apply: Apply
+    cancel: Cancel
+    help: Help
+    login: Log in
+    roster: Users
+    settings: Settings
+    submit: Submit
+    sound: Sound
+    status: Status
+
+  page:
+    style: Style
+    room: Room
+    user: User
+    password: Password
+    navigation: Navigation
+    roster: Online users
+    help: Help
+    settings:
+      main: Settings
+      general: General
+      display: Display
+      notifications: Notifications
+
+    none: '---'
+    offline: 'Offline'
+
+  status:
+    available: Available
+    away: Away
+    xa: Extended away
+    dnd: Do not disturb
+    offline: Offline
+
+  tooltip:
+     input: Press SHIFT+ENTER to input a line break
+     bold: 'Bold text: [b]text[/b]'
+     italic: 'Italic text: [i]text[/i]'
+     underline: 'Underline text: [u]text[/u]'
+     strike: 'Strike out text: [s]text[/s]'
+     quote: 'Quote text: [quote]text[/quote] or [quote=author]text[/quote]'
+     code: 'Code display: [code]code[/code]'
+     url: 'Insert URL: [url]http://example.org[/url] or [url=http://example.org]text[/url]'
+     img: 'Insert image: [img]http://example.org/image.jpg[/img]'
+     color: 'Text color: [color=red]text[/color]'
+     help: Show/hide help
+     settings: Show/hide settings
+     roster: Show/hide online list
+     sound: Sound on/off
+     status: Status (right-click for status message)
+
+  settings:
+    xmpp:
+      sessionAuth: Log in with forum session
+      autoJoin: Join room on login
+      sendUserAgent: Send user agent string on request
+
+    contextmenu:
+      label: Open context menu with
+      hover: Hover
+      left: Left click
+      right: Right click
+
+    sync:
+      auto: Synchronize settings automatically
+
+    textColor:
+      label: Text color
+      clear: Clear
+      none: None
+
+    dateFormat: Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>)
+    markup:
+      html: Show HTML markup
+      images: Show images in-line
+      links: Make URLs clickable
+      colors: Show persistent colors
+      emoticons: Show emoticons as images
+
+    notifications:
+      desktop:
+        label: Desktop notifications
+        0: None
+        1: Alerts
+        2: All messages
+        3: Everything
+
+      triggers: Alert keywords
+      soundVolume: Sound volume
+      sounds:
+        receive: Receive sound
+        send: Send sound
+        enter: Enter sound
+        leave: Leave sound
+        info: Info sound
+        error: Error sound
+        mention: Mention sound
+        msg: Private message sound
+
+      leavePage: Warn before closing
+      blinkSpeed: Blink speed
+      blinkLength: Blink length
+
+help:
+  configure:
+    text: |
+      Configuration arguments:
+      {dl:args}
+    args:
+      title: User-facing room title.
+      desc: Room description
+      log: Enable logging
+      persistent: Enable persistence
+      public: List the room publicly
+      anonymous: Hide participants' JIDs from non-moderators
+      password: Set a room password
+      members-only: Only allow users on the room's member list to enter.
+
+  sidebar:
+    chat:
+      title: Chat commands
+      commands:
+        away:
+          - Set away status
+          - /away <message>
+        back:
+          - Remove away status
+          - /back
+        configure:
+          - Configure an existing room
+          - /configure [--help | --interactive | <options>]
+        connect:
+          - Connect
+          - /connect [<user> <pass>]
+        create:
+          - Create a new room
+          - /create [--help | <name> [<options>]]
+        join:
+          - Join a room
+          - '/join <room>'
+        list:
+          - List available rooms
+          - /list
+        me:
+          - Describe action
+          - /me <text>
+        msg:
+          - Private message
+          - /msg <nick> ...
+        msgme:
+          - Describe action in private message
+          - /msg <nick> /me ...
+        nick:
+          - Change nickname
+          - /nick <nick>
+        part:
+          - Leave the room
+          - /part
+        ping:
+          - Ping
+          - /ping [<nick> | <JID>]
+        quit:
+          - Disconnect
+          - /quit
+        say:
+          - Say something
+          - '[/say] ...'
+        version:
+          - Print version
+          - /version [<nick> | <JID>]
+        who:
+          - List users
+          - /who [<room>]
+
+    ui:
+      title: Interface commands
+      commands:
+        alias:
+          - Create a macro
+          - /alias <cmd> /a; /b
+        clear:
+          - Clear all messages
+          - /clear
+        save:
+          - Save history as file
+          - /save [html]
+        sync:
+          - Synchronize settings
+          - /sync [get|set]
+
+    admin:
+      title: Administration commands
+      commands:
+        admin:
+          - Server command
+          - /admin <cmd> [...]
+        affiliate:
+          - Set or show privileges
+          - /affiliate <type> [<nick> | <JID>]
+        ban:
+          - Ban a user
+          - /ban [<nick> | <JID>]
+        bans:
+          - List active bans
+          - /bans
+        destroy:
+          - Destroy a room
+          - /destroy [<room>]
+        kick:
+          - Kick a user
+          - /kick <nick> [<reason>]
+        unban:
+          - Unban a user
+          - /unban <JID>

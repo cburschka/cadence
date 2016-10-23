@@ -13,6 +13,9 @@ def load_config(profile):
     conf_default = yaml.load(open('config/default.yml'))
     return merge_config(conf_default, profile)
 
+def load_strings(language):
+    return yaml.load(open('locales/{}.yml'.format(language)))
+
 def merge_config(a, b):
     # If a is a dict, either merge or ignore b.
     if type(a) is dict:
@@ -37,7 +40,7 @@ def generate_links(cdn_url, css_alt, style):
         'strophe/storage', 'strophe/time', 'strophe/version', 'moment',
         'xbbcode', 'buzz', 'babel', 'filesaver'
     ]
-    core = ['strings', 'chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
+    core = ['chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}assets/css/alt/{name}.css" />'
     css_links = '\n'.join(
         css_template.format(
@@ -86,10 +89,12 @@ targets = {
 def main(target, filename='install.yml'):
     profile = load_profile(filename)
     config = load_config(profile['config'])
+    config['cdnURL'] = profile['install']['cdn']['url']
 
     variables = {}
 
     variables['TITLE'] = config['ui']['title']
+    variables['STRINGS'] = json.dumps(load_strings(profile['install']['language']))
 
     css_alt = profile['install']['styles']
     variables['CDN_URL'] = profile['install']['cdn']['url'] or ''

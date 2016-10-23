@@ -3,14 +3,13 @@ import argparse
 import os
 import shutil
 import subprocess
-import ruamel.yaml
-yaml = ruamel.yaml
+from ruamel import yaml
 
 def main():
     args = parser().parse_args()
-    template = yaml.load(open('install.dist.yml'), Loader=ruamel.yaml.RoundTripLoader)
+    template = yaml.load(open('install.dist.yml'), Loader=yaml.RoundTripLoader)
     config = generate_config(template, args)
-    yaml.dump(config, open(args.profile, 'x'), Dumper=ruamel.yaml.RoundTripDumper)
+    yaml.dump(config, open(args.profile, 'x'), Dumper=yaml.RoundTripDumper)
 
 def generate_config(config, args):
     config['config']['xmpp']['domain'] = args.domain

@@ -12,7 +12,8 @@ install:
   target:
   cdn:
     target:
-    url:
+    url: ''
 
   styles: [ ]
   packs: [ ]
+  language: en
