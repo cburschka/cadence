@@ -48,6 +48,18 @@ const xmpp = {
     'unexpected-request',
   ],
 
+  features: [
+    Strophe.NS.ATTENTION,
+    Strophe.NS.CONFERENCE,
+    Strophe.NS.DISCO_INFO,
+    Strophe.NS.MUC,
+    Strophe.NS.MUC + '#user',
+    Strophe.NS.PING,
+    Strophe.NS.TIME,
+    Strophe.NS.XHTML_IM,
+    Strophe.NS.VERSION,
+  ],
+
   ConnectionError: class {
     constructor(status, error) {
       this.status = status;
@@ -135,7 +147,7 @@ const xmpp = {
 
     this.connection = new Strophe.Connection(config.xmpp.url);
     this.connection.disco.addIdentity('client', 'web', config.clientName);
-    config.features.forEach(x => this.connection.disco.addFeature(x));
+    this.features.forEach(x => this.connection.disco.addFeature(x));
 
     // DEBUG: print connection stream to console:
     this.connection.rawInput = data => {
@@ -1190,7 +1202,7 @@ const xmpp = {
     const xmlns = stanza.querySelector('iq > *').getAttribute('xmlns');
 
     // Send <feature-not-implemented /> for anything not recognized.
-    if (!config.features.includes(xmlns)) {
+    if (!this.features.includes(xmlns)) {
       const response = this.iq({
         type: 'error',
         to: stanza.getAttribute('from'),

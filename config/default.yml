@@ -1,0 +1,262 @@
+settings:
+  # Which option container is open when the page loads.
+  activeMenu: roster
+
+  activeStyle: Stygium
+  # Which stylesheet is selected when the page loads.
+  # Format of the message timestamp.
+  dateFormat: (HH:mm:ss)
+
+  # Which trigger to use for the context menu (left, right, hover, none).
+  contextmenu: right
+
+  markup:
+    # Render incoming HTML Markup.
+    html: true
+    # Whether images are loaded.
+    images: true
+    # Links are clickable.
+    links: true
+    # Show emoticons as images.
+    emoticons: true
+    # Show persistent colors.
+    colors: true
+
+  notifications:
+    blink:
+      # Minimum number of seconds to blink (rounded up to whole intervals).
+      length: 5
+      # Blinks per second.
+      speed: 2
+
+    # The sound files used for notifications.
+    sounds:
+      receive: sound_1
+      send: sound_2
+      enter: sound_3
+      leave: sound_4
+      info: sound_5
+      error: sound_6
+      mention:
+      privmsg:
+
+    soundVolume: 100
+    soundEnabled: true
+
+    # Whether to show desktop notifications:
+    # 0 - None, 1 - Alerts, 2 - All messages, 3 - All notifications.
+    desktop: 0
+
+    # Warn before leaving the page.
+    leavePage: true
+
+    # Triggers for a "mention" sound.
+    triggers: []
+
+  # Persistent font color that is displayed to other cadence users.
+  textColor:
+  fullColor: false
+
+  sync:
+    account:
+    time:
+    auto: true
+
+  xmpp:
+    nick:
+    user:
+    room: lounge
+    autoJoin: true
+    sessionAuth: true
+    sendUserAgent: true
+
+  macros: {}
+
+markup:
+  bbcode:
+    b: <span style="font-weight:bold">{content}</span>
+    i: <span style="font-style:italic">{content}</span>
+    u: <span style="text-decoration:underline">{content}</span>
+    s: <span style="text-decoration:line-through">{content}</span>
+    quote: <q>{content}</q>
+    code: <code>{content}</code>
+    url: <a href="{option}">{content}</a>
+    img: <img src="{content}" alt="Image({content})" />
+    color: <span style="color:{option}">{content}</span>
+
+  bbcodeMD:
+    b: '**{content}**'
+    i: '*{content}*'
+    u: _{content}_
+    s: ~~{content}~~
+    code: '```{content}```'
+    url: '[{content}]({option})'
+    img: '![Image]({content})'
+
+  # Colors shown in palette selector.
+  colorCodes:
+    - '#cd5c5c'
+    - '#f08080'
+    - '#fa8072'
+    - '#e9967a'
+    - '#ffa07a'
+    - '#ff0000'
+    - '#dc143c'
+    - '#b22222'
+    - '#8b0000'
+    - '#ffc0cb'
+    - '#ffb6c0'
+    - '#ff69b4'
+    - '#ff1493'
+    - '#c71585'
+    - '#db7093'
+    - '#ff8050'
+    - '#ff6347'
+    - '#ff4500'
+    - '#ff8c00'
+    - '#ffa500'
+    - '#ffd700'
+    - '#ffff00'
+    - '#ffffe0'
+    - '#fafad2'
+    - '#fff0d5'
+    - '#ffe4b5'
+    - '#ffdab9'
+    - '#eee8aa'
+    - '#f0e68c'
+    - '#bdb76b'
+    - '#e6e6fa'
+    - '#d8c0d8'
+    - '#dda0dd'
+    - '#ee82ee'
+    - '#da70d6'
+    - '#ff00ff'
+    - '#ba55d3'
+    - '#9370db'
+    - '#8a2be2'
+    - '#9400d3'
+    - '#9932cc'
+    - '#8b008b'
+    - '#800080'
+    - '#4b0082'
+    - '#483d8b'
+    - '#6a5acd'
+    - '#7b68ee'
+    - '#adff30'
+    - '#80ff00'
+    - '#00ff00'
+    - '#32cd32'
+    - '#98fb98'
+    - '#90ee90'
+    - '#00fa9a'
+    - '#00ff80'
+    - '#3cb370'
+    - '#2e8b57'
+    - '#228b22'
+    - '#008000'
+    - '#006400'
+    - '#9acd32'
+    - '#6b8e23'
+    - '#808000'
+    - '#556b30'
+    - '#66cdaa'
+    - '#90bc90'
+    - '#20b2aa'
+    - '#008b8b'
+    - '#008080'
+    - '#00ffff'
+    - '#e0ffff'
+    - '#b0eeee'
+    - '#80ffd4'
+    - '#40e0d0'
+    - '#48d0cc'
+    - '#00ced0'
+    - '#609ea0'
+    - '#4682b4'
+    - '#b0c4de'
+    - '#b0e0e6'
+    - '#add8e6'
+    - '#87ceeb'
+    - '#87cefa'
+    - '#00c0ff'
+    - '#1e90ff'
+    - '#6495ed'
+    - '#4069e0'
+    - '#0000ff'
+    - '#0000cd'
+    - '#00008b'
+    - '#000080'
+    - '#191970'
+    - '#ffebcd'
+    - '#ffe4c4'
+    - '#ffdead'
+    - '#f5deb3'
+    - '#deb887'
+    - '#d2b48c'
+    - '#bc9090'
+    - '#f4a460'
+    - '#daa520'
+    - '#b8860b'
+    - '#cd8540'
+    - '#d2691e'
+    - '#8b4513'
+    - '#a0522d'
+    - '#a52a2a'
+    - '#800000'
+    - '#ffffff'
+    - '#dcdcdc'
+    - '#d3d3d3'
+    - '#c0c0c0'
+    - '#a9a9a9'
+    - '#808080'
+    - '#696969'
+    - '#778899'
+    - '#708090'
+    - '#305050'
+    - '#000000'
+
+  emoticons:
+    general:
+      baseURL: assets/img/emoticons/general/
+      codes:
+        :): smile.png
+        :(: sad.png
+        ;): wink.png
+        :P: razz.png
+        :D: grin.png
+        :|: plain.png
+        :O: surprise.png
+        :?: confused.png
+        8o: eek.png
+        :-(: crying.png
+        :-*: kiss.png
+        O:-D: angel.png
+        '>:-D': devilish.png
+        :favorite:: favorite.png
+
+# Defines the available sounds loaded on chat start:
+sounds:
+  - sound_1
+  - sound_2
+  - sound_3
+  - sound_4
+  - sound_5
+  - sound_6
+xmpp:
+  # This is NOT the server, but the domain portion of the JID.
+  domain:
+  url:
+  mucService:
+  sessionAuthURL:
+  timeout: 5000
+
+ui:
+  title: cadence
+  maxNickLength: 48
+  maxMessageLength: 2048
+  welcome:
+  navigation: {}
+
+clientName: cadence
+clientURL: https://github.com/cburschka/cadence
+version: 3.0.0-dev

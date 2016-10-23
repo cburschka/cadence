@@ -1,15 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
+from ruamel import yaml
 import sys
 import re
 import os.path
 import collections
 
-def load_variables():
-    data = open('.config.vars').read().strip().split('\n')
-    if (os.path.isfile('.version')):
-      data += open('.version').read().strip().split('\n')
-    return dict(line.split('=', 2) for line in data)
+def load_profile(filename):
+    return yaml.load(open(filename))
+
+def load_config(profile):
+    conf_default = yaml.load(open('config/default.yml'))
+    return merge_config(conf_default, profile)
+
+def merge_config(a, b):
+    # If a is a dict, either merge or ignore b.
+    if type(a) is dict:
+        if type(b) is dict:
+            for key in a.keys() & b.keys():
+                a[key] = merge_config(a[key], b[key])
+    # Override lists only with lists, but anything else with anything.
+    elif (type(a) is list) <= (type(b) is list):
+        return b
+    return a
 
 def generate_file(src, dest, var):
     template = open(src).read()
@@ -68,16 +81,23 @@ def generate_emoticons(cdn_url, packs):
 
 targets = {
     'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
-    'config.js': lambda v: generate_file('config.tpl.js', 'config.js', v),
     'emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split()),
 }
 
-def main(target, version=None):
-    variables = load_variables()
-    if (version):
-        variables['VERSION'] = version
-    css_alt = variables['CSS_ALT'].split()
-    css, libjs, corejs = generate_links(variables['CDN_URL'], css_alt, variables['STYLE'])
+def main(target, filename='install.yml'):
+    profile = load_profile(filename)
+    config = load_config(profile['config'])
+
+    variables = {}
+
+    variables['TITLE'] = config['ui']['title']
+
+    css_alt = profile['install']['styles']
+    variables['CDN_URL'] = profile['install']['cdn']['url'] or ''
+    css, libjs, corejs = generate_links(variables['CDN_URL'], css_alt, config['settings']['activeStyle'])
+
+    variables['PACKS'] = profile['install']['packs']
+    variables['CONFIG'] = json.dumps(config)
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs

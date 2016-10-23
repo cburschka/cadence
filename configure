@@ -1,42 +1,35 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import os
 import shutil
 import subprocess
+import ruamel.yaml
+yaml = ruamel.yaml
 
 def main():
     args = parser().parse_args()
+    template = yaml.load(open('install.dist.yml'), Loader=ruamel.yaml.RoundTripLoader)
+    config = generate_config(template, args)
+    yaml.dump(config, open(args.profile, 'x'), Dumper=ruamel.yaml.RoundTripDumper)
+
+def generate_config(config, args):
+    config['config']['xmpp']['domain'] = args.domain
+
     args.protocol = args.protocol or ((args.websocket and 'ws' or 'http') + (args.secure and 's' or ''))
     args.host = args.host or args.domain
     args.path = args.path or (args.websocket and '/websocket' or '/http-bind')
     args.port = args.port or str(5280 + args.secure)
+    config['config']['xmpp']['url'] = args.url or args.protocol + '://' + args.host + ':' + args.port + args.path
 
-    args.muc = args.muc or 'conference.' + args.domain
-    args.url = args.url or args.protocol + '://' + args.host + ':' + args.port + args.path
-    args.cdn_prefix = args.cdn_prefix or args.prefix
-    args.prefix = args.prefix.rstrip('/')
-    args.cdn_prefix = args.cdn_prefix.rstrip('/')
-    args.cdn_url = args.cdn_url and (args.cdn_url.rstrip('/') + '/') or ''
+    config['config']['xmpp']['mucService'] = args.muc or 'conference.' + args.domain
 
-    if args.packs == 'auto':
-        args.packs = ' '.join(folder for folder in os.listdir('emoticon-packs')
-            if os.path.isfile('emoticon-packs/{}/emoticons.conf'.format(folder)))
+    packs = {folder for folder in os.listdir('emoticon-packs')
+            if os.path.isfile('emoticon-packs/{}/emoticons.conf'.format(folder))}
+    config['install']['packs'] = sorted(packs)
 
-    args.css_alt = ' '.join(sorted([x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css']))
-
-    open('.config.vars', 'w+').write(
-'''TITLE={title}
-XMPP_URL={url}
-XMPP_DOMAIN={domain}
-XMPP_MUC={muc}
-XMPP_SESSION_AUTH={session_auth}
-PREFIX={prefix}
-CDN_PREFIX={cdn_prefix}
-CDN_URL={cdn_url}
-CSS_ALT={css_alt}
-STYLE={style}
-PACKS={packs}
-'''.format(**vars(args)))
+    styles = {x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css'}
+    config['install']['styles'] = sorted(styles)
+    return config
 
 
 def parser():
@@ -85,30 +78,12 @@ def parser():
       '--muc', type=str,
       help='The MUC conference server to connect to.', metavar='MUC', dest='muc', default=''
       )
+
     parser.add_argument(
-      '--title', type=str,
-      help='The page title. ["cadence"]', metavar='TITLE', dest='title', default='cadence'
-      )
-    parser.add_argument(
-      '--packs', type=str,
-      help='Emoticon packs (must be inside emoticon-packs/) ["auto"].', metavar='PACKS', dest='packs', default='auto'
-      )
-    parser.add_argument(
-      '--cdn-url', type=str,
-      help='Base URL for resources.', metavar='CDN_URL', dest='cdn_url', default=''
-      )
-    parser.add_argument(
-      '--prefix', type=str,
-      help='Directory to install cadence to ["."]', metavar='PREFIX', dest='prefix', default='.'
-      )
-    parser.add_argument(
-      '--cdn-prefix', type=str,
-      help='Directory to install resources to [PREFIX]', metavar='CDN_PREFIX', dest='cdn_prefix', default=''
-      )
-    parser.add_argument(
-      '--style', type=str,
-      help='Default alt stylesheet. ["Stygium"]', metavar='STYLE', dest='style', default='Stygium'
-      )
+      '--profile', type=str,
+      help='Where to put the configuration file. ["install.yml"]', dest='profile', default='install.yml'
+    )
+
     return parser
 
 main()

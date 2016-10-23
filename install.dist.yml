@@ -1,0 +1,18 @@
+config:
+  # Any configuration value from config/default.yml may be overridden here.
+  # ui:
+  #   title: cadence
+  xmpp:
+    domain: example.org
+    url: https://example.org:5281/websocket
+    mucService: conference.example.org
+    sessionAuth:
+
+install:
+  target:
+  cdn:
+    target:
+    url:
+
+  styles: [ ]
+  packs: [ ]

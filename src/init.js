@@ -1,3 +1,5 @@
+var config;
+
 (() => {
   Strophe.addNamespace('CONFERENCE', 'jabber:x:conference');
 
@@ -30,7 +32,7 @@
   });
 
   const initSettings = () => {
-    config.settings = config.defaultSettings;
+    config = JSON.parse($('#config').text());
     if (localStorage && localStorage.settings) {
       Cadence.loadSettings(JSON.parse(localStorage.settings))
     }
