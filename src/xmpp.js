@@ -339,7 +339,7 @@ const xmpp = {
    */
   jidFromRoomNick({room, nick}={}) {
     return new this.JID({
-      domain: config.xmpp.mucService,
+      domain: config.xmpp.muc,
       node: room || this.room.current,
       resource: nick
     });
@@ -356,7 +356,7 @@ const xmpp = {
    * @return {User}
    */
   userFromJid(jid, room) {
-    if (jid.domain == config.xmpp.mucService) {
+    if (jid.domain == config.xmpp.muc) {
       const roster = this.roster[jid.node];
       if (roster && roster[jid.resource])
         return roster[jid.resource];
@@ -792,7 +792,7 @@ const xmpp = {
    * @return {Promise} A promise that resolves to the list of rooms.
    */
   discoverRooms() {
-    const iq = this.iq({type: 'get', to: config.xmpp.mucService})
+    const iq = this.iq({type: 'get', to: config.xmpp.muc})
       .c('query', {xmlns: Strophe.NS.DISCO_ITEMS});
 
     return iq.send().then(stanza => {
@@ -840,7 +840,7 @@ const xmpp = {
       const from = this.JID.parse(stanza.getAttribute('from'));
       // Discard any <presence/> that is not from the MUC domain.
       // (This client does not support direct non-MUC communication.)
-      if (from.domain != config.xmpp.mucService) return true;
+      if (from.domain != config.xmpp.muc) return true;
 
       // Find the room and nickname that the presence came from, and the type.
       const room = from.node;
@@ -956,7 +956,7 @@ const xmpp = {
         const _reason = destroy.querySelector('reason');
         const reason = _reason && _reason.textContent;
         const jid = this.JID.parse(destroy.getAttribute('jid'));
-        const alternate = jid.domain == config.xmpp.mucService
+        const alternate = jid.domain == config.xmpp.muc
                     && (this.room.available[jid.node] || {id: jid.node});
 
         ui.messageError(strings.info.destroyed[+!!alternate][+!!reason], {room, alternate, reason});

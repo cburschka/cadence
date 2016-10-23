@@ -5,7 +5,7 @@ config:
   xmpp:
     domain: example.org
     url: https://example.org:5281/websocket
-    mucService: conference.example.org
+    muc: conference.example.org
     sessionAuth:
 
 install:

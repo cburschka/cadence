@@ -246,7 +246,7 @@ xmpp:
   # This is NOT the server, but the domain portion of the JID.
   domain:
   url:
-  mucService:
+  muc:
   sessionAuthURL:
   timeout: 5000
 

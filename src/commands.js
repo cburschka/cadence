@@ -660,7 +660,7 @@ Cadence.addCommand('list', () => {
       else throw new Cadence.Error(strings.error.noRoomsAvailable);
     },
     error => {
-      const domain = config.xmpp.mucService;
+      const domain = config.xmpp.muc;
       if (error.condition == 'remote-server-not-found') {
         throw new Cadence.Error(strings.error.muc.notFound, {domain});
       }
@@ -902,7 +902,7 @@ Cadence.addCommand('save', ({type}) => {
 
   const date = moment(new Date(ui.messages[0].timestamp)).format('YYYY-MM-DD');
   const room = xmpp.getRoom();
-  const prefix = room ? room.id : config.xmpp.mucService;
+  const prefix = room ? room.id : config.xmpp.muc;
 
   let data = visual['messagesTo' + (html ? 'HTML' : 'Text')](ui.messages);
   if (html) {
