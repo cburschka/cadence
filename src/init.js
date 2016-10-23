@@ -1,4 +1,4 @@
-var config;
+var config, emoticons;
 
 (() => {
   Strophe.addNamespace('CONFERENCE', 'jabber:x:conference');
@@ -44,6 +44,7 @@ var config;
   }
 
   const loadEmoticons = () => {
+    emoticons = JSON.parse($('#emoticons').text());
     for (let pack in emoticons.packages) {
       config.markup.emoticons[pack] = emoticons.packages[pack];
     }

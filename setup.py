@@ -55,9 +55,9 @@ def generate_emoticons(cdn_url, packs):
     imagepath = 'assets/emoticons'
     try:
         for pack in packs:
-            datafile = 'emoticon-packs/' + pack + '/emoticons.conf'
+            datafile = 'emoticon-packs/' + pack + '/emoticons.yml'
             baseURL = cdn_url + imagepath + '/' + pack + '/'
-            data = json.load(open(datafile, 'r'), object_pairs_hook=collections.OrderedDict)
+            data = yaml.load(open(datafile, 'r'), Loader=yaml.RoundTripLoader)
             if 'codes' in data:
                 output['packages'][pack] = {
                     'baseURL': baseURL,
@@ -74,14 +74,13 @@ def generate_emoticons(cdn_url, packs):
                     'baseURL': baseURL,
                     'codes': data['aliases']
                 }
-        open('emoticons.js', 'w+').write('const emoticons = ' + json.dumps(output) + ';')
+        return json.dumps(output)
     except ValueError as e:
         print("Error parsing emoticon pack {}".format(pack))
         raise(e)
 
 targets = {
-    'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v),
-    'emoticons.js': lambda v: generate_emoticons(v['CDN_URL'], v['PACKS'].split()),
+    'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v)
 }
 
 def main(target, filename='install.yml'):
@@ -96,7 +95,7 @@ def main(target, filename='install.yml'):
     variables['CDN_URL'] = profile['install']['cdn']['url'] or ''
     css, libjs, corejs = generate_links(variables['CDN_URL'], css_alt, config['settings']['activeStyle'])
 
-    variables['PACKS'] = profile['install']['packs']
+    variables['EMOTICONS'] = generate_emoticons(variables['CDN_URL'], profile['install']['packs'])
     variables['CONFIG'] = json.dumps(config)
     variables['CSS_LINKS'] = css
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)

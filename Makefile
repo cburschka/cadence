@@ -34,9 +34,6 @@ emoticons:
 index.html: index.tpl.html install.yml
 	./setup.py $@
 
-emoticons.js: $(wildcard emoticon-packs/*/emoticons.conf)
-	./setup.py $@
-
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
 	$(BABEL) $^ >$@

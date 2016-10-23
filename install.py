@@ -15,7 +15,7 @@ profile = yaml.load(open('install.yml'))['install']
 
 target = profile['target']
 if target:
-    copy(target, 'index.html', 'emoticons.js')
+    copy(target, 'index.html')
 
 cdn_target = profile['cdn']['target'] or target
 if cdn_target:

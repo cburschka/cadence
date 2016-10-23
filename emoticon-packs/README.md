@@ -10,25 +10,20 @@ Creating an emoticon pack
 Format
 ------
 
-An emoticon pack is a folder containing a file named `emoticons.conf` as well as
+An emoticon pack is a folder containing a file named `emoticons.yml` as well as
 any number of other files. The folder name itself cannot contain whitespace.
 
-The file `emoticons.conf` must be a valid JSON file, and contain a single object
-literal of the following form:
+The file `emoticons.yml` must be a valid YAML file, and use this format:
 
-    {
-      title: "...",
-      icon: "...",
-      codes: {
-        ...
-      },
-      aliases: {
-        ...
-      }
-    }
+    title: ...
+    icon: ...
+    codes:
+      :example:: example.png
+    aliases:
+      :alias:: example.png
 
-Note: Javascript comments are not valid JSON. All keys are optional, and any
-other keys will be ignored.
+The `codes` key is required. `title` and `icon` are only needed for a sidebar;
+`aliases` is only needed for codes that should not be in the sidebar.
 
 Interpretation
 --------------
@@ -48,5 +43,5 @@ Interpretation
   displayed as a sidebar. The tray icons of emoticon packs are displayed in
   alphabetical order between the "Help" and "Settings" buttons.
 
-* If a sidebar is created, all emoticons in `codes` will be shown in it in
-  alphabetical order. The emoticons in `aliases` are excluded.
+* If a sidebar is created, all emoticons in `codes` will be shown in it, preserving
+  the order as defined in this file. The emoticons in `aliases` are excluded.
