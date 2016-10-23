@@ -77,7 +77,7 @@ submodules:
 .PHONY: all js init submodules
 
 install.yml:
-	./configure
+	./configure.py
 
 
 .SECONDEXPANSION:

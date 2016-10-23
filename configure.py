@@ -34,7 +34,7 @@ def generate_config(config, args):
 
 def parser():
     parser = argparse.ArgumentParser(
-      prog='configure',
+      prog='./configure.py',
       description='''Configure cadence for installation.
     '''
       )
