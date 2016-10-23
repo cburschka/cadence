@@ -3,9 +3,13 @@
 from ruamel import yaml
 import subprocess
 
+def run(args):
+    print(*args)
+    subprocess.run(args)
+
 def copy(dst, *src):
-    subprocess.run(['mkdir', '-p', dst])
-    subprocess.run(['cp', '-au', *src, dst])
+    run(['mkdir', '-p', dst])
+    run(['cp', '-au', *src, dst])
 
 profile = yaml.load(open('install.yml'))['install']
 
