@@ -126,7 +126,7 @@ const strings = {
       'Ping to {user}: Pong ({delay} ms).'
     ],
     promptBBCodeArg: 'This BBCode tag requires an argument:',
-    promptNickConflict: 'This nickname is in user; enter another one:',
+    promptNickConflict: 'This nickname is in use; enter another one:',
     promptRoomPassword: 'This room requires a password:',
     promptStatus: 'Status message:',
     rejoinNick: 'Rejoining as {nick} ...',
