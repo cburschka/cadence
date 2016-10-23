@@ -33,6 +33,8 @@ var config;
 
   const initSettings = () => {
     config = JSON.parse($('#config').text());
+    config.settings.version = config.version;
+
     if (localStorage && localStorage.settings) {
       Cadence.loadSettings(JSON.parse(localStorage.settings))
     }
@@ -50,7 +52,5 @@ var config;
       config.ui.emoticonSidebars[pack] = emoticons.sidebars[pack];
     }
   };
-
-
 
 })();
