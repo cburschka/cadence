@@ -23,7 +23,7 @@ def generate_config(config, args):
     config['config']['xmpp']['muc'] = args.muc or 'conference.' + args.domain
 
     packs = {folder for folder in os.listdir('emoticon-packs')
-            if os.path.isfile('emoticon-packs/{}/emoticons.conf'.format(folder))}
+            if os.path.isfile('emoticon-packs/{}/emoticons.yml'.format(folder))}
     config['install']['packs'] = sorted(packs)
 
     styles = {x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css'}
