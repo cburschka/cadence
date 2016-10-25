@@ -9,9 +9,8 @@ Requirements
 
 * An XMPP server with Multi-User Chat and either BOSH or WebSocket
   support is required to run cadence.
-* Python 2.7+ (or 3+), [Babel](https://babeljs.io) and GNU Make are
+* Python 3+, [Babel](https://babeljs.io) and GNU Make are
   required in the build process.
-
 
 Building
 --------
@@ -29,13 +28,14 @@ manually allows additional configuration.
   -h, --help            show this help message and exit
   -s, --secure          Generate HTTPS or Secure WebSocket URLs
   --domain DOMAIN       XMPP domain to log in on.
+  --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
   --url URL             BOSH or WebSocket URL to connect to [PROTOCOL://HOST:PORT/PATH]
   --protocol            The protocol to connect through [http, https, ws, wss].
   --host                The host to connect to, if it differs from the XMPP domain [DOMAIN]
   --port                The port to connect to [5280, 5281].
   --path                The socket path on the server to connect to [/http-bind or /websocket].
   --session-auth AUTH   The URL to use for session authentication.
-  --muc MUC             The MUC conference server to connect to. [conference.DOMAIN]
+  --profile PROFILE     The installation profile to create or update [install.yml].
 ```
 
 * Only `--domain` is strictly required. `--muc` and `--url` are required if
@@ -44,6 +44,8 @@ manually allows additional configuration.
 * `--session-auth` is required if you would like to hook into an existing site's login
   system via [ejabberd-auth-php](https://github.com/cburschka/ejabberd-auth-php). It is
   the public URL of the `rpc.php` script in that software's session authentication plugin.
+
+If the installation profile already exists, it will be updated.
 
 #### Manual configuration
 
@@ -66,6 +68,12 @@ The `install` key contains several directives for the setup scripts:
 After configuring, simply execute the Makefile.
 
     $ make && make install
+
+To build from a custom profile:
+
+    $ make profile=<profile.yml> && make install
+
+The profile otherwise defaults to the most recent one used, or `install.yml`.
 
 License
 -------

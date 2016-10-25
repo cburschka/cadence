@@ -1,3 +1,7 @@
+PROFILE='install.yml'
+include .profile
+profile=$(PROFILE)
+
 ifndef CP
   CP=cp
 endif
@@ -24,10 +28,20 @@ LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
 
 JS_FILES = ${CORE_FILES} ${LIB_FILES}
 
-all: submodules emoticons init locales index.html ${JS_FILES}
+all: profile
+
+all_: submodules emoticons init locales index.html ${JS_FILES}
+
+# Intercept the "all" target to update .profile first.
+# This way, targets that depend on .profile will be rerun if it changes.
+profile:
+ifneq ($(profile),$(PROFILE))
+	echo "PROFILE=$(profile)" > .profile
+endif
+	make all_
 
 install: all
-	./install.py
+	./install.py $(profile)
 
 init:
 	mkdir -p lib/modules/strophe
@@ -36,8 +50,8 @@ init:
 emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"
 
-index.html: index.tpl.html install.yml
-	./setup.py $@
+index.html: index.tpl.html $(profile) .profile
+	./setup.py $(profile)
 
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
@@ -86,8 +100,8 @@ submodules:
 
 .PHONY: all js init submodules
 
-install.yml:
-	./configure.py
+$(profile):
+	./configure.py --profile $(profile)
 
 
 .SECONDEXPANSION:

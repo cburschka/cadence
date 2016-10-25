@@ -5,27 +5,17 @@ import sys
 import re
 import os.path
 import collections
+import util
 
 def load_profile(filename):
     return yaml.load(open(filename))
 
 def load_config(profile):
     conf_default = yaml.load(open('config/default.yml'))
-    return merge_config(conf_default, profile)
+    return util.merge_objects(conf_default, profile)
 
 def load_strings(language):
     return yaml.load(open('locales/{}.yml'.format(language)))
-
-def merge_config(a, b):
-    # If a is a dict, either merge or ignore b.
-    if type(a) is dict:
-        if type(b) is dict:
-            for key in a.keys() & b.keys():
-                a[key] = merge_config(a[key], b[key])
-    # Override lists only with lists, but anything else with anything.
-    elif (type(a) is list) <= (type(b) is list):
-        return b
-    return a
 
 def generate_file(src, dest, var):
     template = open(src).read()
@@ -83,10 +73,9 @@ def generate_emoticons(cdn_url, packs):
         raise(e)
 
 targets = {
-    'index.html': lambda v: generate_file('index.tpl.html', 'index.html', v)
 }
 
-def main(target, filename='install.yml'):
+def main(filename):
     profile = load_profile(filename)
     config = load_config(profile['config'])
     config['cdnURL'] = profile['install']['cdn']['url']
@@ -106,6 +95,7 @@ def main(target, filename='install.yml'):
     variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
     variables['JS_LINKS_LIB'] = libjs
     variables['JS_LINKS_CORE'] = corejs
-    return targets[target](variables)
+
+    return generate_file('index.tpl.html', 'index.html', variables)
 
 main(*sys.argv[1:])

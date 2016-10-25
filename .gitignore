@@ -1,5 +1,4 @@
 # Built files
-.config.vars
 index.html
 lib/
 node_modules/
@@ -10,7 +9,6 @@ config.js
 
 # Installed files
 img/emoticons/packs
-config.custom.js
 custom.css
 
 # Project files
