@@ -3,9 +3,12 @@ config:
   # ui:
   #   title: cadence
   xmpp:
-    domain: example.org
-    url: https://example.org:5281/websocket
-    muc: conference.example.org
+    # The domain of the XMPP server.
+    domain: ''
+    # The URL of the transport.
+    url: ''
+    # The domain of the conference server.
+    muc: ''
     sessionAuth:
 
 install:
@@ -17,3 +20,4 @@ install:
   styles: [ ]
   packs: [ ]
   language: en
+  languages: [ ]

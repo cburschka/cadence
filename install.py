@@ -2,6 +2,19 @@
 
 from ruamel import yaml
 import subprocess
+import sys
+
+def main(filename):
+    profile = yaml.load(open(filename))['install']
+
+    target = profile['target']
+    if target:
+        copy(target, 'index.html')
+
+    cdn_target = profile['cdn']['target'] or target
+    if cdn_target:
+        copy(cdn_target, 'assets', 'lib')
+
 
 def run(args):
     print(*args)
@@ -11,12 +24,4 @@ def copy(dst, *src):
     run(['mkdir', '-p', dst])
     run(['cp', '-au', *src, dst])
 
-profile = yaml.load(open('install.yml'))['install']
-
-target = profile['target']
-if target:
-    copy(target, 'index.html')
-
-cdn_target = profile['cdn']['target'] or target
-if cdn_target:
-    copy(cdn_target, 'assets', 'lib')
+main(sys.argv[1])
