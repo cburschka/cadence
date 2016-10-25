@@ -90,6 +90,11 @@ def main(target, filename='install.yml'):
     profile = load_profile(filename)
     config = load_config(profile['config'])
     config['cdnURL'] = profile['install']['cdn']['url']
+    config['ui']['languages'] = {
+        name:yaml.load(open('locales/{}.yml'.format(name)))['language']
+        for name in profile['install']['languages']
+    }
+    config['settings']['language'] = profile['install']['language']
 
     variables = {}
 

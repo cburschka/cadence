@@ -28,6 +28,10 @@ def generate_config(config, args):
 
     styles = {x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css'}
     config['install']['styles'] = sorted(styles)
+
+    language_files = {x[:-4] for x in os.listdir('locales/') if x[-4:] == '.yml'}
+    config['install']['languages'] = sorted(languages)
+
     return config
 
 

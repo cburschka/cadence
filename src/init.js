@@ -9,6 +9,8 @@ var config, emoticons, strings;
       config = variables.config;
       emoticons = variables.emoticons;
       strings = variables.strings;
+      config.languages = {};
+      config.languages[config.settings.language] = strings;
 
       initSettings();
       loadEmoticons();

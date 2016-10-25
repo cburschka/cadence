@@ -142,6 +142,10 @@ const ui = {
       return ui.playSound(this.getAttribute('data-sound'));
     });
 
+    $('#settings-language').append($.map(config.ui.languages, (name, code) =>
+      $('<option>').attr('value', code).text(name)
+    ));
+
     ui.loadStrings();
     ui.toggleMenu(false);
     ui.loadSettings();
@@ -357,6 +361,12 @@ const ui = {
         });
       else if (Notification.permission == 'denied') $(this).val(0).change();
     }).change();
+
+    // Instantly apply language setting.
+    $('#settings-language').change(function() {
+      Cadence.changeLanguage(this.value).then(() => ui.loadStrings());
+    });
+
 
     // Attempt to maintain the scroll position when changing message heights.
     const toggler = (show, hide, value) => {

@@ -10,6 +10,9 @@ settings:
   # Which trigger to use for the context menu (left, right, hover, none).
   contextmenu: right
 
+  # Leave empty; this is set by the installer.
+  language:
+
   markup:
     # Render incoming HTML Markup.
     html: true
@@ -256,6 +259,7 @@ ui:
   maxMessageLength: 2048
   welcome:
   navigation: {}
+  languages: []
 
 cdnURL: ''
 

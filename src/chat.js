@@ -433,6 +433,15 @@ const Cadence = {
     buzz.all().setVolume(volume);
   },
 
+  changeLanguage(language) {
+    const langs = config.languages;
+    return (langs[language] ? Promise.resolve(langs[language]) : Promise.reject())
+      .catch(() => $.getJSON('assets/locales/' + language + '.json')
+        .then(data => langs[language] = data)
+      )
+      .then(data => strings = data);
+  },
+
   /**
    * Take a dotted string and return the respective value
    * in the settings dictionary.
