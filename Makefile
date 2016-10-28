@@ -1,18 +1,11 @@
+PYTHON=python
+BABEL=babel
+JSYAML=js-yaml
+CP=cp
+
 PROFILE='install.yml'
 include .profile
 profile=$(PROFILE)
-
-ifndef CP
-  CP=cp
-endif
-
-ifndef BABEL
-  BABEL=babel
-endif
-
-ifndef JSYAML
-  JSYAML=js-yaml
-endif
 
 SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
@@ -41,7 +34,7 @@ endif
 	make all_
 
 install: all
-	./install.py $(profile)
+	$(PYTHON) scripts/install.py $(profile)
 
 init:
 	mkdir -p lib/modules/strophe
@@ -51,7 +44,7 @@ emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"
 
 index.html: index.tpl.html $(profile) .profile
-	./setup.py $(profile)
+	$(PYTHON) scripts/setup.py $(profile)
 
 lib: $(CORE_FILES)
 lib/%.js: src/%.js
@@ -101,7 +94,7 @@ submodules:
 .PHONY: all js init submodules
 
 $(profile):
-	./configure.py --profile $(profile)
+	$(PYTHON) scripts/configure.py --profile $(profile)
 
 
 .SECONDEXPANSION:

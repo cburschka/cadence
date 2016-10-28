@@ -6,11 +6,8 @@ assets/emoticons/
 assets/locales/
 emoticons.js
 config.js
+.profile
 
 # Installed files
 img/emoticons/packs
 custom.css
-
-# Project files
-nbproject
-.patch/
