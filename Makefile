@@ -37,8 +37,10 @@ install: all
 	$(PYTHON) scripts/install.py $(profile)
 
 init:
+	npm install
 	mkdir -p lib/modules/strophe
 	mkdir -p assets/locales/
+	$(MAKE) -C node_modules/xbbcode/
 
 emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"
@@ -79,7 +81,7 @@ lib/modules/replacetext.js: node_modules/jquery-replacetext/replacetext.js
 lib/modules/strophe.js: modules/strophe/strophe.js
 	$(CP) $^ $@
 
-lib/modules/xbbcode.js: modules/xbbcode/xbbcode.js
+lib/modules/xbbcode.js: node_modules/xbbcode/xbbcode.js
 	$(CP) $^ $@
 
 lib/modules/strophe/%.js: node_modules/strophe-cadence/lib/%.js

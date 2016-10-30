@@ -26,7 +26,8 @@
   "dependencies": {
     "babel-polyfill": "^6.9.1",
     "jquery-replacetext": "^1.1.0",
-    "strophe-cadence": "0.0.4"
+    "strophe-cadence": "0.0.4",
+    "xbbcode": "^2.0.1"
   },
   "babel": {
     "presets": [

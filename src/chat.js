@@ -198,8 +198,8 @@ const Cadence = {
    */
   sendMessage({to, text, type='normal'}) {
     const color = config.settings.textColor;
-    const html = $('<p>').append(this.bbcode.render(visual.escapeHTML(text)));
-    const body = {html, text: this.bbcodeMD.render(text)};
+    const html = $('<p>').append(this.bbcode(visual.escapeHTML(text)));
+    const body = {html, text: this.bbcodeMD(text)};
     const meta = color && {color};
     const message = {to, body, type, meta};
     xmpp.sendMessage(message);

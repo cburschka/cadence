@@ -1,6 +1,3 @@
-[submodule "js/lib/xbbcode"]
-	path = modules/xbbcode
-	url = https://github.com/cburschka/xbbcode.js/
 [submodule "js/lib/js-cookie"]
 	path = modules/cookie
 	url = https://github.com/js-cookie/js-cookie.git
