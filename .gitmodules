@@ -1,9 +1,6 @@
 [submodule "js/lib/js-cookie"]
 	path = modules/cookie
 	url = https://github.com/js-cookie/js-cookie.git
-[submodule "js/lib/moment"]
-	path = modules/moment
-	url = https://github.com/moment/moment.git
 [submodule "js/lib/strophejs"]
 	path = modules/strophe
 	url = https://github.com/strophe/strophejs.git

@@ -72,7 +72,7 @@ lib/modules/filesaver.js: modules/filesaver/FileSaver.js
 lib/modules/cookie.js: modules/cookie/src/js.cookie.js
 	$(CP) $^ $@
 
-lib/modules/moment.js: modules/moment/moment.js
+lib/modules/moment.js: node_modules/moment/moment.js
 	$(CP) $^ $@
 
 lib/modules/replacetext.js: node_modules/jquery-replacetext/replacetext.js
