@@ -6,7 +6,6 @@ import sys
 import shutil
 import subprocess
 from ruamel import yaml
-import util
 
 yaml.rload = lambda *z: yaml.load(*z, Loader=yaml.RoundTripLoader)
 yaml.rdump = lambda *z: yaml.dump(*z, Dumper=yaml.RoundTripDumper)
@@ -17,8 +16,9 @@ def main():
     # Parse the arguments once to look for the profile.
     args = parser(template, partial=True).parse_args()
 
+    # If the profile exists, load that instead.
     if os.path.isfile(args.profile):
-        template = util.merge_objects(template, yaml.rload(open(args.profile)))
+        template = yaml.rload(open(args.profile))
 
     # Reparse the arguments with new defaults.
     args = parser(template).parse_args()
