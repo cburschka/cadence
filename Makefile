@@ -40,7 +40,6 @@ init:
 	npm install
 	mkdir -p lib/modules/strophe
 	mkdir -p assets/locales/
-	$(MAKE) -C node_modules/xbbcode/
 
 emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"

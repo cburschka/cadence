@@ -29,7 +29,7 @@
     "jquery-replacetext": "^1.1.0",
     "moment": "^2.15.2",
     "strophe-cadence": "0.0.4",
-    "xbbcode": "^2.0.1"
+    "xbbcode": "^2.0.2"
   },
   "babel": {
     "presets": [
