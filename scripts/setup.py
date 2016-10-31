@@ -6,6 +6,7 @@ import re
 import os.path
 import collections
 import util
+from string import Template
 
 def load_profile(filename):
     return yaml.load(open(filename))
@@ -18,10 +19,8 @@ def load_strings(language):
     return yaml.load(open('locales/{}.yml'.format(language)))
 
 def generate_file(src, dest, var):
-    template = open(src).read()
-    template = re.sub('([{}])', '\\1\\1', template)
-    template = re.sub('@@@([A-Z_]+)@@@', '{\\1}', template)
-    open(dest, 'w+').write(template.format(**var))
+    template = Template(open(src).read())
+    open(dest, 'w+').write(template.substitute(**var))
 
 def generate_links(cdn_url, css_alt, style):
     module = [
@@ -78,23 +77,21 @@ targets = {
 def main(filename):
     profile = load_profile(filename)
     config = load_config(profile['config'])
-    config['cdnURL'] = profile['install']['cdn']['url']
-
-    variables = {}
-
-    variables['TITLE'] = config['ui']['title']
-    variables['STRINGS'] = json.dumps(load_strings(profile['install']['language']))
+    cdn = config['cdnUrl'] = profile['install']['cdn']['url'] or ''
 
     css_alt = profile['install']['styles']
-    variables['CDN_URL'] = profile['install']['cdn']['url'] or ''
-    css, libjs, corejs = generate_links(variables['CDN_URL'], css_alt, config['settings']['activeStyle'])
+    css, libjs, corejs = generate_links(cdn, css_alt, config['settings']['activeStyle'])
 
-    variables['EMOTICONS'] = generate_emoticons(variables['CDN_URL'], profile['install']['packs'])
-    variables['CONFIG'] = json.dumps(config)
-    variables['CSS_LINKS'] = css
-    variables['CSS_OPTIONS'] = '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt)
-    variables['JS_LINKS_LIB'] = libjs
-    variables['JS_LINKS_CORE'] = corejs
+    variables = {
+      'title': config['ui']['title'],
+      'config': json.dumps(config),
+      'strings': json.dumps(load_strings(profile['install']['language'])),
+      'cdnUrl': cdn,
+      'emoticons': generate_emoticons(cdn, profile['install']['packs']),
+      'styles': css,
+      'styleOptions': '\n'.join('<option value="{name}">{name}</option>'.format(name=name) for name in css_alt),
+      'scripts': libjs + corejs
+    }
 
     return generate_file('index.tpl.html', 'index.html', variables)
 
