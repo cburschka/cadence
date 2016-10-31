@@ -50,8 +50,9 @@ const ui = {
    * Load the sound files.
    */
   loadSounds() {
+    const base = config.cdnURL + 'assets/sounds/';
     config.sounds.forEach(sound => {
-      this.sounds[sound] = new buzz.sound(config.soundURL + sound, {
+      this.sounds[sound] = new buzz.sound(base + sound, {
         formats: ['ogg', 'mp3'],
         preload: true
       });
