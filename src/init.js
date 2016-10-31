@@ -39,11 +39,8 @@ var config, emoticons, strings;
   const initSettings = () => {
     config.settings.version = config.version;
 
-    if (localStorage && localStorage.settings) {
+    if (localStorage.settings) {
       Cadence.loadSettings(JSON.parse(localStorage.settings))
-    }
-    else {
-      Cadence.loadSettings(Cookies.getJSON(config.clientName + '_settings'));
     }
   }
 

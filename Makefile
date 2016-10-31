@@ -11,7 +11,7 @@ SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
 LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
-            lib/modules/filesaver.js lib/modules/cookie.js \
+            lib/modules/filesaver.js \
             lib/modules/moment.js lib/modules/replacetext.js lib/modules/strophe.js \
             lib/modules/strophe/attention.js lib/modules/strophe/caps.js \
             lib/modules/strophe/disco.js lib/modules/strophe/ping.js \
@@ -67,9 +67,6 @@ lib/modules/contextmenu.js: modules/contextmenu/src/jquery.contextMenu.js
 	$(CP) $^ $@
 
 lib/modules/filesaver.js: modules/filesaver/FileSaver.js
-	$(CP) $^ $@
-
-lib/modules/cookie.js: modules/cookie/src/js.cookie.js
 	$(CP) $^ $@
 
 lib/modules/moment.js: node_modules/moment/moment.js
