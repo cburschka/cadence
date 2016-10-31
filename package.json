@@ -28,9 +28,9 @@
     "buzz": "^1.2.0",
     "jquery-replacetext": "^1.1.0",
     "moment": "^2.15.2",
-    "strophe-cadence": "0.0.4",
+    "strophe-cadence": "^0.0.4",
     "strophe.js": "^1.2.9",
-    "xbbcode": "^2.0.2"
+    "xbbcode": "^2.0.4"
   },
   "babel": {
     "presets": [
