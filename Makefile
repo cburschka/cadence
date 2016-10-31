@@ -74,7 +74,7 @@ lib/modules/moment.js: node_modules/moment/moment.js
 lib/modules/replacetext.js: node_modules/jquery-replacetext/replacetext.js
 	$(CP) $^ $@
 
-lib/modules/strophe.js: modules/strophe/strophe.js
+lib/modules/strophe.js: node_modules/strophe.js/strophe.js
 	$(CP) $^ $@
 
 lib/modules/xbbcode.js: node_modules/xbbcode/xbbcode.js
