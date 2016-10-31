@@ -60,7 +60,7 @@ assets/locales/%.json: locales/%.yml
 
 locales: ${LOCALES}
 
-lib/modules/buzz.js: modules/buzz/src/buzz.js
+lib/modules/buzz.js: node_modules/buzz/src/buzz.js
 	$(CP) $^ $@
 
 lib/modules/contextmenu.js: modules/contextmenu/src/jquery.contextMenu.js

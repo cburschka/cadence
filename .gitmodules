@@ -7,9 +7,6 @@
 [submodule "js/lib/strophejs"]
 	path = modules/strophe
 	url = https://github.com/strophe/strophejs.git
-[submodule "js/lib/buzz"]
-	path = modules/buzz
-	url = https://github.com/jaysalvat/buzz.git
 [submodule "js/lib/FileSaver.js"]
 	path = modules/filesaver
 	url = https://github.com/eligrey/FileSaver.js
