@@ -1,4 +1,5 @@
 PYTHON=python
+export PATH := $(PATH):node_modules/.bin
 BABEL=babel
 JSYAML=js-yaml
 CP=cp
@@ -37,7 +38,9 @@ install: all
 	$(PYTHON) scripts/install.py $(profile)
 
 init:
+ifeq ($(wildcard node_modules),"")
 	npm install
+endif
 	mkdir -p lib/modules/strophe
 	mkdir -p assets/locales/
 

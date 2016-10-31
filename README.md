@@ -7,10 +7,16 @@ powered by strophe.js.
 Requirements
 ------------
 
-* An XMPP server with Multi-User Chat and either BOSH or WebSocket
-  support is required to run cadence.
-* Python 3+, [Babel](https://babeljs.io) and GNU Make are
-  required in the build process.
+* An XMPP server with Multi-User Chat and either BOSH or WebSocket.
+  [ejabberd](https://ejabberd.im/) is recommended, but any server should work.
+
+Building cadence requires the following tools:
+
+* GNU Make.
+* Python 3.5+. If your system's `python` command points to an outdated version,
+  be sure to use `make PYTHON=python3` to explicitly call the new interpreter.
+* The Node Package Manager, [npm](http://npmjs.com/). All other NPM dependencies
+  are installed automatically.
 
 Building
 --------
