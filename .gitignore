@@ -4,8 +4,6 @@ lib/
 node_modules/
 assets/emoticons/
 assets/locales/
-emoticons.js
-config.js
 .profile
 
 # Installed files
