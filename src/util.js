@@ -58,37 +58,63 @@ Object.fromEntries = Object.fromEntries ||
 
 /**
  * _.debounce adapted from Underscore, extending the Function prototype.
+ *
+ * A debounced function clusters repeated calls into intervals, using a given
+ * time resolution, and runs only once for every such interval.
+ *
+ * It may run at the beginning (ie. immediately after the first call) or the
+ * end (ie. after sufficient time has passed without a call) of the interval.
+ *
+ * It will always run with the context and arguments of the most recent call,
+ * and calls will always return the most recent true return value.
+ *
+ * (This means that the cached return value may not match the true return value
+ * that would have resulted from the current call!)
+ *
+ * @param {int} delay The delay in milliseconds.
+ * @param {boolean} immediate Whether to run the function immediately.
  */
-Function.prototype.debounce = function(wait, immediate) {
+Function.prototype.debounce = function(delay, immediate) {
+  // Keep the function for access by inner scopes that reuse "this".
   const func = this;
-  let timeout, last_args, context, timestamp, result;
 
+  // Define the variables shared between both inner functions.
+  let timeout, expire;
+  const last = {
+    this: undefined,
+    args: undefined,
+    return: undefined
+  };
+
+  const run = () => {
+    last.return = func.apply(last.this, last.args);
+    last.this = last.args = null;
+  }
+
+  // While an interval is ongoing, this function repeatedly checks if it has ended.
   const later = () => {
-    const last = Date.now() - timestamp;
+    const now = Date.now();
 
-    if (last < wait && last >= 0) {
-      timeout = setTimeout(later, wait - last);
-    } else {
+    // Enough time has passed. Clean up, and run the function if on falling-edge.
+    if (now > expire) {
       timeout = null;
-      if (!immediate) {
-        result = func.apply(context, last_args);
-        if (!timeout) context = last_args = null;
-      }
+      if (!immediate) run();
     }
+    // Interval still active. Check again when it runs out.
+    else timeout = setTimeout(later, expire - now);
   };
 
   return function(...args) {
-    last_args = args;
-    context = this;
-    timestamp = Date.now();
-    const callNow = immediate && !timeout;
-    if (!timeout) timeout = setTimeout(later, wait);
-    if (callNow) {
-      result = func.apply(context, args);
-      context = last_args = null;
+    // Set the context, and set expiration time.
+    last.context = this;
+    last.args = args;
+    expire = Date.now() + delay;
+    // Begin calling later(), and run the function if on rising-edge.
+    if (!timeout) {
+      timeout = setTimeout(later, delay);
+      if (immediate) run();
     }
-
-    return result;
+    return last.result;
   };
 };
 
