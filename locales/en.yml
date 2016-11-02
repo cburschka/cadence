@@ -260,6 +260,7 @@ label:
     advanced: Advanced
     apply: Apply
     cancel: Cancel
+    clear: Clear
     help: Help
     login: Log in
     roster: Users
@@ -326,7 +327,6 @@ label:
 
     textColor:
       label: Text color
-      clear: Clear
       none: None
 
     dateFormat: Date format (<a href="http://momentjs.com/docs/#/displaying/format/">help</a>)

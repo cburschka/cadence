@@ -57,6 +57,42 @@ Object.fromEntries = Object.fromEntries ||
   });
 
 /**
+ * _.debounce adapted from Underscore, extending the Function prototype.
+ */
+Function.prototype.debounce = function(wait, immediate) {
+  const func = this;
+  let timeout, last_args, context, timestamp, result;
+
+  const later = () => {
+    const last = Date.now() - timestamp;
+
+    if (last < wait && last >= 0) {
+      timeout = setTimeout(later, wait - last);
+    } else {
+      timeout = null;
+      if (!immediate) {
+        result = func.apply(context, last_args);
+        if (!timeout) context = last_args = null;
+      }
+    }
+  };
+
+  return function(...args) {
+    last_args = args;
+    context = this;
+    timestamp = Date.now();
+    const callNow = immediate && !timeout;
+    if (!timeout) timeout = setTimeout(later, wait);
+    if (callNow) {
+      result = func.apply(context, args);
+      context = last_args = null;
+    }
+
+    return result;
+  };
+};
+
+/**
  * Polyfill for the KeyEvent constants.
  */
 const KeyEvent = (() => {

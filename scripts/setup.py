@@ -27,7 +27,7 @@ def generate_links(cdn_url, css_alt, style):
         'contextmenu', 'cookie', 'replacetext', 'strophe',
         'strophe/attention', 'strophe/disco', 'strophe/caps', 'strophe/ping',
         'strophe/storage', 'strophe/time', 'strophe/version', 'moment',
-        'xbbcode', 'buzz', 'babel', 'filesaver'
+        'xbbcode', 'buzz', 'babel', 'filesaver', 'isotope'
     ]
     core = ['chat', 'xmpp', 'commands', 'ui', 'visual', 'init', 'util']
     css_template = '<link class="alternate-style" rel="{alt}stylesheet" title="{name}" type="text/css" href="{cdn}assets/css/alt/{name}.css" />'

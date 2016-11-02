@@ -102,13 +102,33 @@ const ui = {
         .css('background-image', `url(${encodeURI(baseURL + icon)})`)
         .appendTo(this.dom.emoticonTrayContainer);
 
-      const list = $('<div class="emoticon-list-sidebar" dir="ltr">')
-        .attr('id', `emoticonsList-${set}`);
-
       const sidebar = $('<div class="menuContainer emoticon-sidebar box">')
         .attr('id', `emoticon-${set}`)
-        .append($('<h3>').text(title), list)
-        .appendTo(this.dom.emoticonSidebarContainer);
+        .appendTo(this.dom.emoticonSidebarContainer)
+        .append($('<h3>').text(title));
+
+      const search = $('<input type="text" class="emoticon-search">')
+        .on({
+          keyup: function() {
+            const value = this.value.replace(/["\\]/, '\\$0');
+            list.isotope({
+              itemSelector: '.emoticon-shortcut',
+              filter: this.value ? `[title*="${value}"]` : '',
+            });
+          }.debounce(500)
+        });
+
+      const clear = $('<button class="button string clearbutton" data-string="label.button.clear">')
+        .on('click', () => search.val('').keyup());
+
+      $('<div class="box emoticon-header">')
+        .appendTo(sidebar)
+        .append(search, clear);
+
+      const list = $('<div class="emoticon-list-sidebar" dir="ltr">')
+        .appendTo(sidebar)
+        .attr('data-sidebar', set)
+        .attr('id', `emoticonsList-${set}`)
 
       this.dom.menu[`emoticon-${set}`] = sidebar;
     });
@@ -116,7 +136,7 @@ const ui = {
     Object.keys(emoticons).forEach(set => {
       const {baseURL, codes} = emoticons[set];
       const shortcuts = Object.keys(codes).map(code =>
-        $('<a class="insert-text">').attr({
+        $('<a class="insert-text emoticon-shortcut">').attr({
           href: `javascript:void('${code.replace(/'/g, '\\\'')}');`,
           title: code
         })
