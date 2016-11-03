@@ -66,54 +66,45 @@ Object.fromEntries = Object.fromEntries ||
  * end (ie. after sufficient time has passed without a call) of the interval.
  *
  * It will always run with the context and arguments of the most recent call,
- * and calls will always return the most recent true return value.
+ * and calls will always return the most recent return value.
  *
- * (This means that the cached return value may not match the true return value
- * that would have resulted from the current call!)
+ * (This means that the cached return value may be stale, and not match the
+ * value that would have been returned from the current call!)
  *
  * @param {int} delay The delay in milliseconds.
  * @param {boolean} immediate Whether to run the function immediately.
  */
 Function.prototype.debounce = function(delay, immediate) {
-  // Keep the function for access by inner scopes that reuse "this".
-  const func = this;
-
-  // Define the variables shared between both inner functions.
-  let timeout, expire;
   const last = {
     this: undefined,
     args: undefined,
     return: undefined
   };
+  let expire = 0, blocked = false;
 
-  const run = () => {
-    last.return = func.apply(last.this, last.args);
-    last.this = last.args = null;
-  }
-
-  // While an interval is ongoing, this function repeatedly checks if it has ended.
-  const later = () => {
+  const run = () => last.return = this.apply(last.this, last.args);
+  const edge = () => (blocked == !!immediate) && run();
+  const check = () => {
     const now = Date.now();
-
-    // Enough time has passed. Clean up, and run the function if on falling-edge.
-    if (now > expire) {
-      timeout = null;
-      if (!immediate) run();
+    if (now >= expire) {
+      blocked = false;
+      edge();
     }
-    // Interval still active. Check again when it runs out.
-    else timeout = setTimeout(later, expire - now);
+    else setTimeout(check, expire - now);
   };
 
   return function(...args) {
-    // Set the context, and set expiration time.
-    last.context = this;
+    last.this = this;
     last.args = args;
-    expire = Date.now() + delay;
-    // Begin calling later(), and run the function if on rising-edge.
-    if (!timeout) {
-      timeout = setTimeout(later, delay);
-      if (immediate) run();
+
+    // If there is no block, trigger rising edge and begin checking.
+    // (wait for the block to explicitly expire to avoid racing conditions)
+    if (!blocked) {
+      blocked = true;
+      edge();
+      setTimeout(check, delay);
     }
+    expire = Date.now() + delay;
     return last.result;
   };
 };
