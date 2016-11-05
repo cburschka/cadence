@@ -24,6 +24,7 @@ var config, emoticons, strings;
         xmpp.connection.connected &&
         config.settings.notifications.leavePage &&
         strings.info.leavePage
+        || undefined
       });
       $(window).unload(() => xmpp.connection.disconnect());
 
