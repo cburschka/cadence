@@ -208,7 +208,7 @@ span.hidden {
   font-size: 90%;
 }
 span.hidden:after { content: "[hidden]" }
-button.soundTest, select.soundSelect { vertical-align:middle; }
+button.soundTest, select.soundSelect { vertical-align: middle }
 
 .data-form label, .data-form-field {
   width: 45%;
@@ -222,4 +222,4 @@ button.soundTest, select.soundSelect { vertical-align:middle; }
   padding-right: 2em;
 }
 .data-form br { clear: left }
-.menuContainer .ui-tabs .ui-tabs-panel { padding: 0; }
+.menuContainer .ui-tabs .ui-tabs-panel { padding: 0 }
