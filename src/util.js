@@ -75,11 +75,7 @@ Object.fromEntries = Object.fromEntries ||
  * @param {boolean} immediate Whether to run the function immediately.
  */
 Function.prototype.debounce = function(delay, immediate) {
-  const last = {
-    this: undefined,
-    args: undefined,
-    return: undefined
-  };
+  const last = {};
   let expire = 0, blocked = false;
 
   const run = () => last.return = this.apply(last.this, last.args);
