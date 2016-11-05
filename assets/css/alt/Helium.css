@@ -13,6 +13,7 @@ h3 { background: linear-gradient(180deg, rgba(256,256,256,0.8) 0%, rgba(0,0,0,0)
 .ui-tabs .ui-tabs-nav li { border: none }
 .ui-tabs-nav .ui-tabs-active a { color: #206 }
 button, input, select, .box, textarea.form-field { background: rgba(255, 255, 255, 0.4) }
+.emotion-header { background: rgba(255, 255, 255, 0.5) }
 button:hover { background: rgba(0,0,0,0.05) }
 button:active { background: rgba(0,0,0,0.2) }
 input[type=text], input[type=password] { padding-left: 5px }

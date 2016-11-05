@@ -14,7 +14,7 @@ body, .row:nth-child(even) { background: #eee }
 body { color: #333 }
 .row:nth-child(odd) { background-color: #ddd }
 .box, input, input, select, textarea.form-field { background-color: white }
-button, h3, .ui-tabs-active, .ui-tabs-nav .ui-tabs-active a {
+button, h3, .ui-tabs-active, .ui-tabs-nav .ui-tabs-active a, div.emoticon-header {
   background-color: #b84623;
   color: white;
 }

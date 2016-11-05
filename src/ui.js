@@ -107,19 +107,25 @@ const ui = {
         .appendTo(this.dom.emoticonSidebarContainer)
         .append($('<h3>').text(title));
 
-      const search = $('<input type="text" class="emoticon-search">')
+      const search = $('<input type="text" class="emoticon-search string" data-string-placeholder="label.tooltip.search">')
         .on({
           keyup: function() {
-            const value = this.value.replace(/["\\]/, '\\$0');
+            const query = this.value;
+            clear.toggle(!!query);
             list.isotope({
               itemSelector: '.emoticon-shortcut',
-              filter: this.value ? `[title*="${value}"]` : '',
+              filter: function() {
+                return this.title.includes(query);
+              }
             });
-          }.debounce(500)
+          }.debounce(300)
         });
 
       const clear = $('<button class="button string clearbutton" data-string="label.button.clear">')
-        .on('click', () => search.val('').keyup());
+        .on('click', () => {
+          search.val('').keyup();
+          clear.hide();
+        }).hide();
 
       $('<div class="box emoticon-header">')
         .appendTo(sidebar)
