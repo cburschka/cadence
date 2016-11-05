@@ -466,14 +466,14 @@ const visual = {
    * @return {string} a string containing all messages.
    */
   messagesToText(messages) {
-    return Array.from($(messages).map(function() {
-      const jQ = this.html.clone();
-      jQ.find('a').replaceWith(function() { return '[url=' + this.href + ']' + $(this).html() + '[/url]'; });
-      jQ.find('img.emoticon').remove(); // The alt text is already in a hidden <span>.
-      jQ.find('img').replaceWith(function() { return '[img]' + this.src + '[/img]'; });
-      jQ.find('q').replaceWith(function() { return '"' + $(this).html() + '"'; });
-      return jQ.text();
-    })).join("\n");
+    return messages.map(({message, html}) => {
+      // Non-local messages have a plaintext body. Remove the HTML body.
+      if (message.type != 'local') {
+        html = html.clone();
+        html.find('span.body-html').remove();
+      }
+      return html.text();
+    }).join("\n");
   },
 
   /**
