@@ -27,6 +27,7 @@
     "babel-polyfill": "^6.9.1",
     "buzz": "^1.2.0",
     "isotope-layout": "^3.0.1",
+    "jquery-contextmenu": "^1.11.0",
     "jquery-replacetext": "^1.1.0",
     "moment": "^2.15.2",
     "strophe-cadence": "^0.0.4",

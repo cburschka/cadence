@@ -1,6 +1,3 @@
 [submodule "js/lib/FileSaver.js"]
 	path = modules/filesaver
 	url = https://github.com/eligrey/FileSaver.js
-[submodule "js/lib/contextmenu"]
-	path = modules/contextmenu
-	url = https://github.com/medialize/jquery-contextMenu

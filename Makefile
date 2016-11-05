@@ -65,7 +65,7 @@ locales: ${LOCALES}
 lib/modules/buzz.js: node_modules/buzz/src/buzz.js
 	$(CP) $^ $@
 
-lib/modules/contextmenu.js: modules/contextmenu/src/jquery.contextMenu.js
+lib/modules/contextmenu.js: node_modules/jquery-contextmenu/dist/jquery.contextMenu.js
 	$(CP) $^ $@
 
 lib/modules/filesaver.js: modules/filesaver/FileSaver.js
