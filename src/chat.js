@@ -54,6 +54,7 @@ const Cadence = {
       // Print a stack trace for generic JavaScript errors:
       if (error instanceof Error) {
         const {name, message, stack} = error;
+        console.log(error);
         return new Cadence.Error(strings.error.javascript, {name, message, stack});
       }
 
