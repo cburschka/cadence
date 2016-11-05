@@ -46,22 +46,22 @@
     <!-- / headlineContainer -->
     <div id="chatList" class="box"></div>
     <div id="inputFieldContainer" class="box">
-      <textarea id="inputField" rows="1" cols="50" class="string-title" data-title="label.tooltip.input"></textarea>
+      <textarea id="inputField" rows="1" cols="50" class="string" data-string-title="label.tooltip.input"></textarea>
     </div>
     <div id="messageLengthContainer">
       <span id="messageLengthCounter">0</span>
     </div>
     <div id="footerContainer">
       <div id="bbCodeContainer" class="container">
-        <button class="button insert-bbcode string-title" accesskey="b" value="b" data-title="label.tooltip.bold" style="font-weight:bold;">b</button>
-        <button class="button insert-bbcode string-title" accesskey="i" value="i" data-title="label.tooltip.italic" style="font-style:italic;">i</button>
-        <button class="button insert-bbcode string-title" accesskey="u" value="u" data-title="label.tooltip.underline" style="text-decoration:underline;">u</button>
-        <button class="button insert-bbcode string-title" accesskey="s" value="s" data-title="label.tooltip.strike" style="text-decoration:line-through;">s</button>
-        <button class="button insert-bbcode string-title" accesskey="q" value="quote" data-title="label.tooltip.quote">Quote</button>
-        <button class="button insert-bbcode string-title" accesskey="c" value="code" data-title="label.tooltip.code">Code</button>
-        <button class="button insert-bbcode insert-bbcode-arg string-title" accesskey="l" value="url" data-title="label.tooltip.url">URL</button>
-        <button class="button insert-bbcode string-title" accesskey="g" value="img" data-title="label.tooltip.img">IMG</button>
-        <button class="button string-title" id="colorBBCode" accesskey="o" value="color" data-title="label.tooltip.color">Color</button>
+        <button class="button insert-bbcode string" accesskey="b" value="b" data-string-title="label.tooltip.bold" style="font-weight:bold;">b</button>
+        <button class="button insert-bbcode string" accesskey="i" value="i" data-string-title="label.tooltip.italic" style="font-style:italic;">i</button>
+        <button class="button insert-bbcode string" accesskey="u" value="u" data-string-title="label.tooltip.underline" style="text-decoration:underline;">u</button>
+        <button class="button insert-bbcode string" accesskey="s" value="s" data-string-title="label.tooltip.strike" style="text-decoration:line-through;">s</button>
+        <button class="button insert-bbcode string" accesskey="q" value="quote" data-string-title="label.tooltip.quote">Quote</button>
+        <button class="button insert-bbcode string" accesskey="c" value="code" data-string-title="label.tooltip.code">Code</button>
+        <button class="button insert-bbcode insert-bbcode-arg string" accesskey="l" value="url" data-string-title="label.tooltip.url">URL</button>
+        <button class="button insert-bbcode string" accesskey="g" value="img" data-string-title="label.tooltip.img">IMG</button>
+        <button class="button string" id="colorBBCode" accesskey="o" value="color" data-string-title="label.tooltip.color">Color</button>
       </div>
       <!-- / bbCodeContainer -->
       <div id="emoticonsContainer" class="container">
@@ -71,12 +71,12 @@
         <button class="button string" id="textColorFull" data-string="label.button.advanced"></button>
       </div>
       <div id="trayContainer" class="container">
-        <button class="tray icon string string-title" id="statusButton" data-title="label.tooltip.status" data-string="label.button.status"></button>
-        <button class="tray icon toggleMenu string string-title" id="helpButton" data-sidebar="help" data-title="label.tooltip.help" data-string="label.button.help"></button>
+        <button class="tray icon string" id="statusButton" data-string-title="label.tooltip.status" data-string="label.button.status"></button>
+        <button class="tray icon toggleMenu string" id="helpButton" data-sidebar="help" data-string-title="label.tooltip.help" data-string="label.button.help"></button>
         <span id="emoticonTrayContainer"></span>
-        <button class="tray icon toggleMenu string string-title" id="settingsButton" data-sidebar="settings" data-title="label.tooltip.settings" data-string="label.button.settings"></button>
-        <button class="tray icon toggleMenu string string-title" id="rosterButton" data-sidebar="roster" data-title="label.tooltip.roster" data-string="label.button.roster"></button>
-        <button class="tray icon string string-title" id="audioButton" data-title="label.tooltip.sound" data-string="label.button.sound"></button>
+        <button class="tray icon toggleMenu string" id="settingsButton" data-sidebar="settings" data-string-title="label.tooltip.settings" data-string="label.button.settings"></button>
+        <button class="tray icon toggleMenu string" id="rosterButton" data-sidebar="roster" data-string-title="label.tooltip.roster" data-string="label.button.roster"></button>
+        <button class="tray icon string" id="audioButton" data-string-title="label.tooltip.sound" data-string="label.button.sound"></button>
         <div id="autoScrollIcon" class="on"></div>
       </div>
       <!-- / trayContainer -->
@@ -135,7 +135,7 @@
             <td><label for="textColor" class="string" data-string="label.settings.textColor.label"></label></td>
             <td class="setting">
               <button class="button string" id="textColor" data-string="label.settings.textColor.none"></button>
-              <button class="button string" id="textColorClear" data-string="label.settings.textColor.clear"></button>
+              <button class="button string" id="textColorClear" data-string="label.button.clear"></button>
               <input type="color" id="settings-textColor" />
             </td>
           </tr>
@@ -144,7 +144,11 @@
         <section id="settingsDisplay">
         <table>
           <tr class="row">
-            <td><label for="settings-dateFormat" class="string-html" data-html="label.settings.dateFormat"></label></td>
+            <td>
+              <a href="http://momentjs.com/docs/#/displaying/format/">
+                <label for="settings-dateFormat" class="string" data-string="label.settings.dateFormat"></label>
+              </a>
+            </td>
             <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
           </tr>
           <tr class="row">

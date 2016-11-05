@@ -148,20 +148,22 @@ const ui = {
     ui.loadSettings();
   },
 
-  loadStrings() {
+  loadStrings(context = document) {
     // Fill strings.
-    $('.string').text(function() {
-      return ui.getString($(this).attr('data-string'));
-    });
-    $('.string-html').html(function() {
-      return ui.getString($(this).attr('data-html'));
-    })
-    $('.string-title').attr('title', function() {
-      return ui.getString($(this).attr('data-title'));
+    $('.string', context).each(function() {
+      const key = this.getAttribute('data-string');
+      if (key) $(this).text(ui.getString(key));
+
+      for (let attribute of this.attributes) {
+        const target = attribute.name.match(/^data-string-(.*)$/);
+        if (target) {
+          this.setAttribute(target[1], ui.getString(attribute.value));
+        }
+      }
     });
 
     // Add the access key labels to the BBCode buttons.
-    $('#bbCodeContainer button').each(function() {
+    $('#bbCodeContainer button', context).each(function() {
       if (this.accessKeyLabel) this.title = this.title + ' (' + this.accessKeyLabel + ')';
     });
   },
