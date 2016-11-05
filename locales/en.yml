@@ -309,6 +309,7 @@ label:
      roster: Show/hide online list
      sound: Sound on/off
      status: Status (right-click for status message)
+     search: Emoticon search
 
   settings:
     xmpp:
