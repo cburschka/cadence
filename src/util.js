@@ -58,6 +58,55 @@ Object.fromEntries = Object.fromEntries ||
   });
 
 /**
+ * _.debounce adapted from Underscore, extending the Function prototype.
+ *
+ * A debounced function clusters repeated calls into intervals, using a given
+ * time resolution, and runs only once for every such interval.
+ *
+ * It may run at the beginning (ie. immediately after the first call) or the
+ * end (ie. after sufficient time has passed without a call) of the interval.
+ *
+ * It will always run with the context and arguments of the most recent call,
+ * and calls will always return the most recent return value.
+ *
+ * (This means that the cached return value may be stale, and not match the
+ * value that would have been returned from the current call!)
+ *
+ * @param {int} delay The delay in milliseconds.
+ * @param {boolean} immediate Whether to run the function immediately.
+ */
+Function.prototype.debounce = function(delay, immediate) {
+  const last = {};
+  let expire = 0, blocked = false;
+
+  const run = () => last.return = this.apply(last.this, last.args);
+  const edge = () => (blocked == !!immediate) && run();
+  const check = () => {
+    const now = Date.now();
+    if (now >= expire) {
+      blocked = false;
+      edge();
+    }
+    else setTimeout(check, expire - now);
+  };
+
+  return function(...args) {
+    last.this = this;
+    last.args = args;
+
+    // If there is no block, trigger rising edge and begin checking.
+    // (wait for the block to explicitly expire to avoid racing conditions)
+    if (!blocked) {
+      blocked = true;
+      edge();
+      setTimeout(check, delay);
+    }
+    expire = Date.now() + delay;
+    return last.result;
+  };
+};
+
+/**
  * Polyfill for the KeyEvent constants.
  */
 const KeyEvent = (() => {
