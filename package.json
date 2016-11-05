@@ -26,6 +26,7 @@
   "dependencies": {
     "babel-polyfill": "^6.9.1",
     "buzz": "^1.2.0",
+    "file-saver": "^1.3.3",
     "isotope-layout": "^3.0.1",
     "jquery-contextmenu": "^1.11.0",
     "jquery-replacetext": "^1.1.0",

@@ -68,7 +68,7 @@ lib/modules/buzz.js: node_modules/buzz/src/buzz.js
 lib/modules/contextmenu.js: node_modules/jquery-contextmenu/dist/jquery.contextMenu.js
 	$(CP) $^ $@
 
-lib/modules/filesaver.js: modules/filesaver/FileSaver.js
+lib/modules/filesaver.js: node_modules/file-saver/FileSaver.js
 	$(CP) $^ $@
 
 lib/modules/isotope.js: node_modules/isotope-layout/dist/isotope.pkgd.js

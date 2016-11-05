@@ -1,3 +1,0 @@
-[submodule "js/lib/FileSaver.js"]
-	path = modules/filesaver
-	url = https://github.com/eligrey/FileSaver.js
