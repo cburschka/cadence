@@ -35,6 +35,7 @@ Array.prototype.indexOfBinary = function(val) {
  */
 Object.merge = (a, b) => {
   if (typeof a != typeof b) return a;
+  if (a === null || a === undefined) return b;
   if (a.constructor != Object) return b;
   // Shallow copy of a:
   const c = Object.assign({}, a);
