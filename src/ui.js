@@ -2,7 +2,7 @@
  * ui.js contains all functions that alter the user interface.
  */
 const ui = {
-  activeMenu: null,
+  activeSidebar: null,
   roster: {},
   sortedNicks: [],
   dom: null,
@@ -31,7 +31,7 @@ const ui = {
       statusButton: $('#statusButton'),
       autoScrollIcon: $('#autoScrollIcon'),
       messageLength: $('#messageLength'),
-      menu: {
+      sidebars: {
         help: $('#helpContainer'),
         roster: $('#rosterContainer'),
         settings: $('#settingsContainer'),
@@ -102,7 +102,7 @@ const ui = {
       const {title, icon} = bars[set];
       const {codes, baseURL} = emoticons[set];
 
-      $('<button class="tray icon toggleMenu">')
+      $('<button class="tray icon toggleSidebar">')
         .text(title)
         .attr({
           title,
@@ -112,7 +112,7 @@ const ui = {
         .css('background-image', `url(${encodeURI(baseURL + icon)})`)
         .appendTo(this.dom.emoticonTrayContainer);
 
-      const sidebar = $('<div class="menuContainer emoticon-sidebar box">')
+      const sidebar = $('<div class="sidebar emoticon-sidebar box">')
         .attr('id', `emoticon-${set}`)
         .appendTo(this.dom.emoticonSidebarContainer)
         .append($('<h3>').text(title));
@@ -146,7 +146,7 @@ const ui = {
         .attr('data-sidebar', set)
         .attr('id', `emoticonsList-${set}`)
 
-      this.dom.menu[`emoticon-${set}`] = sidebar;
+      this.dom.sidebars[`emoticon-${set}`] = sidebar;
     });
 
     Object.keys(emoticons).forEach(set => {
@@ -180,7 +180,7 @@ const ui = {
     });
 
     ui.loadStrings();
-    ui.toggleMenu(false);
+    ui.toggleSidebar(false);
     ui.loadSettings();
   },
 
@@ -222,7 +222,7 @@ const ui = {
     $('#settings-notifications\\.triggers').val(config.settings.notifications.triggers.join(', '));
 
     this.setTextColorPicker(config.settings.textColor);
-    this.toggleMenu();
+    this.toggleSidebar();
 
     // Set the volume.
     Cadence.setAudioVolume(config.settings.notifications.soundVolume);
@@ -294,12 +294,12 @@ const ui = {
       });
       e.preventDefault();
     });
-    $('#trayContainer button.toggleMenu').click(function() {
+    $('#trayContainer button.toggleSidebar').click(function() {
       const sidebar = this.getAttribute('data-sidebar');
-      const oldMenu = config.settings.activeMenu;
-      const newMenu = sidebar == oldMenu ? '' : sidebar;
-      Cadence.setSetting('activeMenu', newMenu);
-      ui.toggleMenu();
+      const old = config.settings.activeSidebar;
+      const current = sidebar == old ? '' : sidebar;
+      Cadence.setSetting('activeSidebar', current);
+      ui.toggleSidebar();
     });
 
     // BBCode buttons.
@@ -694,17 +694,17 @@ const ui = {
    *
    * @param {boolean} animate Set to false to skip animation (on startup).
    */
-  toggleMenu(animate=true) {
+  toggleSidebar(animate=true) {
     const speed = animate ? 'slow' : 0;
-    const oldMenu = this.activeMenu;
-    const newMenu = config.settings.activeMenu;
+    const old = this.activeSidebar;
+    const current = config.settings.activeSidebar;
     // Sanity check, only toggle if the value changed.
-    if (oldMenu === newMenu) return;
-    if (oldMenu) this.dom.menu[oldMenu].animate({width: 'hide'}, speed);
+    if (old === current) return;
+    if (old) this.dom.sidebars[old].animate({width: 'hide'}, speed);
 
-    // New menu's width, plus an 8px margin. Yay for magic hard-coded pixels.
-    const menuWidth = newMenu ? 8 + parseInt(this.dom.menu[newMenu].css('width')) : 0;
-    const width = 20 + menuWidth;
+    // New sidebar's width, plus an 8px margin. Yay for magic hard-coded pixels.
+    const sidebarWidth = current ? 8 + parseInt(this.dom.sidebars[current].css('width')) : 0;
+    const width = 20 + sidebarWidth;
 
     // Resize the chat pane's right margin, then rescale inline images.
     this.dom.messagePane.animate({right : width + 'px'}, speed, () => {
@@ -713,11 +713,11 @@ const ui = {
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
-    if (newMenu) {
-      this.dom.menu[newMenu].animate({width: 'show'}, speed);
-      this.activeMenu = newMenu;
+    if (current) {
+      this.dom.sidebars[current].animate({width: 'show'}, speed);
+      this.activeSidebar = current;
     }
-    else this.activeMenu = null;
+    else this.activeSidebar = null;
   },
 
   /**

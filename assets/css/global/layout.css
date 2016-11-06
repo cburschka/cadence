@@ -11,12 +11,12 @@ body {
 }
 h3 { white-space: nowrap }
 #roomContainer,
-.menuContainer,
+.sidebar,
 #messagePane .row,
 #roster .row,
 #settings-textColor, #textColorClear { display: none }
 
-.menuContainer { overflow-x: hidden }
+.sidebar { overflow-x: hidden }
 
 #content {
   position: absolute;
@@ -85,7 +85,7 @@ h3 { white-space: nowrap }
   font-size: 1.5em;
   padding: 2px;
 }
-.menuContainer {
+.sidebar {
   bottom: 115px;
   right: 20px;
   top: 50px;
@@ -97,7 +97,7 @@ h3 {
   margin: 0px;
   text-align: center;
 }
-.menuContainer div {
+.sidebar div {
   margin: auto;
   bottom: 0;
 }
@@ -234,7 +234,7 @@ button.soundTest, select.soundSelect { vertical-align: middle }
   padding-right: 2em;
 }
 .data-form br { clear: left }
-.menuContainer .ui-tabs .ui-tabs-panel { padding: 0 }
+.sidebar .ui-tabs .ui-tabs-panel { padding: 0 }
 button.button { display: inline-block }
 button.clearbutton {
   padding: 9px;

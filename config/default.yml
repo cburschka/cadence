@@ -1,6 +1,6 @@
 settings:
   # Which option container is open when the page loads.
-  activeMenu: roster
+  activeSidebar: roster
 
   activeStyle: Stygium
   # Which stylesheet is selected when the page loads.
