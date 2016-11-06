@@ -24,7 +24,7 @@ JS_FILES = ${CORE_FILES} ${LIB_FILES}
 
 all: profile
 
-all_: submodules emoticons init locales index.html ${JS_FILES}
+all_: init emoticons locales index.html ${JS_FILES}
 
 # Intercept the "all" target to update .profile first.
 # This way, targets that depend on .profile will be rerun if it changes.
@@ -42,7 +42,7 @@ install: all
 	$(PYTHON) scripts/install.py $(profile)
 
 init:
-ifeq ($(wildcard node_modules),"")
+ifeq ("$(wildcard node_modules)","")
 	npm install
 endif
 	mkdir -p lib/modules/strophe
@@ -96,10 +96,7 @@ lib/modules/strophe/%.js: node_modules/strophe-cadence/lib/%.js
 lib/modules/babel.js: node_modules/babel-polyfill/browser.js
 	$(CP) $^ $@
 
-submodules:
-	git submodule update --init
-
-.PHONY: all js init submodules
+.PHONY: all js init profile install
 
 $(profile):
 	$(PYTHON) scripts/configure.py --profile $(profile)
