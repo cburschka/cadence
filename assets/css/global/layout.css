@@ -1,13 +1,20 @@
-body {
-  padding: 0;
+/* Scale the page to the viewport. */
+html, body {
   margin: 0;
+  height: 100%;
 }
-#logo {
-  float: right;
+/* Scale the body pane to the viewport, including padding. */
+#body {
+  box-sizing: border-box;
+  padding: 15px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
+#logo { float: right }
 #logo img {
   vertical-align: middle;
-  padding-right:5px;
+  padding-right: 5px;
 }
 h3 { white-space: nowrap }
 #roomContainer,
@@ -18,17 +25,6 @@ h3 { white-space: nowrap }
 
 .sidebar { overflow-x: hidden }
 
-#content {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-#headlineContainer {
-  position: absolute;
-  left: 20px;
-  top: 15px;
-  right: 20px;
-}
 #loginContainer { display: inline }
 #navigation {
   display: none;
@@ -44,14 +40,22 @@ h3 { white-space: nowrap }
 #navigation li:before { content: " | " }
 #navigation li:first-child:before { content: none }
 
-#messagePane {
-  position: absolute;
-  left: 20px;
-  right: 230px;
-  top: 50px;
-  bottom: 115px;
+#header, #content { margin-bottom: 5px }
+/* The content pane fills up the screen height. */
+#content {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
   overflow: auto;
+}
+
+#messagePane {
+  overflow-y: auto;
   hyphens: auto;
+  word-wrap: break-word;
+  flex-grow: 1;
+  margin-right: 5px;
 }
 #messagePane .row {
   padding: 2px 10px;
@@ -63,20 +67,19 @@ h3 { white-space: nowrap }
 }
 #messagePane cite { margin-right: 5px }
 
+#sidebars { overflow-y: auto }
+
 #inputFieldContainer {
-  bottom: 58px;
-  left: 20px;
   padding-right: 4px;
-  position: absolute;
-  right: 20px;
-  height:48px;
+  position: relative;
+  top: 0 !important;
 }
 #inputField {
   box-sizing: border-box;
   resize: none;
-  padding:5px;
-  width:100%;
-  height:100%;
+  padding: 5px;
+  width: 100%;
+  height: 100%;
 }
 #messageLength {
   position: absolute;
@@ -84,12 +87,6 @@ h3 { white-space: nowrap }
   bottom: 0;
   font-size: 1.5em;
   padding: 2px;
-}
-.sidebar {
-  bottom: 115px;
-  right: 20px;
-  top: 50px;
-  position: absolute;
 }
 h3 {
   height: 30px;
@@ -119,24 +116,13 @@ div.emoticon-header {
   width: 99%;
 }
 .emoticon-list-sidebar { width: 280px }
-#rosterContainer { width: 200px }
-.emoticon-sidebar { width: 340px }
-#helpContainer,
-#settingsContainer { width: 360px }
-
-#footerContainer {
-  bottom: 19px;
-  left: 20px;
-  padding: 3px;
-  position: absolute;
-  right: 20px;
-}
-#footerContainer div { display: inline-block }
+#footer { margin-top: 5px }
+#footer div { display: inline-block }
 
 #bbCodeContainer button { line-height: 1.4em }
 #bbCodeContainer button[value=b] { vertical-align: bottom }
 
-#footerContainer #colorCodesContainer {
+#footer #colorCodesContainer {
   bottom: 48px;
   left: 20px;
   padding: 3px;
@@ -144,7 +130,7 @@ div.emoticon-header {
   z-index: 1;
   display: none;
 }
-#content #colorCodesContainer a {
+#body #colorCodesContainer a {
   display: block;
   float: left;
   width: 20px;
@@ -158,15 +144,14 @@ div.emoticon-header {
 }
 #emoticonsContainer {
   padding: 3px;
-  vertical-align:middle;
+  vertical-align: middle;
 }
 #emoticonsContainer a {
   margin-left: 2px;
   margin-right: 1px;
 }
 #trayContainer {
-  position: absolute;
-  right: 0px;
+  float: right;
   padding: 3px;
   padding-right: 0px;
 }
@@ -187,26 +172,26 @@ div.emoticon-header {
   display: inline-block;
   background-repeat: no-repeat;
 }
-
-#helpList td, #settingsList td {
+#sidebars, .sidebar {
+  box-sizing: border-box;
+  height: 100%;
+  left: 0 !important;
+}
+#helpList td {
   padding: 4px 10px;
   vertical-align: top;
 }
-#settingsList td { vertical-align: middle }
-#settingsList td.setting {
-  width: 140px;
-  white-space: nowrap;
+#settingsList label, div.form-control { vertical-align: middle }
+div.form-control { float: right }
+#settingsList div.row {
+  clear: both;
+  padding: 3px;
 }
 #settingsList input[type=text],
-#settingsList input[type=range] { width:9em }
-#settingsList #settings-textColor {
-  width: 75px;
-}
+#settingsList input[type=range] { width: 9em }
 
-#footerContainer #trayContainer div,
-#footerContainer #trayContainer button {
-  background-color: transparent;
-}
+#footer #trayContainer div,
+#footer #trayContainer button { background-color: transparent }
 img.emoticon, img.rescale { vertical-align: middle }
 span.emote-alt, span.image-alt { display: none }
 
@@ -234,6 +219,7 @@ button.soundTest, select.soundSelect { vertical-align: middle }
   padding-right: 2em;
 }
 .data-form br { clear: left }
+ul.ui-tabs-nav { display: flex }
 .sidebar .ui-tabs .ui-tabs-panel { padding: 0 }
 button.button { display: inline-block }
 button.clearbutton {

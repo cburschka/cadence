@@ -23,8 +23,8 @@
 </head>
 
 <body>
-  <div id="content">
-    <div id="headlineContainer">
+  <div id="body" class="container-fluid">
+    <div id="header">
       <label for="settings-activeStyle" class="string" data-string="label.page.style"></label>
       <select class="settings" id="settings-activeStyle">${styleOptions}</select>
       <span id="roomContainer">
@@ -44,12 +44,240 @@
       </div>
     </div>
     <!-- / header -->
-    <div id="messagePane" class="box"></div>
+    <div id="content">
+      <div id="messagePane" class="box"></div>
+      <div id="sidebars">
+        <div id="sidebarRoster" class="sidebar box">
+          <h3 class="string" data-string="label.page.roster"></h3>
+          <div id="roster"></div>
+        </div>
+        <div id="sidebarHelp" class="sidebar box">
+          <h3 class="string" data-string="label.page.help"></h3>
+          <div id="helpList"></div>
+          <!-- / helpList -->
+        </div>
+        <!-- / helpContainer -->
+        <div id="sidebarEmoticons">
+        </div>
+        <div id="sidebarSettings" class="sidebar box">
+          <h3 class="string" data-string="label.page.settings.main"></h3>
+          <div id="settingsList">
+            <ul>
+              <li><a href="#settingsGeneral" class="string" data-string="label.page.settings.general"></a></li>
+              <li><a href="#settingsDisplay" class="string" data-string="label.page.settings.display"></a></li>
+              <li><a href="#settingsNotifications" class="string" data-string="label.page.settings.notifications"></a></li>
+            </ul>
+            <section id="settingsGeneral">
+              <div class="row">
+                <label for="settings-xmpp.sessionAuth" class="string" data-string="label.settings.xmpp.sessionAuth"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-xmpp.sessionAuth" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-xmpp.autoJoin" class="string" data-string="label.settings.xmpp.autoJoin"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-xmpp.autoJoin" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-xmpp.sendUserAgent" class="string" data-string="label.settings.xmpp.sendUserAgent"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-xmpp.sendUserAgent" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-sync.auto" class="string" data-string="label.settings.sync.auto"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-sync.auto" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.leavePage" class="string" data-string="label.settings.notifications.leavePage"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-notifications.leavePage" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-contextmenu" class="string" data-string="label.settings.contextmenu.label"></label>
+                <div class="form-control">
+                  <select class="settings" id="settings-contextmenu">
+                    <option value="hover" class="string" data-string="label.settings.contextmenu.hover">---</option>
+                    <option value="left" class="string" data-string="label.settings.contextmenu.left">---</option>
+                    <option value="right" class="string" data-string="label.settings.contextmenu.right">---</option>
+                    <option value="none" class="string" data-string="label.page.none">---</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <label for="textColor" class="string" data-string="label.settings.textColor.label"></label>
+                <div class="form-control">
+                  <button class="button string" id="textColor" data-string="label.settings.textColor.none"></button>
+                  <button class="button string" id="textColorClear" data-string="label.button.clear"></button>
+                  <input type="color" id="settings-textColor" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.triggers" class="string" data-string="label.settings.notifications.triggers"></label>
+                <div class="form-control">
+                  <input type="text" id="settings-notifications.triggers" />
+                </div>
+              </div>
+            </section>
+            <section id="settingsDisplay">
+              <div class="row">
+                <a href="http://momentjs.com/docs/#/displaying/format/">
+                  <label for="settings-dateFormat" class="string" data-string="label.settings.dateFormat"></label>
+                </a>
+                <div class="form-control">
+                  <input type="text" class="settings" id="settings-dateFormat" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-markup.html" class="string" data-string="label.settings.markup.html"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-markup.html" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-markup.images" class="string" data-string="label.settings.markup.images"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-markup.images" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-markup.links" class="string" data-string="label.settings.markup.links"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-markup.links" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-markup.colors" class="string" data-string="label.settings.markup.colors"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-markup.colors" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-markup.emoticons" class="string" data-string="label.settings.markup.emoticons"></label>
+                <div class="form-control">
+                  <input type="checkbox" class="settings" id="settings-markup.emoticons" />
+                </div>
+              </div>
+            </section>
+            <section id="settingsNotifications">
+              <div class="row">
+                <label for="settings-notifications.desktop" class="string" data-string="label.settings.notifications.desktop.label"></label>
+                <div class="form-control">
+                  <select class="settings" id="settings-notifications.desktop">
+                    <option value="0" class="string" data-string="label.settings.notifications.desktop.0">---</option>
+                    <option value="1" class="string" data-string="label.settings.notifications.desktop.1">---</option>
+                    <option value="2" class="string" data-string="label.settings.notifications.desktop.2">---</option>
+                    <option value="3" class="string" data-string="label.settings.notifications.desktop.3">---</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.receive" class="string" data-string="label.settings.notifications.sounds.receive"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.receive">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="receive" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.send" class="string" data-string="label.settings.notifications.sounds.send"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.send">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="send" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.enter" class="string" data-string="label.settings.notifications.sounds.enter"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.enter">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="enter" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.leave" class="string" data-string="label.settings.notifications.sounds.leave"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.leave">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="leave" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.info" class="string" data-string="label.settings.notifications.sounds.info"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.info">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="info" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.error" class="string" data-string="label.settings.notifications.sounds.error"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.error">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="error" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.mention" class="string" data-string="label.settings.notifications.sounds.mention"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.mention">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="mention" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.sounds.msg" class="string" data-string="label.settings.notifications.sounds.msg"></label>
+                <div class="form-control">
+                  <select class="settings soundSelect" id="settings-notifications.sounds.msg">
+                    <option value="" class="string" data-string="label.page.none">---</option>
+                  </select>
+                  <button data-sound="msg" class="icon soundTest"></button>
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.soundVolume" class="string" data-string="label.settings.notifications.soundVolume"></label>
+                <div class="form-control">
+                  <input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.blinkSpeed" class="string" data-string="label.settings.notifications.blinkSpeed"></label>
+                <div class="form-control">
+                  <input type="range" class="settings" id="settings-notifications.blinkSpeed" min="1" max="10" step="0.5" />
+                </div>
+              </div>
+              <div class="row">
+                <label for="settings-notifications.blinkLength" class="string" data-string="label.settings.notifications.blinkLength">Blink length:</label>
+                <div class="form-control">
+                  <input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" />
+                </div>
+              </div>
+            </section>
+          </div>
+          <!-- / settingsList -->
+        </div>
+        <!-- / settingsContainer-->
+      </div>
+    </div>
     <div id="inputFieldContainer" class="box">
       <textarea id="inputField" rows="1" cols="50" class="string" data-string-title="label.tooltip.input"></textarea>
       <span id="messageLength"></span>
     </div>
-    <div id="footerContainer">
+    <div id="footer">
       <div id="bbCodeContainer" class="container">
         <button class="button insert-bbcode string" accesskey="b" value="b" data-string-title="label.tooltip.bold" style="font-weight:bold;">b</button>
         <button class="button insert-bbcode string" accesskey="i" value="i" data-string-title="label.tooltip.italic" style="font-style:italic;">i</button>
@@ -79,209 +307,7 @@
       </div>
       <!-- / trayContainer -->
     </div>
-    <!-- / footerContainer -->
-    <div id="rosterContainer" class="sidebar box">
-      <h3 class="string" data-string="label.page.roster"></h3>
-      <div id="roster"></div>
-    </div>
-    <div id="helpContainer" class="sidebar box">
-      <h3 class="string" data-string="label.page.help"></h3>
-      <div id="helpList"></div>
-      <!-- / helpList -->
-    </div>
-    <!-- / helpContainer -->
-    <div id="emoticonSidebarContainer">
-    </div>
-    <div id="settingsContainer" class="sidebar box">
-      <h3 class="string" data-string="label.page.settings.main"></h3>
-      <div id="settingsList">
-        <ul>
-          <li><a href="#settingsGeneral" class="string" data-string="label.page.settings.general"></a></li>
-          <li><a href="#settingsDisplay" class="string" data-string="label.page.settings.display"></a></li>
-          <li><a href="#settingsNotifications" class="string" data-string="label.page.settings.notifications"></a></li>
-        </ul>
-        <section id="settingsGeneral">
-        <table>
-          <tr class="row">
-            <td><label for="settings-xmpp.sessionAuth" class="string" data-string="label.settings.xmpp.sessionAuth"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.sessionAuth" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-xmpp.autoJoin" class="string" data-string="label.settings.xmpp.autoJoin"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.autoJoin" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-xmpp.sendUserAgent" class="string" data-string="label.settings.xmpp.sendUserAgent"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-xmpp.sendUserAgent" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-sync.auto" class="string" data-string="label.settings.sync.auto"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-sync.auto" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-contextmenu" class="string" data-string="label.settings.contextmenu.label"></label></td>
-            <td class="setting">
-              <select class="settings" id="settings-contextmenu">
-                <option value="hover" class="string" data-string="label.settings.contextmenu.hover">---</option>
-                <option value="left" class="string" data-string="label.settings.contextmenu.left">---</option>
-                <option value="right" class="string" data-string="label.settings.contextmenu.right">---</option>
-                <option value="none" class="string" data-string="label.page.none">---</option>
-              </select>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="textColor" class="string" data-string="label.settings.textColor.label"></label></td>
-            <td class="setting">
-              <button class="button string" id="textColor" data-string="label.settings.textColor.none"></button>
-              <button class="button string" id="textColorClear" data-string="label.button.clear"></button>
-              <input type="color" id="settings-textColor" />
-            </td>
-          </tr>
-        </table>
-        </section>
-        <section id="settingsDisplay">
-        <table>
-          <tr class="row">
-            <td>
-              <a href="http://momentjs.com/docs/#/displaying/format/">
-                <label for="settings-dateFormat" class="string" data-string="label.settings.dateFormat"></label>
-              </a>
-            </td>
-            <td class="setting"><input type="text" class="settings" id="settings-dateFormat" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-markup.html" class="string" data-string="label.settings.markup.html"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.html" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-markup.images" class="string" data-string="label.settings.markup.images"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.images" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-markup.links" class="string" data-string="label.settings.markup.links"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.links" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-markup.colors" class="string" data-string="label.settings.markup.colors"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.colors" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-markup.emoticons" class="string" data-string="label.settings.markup.emoticons"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-markup.emoticons" /></td>
-          </tr>
-        </table>
-        </section>
-        <section id="settingsNotifications">
-        <table>
-          <tr class="row">
-            <td><label for="settings-notifications.desktop" class="string" data-string="label.settings.notifications.desktop.label"></label></td>
-            <td class="setting">
-              <select class="settings" id="settings-notifications.desktop">
-                <option value="0" class="string" data-string="label.settings.notifications.desktop.0">---</option>
-                <option value="1" class="string" data-string="label.settings.notifications.desktop.1">---</option>
-                <option value="2" class="string" data-string="label.settings.notifications.desktop.2">---</option>
-                <option value="3" class="string" data-string="label.settings.notifications.desktop.3">---</option>
-              </select>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.triggers" class="string" data-string="label.settings.notifications.triggers"></label></td>
-            <td class="setting"><input type="text" id="settings-notifications.triggers" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.soundVolume" class="string" data-string="label.settings.notifications.soundVolume"></label></td>
-            <td class="setting"><input type="range" class="settings soundVolume" id="settings-notifications.soundVolume" min="0" max="100" step="5" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.receive" class="string" data-string="label.settings.notifications.sounds.receive"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.receive">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="receive" class="icon soundTest"></button>
-              </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.send" class="string" data-string="label.settings.notifications.sounds.send"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.send">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="send" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.enter" class="string" data-string="label.settings.notifications.sounds.enter"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.enter">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="enter" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.leave" class="string" data-string="label.settings.notifications.sounds.leave"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.leave">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="leave" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.info" class="string" data-string="label.settings.notifications.sounds.info"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.info">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="info" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.error" class="string" data-string="label.settings.notifications.sounds.error"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.error">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="error" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.mention" class="string" data-string="label.settings.notifications.sounds.mention"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.mention">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="mention" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.sounds.msg" class="string" data-string="label.settings.notifications.sounds.msg"></label></td>
-            <td class="setting">
-              <select class="settings soundSelect" id="settings-notifications.sounds.msg">
-                <option value="" class="string" data-string="label.page.none">---</option>
-              </select>
-              <button data-sound="msg" class="icon soundTest"></button>
-            </td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.leavePage" class="string" data-string="label.settings.notifications.leavePage"></label></td>
-            <td class="setting"><input type="checkbox" class="settings" id="settings-notifications.leavePage" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.blinkSpeed" class="string" data-string="label.settings.notifications.blinkSpeed"></label></td>
-            <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkSpeed" min="1" max="10" step="0.5" /></td>
-          </tr>
-          <tr class="row">
-            <td><label for="settings-notifications.blinkLength" class="string" data-string="label.settings.notifications.blinkLength">Blink length:</label></td>
-            <td class="setting"><input type="range" class="settings" id="settings-notifications.blinkLength" min="0" max="10" step="1" /></td>
-          </tr>
-        </table>
-        </section>
-      </div>
-      <!-- / settingsList -->
-    </div>
-    <!-- / settingsContainer-->
+    <!-- / footer -->
   </div>
 </body>
 </html>

@@ -87,7 +87,7 @@ span.hide-message {
   background-image:url('../../img/delete.png');
 }
 
-#settingsContainer button.soundTest {
+button.soundTest {
   display: inline-block;
   border: none;
   padding: 0;

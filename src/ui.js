@@ -32,11 +32,10 @@ const ui = {
       autoScrollIcon: $('#autoScrollIcon'),
       messageLength: $('#messageLength'),
       sidebars: {
-        help: $('#helpContainer'),
-        roster: $('#rosterContainer'),
-        settings: $('#settingsContainer'),
+        help: $('#sidebarHelp'),
+        roster: $('#sidebarRoster'),
+        settings: $('#sidebarSettings'),
       },
-      emoticonSidebarContainer: $('#emoticonSidebarContainer'),
       emoticonTrayContainer: $('#emoticonTrayContainer'),
       styleSheets: $('link.alternate-style'),
     };
@@ -99,8 +98,8 @@ const ui = {
     const bars = config.ui.emoticonSidebars
     const emoticons = config.markup.emoticons;
     Object.keys(bars).forEach(set => {
-      const {title, icon} = bars[set];
-      const {codes, baseURL} = emoticons[set];
+      const {icon, title} = bars[set];
+      const {baseURL, codes} = emoticons[set];
 
       $('<button class="tray icon toggleSidebar">')
         .text(title)
@@ -114,7 +113,7 @@ const ui = {
 
       const sidebar = $('<div class="sidebar emoticon-sidebar box">')
         .attr('id', `emoticon-${set}`)
-        .appendTo(this.dom.emoticonSidebarContainer)
+        .appendTo('#sidebars')
         .append($('<h3>').text(title));
 
       const search = $('<input type="text" class="emoticon-search string" data-string-placeholder="label.tooltip.search">')
@@ -174,7 +173,7 @@ const ui = {
     $('#colorCodesContainer').prepend(colorCodes);
 
     const sounds = Object.keys(this.sounds).map(sound => new Option(sound));
-    $('#settingsContainer select.soundSelect').append(sounds);
+    $('select.soundSelect').append(sounds);
     $('button.soundTest').click(function() {
       return ui.playSound(this.getAttribute('data-sound'));
     });
@@ -701,17 +700,6 @@ const ui = {
     // Sanity check, only toggle if the value changed.
     if (old === current) return;
     if (old) this.dom.sidebars[old].animate({width: 'hide'}, speed);
-
-    // New sidebar's width, plus an 8px margin. Yay for magic hard-coded pixels.
-    const sidebarWidth = current ? 8 + parseInt(this.dom.sidebars[current].css('width')) : 0;
-    const width = 20 + sidebarWidth;
-
-    // Resize the chat pane's right margin, then rescale inline images.
-    this.dom.messagePane.animate({right : width + 'px'}, speed, () => {
-      const maxWidth = this.dom.messagePane.width() - 30;
-      const maxHeight = this.dom.messagePane.height() - 20;
-      $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
-    });
 
     if (current) {
       this.dom.sidebars[current].animate({width: 'show'}, speed);

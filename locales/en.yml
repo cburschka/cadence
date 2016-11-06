@@ -349,14 +349,14 @@ label:
       triggers: Alert keywords
       soundVolume: Sound volume
       sounds:
-        receive: Receive sound
-        send: Send sound
-        enter: Enter sound
-        leave: Leave sound
-        info: Info sound
-        error: Error sound
-        mention: Mention sound
-        msg: Private message sound
+        receive: Receive
+        send: Send
+        enter: Enter
+        leave: Leave
+        info: Info
+        error: Error
+        mention: Mention
+        msg: Private message
 
       leavePage: Warn before closing
       blinkSpeed: Blink speed
@@ -382,20 +382,20 @@ help:
       title: Chat
       commands:
         away:
-          - Set away status
+          - Go away
           - /away <message>
         back:
-          - Remove away status
+          - Return
           - /back
         configure:
-          - Configure an existing room
-          - /configure [--help | --interactive | <options>]
+          - Configure room
+          - /configure
         connect:
           - Connect
           - /connect [<user> <pass>]
         create:
-          - Create a new room
-          - /create [--help | <name> [<options>]]
+          - Create room
+          - /create <name> [--interactive]
         join:
           - Join a room
           - '/join <room>'
@@ -408,9 +408,6 @@ help:
         msg:
           - Private message
           - /msg <nick> ...
-        msgme:
-          - Describe action in private message
-          - /msg <nick> /me ...
         nick:
           - Change nickname
           - /nick <nick>
@@ -419,7 +416,7 @@ help:
           - /part
         ping:
           - Ping
-          - /ping [<nick> | <JID>]
+          - /ping [<user>]
         quit:
           - Disconnect
           - /quit
@@ -428,7 +425,7 @@ help:
           - '[/say] ...'
         version:
           - Print version
-          - /version [<nick> | <JID>]
+          - /version [<user>]
         who:
           - List users
           - /who [<room>]
@@ -457,10 +454,10 @@ help:
           - /admin <cmd> [...]
         affiliate:
           - Set or show privileges
-          - /affiliate <type> [<nick> | <JID>]
+          - /affiliate <type> [<user>]
         ban:
           - Ban a user
-          - /ban [<nick> | <JID>]
+          - /ban [<user>]
         bans:
           - List active bans
           - /bans
