@@ -32,7 +32,7 @@ profile:
 ifneq ($(profile),$(PROFILE))
 	echo "PROFILE=$(profile)" > .profile
 endif
-	make all_
+	$(MAKE) all_
 
 install: all
 	$(PYTHON) scripts/install.py $(profile)
