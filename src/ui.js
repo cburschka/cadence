@@ -64,18 +64,23 @@ const ui = {
    */
   initializePage() {
     // Build help sidebar.
+    const helpList = $('#helpList');
     const help = strings.help.sidebar;
-    const helpSections = Object.values(help).map(({title, commands}) => {
-      const caption = $('<caption>').append($('<h4>').text(title));
-      const rows = Object.values(commands).map(
-        ([desc, code]) => $('<tr class="row">').append(
-          $('<td class="desc">').text(desc),
-          $('<td class="code">').text(code)
-        )
-      );
-      return $('<table>').append(caption, rows);
+    const keys = Object.keys(help).sort();
+    keys.forEach(key => {
+      const {commands} = help[key];
+      const label = `help.sidebar.${key}`;
+      const section = $('<section>').appendTo(helpList).attr('id', key);
+      const table = $('<table>').appendTo(section);
+      const caption = $('<caption>').appendTo(table);
+      $('<h4 class="string">').appendTo(caption).attr('data-string', `${label}.title`);
+      Object.keys(commands).forEach(cmd => {
+        const string = `${label}.commands.${cmd}.`;
+        const row = $('<tr class="row">').appendTo(table);
+        $('<td class="desc string">').appendTo(row).attr('data-string', `${string}0`);
+        $('<td class="code string">').appendTo(row).attr('data-string', `${string}1`);
+      });
     });
-    $('#helpList').append(helpSections);
 
     // Build the navigation menu.
     const navigation = config.ui.navigation;
