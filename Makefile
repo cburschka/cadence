@@ -4,9 +4,9 @@ BABEL=babel
 JSYAML=js-yaml
 CP=cp
 
-PROFILE='install.yml'
+PROFILE_DEFAULT=install.yml
 include .profile
-profile=$(PROFILE)
+profile=$(PROFILE_DEFAULT)
 
 SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
@@ -29,10 +29,14 @@ all_: submodules emoticons init locales index.html ${JS_FILES}
 # Intercept the "all" target to update .profile first.
 # This way, targets that depend on .profile will be rerun if it changes.
 profile:
-ifneq ($(profile),$(PROFILE))
-	echo "PROFILE=$(profile)" > .profile
+ifneq ($(profile),$(PROFILE_DEFAULT))
+	$(RM) .profile
+	$(MAKE) .profile
 endif
 	$(MAKE) all_
+
+.profile:
+	echo "PROFILE_DEFAULT=$(profile)" > .profile
 
 install: all
 	$(PYTHON) scripts/install.py $(profile)
