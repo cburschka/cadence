@@ -243,6 +243,9 @@ const ui = {
       return true;
     };
 
+    // Make the input field resizable.
+    $('#inputField').resizable({handles: 'n'});
+
     // The input field listens for <return>, <up>, <down> and BBCodes.
     this.dom.inputField.on({
       keypress: this.onKeyMap({
