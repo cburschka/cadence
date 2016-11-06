@@ -600,7 +600,7 @@ const xmpp = {
       .c('destroy');
 
     if (alternate) iq.attrs({jid: this.jidFromRoomNick({room: alternate})});
-    if (message) iq.c('reason', reason);
+    if (reason) iq.c('reason', reason);
 
     return iq.send();
   },
