@@ -24,9 +24,9 @@ button, .ui-tabs-nav li {
 }
 button.icon { border-radius: 0 }
 .ui-tabs-nav li { box-shadow: 0px -1px 2px 0px }
-#chatList { background: url('Plum/plum.png') no-repeat bottom right }
+#messagePane { background: url('Plum/plum.png') no-repeat bottom right }
 .menuContainer { background: url('Plum/plum2.png') no-repeat bottom left }
-input, select, .box, #chatList, textarea.form-field {
+input, select, .box, #messagePane, textarea.form-field {
   background-color: rgba(0,0,0,0.3);
   color: #9765a0;
 }

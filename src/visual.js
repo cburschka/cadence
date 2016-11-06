@@ -358,8 +358,8 @@ const visual = {
    * Remove images, or add auto-scaling listeners to them
    */
   processImages(jq) {
-    const maxWidth = ui.dom.chatList.width() - 30;
-    const maxHeight = ui.dom.chatList.height() - 20;
+    const maxWidth = ui.dom.messagePane.width() - 30;
+    const maxHeight = ui.dom.messagePane.height() - 20;
 
     jq.find('img').wrap(function() {
       return $('<a></a>').attr('href', this.src);

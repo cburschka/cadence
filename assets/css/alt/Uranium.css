@@ -15,7 +15,7 @@
  * @link https://blueimp.net/ajax/
  */
 body, input, textarea, select, .ui-tabs .ui-tabs-nav a { color: #b0b8a8; border: none }
-input, button, select, #chatList, .menuContainer,
+input, button, select, #messagePane, .sidebar,
 .row:nth-child(even), textarea,
 h3, .box, .ui-tabs-nav li { border-radius: 5px; border: none }
 #inputFieldContainer { padding: 0 }
@@ -27,10 +27,10 @@ h3, .box, .ui-tabs-nav li { border-radius: 5px; border: none }
   border-radius: 3px;
   border-color: black;
 }
-#content, .ui-tabs-nav li {
+#body, .ui-tabs-nav li {
   background: linear-gradient(to bottom, #464646, #181818) #464646;
 }
-.menuContainer h3, li.ui-tabs-active {
+.sidebar h3, li.ui-tabs-active {
   background: linear-gradient(to bottom, #3b6c37, #223220, #171717) #171717;
 }
 h3 {

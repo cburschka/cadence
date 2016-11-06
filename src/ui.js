@@ -25,12 +25,12 @@ const ui = {
       colorCodesContainer: $('#colorCodesContainer'),
       inputField: $('#inputField'),
       content: $('#content'),
-      chatList: $('#chatList'),
+      messagePane: $('#messagePane'),
       roster: $('#roster'),
       roomSelection: $('#roomSelection'),
       statusButton: $('#statusButton'),
       autoScrollIcon: $('#autoScrollIcon'),
-      messageLengthCounter: $('#messageLengthCounter'),
+      messageLength: $('#messageLength'),
       menu: {
         help: $('#helpContainer'),
         roster: $('#rosterContainer'),
@@ -266,7 +266,7 @@ const ui = {
         u: e => (e.ctrlKey && insertBBCode('u')),
       }),
       // after any keystroke, update the message length counter.
-      keyup: () => this.updateMessageLengthCounter(),
+      keyup: () => this.updateMessageLength(),
     });
 
     // The room selection menu listens for changes.
@@ -400,14 +400,14 @@ const ui = {
     // Attempt to maintain the scroll position when changing message heights.
     const toggler = (show, hide, value) => {
       // Find the first message in full view.
-      const scrollTop = this.dom.chatList.prop('scrollTop');
+      const scrollTop = this.dom.messagePane.prop('scrollTop');
       const index = this.messages.findIndexBinary(m => m.offset >= scrollTop);
       $(show).toggle(value);
       $(hide).toggle(!value);
       this.updateHeights();
       if (~index) {
         // ... and scroll to it again (and snap to bottom if appropriate).
-        this.dom.chatList.prop('scrollTop', this.messages[index].offset);
+        this.dom.messagePane.prop('scrollTop', this.messages[index].offset);
         this.scrollDown();
       }
     };
@@ -421,8 +421,8 @@ const ui = {
       toggler('span.body-html', 'span.body-text', config.settings.markup.html)
     );
     $('#settings-markup\\.colors').change(function() {
-      if (this.checked) visual.addColor(ui.dom.chatList);
-      else visual.removeColor(ui.dom.chatList);
+      if (this.checked) visual.addColor(ui.dom.messagePane);
+      else visual.removeColor(ui.dom.messagePane);
       ui.dom.inputField.css('color', this.checked && config.settings.textColor || '');
     });
     $('#settings-markup\\.links').change(function() {
@@ -457,7 +457,7 @@ const ui = {
     });
 
     // scrolling up the chat list turns off auto-scrolling.
-    this.dom.chatList.scroll(() => (this.checkAutoScroll() || true));
+    this.dom.messagePane.scroll(() => (this.checkAutoScroll() || true));
 
     const usermenu = {
       selector: '.user:not(.user-role-bot)',
@@ -640,7 +640,7 @@ const ui = {
   clearMessages() {
     this.messages = [];
     xmpp.historyEnd = {};
-    this.dom.chatList.html('');
+    this.dom.messagePane.html('');
   },
 
   /**
@@ -707,9 +707,9 @@ const ui = {
     const width = 20 + menuWidth;
 
     // Resize the chat pane's right margin, then rescale inline images.
-    this.dom.chatList.animate({right : width + 'px'}, speed, () => {
-      const maxWidth = this.dom.chatList.width() - 30;
-      const maxHeight = this.dom.chatList.height() - 20;
+    this.dom.messagePane.animate({right : width + 'px'}, speed, () => {
+      const maxWidth = this.dom.messagePane.width() - 30;
+      const maxHeight = this.dom.messagePane.height() - 20;
       $('img.rescale').each(function() { visual.rescale($(this), maxWidth, maxHeight); });
     });
 
@@ -951,9 +951,9 @@ const ui = {
    * Append a rendered message to the end of the chat list.
    */
   messageAppend(message) {
-    message.offset = this.dom.chatList.prop('scrollHeight');
+    message.offset = this.dom.messagePane.prop('scrollHeight');
     this.messages.push(message);
-    this.dom.chatList.append(message.html);
+    this.dom.messagePane.append(message.html);
 
     // After fade-in, scroll down again for inline images.
     $(message.html).slideDown(() => this.scrollDown());
@@ -1163,14 +1163,14 @@ const ui = {
    * Recalculate the input field length, and update the counter.
    * When a maximum length is set, count down to it.
    */
-  updateMessageLengthCounter() {
+  updateMessageLength() {
     const length = this.dom.inputField.val().length;
     if (config.ui.maxMessageLength) {
       const content = (config.ui.maxMessageLength - length);
-      this.dom.messageLengthCounter.css('color', content < 0 ? 'red' : '');
-      this.dom.messageLengthCounter.text(content);
+      this.dom.messageLength.css('color', content < 0 ? 'red' : '');
+      this.dom.messageLength.text(content);
     }
-    else this.dom.messageLengthCounter.text(this.dom.inputField.val().length);
+    else this.dom.messageLength.text(this.dom.inputField.val().length);
   },
 
   /**
@@ -1180,7 +1180,7 @@ const ui = {
     // Only autoscroll if we are at the bottom.
     if(this.autoScroll) {
       this.autoScrolled = true;
-      this.dom.chatList[0].scrollTop = this.dom.chatList[0].scrollHeight;
+      this.dom.messagePane[0].scrollTop = this.dom.messagePane[0].scrollHeight;
       this.autoScrolled = false;
     }
   },
@@ -1194,10 +1194,10 @@ const ui = {
   checkAutoScroll() {
     if (this.autoScrolled) return;
 
-    const chatList = this.dom.chatList;
-    const viewHeight = parseInt(chatList.css('height'));
-    const totalHeight = chatList.prop('scrollHeight');
-    const bottom = chatList.scrollTop() + viewHeight;
+    const messagePane = this.dom.messagePane;
+    const viewHeight = parseInt(messagePane.css('height'));
+    const totalHeight = messagePane.prop('scrollHeight');
+    const bottom = messagePane.scrollTop() + viewHeight;
 
     const autoScroll = totalHeight - bottom <= viewHeight/3;
 

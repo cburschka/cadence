@@ -12,11 +12,10 @@ body {
 h3 { white-space: nowrap }
 #roomContainer,
 .menuContainer,
-#chatList .row,
+#messagePane .row,
 #roster .row,
 #settings-textColor, #textColorClear { display: none }
 
-#chatList { word-wrap: break-word }
 .menuContainer { overflow-x: hidden }
 
 #content {
@@ -45,7 +44,7 @@ h3 { white-space: nowrap }
 #navigation li:before { content: " | " }
 #navigation li:first-child:before { content: none }
 
-#chatList {
+#messagePane {
   position: absolute;
   left: 20px;
   right: 230px;
@@ -54,15 +53,15 @@ h3 { white-space: nowrap }
   overflow: auto;
   hyphens: auto;
 }
-#chatList .row {
+#messagePane .row {
   padding: 2px 10px;
   white-space: pre-wrap;
 }
-#chatList img.emote {
+#messagePane img.emote {
   vertical-align: middle;
   margin-bottom: 2px;
 }
-#chatList cite { margin-right: 5px }
+#messagePane cite { margin-right: 5px }
 
 #inputFieldContainer {
   bottom: 58px;
@@ -79,7 +78,7 @@ h3 { white-space: nowrap }
   width:100%;
   height:100%;
 }
-#messageLengthCounter {
+#messageLength {
   position: absolute;
   right: 0;
   bottom: 0;
