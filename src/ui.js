@@ -501,7 +501,7 @@ const ui = {
     const check = cmd => Cadence.checkCommand(cmd) && (cmd != xmpp.show);
     const labels = strings.label.status;
     const joined = !!xmpp.room.current;
-    const online = xmpp.connection.connected;
+    const online = xmpp.connection.authenticated;
     const status = xmpp.show || 'available';
     const cmd = show => Cadence.tryCommand(show,
       {status: button == 2 && prompt(strings.info.promptStatus + show)}

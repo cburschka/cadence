@@ -195,7 +195,7 @@ const xmpp = {
    */
   connect(user, pass, handler) {
     // Make sure the connection isn't already open.
-    if (this.connection.connected) {
+    if (this.connection.authenticated) {
       throw new this.ConnectionError(Strophe.Status.CONNECTED);
     }
 
@@ -389,7 +389,6 @@ const xmpp = {
   changeNick(nick) {
     return new Promise(resolve => {
       this.nick.target = nick;
-      if (!this.connection.connected) return resolve(nick);
 
       const jid = this.jidFromRoomNick({nick});
       this.pres({to: jid}).send();

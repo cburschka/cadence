@@ -840,8 +840,8 @@ Cadence.addCommand('part', () => {
       });
     }
 
-    // Only show client version when offline.
-    if (!xmpp.connection.connected) {
+    // Don't ask for server version when offline.
+    if (!xmpp.connection.authenticated) {
       if (nick || jid) {
         throw new Cadence.Error(strings.error.cmdStatus.offline, {command: 'version'});
       }

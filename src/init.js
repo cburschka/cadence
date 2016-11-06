@@ -21,7 +21,7 @@ var config, emoticons, strings;
       xmpp.init();
 
       $(window).on({beforeunload : () =>
-        xmpp.connection.connected &&
+        xmpp.connection.authenticated &&
         config.settings.notifications.leavePage &&
         strings.info.leavePage
         || undefined

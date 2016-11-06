@@ -537,14 +537,14 @@ const Cadence = {
    */
   Cadence.requirements = {
     online() {
-      if (!xmpp.connection.connected) {
+      if (!xmpp.connection.authenticated) {
         throw new Cadence.Error(strings.error.cmdState.online);
       }
       return true;
     },
 
     offline() {
-      if (xmpp.connection.connected) {
+      if (xmpp.connection.authenticated) {
         throw new Cadence.Error(strings.error.cmdState.offline);
       }
       return true;
