@@ -65,22 +65,27 @@ const ui = {
   initializePage() {
     // Build help sidebar.
     const helpList = $('#helpList');
+    const tabs = $('<ul>').appendTo(helpList);
     const help = strings.help.sidebar;
     const keys = Object.keys(help).sort();
     keys.forEach(key => {
       const {commands} = help[key];
       const label = `help.sidebar.${key}`;
+      const tab = $('<li>').appendTo(tabs);
+      const link = $('<a class="string">').appendTo(tab).attr({
+        href: `#${key}`,
+        'data-string': `${label}.title`,
+      })
       const section = $('<section>').appendTo(helpList).attr('id', key);
       const table = $('<table>').appendTo(section);
-      const caption = $('<caption>').appendTo(table);
-      $('<h4 class="string">').appendTo(caption).attr('data-string', `${label}.title`);
-      Object.keys(commands).forEach(cmd => {
+      Object.keys(commands).sort().forEach(cmd => {
         const string = `${label}.commands.${cmd}.`;
         const row = $('<tr class="row">').appendTo(table);
         $('<td class="desc string">').appendTo(row).attr('data-string', `${string}0`);
         $('<td class="code string">').appendTo(row).attr('data-string', `${string}1`);
       });
     });
+    helpList.tabs();
 
     // Build the navigation menu.
     const navigation = config.ui.navigation;

@@ -379,7 +379,7 @@ help:
 
   sidebar:
     chat:
-      title: Chat commands
+      title: Chat
       commands:
         away:
           - Set away status
@@ -434,7 +434,7 @@ help:
           - /who [<room>]
 
     ui:
-      title: Interface commands
+      title: Interface
       commands:
         alias:
           - Create a macro
@@ -450,7 +450,7 @@ help:
           - /sync [get|set]
 
     admin:
-      title: Administration commands
+      title: Administration
       commands:
         admin:
           - Server command
