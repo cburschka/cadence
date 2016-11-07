@@ -189,12 +189,12 @@ const ui = {
       const key = this.getAttribute('data-string');
       if (key) $(this).text(ui.getString(key));
 
-      for (let attribute of this.attributes) {
+      Array.from(this.attributes).forEach(attribute => {
         const target = attribute.name.match(/^data-string-(.*)$/);
         if (target) {
           this.setAttribute(target[1], ui.getString(attribute.value));
         }
-      }
+      });
     });
 
     // Add the access key labels to the BBCode buttons.
