@@ -115,7 +115,7 @@ div.emoticon-header {
 .emoticon-search {
   box-sizing: border-box;
   padding: 10px;
-  width: 99%;
+  width: 100%;
 }
 .emoticon-list-sidebar { width: 280px }
 #footer { margin-top: 5px }
@@ -177,7 +177,9 @@ div.emoticon-header {
 #sidebars, .sidebar {
   box-sizing: border-box;
   height: 100%;
-  left: 0 !important;
+}
+.sidebar {
+  overflow-y: auto;
 }
 #helpList td {
   padding: 4px 10px;

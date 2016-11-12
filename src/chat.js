@@ -197,7 +197,7 @@ const Cadence = {
    * @return {object} An object with `html` and `text` keys, containing
    *         the html and markdown versions of the message.
    */
-  sendMessage({to, text, type='normal'}) {
+  sendMessage({to, text, type}) {
     const color = config.settings.textColor;
     const html = $('<p>').append(this.bbcode(visual.escapeHTML(text)));
     const body = {html, text: this.bbcodeMD(text)};

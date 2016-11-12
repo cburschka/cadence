@@ -695,6 +695,7 @@ Cadence.addCommand('msg',
 
   const message = Cadence.sendMessage({
     to: xmpp.jidFromRoomNick({nick}),
+    type: 'chat',
     text,
   });
 

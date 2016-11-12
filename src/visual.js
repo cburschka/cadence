@@ -54,7 +54,7 @@ const visual = {
    *                  copied or transformed back into markup before insertion.
    */
   formatMessage(message) {
-    const {body, meta, time, to, type, user} = message;
+    const {body, meta, time, to, type='normal', user} = message;
     const local = type == 'local';
     const {color} = meta || {};
     const me = !local && this.findMe(body.html[0]);
@@ -100,7 +100,7 @@ const visual = {
       else $('span.author', output).append(':');
     }
 
-    if (['normal', 'chat'].includes(message.type)) {
+    if (['normal', 'chat'].includes(type)) {
       $('span.' + (me ? 'body' : 'author'), output).after([' ',
         $('<span class="privmsg">').append(this.formatText(
           strings.info[to ? 'whisperTo' : 'whisper'],
