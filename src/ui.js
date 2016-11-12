@@ -116,25 +116,23 @@ const ui = {
         .appendTo('#sidebars')
         .append($('<h3>').text(title));
 
-      const search = $('<input type="text" class="emoticon-search string" data-string-placeholder="label.tooltip.search">')
-        .on({
-          keyup: function() {
-            const query = this.value;
-            clear.toggle(!!query);
-            list.isotope({
-              itemSelector: '.emoticon-shortcut',
-              filter: function() {
-                return this.title.includes(query);
-              }
-            });
-          }.debounce(300)
+      const runSearch = query => {
+        clear.toggle(!!query);
+        list.isotope({
+          itemSelector: '.emoticon-shortcut',
+          filter: function() { return this.title.includes(query); }
         });
+      };
+
+      const search = $('<input type="text" class="emoticon-search string" data-string-placeholder="label.tooltip.search">')
+        .on('keyup', function() { runSearch(this.value); }.debounce(250));
 
       const clear = $('<button class="button string clearbutton" data-string="label.button.clear">')
         .on('click', () => {
-          search.val('').keyup();
-          clear.hide();
-        }).hide();
+          search.val('');
+          runSearch('');
+        })
+        .hide();
 
       $('<div class="box emoticon-header">')
         .appendTo(sidebar)
