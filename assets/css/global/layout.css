@@ -114,6 +114,7 @@ h3 {
 div.emoticon-header {
   width: 100%;
   box-sizing: border-box;
+  position: relative;
   position: sticky;
   top: 0;
   margin-bottom: 15px;
