@@ -483,7 +483,7 @@ const Cadence = {
 
   synchronizeSettings(type) {
     const old = config.settings.sync.account;
-    const account = xmpp.jid.node;
+    const account = xmpp.jid.node.toLowerCase();
 
     // We're already synchronized with another account.
     if (old && old != account && !type) {
