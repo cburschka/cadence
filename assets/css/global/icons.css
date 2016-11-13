@@ -6,7 +6,7 @@
   background-image:url('../../img/tray/status.png');
   background-position: 0px -88px;
 }
-#helpButton {
+/*#helpButton {
   background-image:url('../../img/tray/help.png');
 }
 #settingsButton {
@@ -21,7 +21,7 @@
 }
 #audioButton.off {
   background-position: 0px 100%;
-}
+}*/
 
 /* Status icon */
 #statusButton.available {
@@ -42,13 +42,13 @@
 
 
 /* Scroll icon */
-#autoScrollIcon {
+/*#autoScrollIcon {
   background-image:url('../../img/tray/autoscroll.png');
   background-position: 0px 0px
 }
 #autoScrollIcon.off {
   background-position: 0px 100%;
-}
+}*/
 
 .user-show-icon,
 #statusButton,

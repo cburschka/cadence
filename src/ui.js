@@ -102,9 +102,8 @@ const ui = {
       const {baseURL, codes} = emoticons[set];
 
       $('<button class="tray icon toggleSidebar">')
-        .text(title)
         .attr({
-          title,
+          title, 'data-string-aria-label': title,
           id: `emoticon-${set}Button`,
           'data-sidebar': `emoticon-${set}`,
         })

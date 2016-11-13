@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="${cdnUrl}assets/css/global/import.css" />
   ${styles}
   <link rel="stylesheet" type="text/css" href="custom.css" />
+  <link rel="stylesheet" href="${cdnUrl}assets/css/font-awesome.css">
 
   <!-- libraries -->
   <script
@@ -295,13 +296,26 @@
         <button class="button string" id="textColorFull" data-string="label.button.advanced"></button>
       </div>
       <div id="trayContainer" class="container">
-        <button class="tray icon string" id="statusButton" data-string-title="label.tooltip.status" data-string="label.button.status"></button>
-        <button class="tray icon toggleSidebar string" id="helpButton" data-sidebar="help" data-string-title="label.tooltip.help" data-string="label.button.help"></button>
+        <button class="tray icon string" id="statusButton" data-string-title="label.tooltip.status">
+        </button>
         <span id="emoticonTrayContainer"></span>
-        <button class="tray icon toggleSidebar string" id="settingsButton" data-sidebar="settings" data-string-title="label.tooltip.settings" data-string="label.button.settings"></button>
-        <button class="tray icon toggleSidebar string" id="rosterButton" data-sidebar="roster" data-string-title="label.tooltip.roster" data-string="label.button.roster"></button>
-        <button class="tray icon string" id="audioButton" data-string-title="label.tooltip.sound" data-string="label.button.sound"></button>
-        <div id="autoScrollIcon" class="on"></div>
+        <button class="tray toggleSidebar string" id="helpButton"
+          data-sidebar="help" data-string-title="label.tooltip.help" data-string-aria-label="label.button.help">
+          <i class="fa fa-question-circle"></i>
+        </button>
+        <button class="tray toggleSidebar string" id="settingsButton"
+          data-sidebar="settings" data-string-title="label.tooltip.settings" data-string-aria-label="label.button.settings">
+          <i class="fa fa-cog"></i>
+        </button>
+        <button class="tray toggleSidebar string" id="rosterButton"
+          data-sidebar="roster" data-string-title="label.tooltip.roster" data-string-aria-label="label.button.roster">
+          <i class="fa fa-users"></i>
+        </button>
+        <button class="tray string" id="audioButton"
+          data-string-title="label.tooltip.sound" data-string-aria-label="label.button.sound">
+          <i class="fa fa-volume-up"></i>
+        </button>
+        <div id="autoScrollIcon" class="on fa fa-play"></div>
       </div>
       <!-- / trayContainer -->
     </div>

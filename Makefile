@@ -24,7 +24,7 @@ JS_FILES = ${CORE_FILES} ${LIB_FILES}
 
 all: profile
 
-all_: init emoticons locales index.html ${JS_FILES}
+all_: init emoticons locales fonts index.html ${JS_FILES}
 
 # Intercept the "all" target to update .profile first.
 # This way, targets that depend on .profile will be rerun if it changes.
@@ -46,7 +46,7 @@ ifeq ("$(wildcard node_modules)","")
 	npm install
 endif
 	mkdir -p lib/modules/strophe
-	mkdir -p assets/locales/
+	mkdir -p assets/locales/ assets/fonts/
 
 emoticons:
 	$(CP) -Tau "emoticon-packs" "assets/emoticons"
@@ -60,11 +60,21 @@ lib/%.js: src/%.js
 
 LOCALE_SRC = $(wildcard locales/*.yml)
 LOCALES = $(LOCALE_SRC:locales/%.yml=assets/locales/%.json)
+FONT_SRC = $(wildcard node_modules/font-awesome/fonts/*)
+FONTS = $(FONT_SRC:node_modules/font-awesome/fonts/%=assets/fonts/%)
 
 assets/locales/%.json: locales/%.yml
 	$(JSYAML) $^ >$@
 
+assets/css/font-awesome.css: node_modules/font-awesome/css/font-awesome.css
+	$(CP) $^ $@
+
+assets/fonts/%: node_modules/font-awesome/fonts/%
+	$(CP) $^ $@
+
 locales: ${LOCALES}
+
+fonts: ${FONTS}
 
 lib/modules/buzz.js: node_modules/buzz/src/buzz.js
 	$(CP) $^ $@

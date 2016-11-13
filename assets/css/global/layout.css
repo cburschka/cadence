@@ -152,6 +152,10 @@ div.emoticon-header {
   float: left;
   display: block;
 }
+#trayContainer .icon {
+  width: 22px;
+  height: 22px;
+}
 #emoticonsContainer {
   padding: 3px;
   vertical-align: middle;
@@ -167,10 +171,9 @@ div.emoticon-header {
 }
 #trayContainer button,
 #trayContainer div {
+  border: 0;
+  padding: 0;
   display: inline-block;
-  margin: 0 2px;
-  width: 22px;
-  height: 22px;
   vertical-align: middle;
 }
 
