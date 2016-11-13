@@ -22,7 +22,7 @@ var config, emoticons, strings;
 
       $(window).on({beforeunload : () =>
         // Warn if there is history or a connection at stake.
-        (xmpp.connection.authenticated || ui.messages) &&
+        (xmpp.connection.authenticated || ui.messages.length) &&
         config.settings.notifications.leavePage &&
         strings.info.leavePage
         || undefined
