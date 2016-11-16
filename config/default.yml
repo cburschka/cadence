@@ -255,7 +255,7 @@ ui:
   maxNickLength: 48
   maxMessageLength: 2048
   welcome:
-  navigation: {}
+  navigation: []
 
 cdnURL: ''
 

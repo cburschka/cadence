@@ -2,6 +2,10 @@ config:
   # Any configuration value from config/default.yml may be overridden here.
   # ui:
   #   title: cadence
+  #   navigation:
+  #     -
+  #       text: Example
+  #       href: /example-link
   xmpp:
     # The domain of the XMPP server.
     domain: ''

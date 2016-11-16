@@ -87,12 +87,11 @@ const ui = {
     helpList.tabs();
 
     // Build the navigation menu.
-    const navigation = config.ui.navigation;
-    const navLinks = $.map(navigation, (val, key) =>
-      $('<li>').append($('<a>').attr('href', val).text(key))
-    );
-    $('#navigation ul').append(navLinks);
-    $('#navigation').toggle(!!navLinks.length);
+    config.ui.navigation.forEach(({text, href}) => {
+      const link = $('<a>').attr('href', href).text(text);
+      $('<li>').appendTo('#navigation ul').append(link);
+    });
+    $('#navigation').toggle(!!config.ui.navigation.length);
 
     // Build and fill the emoticon containers.
     const bars = config.ui.emoticonSidebars
