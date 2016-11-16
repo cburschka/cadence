@@ -686,10 +686,9 @@ const ui = {
    * Change the active stylesheet.
    */
   setStyle(style) {
-    this.dom.styleSheets.prop('disabled', 'disabled');
-    this.dom.styleSheets
-      .filter(function() { return this.title == style; })
-      .removeAttr('disabled');
+    this.dom.styleSheets.prop('disabled', function() {
+      return this.title != style;
+    });
   },
 
   /**

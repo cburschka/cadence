@@ -20,14 +20,15 @@ var config, emoticons, strings;
       visual.init();
       xmpp.init();
 
-      $(window).on({beforeunload : () =>
-        // Warn if there is history or a connection at stake.
-        (xmpp.connection.authenticated || ui.messages.length) &&
-        config.settings.notifications.leavePage &&
-        strings.info.leavePage
-        || undefined
+      $(window).on({
+        beforeunload: () =>
+          // Warn if there is history or a connection at stake.
+          (xmpp.connection.authenticated || ui.messages.length) &&
+          config.settings.notifications.leavePage &&
+          strings.info.leavePage
+          || undefined,
+        unload: () => xmpp.connection.disconnect()
       });
-      $(window).unload(() => xmpp.connection.disconnect());
 
       Cadence.execute('connect').catch(() => {
         if (config.ui.welcome) ui.messageInfo(config.ui.welcome);

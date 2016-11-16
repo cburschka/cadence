@@ -357,7 +357,7 @@ const visual = {
         .text('[image:' + visual.ellipsis(this.src, 64) + ']');
     });
 
-    jq.find('img').addClass('rescale').load(function() {
+    jq.find('img').addClass('rescale').on('load', function() {
       visual.rescale($(this), maxWidth, maxHeight);
     });
 
