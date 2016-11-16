@@ -230,7 +230,25 @@ const ui = {
    */
   initializeEvents() {
     // Make all links on the static page open in new tabs.
-    visual.linkOnClick(document);
+    $(document)
+    .on('click', 'a[href]:not([href^="#"]):not([href^="javascript\\:"])', function(event) {
+      event.preventDefault();
+      window.open(this.href);
+    })
+    // Delegate user click events.
+    .on('click', 'span.user', function() {
+      // Disabled when the context menu overrides it.
+      if (config.settings.contextmenu == 'left') return;
+      const nick = $(this).attr('data-nick');
+      const jid = $(this).attr('data-jid');
+      Cadence.prefixMsg({nick, jid});
+    });
+
+    // Hide messages.
+    this.dom.messagePane.on('click', 'span.hide-message, span.hidden', function() {
+      const parts = $(this).parent('div.message').find('span.body, span.hidden');
+      parts.toggle('slow', () => ui.updateHeights());
+    });
 
     // Inserting BBCode tags.
     const insertBBCode = (tag, arg='') => {
@@ -1011,7 +1029,6 @@ const ui = {
       }
     }
     else {
-      visual.msgOnClick(entry);
       link.toggleClass('user-self', user.nick == xmpp.nick.current);
     }
 

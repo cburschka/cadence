@@ -75,7 +75,7 @@ const visual = {
                   + '<span class="authorMessageContainer">'
                   + (user ? '<span class="author">{user}</span> ' : '')
                   + '<span class="body">{subject}{text}{html}</span>'
-                  + '<span class="hidden"></span></span>'
+                  + '</span><span class="hidden"></span>'
                   + '</div>');
     template.addClass('message-type-' + message.type);
     if (color) {
@@ -83,11 +83,6 @@ const visual = {
     }
     if (markup.colors) this.addColor(template);
     const output = this.formatText(template, {subject, time, user, html, text});
-
-    $('span.hide-message, span.hidden', output).click(() => {
-      $('span.body, span.hidden', output).toggle('slow');
-      ui.updateHeights();
-    });
 
     if (user) {
       if (user.jid) output.addClass(this.jidClass(user.jid));
@@ -108,12 +103,6 @@ const visual = {
         ))
       ]);
     }
-
-    // Make users clickable.
-    this.msgOnClick(output);
-
-    // Make links open in new tabs.
-    this.linkOnClick(output);
 
     return {message, timestamp: time.getTime(), html: output};
   },
@@ -375,26 +364,6 @@ const visual = {
     if (!config.settings.markup.images) {
       jq.find('img').css('display', 'none').next().css('display', 'inline');
     }
-  },
-
-  /**
-   * Make links open in a new tab.
-   */
-  linkOnClick(jq) {
-    $('a[href]:not([href^="#"]):not([href^="javascript\\:"])', jq).click(function(event) {
-      event.preventDefault();
-      window.open(this.href);
-    });
-  },
-
-  msgOnClick(jq) {
-    $('span.user', jq).click(function() {
-      // Disabled when the context menu overrides it.
-      if (config.settings.contextmenu == 'left') return;
-      const nick = $(this).attr('data-nick');
-      const jid = $(this).attr('data-jid');
-      Cadence.prefixMsg({nick, jid});
-    });
   },
 
   /**
