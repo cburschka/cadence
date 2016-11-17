@@ -686,7 +686,10 @@ const ui = {
    * Change the active stylesheet.
    */
   setStyle(style) {
-    this.dom.styleSheets.prop('disabled', function() {
+    this.dom.styleSheets
+    // workaround for a bug in chromium <56
+    .prop('disabled', true)
+    .prop('disabled', function() {
       return this.title != style;
     });
   },
