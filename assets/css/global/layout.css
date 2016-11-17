@@ -75,20 +75,19 @@ h3 { white-space: nowrap }
   flex-shrink: 0;
 }
 
-#inputFieldContainer {
-  padding-right: 4px;
-  position: relative;
-}
+#inputFieldContainer { position: relative }
 #inputField {
   box-sizing: border-box;
   resize: none;
   padding: 5px;
   width: 100%;
   height: 100%;
+  outline: none;
 }
 #inputFieldContainer div.ui-wrapper {
   top: 0 !important;
   padding: 0!important;
+  overflow: visible!important;
 }
 #messageLength {
   position: absolute;
