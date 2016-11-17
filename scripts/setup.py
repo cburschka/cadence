@@ -24,7 +24,7 @@ def generate_file(src, dest, var):
 
 def generate_links(cdn_url, css_alt, style):
     module = [
-        'contextmenu', 'cookie', 'replacetext', 'strophe',
+        'jquery', 'contextmenu', 'replacetext', 'strophe',
         'strophe/attention', 'strophe/disco', 'strophe/caps', 'strophe/ping',
         'strophe/storage', 'strophe/time', 'strophe/version', 'moment',
         'xbbcode', 'buzz', 'babel', 'filesaver', 'isotope'

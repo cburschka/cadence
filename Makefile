@@ -12,7 +12,7 @@ SRC = $(wildcard src/*.js)
 CORE_FILES = $(SRC:src/%.js=lib/%.js)
 
 LIB_FILES = lib/modules/buzz.js lib/modules/contextmenu.js \
-            lib/modules/filesaver.js lib/modules/isotope.js \
+            lib/modules/filesaver.js lib/modules/isotope.js lib/modules/jquery.js \
             lib/modules/moment.js lib/modules/replacetext.js lib/modules/strophe.js \
             lib/modules/strophe/attention.js lib/modules/strophe/caps.js \
             lib/modules/strophe/disco.js lib/modules/strophe/ping.js \
@@ -76,6 +76,9 @@ lib/modules/filesaver.js: node_modules/file-saver/FileSaver.js
 	$(CP) $^ $@
 
 lib/modules/isotope.js: node_modules/isotope-layout/dist/isotope.pkgd.js
+	$(CP) $^ $@
+
+lib/modules/jquery.js: node_modules/jquery/dist/jquery.js
 	$(CP) $^ $@
 
 lib/modules/moment.js: node_modules/moment/moment.js
