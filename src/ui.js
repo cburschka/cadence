@@ -1246,7 +1246,7 @@ const ui = {
     // Any kind of alert is level 1, everything else is 2.
     this.notifyDesktop(((mention || type == 'chat' || sender) ? 1 : 2), message);
 
-    if (!user.jid.equals(xmpp.jid)) {
+    if (!xmpp.jid.equals(user.jid)) {
       const sender = user.nick || user.jid.userString();
       this.blinkTitle(sender);
     }

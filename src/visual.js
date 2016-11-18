@@ -136,7 +136,7 @@ const visual = {
      * This is a shortcut to formatting a non-occupant user.
      */
     jid(jid) {
-      return visual.format.user({jid});
+      return jid ? visual.format.user({jid}) : '-';
     },
 
     /**
