@@ -1030,8 +1030,11 @@ const ui = {
         if (oldEntry) oldEntry.remove();
       }
     }
-    else {
-      link.toggleClass('user-self', user.nick == xmpp.nick.current);
+    // For a new roster entry, check if it's us:
+    if (user.nick == xmpp.nick.current) {
+      // Remove the class from any other entry:
+      this.dom.roster.find('.user-self').removeClass('user-self');
+      link.addClass('user-self');
     }
 
     this.roster[user.nick] = entry;
