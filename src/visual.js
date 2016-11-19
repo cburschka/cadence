@@ -461,32 +461,21 @@ const visual = {
   },
 
   /**
-   * Turn a JID into three valid, distinct, single class names:
-   *
-   * - jid-node-<user>
-   * - jid-domain-<domain>
-   * - jid-resource-<resource>
-   *
-   * for <user@domain/resource>.
+   * Create a class name from a JID object.
    *
    * Whitespace characters, NUL and "\" will be replaced with "\HEX", where HEX
    * is the hexadecimal representation of the character value, eg. 20.
    * This needs to be further escaped in CSS selectors, eg. \\20.
    *
    * All other characters will be left alone. Some of these may need
-   * to be escaped in CSS selectors, eg. ":" and ".".
+   * to be escaped in CSS selectors, eg. "@", ":" and ".".
    *
-   * Note: The jid-resource-* class is only useful for selecting particular
-   * prefixes such as [class*=jid-resource-cadence\/] since the full value
-   * is effectively random and unique.
+   * @param {JID} jid The JID to render (user@domain/resource)
    *
-   * @param {string} jid The JID to convert.
-   * @return {string} The space-separated class names.
+   * @return {string} The valid class name "jid-user@domain".
    */
   jidClass(jid) {
-    return ['node', 'domain', 'resource'].map((e) => {
-      return this.escapeClass('jid-' + e + '-' + jid[e]);
-    }).join(' ');
+    return 'jid-' + this.escapeClass(jid.bare().toLowerCase());
   },
 
   escapeClass(text) {

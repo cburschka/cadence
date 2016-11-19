@@ -1015,8 +1015,9 @@ const ui = {
         (_, css) => css.match(/(jid|user-(affiliation|role))-/g).join(' ')
       ).addClass([
         'user-affiliation-' + user.affiliation,
-        'user-role-' + user.role
-      ].concat(user.jid && visual.jidClass(user.jid)).join(' '));
+        'user-role-' + user.role,
+        user.jid && visual.jidClass(user.jid),
+      ]);
 
       // If the nickname has changed:
       if (nick && nick != user.nick) {
