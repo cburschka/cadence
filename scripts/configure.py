@@ -42,6 +42,10 @@ def generate_profile(profile, args):
             if os.path.isfile('emoticon-packs/{}/emoticons.yml'.format(folder))}
     profile['install']['packs'] = sorted(packs)
 
+    if 'version' not in profile['config'] and os.path.isdir('.git'):
+        p = subprocess.run(['git', 'describe'], stdout=subprocess.PIPE)
+        profile['config']['version'] = p.stdout.decode('utf8').strip()
+
     styles = {x[:-4] for x in os.listdir('assets/css/alt/') if x[-4:] == '.css'}
     profile['install']['styles'] = sorted(styles)
 
