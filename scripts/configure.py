@@ -52,6 +52,8 @@ def generate_profile(profile, args):
     languages = {x[:-4] for x in os.listdir('locales/') if x[-4:] == '.yml'}
     profile['install']['languages'] = sorted(languages)
 
+    profile['install']['target'] = args.target or profile['install']['target']
+
     return profile
 
 
@@ -119,6 +121,10 @@ def parser(defaults, partial=False):
     parser.add_argument(
       '--profile', type=str,
       help='Where to put the configuration file. ["install.yml"]', dest='profile', default='install.yml'
+    )
+    parser.add_argument(
+      '--target', type=str,
+      help='Installation target. ["."]', dest='target', default=''
     )
 
     return parser
