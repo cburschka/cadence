@@ -834,11 +834,8 @@ Cadence.addCommand('part', () => {
    */
   Cadence.addCommand('version', ({nick, jid}) => {
     if (!nick && !jid) {
-      ui.messageInfo(strings.info.versionClient, {
-        version: $('<a>')
-          .attr('href', 'https://github.com/cburschka/cadence/tree/' + config.version)
-          .text(config.version)
-      });
+      const version = $('<a>').attr('href', config.clientURL).text(config.version);
+      ui.messageInfo(strings.info.versionClient, {version});
     }
 
     // Don't ask for server version when offline.
