@@ -247,7 +247,7 @@ xmpp:
   domain:
   url:
   muc:
-  sessionAuthURL:
+  sessionAuth:
   timeout: 5000
 
 ui:
