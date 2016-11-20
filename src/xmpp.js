@@ -220,6 +220,7 @@ const xmpp = {
           case Strophe.Status.ERROR:
           case Strophe.Status.CONNFAIL:
           case Strophe.Status.AUTHFAIL:
+            this.connection.reset();
             first = false; return reject(new this.ConnectionError(status, error));
           case Strophe.Status.CONNECTED:
             // Broadcast presence.
