@@ -254,7 +254,7 @@ const ui = {
     const insertBBCode = (tag, arg='') => {
       const open = '[' + tag + (arg && '=' + arg) + ']';
       const close = '[/' + tag + ']';
-      this.insertText([open, close]);
+      this.insertText(open, close);
       return true;
     };
 
@@ -1357,28 +1357,27 @@ const ui = {
 
   /**
    * Insert a text into the input field.
-   * @param {string} text The text to insert.
-   * @param {array} text The beginning and end tags to insert.
+   * @param {string} open The first part of the text to insert
+   * @param {string} close The second part of the text.
    *
-   * If an array is given, then it will be wrapped around the selected
-   * text. A string will replace the selected text.
-   * If an array is given and no text is selected, the cursor will
-   * be moved between the tags. Otherwise it will be moved to the end
-   * of the inserted text.
+   * If both arguments are given, they will wrap the selection (if any).
+   * A single argument will replace the selection.
+   * If no text is selected, the cursor will be placed after the first part.
    */
-  insertText(text) {
-    ui.dom.inputField.focus();
-    const inputFieldJQ = ui.dom.inputField;
-    const inputField = inputFieldJQ[0]
-    const old = inputFieldJQ.val();
-    let start = inputField.selectionStart;
-    let end = inputField.selectionEnd;
-    const rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
-    inputFieldJQ.val(old.substring(0, start) + rep + old.substring(end));
-    start += (start < end || rep == text) ? rep.length : text[0].length;
-    end = start;
-    inputField.selectionStart = start;
-    inputField.selectionEnd = end;
+  insertText(open, close) {
+    const {inputField} = ui.dom;
+    inputField.focus();
+
+    const old = inputField.val();
+    const start = inputField.prop('selectionStart');
+    const end = inputField.prop('selectionEnd');
+    const selected = old.substring(start, end);
+
+    const insert = open + (close ? selected + close : '');
+    const cursor = start + (selected ? insert : open).length;
+
+    inputField.val(old.substring(0, start) + insert + old.substring(end));
+    inputField.prop({selectionStart: cursor, selectionEnd: cursor});
   },
 
   getString(key) {
