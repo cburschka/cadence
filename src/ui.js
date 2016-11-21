@@ -254,7 +254,7 @@ const ui = {
     const insertBBCode = (tag, arg='') => {
       const open = '[' + tag + (arg && '=' + arg) + ']';
       const close = '[/' + tag + ']';
-      Cadence.insertText([open, close]);
+      this.insertText([open, close]);
       return true;
     };
 
@@ -320,7 +320,7 @@ const ui = {
     });
 
     // BBCode buttons.
-    $('.insert-text').click(function() { Cadence.insertText(this.title); });
+    $('.insert-text').click(function() { ui.insertText(this.title); });
     $('.insert-bbcode').click(function() {
       const tag = this.value.toLowerCase();
       if ($(this).hasClass('insert-bbcode-arg')) {
@@ -1348,11 +1348,37 @@ const ui = {
     );
 
     const next = common.substring(prefix.length);
-    if (next) return Cadence.insertText(next) || true;
+    if (next) return this.insertText(next) || true;
     const list = slash ? candidates.map(x => '/' + x) : candidates.map(x => xmpp.getOccupant(x));
     list.type = slash ? 'command' : 'user';
     ui.messageInfo(strings.info.suggestions, {list});
     return true;
+  },
+
+  /**
+   * Insert a text into the input field.
+   * @param {string} text The text to insert.
+   * @param {array} text The beginning and end tags to insert.
+   *
+   * If an array is given, then it will be wrapped around the selected
+   * text. A string will replace the selected text.
+   * If an array is given and no text is selected, the cursor will
+   * be moved between the tags. Otherwise it will be moved to the end
+   * of the inserted text.
+   */
+  insertText(text) {
+    ui.dom.inputField.focus();
+    const inputFieldJQ = ui.dom.inputField;
+    const inputField = inputFieldJQ[0]
+    const old = inputFieldJQ.val();
+    let start = inputField.selectionStart;
+    let end = inputField.selectionEnd;
+    const rep = (typeof text == 'string') ? text : text[0] + old.substring(start, end) + text[1];
+    inputFieldJQ.val(old.substring(0, start) + rep + old.substring(end));
+    start += (start < end || rep == text) ? rep.length : text[0].length;
+    end = start;
+    inputField.selectionStart = start;
+    inputField.selectionEnd = end;
   },
 
   getString(key) {
