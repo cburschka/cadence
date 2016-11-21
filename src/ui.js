@@ -6,6 +6,8 @@ const ui = {
   roster: {},
   sortedNicks: [],
   dom: null,
+  history: [],
+  historyIndex: 0,
   messages: [],
   colorPicker: null,
   autoScroll: true,
@@ -266,16 +268,19 @@ const ui = {
       keypress: this.onKeyMap({
         TAB: () => this.autocomplete(),
         RETURN: (e,x) => {
+          const text = $(x).val();
           if (!e.shiftKey) {
-            Cadence.executeInput($(x).val())
+            this.history.push(text);
+            this.historyIndex = this.history.length;
+            Cadence.executeInput(text);
             $(x).val('');
             return true;
           }
         },
 
-        // Arrow-Up requires Ctrl if any text has been entered.
-        UP: (e,x) => ((e.ctrlKey || !$(x).val()) && Cadence.historyUp()),
-        DOWN: e => (e.ctrlKey && Cadence.historyDown()),
+        // Arrow-Up works with Ctrl or the cursor at the beginning.
+        UP: (e,x) => (e.ctrlKey || !x.selectionEnd) && this.historyUp(),
+        DOWN: (e,x) => (e.ctrlKey || x.selectionStart == x.value.length) && this.historyDown(),
 
         b: e => (e.ctrlKey && insertBBCode('b')),
         i: e => (e.ctrlKey && insertBBCode('i')),
@@ -1378,6 +1383,34 @@ const ui = {
 
     inputField.val(old.substring(0, start) + insert + old.substring(end));
     inputField.prop({selectionStart: cursor, selectionEnd: cursor});
+  },
+
+  /**
+   * Go up to the previously sent message.
+   */
+  historyUp() {
+    const {inputField} = this.dom;
+    const current = inputField.val();
+
+    // Stop at the beginning.
+    if (this.historyIndex <= 0) return false;
+
+    // If a new non-history command is entered, save it first.
+    if (this.historyIndex >= this.history.length && current.trim()) {
+      this.history.push(current);
+    }
+
+    return inputField.val(this.history[--this.historyIndex]).prop('selectionEnd', 0);
+  },
+
+  /**
+   * Go down to the next sent message.
+   */
+  historyDown() {
+    // Stop at the end.
+    if (this.historyIndex >= this.history.length) return false;
+
+    return ui.dom.inputField.val(this.history[++this.historyIndex] || '');
   },
 
   getString(key) {

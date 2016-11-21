@@ -302,8 +302,8 @@ Cadence.addCommand('bans', () => {
  */
 Cadence.addCommand('clear', () => {
   ui.clearMessages();
-  Cadence.history = [];
-  Cadence.historyIndex = 0;
+  ui.history = [];
+  ui.historyIndex = 0;
 });
 
 /**
