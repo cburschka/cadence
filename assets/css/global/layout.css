@@ -56,6 +56,7 @@ h3 { white-space: nowrap }
 
 #messagePane {
   overflow-y: auto;
+  overflow-x: hidden;
   hyphens: auto;
   word-wrap: break-word;
   flex-grow: 1;
