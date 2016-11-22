@@ -173,7 +173,8 @@ const xmpp = {
     });
     this.connection.ping.addHandler();
     this.connection.time.addHandler();
-    this.connection.version.addHandler(this.connection.version.responder(
+    this.connection.version.addHandler(request => this.connection.version.respond(
+      request,
       config.clientName,
       config.version,
       // Sending the user agent (in <os>) is optional.
