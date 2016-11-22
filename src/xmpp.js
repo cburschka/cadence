@@ -295,7 +295,7 @@ const xmpp = {
    */
   createResourceName() {
     const {clientName} = config;
-    const time = (Math.floor(Date.now()/1000)/46656).toString(36);
+    const time = Math.floor(Date.now()/1000).toString(36);
     return `${clientName}/${time}`;
   },
 
