@@ -1,6 +1,6 @@
 {
   "name": "cadence",
-  "version": "2.0.0-dev0",
+  "version": "3.0.0-dev0",
   "description": "An XMPP web chat.",
   "main": "index.js",
   "scripts": {
