@@ -73,8 +73,8 @@ const Cadence = {
    *
    * @return {Promise} a promise that resolves when the command completes.
    */
-  execute(command, arg={}) {
-    return Promise.resolve(this.getCommand(command).execute(arg));
+  async execute(command, arg={}) {
+    return await this.getCommand(command).execute(arg);
   },
 
   /**
@@ -85,10 +85,13 @@ const Cadence = {
    *
    * @return {Promise} a promise that resolves when the command completes or fails.
    */
-  tryCommand(command, arg) {
-    return Promise.resolve()
-    .then(() => this.execute(command, arg))
-    .catch(error => this.handleError(error, command));
+  async tryCommand(command, arg) {
+    try {
+      await this.execute(command, arg);
+    }
+    catch (error) {
+      this.handleError(error, command);
+    }
   },
 
   /**
@@ -111,8 +114,7 @@ const Cadence = {
   /**
    * Check if a command is currently executable, catching errors.
    *
-   * @param {string} name
-   *
+   * @param command
    * @return {boolean} whether or not the command is available.
    */
   checkCommand(command) {
@@ -134,7 +136,7 @@ const Cadence = {
   /**
    * Parse input sent by the user and execute the appropriate command.
    */
-  executeInput(text, inMacro) {
+  async executeInput(text, inMacro) {
     text = text.replace(/\s\s*$/, '');
     if (!text) return;
 
@@ -153,13 +155,17 @@ const Cadence = {
 
     const macro = config.settings.macros[command];
 
-    // Catch both synchronous and asynchronous errors.
-    return Promise.resolve()
-    .then(() => macro ?
-      this.executeMacro(macro, text) :
-      this.getCommand(command).isAvailable().invoke(text)
-    )
-    .catch(error => this.handleError(error, command));
+    try {
+      if (macro) {
+        await this.executeMacro(macro, text);
+      }
+      else {
+        await this.getCommand(command).isAvailable().invoke(text)
+      }
+    }
+    catch (error) {
+      this.handleError(error, command)
+    }
   },
 
   /**
@@ -170,7 +176,7 @@ const Cadence = {
    *
    * @return {Promise} A promise that resolves when all tasks are complete.
    */
-  executeMacro(macro, text) {
+  async executeMacro(macro, text) {
     const re = /\s+((?:[^\\\s]|\\.)*)/g;
     let index = 0;
     const _macro = macro.map(statement => statement.replace(/\$/g, () => {
@@ -181,13 +187,17 @@ const Cadence = {
     }));
     _macro[_macro.length-1] += text.substring(index);
 
-    return Promise.all(_macro.map(s => this.executeInput(s, true)));
+    for (let command of _macro) {
+      await this.executeInput(s, command);
+    }
   },
 
   /**
    * Format an outgoing message.
    *
+   * @param to
    * @param {string} text The message to send.
+   * @param type
    * @return {object} An object with `html` and `text` keys, containing
    *         the html and markdown versions of the message.
    */
@@ -249,8 +259,8 @@ const Cadence = {
     const value = /(?:"((?:\\.|[^\\"])+)"|'((?:\\.|[^\\'])+)'|(?!["'\s])((?:\\.|[^\\\s])*))/;
     // A keyvalue assignment can be separated by spaces or an =.
     // When separated by spaces, the value must not begin with an unquoted --.
-    const keyvalue = RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
-    const re = RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
+    const keyvalue = new RegExp(key.source + '(?:=|\\s+(?!--))' + value.source);
+    const re = new RegExp('\\s+(?:' + keyvalue.source + '|' + key.source + '|' + value.source + ')', 'g');
     const args = {0:[], 1:{0:[]}};
     for (let match; match = re.exec(text); ) {
       // keyvalue: 1 = key, 2|3|4 = value
@@ -274,40 +284,42 @@ const Cadence = {
     return args;
   },
 
-  connect(user, pass) {
+  async connect(user, pass) {
     ui.messageInfo(strings.info.connection.connecting);
 
     // This is a callback, because it happens after the promise is resolved.
     // That also means we can't throw an error here.
     const handler = (status, error) => {
-      if (status == Strophe.Status.DISCONNECTED) {
+      if (status === Strophe.Status.DISCONNECTED) {
         ui.setConnectionStatus(false);
         this.handleError(new this.Error(strings.info.connection.disconnected));
       }
-      else if (error == 'system-shutdown') {
+      else if (error === 'system-shutdown') {
         this.handleError(new this.Error(strings.error.connection.shutdown));
       }
     }
 
-    return xmpp.connect(user, pass, handler)
-    // Then either join a room or list the available rooms.
-    .then(() => {
+    try {
+      await xmpp.connect(user, pass, handler);
+      // Then either join a room or list the available rooms.
       ui.setConnectionStatus(true);
       ui.messageInfo(strings.info.connection.connected);
-      config.settings.sync.auto && this.tryCommand('sync');
+      config.settings.sync.auto && await this.tryCommand('sync');
       // A room in the URL fragment (even an empty one) overrides autojoin.
       if (ui.getFragment() || config.settings.xmpp.autoJoin && !ui.urlFragment) {
         const room = ui.getFragment() || config.settings.xmpp.room;
         // Try to join, but ignore failures.
-        return this.execute('join', {room}).catch(e => {
+        try {
+          await this.execute('join', {room});
+        }
+        catch (error) {
           this.handleError(e);
-          return this.execute('list');
-        });
+        }
       }
-      else return this.execute('list');
-    })
+      if (!xmpp.getRoom()) await this.execute('list');
+    }
     // Notify user of connection failures.
-    .catch(error => {
+    catch (error) {
       ui.setConnectionStatus(false);
       switch (error.status) {
         case Strophe.Status.AUTHFAIL:
@@ -321,7 +333,7 @@ const Cadence = {
           throw new this.Error(strings.error.connection.other);
       }
       throw error;
-    });
+    }
   },
 
   /**
@@ -503,3 +515,93 @@ const Cadence = {
     }
   };
 })();
+
+/**
+ * This function handles any unsupported <iq> namespaces.
+ */
+eventIQCallback(stanza) {
+  if (!stanza) return true;
+
+  // Only respond to get/set, as per RFC-6120 8.2.3
+  const type = stanza.getAttribute('type');
+  if (type !== 'get' && type !== 'set') return true;
+
+  const xmlns = stanza.querySelector('iq > *').getAttribute('xmlns');
+
+  // Send <feature-not-implemented /> for anything not recognized.
+  if (!this.features.includes(xmlns)) {
+    const response = this.iq({
+      type: 'error',
+      to: stanza.getAttribute('from'),
+      id: stanza.getAttribute('id')
+    });
+    response.c('error', {type: 'cancel', code: 501});
+    response.c('feature-not-implemented', {xmlns: Strophe.NS.STANZAS}, '');
+    response.send();
+  }
+
+  return true;
+},
+
+async ping(jid) {
+  try {
+    return await this.connection.ping.query(jid, config.xmpp.timeout);
+  }
+  catch (stanza) {
+    throw new this.StanzaError(stanza);
+  }
+},
+
+async getTime(jid) {
+  try {
+    return await this.connection.time.query(jid || this.jid.domain, config.xmpp.timeout);
+  }
+  catch (stanza) {
+    throw new this.StanzaError(stanza);
+  }
+},
+
+async getVersion(jid) {
+  try {
+    return this.connection.version.query(jid || this.jid.domain, config.xmpp.timeout)
+  }
+  catch (stanza) {
+    throw new this.StanzaError(stanza);
+  }
+},
+
+attention(jid) {
+  const msg = this.msg({to: jid, type: 'headline'});
+  this.connection.attention.attention(msg);
+  return msg.send();
+},
+
+/**
+ * Load settings from XML storage.
+ *
+ * This will load settings stored under <cadence xmlns="cadence:settings">.
+ */
+async loadSettings() {
+  const name = config.clientName;
+  const stanza = await this.connection.storage.get(name, `${name}:settings`, config.xmpp.timeout);
+  const data = stanza.querySelector(`query > ${name} > data`);
+  return this.connection.storage.read(data);
+},
+
+/**
+ * Store settings in XML storage.
+ *
+ * This will store settings in <cadence xmlns="cadence:settings">.
+ */
+async storeSettings(data, modified) {
+  const name = config.clientName;
+  try {
+    return await this.connection.storage.set(name, `${name}:settings`)
+      .attrs({modified})
+      .write(data)
+      .send(config.xmpp.timeout);
+  }
+  catch (stanza) {
+    throw new this.StanzaError(stanza);
+  }
+},

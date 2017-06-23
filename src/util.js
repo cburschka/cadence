@@ -34,9 +34,9 @@ Array.prototype.indexOfBinary = function(val) {
  * a, using b's values for common keys.
  */
 Object.merge = (a, b) => {
-  if (typeof a != typeof b) return a;
+  if (typeof a !== typeof b) return a;
   if (a === null || a === undefined) return b;
-  if (a.constructor != Object) return b;
+  if (a.constructor !== Object) return b;
   // Shallow copy of a:
   const c = Object.assign({}, a);
   Object.keys(b).forEach(
@@ -80,7 +80,7 @@ Function.prototype.debounce = function(delay, immediate) {
   let expire = 0, blocked = false;
 
   const run = () => last.return = this.apply(last.this, last.args);
-  const edge = () => (blocked == !!immediate) && run();
+  const edge = () => (blocked === !!immediate) && run();
   const check = () => {
     const now = Date.now();
     if (now >= expire) {

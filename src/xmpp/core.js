@@ -1,0 +1,411 @@
+define('cadenza', ['strophe.js'], function({Strophe, $pres, $msg, $iq}) {
+  //require('strophe-cadence/disco');
+  //require('strophe-cadence/caps');
+
+  const stanzaErrors = [
+    'bad-request',
+    'conflict',
+    'feature-not-implemented',
+    'forbidden',
+    'gone',
+    'internal-server-error',
+    'item-not-found',
+    'jid-malformed',
+    'not-acceptable',
+    'not-allowed',
+    'not-authorized',
+    'policy-violation',
+    'recipient-unavailable',
+    'redirect',
+    'registration-required',
+    'remote-server-not-found',
+    'remote-server-timeout',
+    'resource-constraint',
+    'service-unavailable',
+    'subscription-required',
+    'undefined-condition',
+    'unexpected-request',
+  ];
+
+  const statusConstants = [];
+  // Invert Strophe's status constant table.
+  for (let name in Strophe.Status) {
+    statusConstants[Strophe.Status[name]] = name;
+  }
+
+  const features = [
+    Strophe.NS.ATTENTION,
+    Strophe.NS.CONFERENCE,
+    Strophe.NS.DISCO_INFO,
+    Strophe.NS.MUC,
+    Strophe.NS.MUC + '#user',
+    Strophe.NS.PING,
+    Strophe.NS.TIME,
+    Strophe.NS.XHTML_IM,
+    Strophe.NS.VERSION,
+  ];
+
+  /**
+   * Create a unique client identifier from the current millisecond timestamp.
+   */
+  const createResourceName = () => {
+    const time = Math.floor(Date.now() / 1000).toString(36);
+    return `cadence/${time}`;
+  };
+
+  const ConnectionError = class {
+    constructor(status, error) {
+      this.status = status;
+      this.error = error;
+    }
+
+    toString() {
+      return `Connection error: ${statusConstants[this.status]}: ${this.error}`;
+    }
+  };
+
+  const StanzaError = class {
+    constructor(stanza) {
+      if (!stanza) {
+        this.condition = 'timeout';
+        return;
+      }
+      this.stanza = stanza;
+      const error = stanza.querySelector('error');
+      this.type = error.getAttribute('type');
+      this.condition = xmpp.stanzaErrors.find(x => error.querySelector(x));
+      const text = error.querySelector('text');
+      this.text = text && text.textContent;
+    }
+
+    toString() {
+      return `Stanza error: ${this.condition} (${this.text})`;
+    }
+  };
+
+  const TimeoutError = class {
+    toString() {
+      return 'Timeout';
+    }
+  };
+
+  const Jid = class {
+    /**
+     * Construct a JID from components.
+     * @param node
+     * @param domain
+     * @param resource
+     */
+    constructor({node, domain, resource} = {}) {
+      this.node = String(node || '').toLowerCase();
+      this.domain = String(domain || '').toLowerCase();
+      this.resource = String(resource || '');
+    }
+
+    /**
+     * Parse a JID from its string representation.
+     *
+     * @param {string} jid
+     * @returns {Jid|boolean} Returns false for empty strings.
+     */
+    static parse(jid) {
+      const [,rawNode, domain, resource] = String(jid || '').match(/(?:(.*?)@)?(.*?)(?:\/(.*))?$/);
+      const node = this.decodeNode(rawNode || '');
+      return domain ? new this({node, domain, resource}) : false;
+    }
+
+    /**
+     * The escaped form of the node.
+     *
+     * @returns {string}
+     */
+    get rawNode() {
+      if (!this._rawNode) {
+        this._rawNode = this.constructor.encodeNode(this.node);
+      }
+      return this._rawNode;
+    }
+
+    /**
+     * The bare JID (without the resource).
+     *
+     * @returns {string}
+     */
+    get bare() {
+      if (!this._bare) {
+        this._bare = (this.node && this.rawNode + '@') + this.domain;
+      }
+      return this._bare;
+    }
+
+    /**
+     * The full JID string.
+     *
+     * @returns {string}
+     */
+    get full() {
+      if (!this._full) {
+        this._full = this.bare + (this.resource && '/' + this.resource);
+      }
+      return this._full;
+    }
+
+    /**
+     * Compare two JIDs.
+     *
+     * @param {Jid} jid
+     *
+     * @returns {boolean}
+     */
+    equals(jid) {
+      return String(this) === String(jid);
+    }
+
+    /**
+     * Compare the bare part of two JIDs.
+     *
+     * @param x
+     * @returns {boolean}
+     */
+    matchBare(x) {
+      if (!(x instanceof this)) x = this.constructor.parse(x);
+      return x ? this.bare === x.bare : false;
+    }
+
+    /**
+     * String representation.
+     *
+     * @returns {string}
+     */
+    toString() {
+      return this.full;
+    }
+
+    /**
+     * An alternative string representation for display (decoded node).
+     *
+     * @returns {string}
+     */
+    get print() {
+      if (!this._print) {
+        this._print = (this.node && this.node + '@') + this.domain;
+      }
+      return this._print;
+    }
+
+    /**
+     * Apply the nodeprep encoding defined by XEP-0106.
+     *
+     * This replaces a fixed set of metacharacters with backslashed hex codes.
+     *
+     * @param {string} node
+     * @returns {string}
+     */
+    static encodeNode(node) {
+      return node.replace(/[ "&'\/:<>@\\]/g, x => '\\' + x.charCodeAt(0).toString(16));
+    }
+
+    /**
+     * Apply the nodeprep encoding in reverse.
+     *
+     * This decodes exactly the escape sequences generated by the nodeprep encoding.
+     *
+     * @param {string} node
+     * @returns {string}
+     */
+    static decodeNode(node) {
+      return node.replace(/\\(2[0267f]|3[ace]|40|5c)/g, (_, x) => String.fromCharCode(parseInt(x, 16)));
+    }
+  };
+
+  const Connection = class {
+    /**
+     * Create a new connection.
+     *
+     * @param {string} url
+     *   The transport URL (either wss:// or https:// for BOSH).
+     * @param {Object} config
+     *   Configuration variables.
+     */
+    constructor({url, config = {}}) {
+      this.resource = createResourceName();
+      this.strophe = new Strophe.Connection(url);
+      this.strophe.rawInput = this.debugStream({color: 'green'});
+      this.strophe.rawOutput = this.debugStream({color: 'blue'});
+      //this.strophe.disco.addIdentity('client', 'web', 'cadence');
+      //features.forEach(x => this.strophe.disco.addFeature(x));
+      this.connected = false;
+      this.config = config;
+      this.connectionListeners = [];
+    }
+
+    addHandler({handler, ns, name, type, id, from, options}) {
+      return this.strophe.addHandler(handler, ns, name, type, id, from, options);
+    }
+
+    deleteHandler(reference) {
+      return this.strophe.deleteHandler(reference);
+    }
+
+    debugStream({color}) {
+      return e => {
+        if (this.config.debug) console.log('%c' + e, 'color:' + color);
+      };
+    }
+
+    connect({user, domain, password}) {
+      this.jid = new Jid({domain, node: user, resource: this.resource});
+      if (this.connected) {
+        throw new Error('Already connected.');
+      }
+      this.strophe.reset();
+
+      return new Promise((resolve, reject) => {
+        let resolved = false;
+        const callback = (status, error) => {
+          this.onConnectionChange(status, error);
+          if (!resolved) {
+            switch (status) {
+              case Strophe.Status.CONNECTED:
+                resolved = true;
+                return resolve(true);
+              case Strophe.Status.CONNFAIL:
+              case Strophe.Status.CONNTIMEOUT:
+              case Strophe.Status.DISCONNECTED:
+              case Strophe.Status.AUTHFAIL:
+                resolved = true;
+                return reject(new ConnectionError(status, error));
+            }
+          }
+        };
+        this.strophe.connect(String(this.jid), password, callback);
+      }).then(result => {
+        this.connected = result;
+      });
+    }
+
+    onConnectionChange(status, error) {
+      switch (status) {
+        case Strophe.Status.CONNECTED:
+          this.connected = true;
+          break;
+        case Strophe.Status.DISCONNECTED:
+          this.connected = false;
+          this.strophe.reset();
+      }
+      for (let listener of this.connectionListeners) {
+        listener(status, error);
+      }
+    }
+
+    /**
+     * Wrapper for $iq() that fills in the sender JID.
+     *
+     * @param {Object} attrs: Attributes of <iq>.
+     *                  - to: {JID}
+     *                  - type: (get, set, result, error)
+     *
+     * @return {Strophe.Builder}
+     */
+    iq(attrs) {
+      attrs.to = String(attrs.to);
+      const iq = $iq({from: this.jid}).attrs(attrs);
+      iq.send = () => new Promise((resolve, reject) => {
+        this.strophe.sendIQ(iq, resolve, reject, 10000);
+      }).catch(stanza => {
+        throw stanza ? new StanzaError(stanza) : new TimeoutError();
+      });
+      return iq;
+    }
+
+    /**
+     * Wrapper for $msg() that fills in the sender JID.
+     *
+     * @param {Object} attrs: Attributes of <message>.
+     *                  - to: {JID}
+     *                  - type: (chat, error, groupchat, headline, normal)
+     *
+     * @return {Strophe.Builder}
+     */
+    msg(attrs) {
+      attrs.to = String(attrs.to);
+      const msg = $msg({from: String(this.jid)}).attrs(attrs);
+      msg.send = () => this.strophe.send(msg);
+      return msg;
+    }
+
+    /**
+     * Wrapper for $pres() that fills in the sender JID.
+     *
+     * @param {Object} attrs: Attributes of <presence>.
+     *                  - to: {JID}
+     *                  - type: (error, unavailable)
+     *
+     * @return {Strophe.Builder}
+     */
+    pres(attrs) {
+      attrs.to = String(attrs.to);
+      const pres = $pres({from: String(this.jid)}).attrs(attrs);
+      // Only annotate untyped presence with a cap-hash.
+      //if (!attrs || !attrs.type) this.strophe.caps.caps(pres);
+      pres.send = () => this.strophe.send(pres);
+      return pres;
+    }
+
+    /**
+     * Create and send a presence stanza to the current room, with optional
+     * <show/> and <status/> elements.
+     * Note: To return from away-mode, a presence without <show/> is sent.
+     *
+     * @param {String} to
+     * @param {String} show This must be one of "away", "chat", "dnd", "xa" or null.
+     * @param {String} status This is an arbitrary status message.
+     */
+    setStatus({to, show, status}) {
+      const pres = this.pres({to});
+      if (show) pres.c('show', {}, show);
+      if (status) pres.c('status', {}, status);
+      return pres;
+    }
+
+    /**
+     * Create a message with a specified body.
+     *
+     * @param to
+     * @param body
+     * @param type
+     * @param meta
+     */
+    createMessage({to, body, type, meta}) {
+      const msg = this.msg({to, type});
+      const {text, html} = body;
+      if (text) {
+        msg.c('body', {}, text);
+      }
+      if (html) {
+        msg.c('html', {xmlns: Strophe.NS.XHTML_IM})
+        msg.c('body', {xmlns: Strophe.NS.XHTML});
+        const array = Array.from(html);
+        const nodes = array.length ? array : [html];
+        nodes.forEach(node => msg.cnode(node).up());
+        msg.up().up();
+      }
+      if (meta) {
+        msg.c('cadence', {xmlns: `cadence:meta`});
+        Object.forEach(meta, (key, value) => {
+          msg.c(key, {}, value);
+        });
+        msg.up();
+      }
+      return msg;
+    }
+  };
+
+  return {
+    Connection,
+    ConnectionError,
+    Jid,
+    StanzaError,
+    TimeoutError,
+  };
+});

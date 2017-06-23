@@ -744,7 +744,7 @@ const ui = {
    * @param {function} submit The callback that the completed form will be sent to.
    * @return {jQuery} The HTML form.
    */
-  dataForm(stanza, submit) {
+  dataForm(stanza, submit=null) {
     // The standard constructor turns <field var=?> into <input name=?>.
     const input = field => $('<input>').attr('name', field.attr('var'));
 
@@ -851,8 +851,16 @@ const ui = {
         const value = values[$(this).attr('data-type')]($(this));
         data[key] = value;
       });
-      submit(data);
+      form._submit(data);
     });
+    if (submit) {
+      form._submit = submit;
+    }
+    else {
+      form.submittedData = new Promise(resolve => {
+        form._submit = resolve;
+      });
+    }
 
     return form;
   },
